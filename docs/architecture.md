@@ -298,19 +298,42 @@ The infrastructure (DB factory, migrations, eval framework, MCP transport, idemp
 
 ## 9. Build sequence
 
-1. **Bare-out + schema** ✅ *done 2026-05-21 (branch `chore/bare-strip-jfa-port`)* — stripped per §7; §6 schema + fresh baseline migration; embedder → `openai/text-embedding-3-small`/1536; chunker retuned. Pipeline code that hit the old schema is stubbed with `TODO(step-N)` markers.
-2. **Storage adapter** — implement `CorpusWriteStore` + `CorpusSearchStore` + `FetchStateStore` over Postgres. (Reconcile the Embedder port shape here — see §4 note.)
-3. **Acquisition** — port registry + scraper-base + policy/robots/http-cache; output to `raw_documents`. Verify against fixtures (no live crawl needed for tests).
-4. **Ingestion** — port normalize/chunk/embed; consume `raw_documents`; idempotent `replaceDocument`. Verify dedup lifecycle.
-5. **Retrieval** — port `retrieve.ts` behind `CorpusSearchStore`; wire `RetrievalPolicy`. Re-point the eval harness at the real corpus.
-6. **Serving adapter** — re-attach MCP/HTTP over `Retriever`.
-7. **Corpus** — port the jesusfilm-ai source set; run a real ingest; record eval baseline.
+1. **Bare-out + schema** ✅ *done — clean root commit `acb2c62`* — §7 strip; §6 schema + baseline migration; embedder → `openai/text-embedding-3-small`/1536; chunker retuned. Legacy pipeline code stubbed with `TODO(step-N)` markers. **Enforcement scaffolding** also landed (commit `7a70fd5`): `src/contracts/` (ports + seam types), the per-context dir layout + `AGENT.md` fences, `.dependency-cruiser.cjs`, eslint `max-lines`, `src/main.ts` stub — depcruise/lint/typecheck green.
+2. **Storage adapter** — implement `CorpusWriteStore` + `CorpusSearchStore` + `FetchStateStore` in `src/adapters/postgres/`, wired in `src/main.ts`. (Reconcile the Embedder port shape here — see §4 note.)
+3. **Acquisition** — port registry + scraper-base + policy/robots/http-cache into `src/acquisition/`; `scripts/acquire.ts` writes `RawDocument`s to `raw_documents`. Verify against fixtures (no live crawl needed for tests).
+4. **Ingestion** — port normalize/chunk/embed into `src/ingestion/`; `scripts/index.ts` drains `raw_documents` → idempotent `replaceDocument`. Verify the dedup lifecycle.
+5. **Retrieval** — port `retrieve.ts` into `src/retrieval/` behind `CorpusSearchStore`; wire `RetrievalPolicy`.
+6. **Serving adapter** — re-attach MCP/HTTP in `src/serving/` over an injected `Retriever`.
+7. **Bootstrap the corpus + eval** *(the deliverable)* — once 2–4 exist, `pnpm acquire --all && pnpm index` populates the full corpus from sources; then re-point the eval harness at it and record the baseline. **The corpus is buildable the moment step 4 lands; 5–6 make it queryable.** How the runners are triggered: §10.
 
-Establish the §5 enforcement scaffolding (`contracts/`, dir layout, `.dependency-cruiser.cjs`, lint caps, per-context `AGENT.md`) **before step 2** — it must be in place before the porting steps that carry coupling risk. Each step is independently verifiable, which is the whole reason for the seams.
+Critical path to a delivered, queryable RAG: **2 → 3 → 4 → bootstrap → 5 → 6**. Each step is independently verifiable — the reason for the seams. Step 1's §5 enforcement scaffolding is already in place, so every porting step lands under the import law + size caps from the first line.
 
 ---
 
-## 10. Deferred follow-ups (tickets)
+## 10. Operational model — corpus build & refresh
+
+The corpus is rebuilt **from sources by code**, not restored from a blob — this *is* the reproducibility guarantee: anyone can reconstruct the full corpus from scratch, and it doubles as the disaster-recovery runbook (closing the gap that left the original corpus trapped in a Railway Postgres).
+
+**The unit of work — two CLI runners** (thin entry points that call `main.wire()` for adapter-injected contexts, keeping adapter construction centralized in the composition root):
+- `scripts/acquire.ts` → drives **Acquisition**: iterate the source registry, fetch + extract each source per its crawl policy (robots, http-cache, delay), write `RawDocument`s to `raw_documents`. `pnpm acquire --all` | `--source <key>`.
+- `scripts/index.ts` → drives **Ingestion**: drain `raw_documents` → normalize → chunk → embed → idempotent write. `pnpm index`.
+
+**Triggers, by phase:**
+
+| Phase | Trigger | Notes |
+|---|---|---|
+| **Bootstrap** (full corpus — the deliverable) | one-off `pnpm acquire --all && pnpm index`, locally or as a Railway one-off job | one-time crawl-everything; populates the corpus from scratch |
+| **Recurring refresh** | a **Railway cron service** running the two scripts on a schedule (e.g. weekly) | crawl is long-running, stateful (http-cache/robots/dedup live in the DB), DB-adjacent; re-runs are cheap — conditional fetch + content-hash dedup skip unchanged pages, only changed articles re-embed |
+| **Quality gates + deploy** | **GitHub Actions** | `depcruise`/`lint`/`typecheck`/`test` on PRs + deploy the Serving (MCP) container — **not crawling** |
+| **On-demand re-index** (optional) | `workflow_dispatch` GH Action that kicks the Railway job | convenience for manual refreshes |
+
+**Why Railway cron, not GitHub Actions, for the crawl:** the crawl needs the Postgres-resident http-cache/robots/dedup state, runs long, and holds DB credentials — all favor a job in the DB's own network over an ephemeral CI runner (whose IPs also get blocked by sites).
+
+**Sequencing for delivery:** the recurring cron and the eval baseline are *deferrable* — do the bootstrap run manually first to ship the corpus, then automate refresh and author evals. The bootstrap run is what delivers.
+
+---
+
+## 11. Deferred follow-ups (tickets)
 
 - **FOLLOW-UP A — retrieval `minScore` quality.** 0.3 is ported verbatim but is almost certainly too low (Jaco's own RAGs ran ~0.85; <0.70 is noise). After step 7's eval baseline exists, re-derive the real cutoff from the harness. Owner: TBD.
 - **FOLLOW-UP B — hybrid search.** jfa's hot path is vector-only (FTS exists but is unqueried). Forge uses RRF fusion. Keep `keywordSearch` as an optional port now; evaluate RRF hybrid against the harness later.

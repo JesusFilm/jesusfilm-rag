@@ -1,0 +1,61 @@
+/**
+ * Document shapes that cross the Acquisition → Ingestion → storage seams.
+ * Types only — no runtime, no I/O. See docs/architecture.md §2.
+ */
+
+/** HTTP-level fetch metadata. `bodyHash` is the re-fetch identity (distinct from a document's contentHash). */
+export interface FetchMeta {
+  status: number | null;
+  bodyHash: string; // sha256(response body)
+  etag: string | null;
+  lastModified: string | null;
+  fetchedAt: string; // ISO-8601
+  notModified: boolean;
+}
+
+/**
+ * Acquisition → Ingestion handoff. Fetched + extracted via source selectors,
+ * but NOT cleaned, tagged, or chunked. Persisted as a `raw_documents` row.
+ */
+export interface RawDocument {
+  sourceKey: string;
+  url: string;
+  canonicalUrl: string; // normalizeUrl() — the dedup identity
+  title: string | null;
+  rawContent: string; // extracted main text, not cleaned
+  fetch: FetchMeta;
+}
+
+/** Cleaned + classified document, ready to chunk. Internal to Ingestion. */
+export interface NormalizedDocument {
+  sourceKey: string;
+  source: string; // bare domain (attribution)
+  canonicalUrl: string;
+  title: string | null;
+  content: string; // cleaned
+  language: string;
+  category: string;
+  tags: string[];
+  contentHash: string; // sha256(`${title}\n\n${content}`) — chunk-dedup gate
+  metadata: Record<string, unknown>;
+}
+
+/** One chunk with its embedding, ready to persist. */
+export interface EmbeddedChunk {
+  ord: number; // position within the document
+  text: string;
+  charStart: number;
+  charEnd: number;
+  tokenCount: number;
+  tags: string[];
+  embedding: number[];
+  embeddingModel: string;
+}
+
+/** Source attribution attached to every retrieval result. */
+export interface Citation {
+  sourceKey: string;
+  sourceName: string;
+  title: string | null;
+  url: string; // canonicalUrl
+}

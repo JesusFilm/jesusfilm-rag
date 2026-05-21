@@ -70,9 +70,9 @@ module.exports = {
     {
       name: "tests-never-touch-adapters",
       comment:
-        "Unit tests run on fakes; a test importing a real adapter is a coupling bug.",
+        "Context/unit tests run on fakes — they may not import a real adapter. (An adapter's own co-located *.test.ts integration test is exempt.)",
       severity: "error",
-      from: { path: "\\.test\\.ts$" },
+      from: { path: "\\.test\\.ts$", pathNot: "^src/adapters/" },
       to: { path: "^src/adapters/" },
     },
   ],

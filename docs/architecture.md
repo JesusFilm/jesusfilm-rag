@@ -2,6 +2,19 @@
 
 _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, production-quality retrieval service. It rebuilds the proven RAG logic from jesusfilm-ai into three clean bounded contexts (Acquisition / Ingestion / Retrieval) behind ports. We follow jesusfilm-ai's **behavior**, not its file structure or its persistence warts. The router/crisis/scope layer and all LLM generation are **out of scope** — they are caller-side concerns (a Mastra agent, NextSteps, the monorepo)._
 
+## Resuming the build (start here)
+
+**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`). **Step 1 is done; step 2 (storage adapter) is next** — see §9.
+
+**To resume cold (a fresh agent, no prior chat context):**
+1. Read `AGENT.md`, then this doc — §9 for the step list, §2 + §4 for the contracts you implement, §5 for the boundary law.
+2. Confirm the green baseline: `pnpm depcruise && pnpm lint && pnpm typecheck`.
+3. The behavioral source of truth for the porting steps is the **jesusfilm-ai** repo (the RAG this is based on); §8 maps which of its files feed each context. Step 2 is mostly self-contained — implement the contract ports over the schema in `src/db/schema.ts` — and needs little from it.
+4. **Testing:** contexts get fakes-only unit tests (no DB, no network); an **adapter** gets its own co-located `*.test.ts` integration test against the docker-compose Postgres (`docker compose up -d`).
+5. **Git:** local `main` is an orphan root that intentionally diverged from `origin/main` — do not force-push without intent.
+
+---
+
 ## Locked decisions (2026-05-21)
 
 | # | Decision | Choice |

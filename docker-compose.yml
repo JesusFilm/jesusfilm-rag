@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: jesusfilm-rag-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jesusfilm_rag
+      POSTGRES_PASSWORD: jesusfilm_rag_dev
+      POSTGRES_DB: jesusfilm_rag
+    ports:
+      # Host 5434 -> container 5432 (non-default host port to avoid local collisions).
+      - "5434:5432"
+    volumes:
+      - jesusfilm-rag-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "jesusfilm_rag", "-d", "jesusfilm_rag"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  jesusfilm-rag-pgdata:

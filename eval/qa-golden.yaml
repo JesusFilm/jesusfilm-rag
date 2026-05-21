@@ -1,0 +1,19 @@
+# Hand-authored QA pairs for the corpus. Each case is judged correct if a
+# top-k semantic_search hit comes from one of the listed `expected_doc_paths`
+# or matches one of `expected_url_contains`. Doc-path matching is preferred —
+# it survives re-indexing without depending on chunk-id stability.
+#
+# Schema (consumed by scripts/eval.ts):
+#
+#   cases:
+#     - id: short-stable-id            # required, unique
+#       question: "natural-language question"   # required
+#       expected_doc_paths:            # optional; at least one matcher required
+#         - "articles/example.md"
+#       expected_url_contains:         # optional; substring match against doc URL
+#         - "example.org/article"
+#
+# Keep questions natural-language — this set is the user-facing surface contract.
+# Cases are authored once the real corpus is ingested (see docs/architecture.md §9 step 7).
+
+cases: []

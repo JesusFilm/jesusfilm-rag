@@ -1,0 +1,19 @@
+services:
+  workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - jesusfilm-rag-pnpm-store:/home/node/.local/share/pnpm/store
+    working_dir: /workspace
+    command: sleep infinity
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Inside the compose network, talk to postgres by service name.
+      DATABASE_URL: postgresql://jesusfilm_rag:jesusfilm_rag_dev@postgres:5432/jesusfilm_rag
+
+volumes:
+  jesusfilm-rag-pnpm-store:

@@ -1,0 +1,2 @@
+# Corpus root. One subdirectory per source, each with a source.yaml.
+# Empty until sources are added (see README → Corpus model, and docs/architecture.md §9 step 7).

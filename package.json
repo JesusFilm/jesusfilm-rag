@@ -1,0 +1,38 @@
+{
+  "name": "jesusfilm-rag",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Retrieval system serving biblically aligned content to JFP systems via MCP. Read-only retrieval over a curated corpus.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "index": "tsx scripts/index.ts",
+    "serve": "tsx scripts/serve.ts",
+    "eval": "tsx scripts/eval.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9",
+    "yaml": "^2.7.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9.18.0",
+    "@eslint/js": "^9.18.0",
+    "typescript-eslint": "^8.21.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

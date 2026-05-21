@@ -19,8 +19,6 @@ import YAML from "yaml";
 import { z } from "zod";
 import { getEnv } from "@/env.js";
 import { closeDb } from "@/db/index.js";
-import { EMBEDDING_DIMS } from "@/db/schema.js";
-import { OpenRouterEmbedder } from "@/embedder.js";
 
 const GoldenCaseSchema = z.object({
   id: z.string(),
@@ -60,12 +58,6 @@ async function main(): Promise<void> {
   );
   const golden = GoldenFileSchema.parse(YAML.parse(goldenRaw));
 
-  const embedder = new OpenRouterEmbedder({
-    apiKey: env.OPENROUTER_API_KEY,
-    modelId: env.EMBED_MODEL_ID,
-    expectedDimensions: EMBEDDING_DIMS,
-  });
-
   if (golden.cases.length === 0) {
     console.log(
       "eval/qa-golden.yaml has no cases — nothing to run. Author cases once the corpus is ingested (port build step 7).",
@@ -79,7 +71,7 @@ async function main(): Promise<void> {
   );
   const results: CaseResult[] = [];
   for (const c of golden.cases) {
-    const hits = await runOne(c.question, embedder);
+    const hits = await runOne(c.question);
     const matchedRank = firstMatchingRank(hits, c);
     results.push({ case: c, hits, matchedRank });
     const tick = matchedRank !== null ? "✓" : "✗";
@@ -102,25 +94,17 @@ async function main(): Promise<void> {
 }
 
 /**
- * STUBBED during the port (step 1). The previous body ran a cosine vector query
- * joining the old MVP schema (documents keyed by file `path`). The new query
- * path is the Retrieval context behind the CorpusSearchStore port — rebuilt in
- * build step 5, at which point this harness is re-pointed at the real corpus.
+ * STUBBED until build step 5. The query path is the Retrieval context behind the
+ * CorpusSearchStore port; once it lands, this harness is re-pointed at the real
+ * corpus.
  *
- * TODO(step-5): replace with a call into the Retrieval library (embedQuery →
+ * TODO(step-5): call into the Retrieval library (embedQuery →
  *               CorpusSearchStore.vectorSearch → rank), mapping results to Hit[]
- *               (chunkId / docPath / docUrl / score). Use `canonical_url` or a
- *               new `expected_*` matcher since documents no longer carry `path`.
- *
- * The embedder is constructed for the dimension/auth guard but not yet used;
- * referencing it keeps the call site stable for step 5.
+ *               (chunkId / docPath / docUrl / score). Match on `canonical_url`
+ *               or a new `expected_*` matcher.
  */
-async function runOne(
-  question: string,
-  embedder: OpenRouterEmbedder,
-): Promise<Hit[]> {
+async function runOne(question: string): Promise<Hit[]> {
   void question;
-  void embedder;
   throw new Error(
     "eval runOne: Retrieval not implemented — rebuilt in port build step 5. See scripts/eval.ts.",
   );

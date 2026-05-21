@@ -1,7 +1,11 @@
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { DEFAULT_EMBED_MODEL_ID } from "@/embedder.js";
+
+// Default embedding model — see docs/architecture.md (decision 1). The Embedder
+// adapter (src/adapters/openrouter) will own the canonical client; this is only
+// the env default, so EMBED_MODEL_ID can be omitted.
+const DEFAULT_EMBED_MODEL_ID = "openai/text-embedding-3-small";
 
 /**
  * Load `.env` from the repo root if present. We deliberately do NOT use

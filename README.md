@@ -22,23 +22,9 @@ Read-only retrieval over a curated, publicly accessible corpus. Consumers do the
 - **OpenRouter** — embedding provider. Model `openai/text-embedding-3-small` (1536d), recorded per row so it can be swapped without losing history.
 - **MCP server** — the read-only Streamable HTTP surface other systems call.
 
-## Corpus model — adding sources
+## Sources & corpus
 
-Every consumable piece of content lives under `corpus/<source-name>/` and is described by a single `source.yaml`. Adding a source:
-
-1. **Create the directory** `corpus/<source-name>/` with content files (markdown, text, transcripts).
-2. **Declare metadata** in `source.yaml`:
-   ```yaml
-   name: "Example Source"
-   url: "https://example.org/"
-   license: "CC-BY-4.0"
-   description: "Public-facing material used by consuming systems."
-   tags: [media:text, audience:public, topic:evangelism, lang:en]
-   ```
-   Tags are namespaced (`namespace:value`): `media:` (`text`/`video`/`audio`/`image`), `audience:` (who may see it), `topic:` (subject), `lang:` (BCP-47).
-3. **Re-index.** Ingestion hashes content per source, deletes stale chunks for changed sources, and re-embeds. Re-running over unchanged content is a no-op.
-
-A source with no `source.yaml` is rejected — there is no implicit metadata.
+Sources are defined in the **source registry** (`src/registry`) — each entry carries its domain, crawl policy, default tags (`media:`/`audience:`/`topic:`/`lang:`), trust level, and languages. There is no local corpus directory: the corpus is **built from sources by code**. Acquisition crawls each source per its policy into the `raw_documents` staging table; Ingestion normalizes → chunks → embeds into the corpus tables. Re-runs are idempotent and source-scoped — unchanged pages are skipped. See [`docs/architecture.md`](./docs/architecture.md) §3 and §10.
 
 ## Access & filtering (two layers)
 
@@ -58,11 +44,10 @@ Token scopes live in Railway env on the MCP service, issued one per consumer, ro
 cp .env.example .env
 docker compose up -d        # pgvector/pgvector:pg16, host port 5434
 pnpm install
-pnpm db:migrate
-pnpm serve                  # boots the MCP transport
+pnpm db:migrate             # schema + migrations are live
 ```
 
-The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. Until Acquisition/Ingestion/Retrieval land, `pnpm index` / `pnpm eval` / the MCP search tools are stubbed (they carry `TODO(step-N)` markers); the transport, auth, schema, and migrations are live.
+The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. Until the contexts land, `pnpm index` / `pnpm serve` / `pnpm eval` are stubbed (they carry `TODO(step-N)` markers); the schema, migrations, env, and devcontainer are live.
 
 ### Scripts
 | Script | What it does |
@@ -70,7 +55,7 @@ The pipeline is being built out per [`docs/architecture.md`](./docs/architecture
 | `pnpm db:generate` | Regenerate migrations from `src/db/schema.ts`. |
 | `pnpm db:migrate` | Apply migrations + pgvector + generated FTS column. |
 | `pnpm index` | Ingestion pipeline. **Stubbed** pending build steps 2 & 4 (consumes `raw_documents`, idempotent + source-scoped). |
-| `pnpm serve` | Boot the MCP server. Transport + auth work; search tools throw until Retrieval lands (steps 5–6). |
+| `pnpm serve` | **Stubbed** — the Serving (MCP) adapter is rebuilt in step 6 over an injected `Retriever`. |
 | `pnpm eval` | Run `eval/qa-golden.yaml` (recall@k, MRR). Harness kept; query path **stubbed** until Retrieval (step 5). |
 | `pnpm depcruise` / `pnpm lint` / `pnpm typecheck` / `pnpm test` | Quality + boundary gates. |
 
@@ -81,7 +66,7 @@ Operational rules that **must** be followed when an agent works in this repo:
 - **Read `AGENT.md` first**, then `docs/architecture.md` §5 for the boundary law.
 - **Boundaries are enforced, not advisory** — `dependency-cruiser` + eslint caps fail the build on a cross-context import, an adapter touched outside `main.ts`, or an oversized file. Do not work around them; fix the design.
 - **Only Ingestion writes corpus rows.** Never have an MCP tool, ad-hoc script, or agent task write to Postgres directly.
-- **Only public content belongs in `corpus/`.** Restricted source? It does not belong here — stop and ask.
+- **Only public content enters the corpus.** A restricted source does not belong here — stop and ask.
 - **Re-indexing is idempotent and source-scoped** (delete-then-insert in one transaction). Do not invent partial-update mechanisms.
 - **Embedding model is recorded per row.** Don't silently change it — add a new model row, then migrate.
 - **No write surface on the MCP server.**
@@ -89,4 +74,4 @@ Operational rules that **must** be followed when an agent works in this repo:
 
 ## Status
 
-Clean-slate rebuild started **2026-05-21**: porting the proven jesusfilm-ai RAG into three bounded contexts behind ports (see [`docs/architecture.md`](./docs/architecture.md)). Build step 1 (bare-out + normalized schema + embedder + chunker) has landed; Acquisition, Ingestion, and Retrieval are built in subsequent steps. Kept from the foundation: Postgres + Drizzle + migrate runner, devcontainer, Zod env, the eval harness framework, source-scoped idempotent reindex, and the MCP transport + bearer/scope auth.
+Clean-slate rebuild started **2026-05-21**: porting the proven jesusfilm-ai RAG into three bounded contexts behind ports (see [`docs/architecture.md`](./docs/architecture.md)). Landed so far: the normalized schema + migrations, the embedding-model decision (`openai/text-embedding-3-small`, 1536d, in env + schema), and the §5 enforcement scaffolding (`src/contracts`, dir layout, `dependency-cruiser`, lint caps). The legacy MVP implementations (source walker, chunker, embedder, MCP server) were stripped — Acquisition, Ingestion, Retrieval, and Serving are rebuilt fresh from jesusfilm-ai in the porting steps. Kept: Postgres + Drizzle + migrate runner, devcontainer, Zod env, the eval harness framework.

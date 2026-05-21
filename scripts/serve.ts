@@ -1,22 +1,18 @@
+/**
+ * Serve CLI — STUBBED until build step 6 (the Serving adapter).
+ *
+ *   pnpm serve
+ *
+ * The MCP transport + auth is rebuilt in src/serving/ over an injected Retriever
+ * (which lands in step 5). See docs/architecture.md §3 (serving) and §9.
+ */
 import "@/env.js";
-import { getEnv } from "@/env.js";
-import { closeDb } from "@/db/index.js";
-import { createMcpServer, startHttpServer } from "@/mcp/server.js";
 
 async function main(): Promise<void> {
-  const env = getEnv();
-  const server = createMcpServer();
-  const http = startHttpServer(server, env.MCP_PORT);
-
-  const shutdown = async (sig: string): Promise<void> => {
-    console.log(`\n${sig} received — shutting down`);
-    http.close();
-    await server.close();
-    await closeDb();
-    process.exit(0);
-  };
-  process.on("SIGINT", () => void shutdown("SIGINT"));
-  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  console.error(
+    "serve: not implemented — the Serving (MCP) adapter is rebuilt in port build step 6. See docs/architecture.md §9.",
+  );
+  process.exit(1);
 }
 
 main().catch((err: unknown) => {

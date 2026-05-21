@@ -34,10 +34,10 @@ No context imports another context. No context or serving imports a concrete ada
 - **Dependency injection, one composition root.** No module-level singletons, no top-level `new Adapter()`. Contexts receive ports as arguments.
 - **Fakes-only unit tests.** Each port has an in-memory fake; context tests run with no Postgres and no network. A test that needs a real adapter is a coupling bug.
 - **File-size cap** (eslint `max-lines` ≈ 300). When a file mixes responsibilities, split it.
-- **Every source has a `source.yaml`.** No implicit metadata; a source missing it is rejected.
+- **Sources are defined in the code registry** (`src/registry`), not local files — each entry carries domain, crawl policy, default tags, trust, and languages.
 - **Access is by `audience:` tag + per-consumer token scope**, not directory location. Default `audience:public`; anything more restricted must be tagged.
 - **Read-only at the MCP boundary.** Any write surface is a separate internal tool, never exposed via MCP. Only Ingestion writes corpus rows.
 - **Re-indexing is idempotent and source-scoped:** stale chunks for a changed source are deleted and replaced in the same transaction.
 - **Embedding model recorded per row** (`chunk_embeddings.embedding_model`). Don't silently change it — add a new model row, then migrate.
-- **Confirm before destructive ops** (dropping tables, deleting corpus subdirs, force-pushing).
+- **Confirm before destructive ops** (dropping tables, deleting sources, force-pushing).
 - Defer to `~/Jaxs/CLAUDE.md` for workspace-wide conventions (gh account, tone, decision hierarchy).

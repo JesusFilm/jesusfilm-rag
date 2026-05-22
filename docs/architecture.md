@@ -4,7 +4,7 @@ _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, produc
 
 ## Resuming the build (start here)
 
-**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`) → Postgres storage adapter + in-memory fakes (step 2). **Steps 1–2 are done; step 3 (Acquisition) is next** — see §9.
+**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`) → Postgres storage adapter + in-memory fakes (step 2). **Steps 1–2 are done.** Live status + the single next action now live in **[docs/STATUS.md](./STATUS.md)** — the churn layer this design doc deliberately stays out of. We build in **vertical per-source slices** (acquire → ingest → retrieve → spot-check, one source at a time), which refines §9's horizontal order without changing the module boundaries or ports below.
 
 **To resume cold (a fresh agent, no prior chat context):**
 1. Read `AGENT.md`, then this doc — §9 for the step list, §2 + §4 for the contracts you implement, §5 for the boundary law.

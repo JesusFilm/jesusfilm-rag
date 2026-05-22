@@ -48,7 +48,7 @@ time — we acquire and evaluate each one fresh and record the outcome here.
 | Jesus Film Project | https://www.jesusfilm.org | HTML | Not started | — | — |
 | Cru | https://www.cru.org | HTML | Not started | — | — |
 | EveryStudent | https://www.everystudent.com | HTML | Not started | — | — |
-| Starting With God | https://www.startingwithgod.com | HTML | Not started | — | — |
+| Starting With God | https://www.startingwithgod.com | HTML | Acquiring | — | Slice #1 (`slice/starting-with-god`). Acquire scope: bare fetch + polite delay; robots/http-cache deferred. Seed-list page discovery. |
 | Sightline Ministry | https://sightlineministry.org | HTML | Not started | — | — |
 | NextStep | https://nextstep.is | HTML | Not started | — | — |
 

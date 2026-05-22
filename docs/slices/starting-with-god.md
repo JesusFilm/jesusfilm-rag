@@ -36,8 +36,13 @@ spot-check. As slice #1 it also builds the first real path through each context
 
 **Stage 3 (Retrieve) complete — verify green (61 tests, incl. live-DB retrieval integration). `pnpm query` returns ranked + cited hits; the integration test proves real data out of the RAG store. Per-document dedup confirmed (5 hits = 5 distinct URLs). Scores cluster ~0.55 — minScore 0.3 is generous (FOLLOW-UP A: re-derive from the eval baseline in Stage 4).**
 
-### 4. Spot-check
-- [ ] A handful of representative queries return relevant chunks (operator eyeballs); record findings in `sources.md`.
+### 4. Precise eval + spot-check
+_(Scope confirmed by operator 2026-05-22: precise eval + tuning belongs here, not Stage 3. Stage 3 carries only the basic retrieve-over-real-store integration test, now done.)_
+- [ ] Author golden cases in `eval/qa-golden.yaml` (~8–10 questions grounded in the 40 Starting With God articles; `expected_url_contains` per case). Currently `cases: []`.
+- [ ] Run `pnpm eval` → recall@3 / recall@8 / MRR / precision@1 baseline; writes `eval/results-<date>.md`.
+- [ ] Re-derive `minScore` from the baseline (FOLLOW-UP A — 0.3 is too low; live scores cluster ~0.55). Decide the real cutoff and where it lives (policy default vs. per-call).
+- [ ] Spot-check: a handful of representative `pnpm query` calls, operator eyeballs relevance.
+- [ ] Record findings in `sources.md` (→ Evaluated) with concrete `Results`.
 
 ## Decisions made (this slice)
 - 2026-05-22 — Source #1 = Starting With God — leanest of the six (44 KB / ~723 words home), server-rendered HTML, no anti-bot wall (STATUS recon).
@@ -56,13 +61,16 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none. (Embedding-model divergence is resolved — corpus is on `openai/text-embedding-3-small`.)
 
 ## Resume hint (for a cold start)
-At: **Stage 4 (Spot-check) — not started.** Stages 1–3 are done: the corpus (40
-docs / 183 chunks / 183 embeddings, `openai/text-embedding-3-small`) is now
-**queryable** via `src/retrieval/` + `pnpm query "<q>"` (and `pnpm eval` once
-golden cases exist). Next concrete action: run a handful of representative
-queries through `pnpm query`, eyeball relevance, and record findings in
-`sources.md` (→ Evaluated). Then the slice is done — offer to merge
-`slice/starting-with-god` into `main`. Last verify: green @ Stage 3 complete
-(depcruise/typecheck/lint, 59 tests; live query "How can I begin a relationship
-with God?" → 5 distinct cited docs, scores 0.54–0.59). Branch:
+At: **Stage 4 (Precise eval + spot-check) — not started; paused here by operator
+2026-05-22 with all of Stages 1–3 committed.** The corpus (40 docs / 183 chunks
+/ 183 embeddings, `openai/text-embedding-3-small`) is **queryable**: Retrieval
+context built + wired, `pnpm query "<q>"` works, and a live-DB integration test
+(`tests/retrieval.integration.test.ts`) proves real ranked+cited rows out of the
+store. Next concrete action: author golden cases in `eval/qa-golden.yaml` (still
+`cases: []`), run `pnpm eval` for a recall@k/MRR baseline, re-derive `minScore`
+(FOLLOW-UP A — 0.3 too low, scores ~0.55), spot-check via `pnpm query`, then
+record `sources.md` → Evaluated and offer to merge `slice/starting-with-god`.
+Last verify: green @ Stage 3 complete (depcruise/typecheck/lint, **61 tests**
+incl. 2 live-DB retrieval integration; live query "How can I begin a
+relationship with God?" → 5 distinct cited docs, scores 0.54–0.59). Branch:
 slice/starting-with-god.

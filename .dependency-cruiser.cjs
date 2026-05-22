@@ -60,6 +60,22 @@ module.exports = {
       to: { path: "^src/(?!(contracts|adapters)/)" },
     },
     {
+      name: "fakes-import-only-contracts",
+      comment:
+        "Fakes are pure port doubles — they implement contract interfaces and import nothing else internal.",
+      severity: "error",
+      from: { path: "^src/fakes/" },
+      to: { path: "^src/(?!(contracts|fakes)/)" },
+    },
+    {
+      name: "fakes-are-test-only",
+      comment:
+        "In-memory fakes are test doubles; only *.test.ts (and other fakes) may import them — never production code or main.",
+      severity: "error",
+      from: { path: "^src/", pathNot: "(\\.test\\.ts$|^src/fakes/)" },
+      to: { path: "^src/fakes/" },
+    },
+    {
       name: "only-main-is-the-root",
       comment:
         "Nothing imports the composition root; main wires dependencies, it is not one.",

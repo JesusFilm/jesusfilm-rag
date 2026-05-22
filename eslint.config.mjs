@@ -31,6 +31,7 @@ export default tseslint.config(
       "src/ingestion/**/*.ts",
       "src/retrieval/**/*.ts",
       "src/adapters/**/*.ts",
+      "src/fakes/**/*.ts",
       "src/serving/**/*.ts",
       "src/main.ts",
     ],

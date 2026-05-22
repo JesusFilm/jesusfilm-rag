@@ -9,8 +9,8 @@
  * sha256(response body) — the re-fetch identity, distinct from any contentHash.
  */
 import { createHash } from "node:crypto";
-import type { Fetcher, RawDocument } from "@/contracts/index.js";
-import type { SourceEntry } from "@/registry/index.js";
+import type { Fetcher, RawDocument, RawDocumentStore } from "@/contracts/index.js";
+import { type SourceEntry, seedUrls } from "@/registry/index.js";
 import { extractContent } from "./extract.js";
 import { normalizeUrl } from "./normalize-url.js";
 
@@ -56,4 +56,55 @@ export async function acquireOne(
     },
   };
   return { ok: true, doc };
+}
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export interface AcquireSummary {
+  sourceKey: string;
+  attempted: number;
+  written: number;
+  skipped: Record<SkipReason, number>;
+}
+
+export interface AcquireDeps {
+  fetcher: Fetcher;
+  store: RawDocumentStore;
+}
+
+/**
+ * Acquire one source end-to-end: walk its seed URLs (capped at maxPages) with a
+ * polite requestDelayMs between fetches, acquireOne each, stage the ok docs via
+ * the injected RawDocumentStore, and tally outcomes. Ports are injected — no
+ * adapter is constructed here. `onProgress` lets the runner stream live lines.
+ */
+export async function acquireSource(
+  deps: AcquireDeps,
+  entry: SourceEntry,
+  opts: { onProgress?: (line: string) => void } = {},
+): Promise<AcquireSummary> {
+  const urls = seedUrls(entry).slice(0, entry.crawl.maxPages);
+  const summary: AcquireSummary = {
+    sourceKey: entry.key,
+    attempted: 0,
+    written: 0,
+    skipped: { "fetch-failed": 0, "not-modified": 0, "too-thin": 0 },
+  };
+
+  for (let i = 0; i < urls.length; i++) {
+    if (i > 0 && entry.crawl.requestDelayMs > 0) await sleep(entry.crawl.requestDelayMs);
+    const url = urls[i];
+    summary.attempted++;
+    const out = await acquireOne(deps.fetcher, entry, url);
+    if (out.ok) {
+      await deps.store.putRawDocument(out.doc);
+      summary.written++;
+      opts.onProgress?.(`  ✓ ${url}  (${out.doc.rawContent.length} chars)`);
+    } else {
+      summary.skipped[out.reason]++;
+      opts.onProgress?.(`  ⤫ ${url}  — ${out.reason} (status ${out.status ?? "—"})`);
+    }
+  }
+  return summary;
 }

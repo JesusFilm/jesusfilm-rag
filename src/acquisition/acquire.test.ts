@@ -9,8 +9,13 @@ import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { FetchResult } from "@/contracts/index.js";
 import type { SourceEntry } from "@/registry/index.js";
-import { FakeFetcher } from "@/fakes/index.js";
-import { acquireOne, extractContent, normalizeUrl } from "./index.js";
+import { FakeFetcher, FakeRawDocumentStore } from "@/fakes/index.js";
+import {
+  acquireOne,
+  acquireSource,
+  extractContent,
+  normalizeUrl,
+} from "./index.js";
 
 const PAGE = `<!doctype html><html><head><title>The Nature of Faith | Starting With God</title></head>
 <body>
@@ -145,5 +150,45 @@ describe("acquireOne", () => {
       ok: false,
       reason: "too-thin",
     });
+  });
+});
+
+describe("acquireSource", () => {
+  const multi: SourceEntry = {
+    ...entry,
+    crawl: {
+      ...entry.crawl,
+      baseUrl: "https://t.example",
+      requestDelayMs: 0, // no real waiting in tests
+      seedPaths: ["/a.html", "/b.html", "/missing.html"],
+    },
+  };
+
+  it("walks seed URLs, stages ok docs, and tallies skips", async () => {
+    const fetcher = new FakeFetcher({
+      "https://t.example/a.html": ok(PAGE),
+      "https://t.example/b.html": ok(PAGE),
+      // /missing.html unseeded → FakeFetcher returns 404 → fetch-failed
+    });
+    const store = new FakeRawDocumentStore();
+
+    const summary = await acquireSource({ fetcher, store }, multi);
+
+    expect(summary.attempted).toBe(3);
+    expect(summary.written).toBe(2);
+    expect(summary.skipped["fetch-failed"]).toBe(1);
+    expect(store.count()).toBe(2);
+    expect(store.bySourceKey("test-src").map((d) => d.canonicalUrl).sort()).toEqual([
+      "https://t.example/a.html",
+      "https://t.example/b.html",
+    ]);
+  });
+
+  it("honors maxPages as a hard cap", async () => {
+    const capped: SourceEntry = { ...multi, crawl: { ...multi.crawl, maxPages: 1 } };
+    const fetcher = new FakeFetcher({ "https://t.example/a.html": ok(PAGE) });
+    const summary = await acquireSource({ fetcher, store: new FakeRawDocumentStore() }, capped);
+    expect(summary.attempted).toBe(1);
+    expect(summary.written).toBe(1);
   });
 });

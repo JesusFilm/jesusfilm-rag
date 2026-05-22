@@ -15,8 +15,8 @@ spot-check. As slice #1 it also builds the first real path through each context
 - [x] `RawDocumentStore` write port + in-memory fake + Postgres adapter, wired in main; integration test writes/reads a `raw_documents` row. Idempotent per (source_key, canonical_url) so re-runs don't duplicate.   <!-- sha: 01cfd8b -->
 - [x] Registry: `SourceEntry`/`CrawlPolicy` pure-data types + Starting With God entry (40 article seed paths, `#content` selector + strip list, 1500ms delay, maxPages 60) + lookups (getSource/allSources/seedUrls); pure unit test.   <!-- sha: a3fa409 -->
 - [x] Acquisition context: `normalizeUrl()` (invariant 2 — strip fragments + tracking params, lowercase host, trim trailing slash), thin HTML extraction (node-html-parser; select `#content`, strip nav/sidebar/footer, decode entities, paragraph-preserving), `acquireOne` (fetch → extract → `RawDocument` w/ sha256 bodyHash, typed skips); fakes-only unit tests + real-fixture probe (clean 5698-char extraction).   <!-- sha: 3be1c4a -->
-- [x] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, 304→not-modified, body returned for hashing); wired in main; co-located stubbed-fetch unit test.   <!-- sha: next -->
-- [ ] `scripts/acquire.ts` + `pnpm acquire --source <key>`: wires Acquisition with Fetcher + RawDocumentStore + registry, iterates seed URLs with the polite delay, writes RawDocuments. Typecheck + dry wire-up green.   <!-- sha: ________ -->
+- [x] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, 304→not-modified, body returned for hashing); wired in main; co-located stubbed-fetch unit test.   <!-- sha: a8a18b5 -->
+- [x] `acquireSource` orchestrator in the Acquisition context (seed walk + delay + maxPages cap, stages via injected RawDocumentStore; fakes-only test) + thin `scripts/acquire.ts` + `pnpm acquire --source <key>|--all`. Typecheck + dry invocation (usage/unknown-source) green.   <!-- sha: next -->
 - [ ] Live run `pnpm acquire --source starting-with-god`: rows land in `raw_documents`; spot-read `raw_content` = real article text, not nav/boilerplate. Record counts + observations in `sources.md`.   <!-- sha: ________ -->
 
 ### 2. Ingest → corpus tables (needs OpenRouter key in .env)
@@ -42,15 +42,13 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none (OpenRouter key needed before Stage 2; acquire does not need it).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "scripts/acquire.ts runner". Next concrete action: create
-`scripts/acquire.ts` + add `"acquire": "tsx scripts/acquire.ts"` to package.json.
-It parses `--source <key>` (and optionally `--all`), calls `main.wire()`, looks
-the source up via the registry (`getSource`/`seedUrls`), iterates seed URLs
-calling `acquireOne(wiring.fetcher, entry, url)` with `entry.crawl.requestDelayMs`
-between fetches and a `maxPages` cap, writes each ok doc via
-`wiring.rawDocumentStore.putRawDocument`, logs ok/skip counts, then
-`wiring.shutdown()`. Scripts (like main) may import adapters/contexts/registry.
-Verify by typecheck + a dry `pnpm acquire` with no/unknown source (clean usage,
-no crash); the live crawl is the following sub-step.
-Last verify: green @ sub-step 4 (depcruise/typecheck/lint/test, 27 tests incl. 3
-http-fetch adapter tests). Branch: slice/starting-with-god.
+At: Stage 1 — "Live run + verify" (the last acquire sub-step). Next concrete
+action: ensure the Postgres container is up (`docker compose up -d`) and migrated
+(`pnpm db:migrate`), then run `pnpm acquire --source starting-with-god`. Confirm
+rows land: `SELECT count(*), avg(length(raw_content)) FROM raw_documents WHERE
+source_key='starting-with-god'` and spot-read a `raw_content` — real article
+text, not nav/boilerplate. Record counts + observations in `sources.md`
+(→ Acquired) and finish Stage 1 in this file. This is a stage boundary → pause
+and summarize before Stage 2 (Ingest, which needs the OpenRouter key).
+Last verify: green @ sub-step 5 (depcruise/typecheck/lint/test, 29 tests; dry
+acquire invocation clean). Branch: slice/starting-with-god.

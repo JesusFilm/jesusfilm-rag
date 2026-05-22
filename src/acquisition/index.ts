@@ -7,6 +7,9 @@ export { normalizeUrl } from "./normalize-url.js";
 export { extractContent, type Extracted } from "./extract.js";
 export {
   acquireOne,
+  acquireSource,
   type AcquireOutcome,
+  type AcquireDeps,
+  type AcquireSummary,
   type SkipReason,
 } from "./acquire.js";

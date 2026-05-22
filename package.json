@@ -10,6 +10,7 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
+    "acquire": "tsx scripts/acquire.ts",
     "index": "tsx scripts/index.ts",
     "serve": "tsx scripts/serve.ts",
     "eval": "tsx scripts/eval.ts",

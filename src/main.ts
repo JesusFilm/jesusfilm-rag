@@ -13,6 +13,7 @@
 import type {
   CorpusSearchStore,
   CorpusWriteStore,
+  Embedder,
   Fetcher,
   FetchStateStore,
   RawDocumentStore,
@@ -24,7 +25,9 @@ import {
   PostgresRawDocumentStore,
 } from "@/adapters/postgres/index.js";
 import { HttpFetcher } from "@/adapters/http-fetch/index.js";
+import { OpenRouterEmbedder } from "@/adapters/openrouter/index.js";
 import { closeDb, getDb } from "@/db/index.js";
+import { getEnv } from "@/env.js";
 
 /** The injected ports a runner needs, plus a shutdown hook for the DB pool. */
 export interface Wiring {
@@ -33,11 +36,13 @@ export interface Wiring {
   fetchStateStore: FetchStateStore;
   rawDocumentStore: RawDocumentStore;
   fetcher: Fetcher;
+  embedder: Embedder;
   shutdown(): Promise<void>;
 }
 
-/** Build the storage + HTTP adapters; injected into the contexts by the runners. */
+/** Build the storage + HTTP + embedding adapters; injected into the contexts by the runners. */
 export function wire(): Wiring {
+  const env = getEnv();
   const { client } = getDb();
   return {
     corpusWriteStore: new PostgresCorpusWriteStore(client),
@@ -45,6 +50,10 @@ export function wire(): Wiring {
     fetchStateStore: new PostgresFetchStateStore(client),
     rawDocumentStore: new PostgresRawDocumentStore(client),
     fetcher: new HttpFetcher(),
+    embedder: new OpenRouterEmbedder({
+      apiKey: env.OPENROUTER_API_KEY,
+      model: env.EMBED_MODEL_ID,
+    }),
     shutdown: () => closeDb(),
   };
 }

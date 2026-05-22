@@ -5,6 +5,7 @@
  */
 import type {
   RawDocument,
+  PendingRawDocument,
   NormalizedDocument,
   EmbeddedChunk,
 } from "./documents.js";
@@ -64,6 +65,20 @@ export interface RawDocumentStore {
 }
 
 // ---- Ingestion ports -------------------------------------------------------
+
+export interface RawDocumentReader {
+  /**
+   * Un-ingested staging rows (`ingested_at IS NULL`), oldest first. Optional
+   * source/limit scope. The read side of the Acquisition→Ingestion handoff —
+   * the write side is RawDocumentStore.
+   */
+  listPending(opts?: {
+    sourceKey?: string;
+    limit?: number;
+  }): Promise<PendingRawDocument[]>;
+  /** Mark these `raw_documents` rows consumed (set `ingested_at`). */
+  markIngested(ids: string[]): Promise<void>;
+}
 
 export interface Embedder {
   /** Batch embed; returns null per empty/failed input (the skip path relies on this). */

@@ -14,8 +14,8 @@ spot-check. As slice #1 it also builds the first real path through each context
 ### 1. Acquire → raw_documents
 - [x] `RawDocumentStore` write port + in-memory fake + Postgres adapter, wired in main; integration test writes/reads a `raw_documents` row. Idempotent per (source_key, canonical_url) so re-runs don't duplicate.   <!-- sha: 01cfd8b -->
 - [x] Registry: `SourceEntry`/`CrawlPolicy` pure-data types + Starting With God entry (40 article seed paths, `#content` selector + strip list, 1500ms delay, maxPages 60) + lookups (getSource/allSources/seedUrls); pure unit test.   <!-- sha: a3fa409 -->
-- [x] Acquisition context: `normalizeUrl()` (invariant 2 — strip fragments + tracking params, lowercase host, trim trailing slash), thin HTML extraction (node-html-parser; select `#content`, strip nav/sidebar/footer, decode entities, paragraph-preserving), `acquireOne` (fetch → extract → `RawDocument` w/ sha256 bodyHash, typed skips); fakes-only unit tests + real-fixture probe (clean 5698-char extraction).   <!-- sha: next -->
-- [ ] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, body returned for hashing); wired in main.   <!-- sha: ________ -->
+- [x] Acquisition context: `normalizeUrl()` (invariant 2 — strip fragments + tracking params, lowercase host, trim trailing slash), thin HTML extraction (node-html-parser; select `#content`, strip nav/sidebar/footer, decode entities, paragraph-preserving), `acquireOne` (fetch → extract → `RawDocument` w/ sha256 bodyHash, typed skips); fakes-only unit tests + real-fixture probe (clean 5698-char extraction).   <!-- sha: 3be1c4a -->
+- [x] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, 304→not-modified, body returned for hashing); wired in main; co-located stubbed-fetch unit test.   <!-- sha: next -->
 - [ ] `scripts/acquire.ts` + `pnpm acquire --source <key>`: wires Acquisition with Fetcher + RawDocumentStore + registry, iterates seed URLs with the polite delay, writes RawDocuments. Typecheck + dry wire-up green.   <!-- sha: ________ -->
 - [ ] Live run `pnpm acquire --source starting-with-god`: rows land in `raw_documents`; spot-read `raw_content` = real article text, not nav/boilerplate. Record counts + observations in `sources.md`.   <!-- sha: ________ -->
 
@@ -42,12 +42,15 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none (OpenRouter key needed before Stage 2; acquire does not need it).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "HTTP Fetcher adapter". Next concrete action: build
-`src/adapters/http-fetch/` — a real `fetch()`-based Fetcher (browser UA, follow
-redirects, honor ConditionalHeaders → If-None-Match/If-Modified-Since, return
-the body string + etag/lastModified, status, notModified on 304) implementing
-the `Fetcher` port; wire it into `main.wire()`. Adapters import only contracts.
-(Network-dependent, so the live acquire run in the next sub-step is its
-integration evidence; keep the adapter thin.)
-Last verify: green @ sub-step 3 (depcruise/typecheck/lint/test, 24 tests incl. 6
-acquisition tests; real-fixture extraction probe clean). Branch: slice/starting-with-god.
+At: Stage 1 — "scripts/acquire.ts runner". Next concrete action: create
+`scripts/acquire.ts` + add `"acquire": "tsx scripts/acquire.ts"` to package.json.
+It parses `--source <key>` (and optionally `--all`), calls `main.wire()`, looks
+the source up via the registry (`getSource`/`seedUrls`), iterates seed URLs
+calling `acquireOne(wiring.fetcher, entry, url)` with `entry.crawl.requestDelayMs`
+between fetches and a `maxPages` cap, writes each ok doc via
+`wiring.rawDocumentStore.putRawDocument`, logs ok/skip counts, then
+`wiring.shutdown()`. Scripts (like main) may import adapters/contexts/registry.
+Verify by typecheck + a dry `pnpm acquire` with no/unknown source (clean usage,
+no crash); the live crawl is the following sub-step.
+Last verify: green @ sub-step 4 (depcruise/typecheck/lint/test, 27 tests incl. 3
+http-fetch adapter tests). Branch: slice/starting-with-god.

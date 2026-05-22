@@ -13,6 +13,7 @@
 import type {
   CorpusSearchStore,
   CorpusWriteStore,
+  Fetcher,
   FetchStateStore,
   RawDocumentStore,
 } from "@/contracts/index.js";
@@ -22,6 +23,7 @@ import {
   PostgresFetchStateStore,
   PostgresRawDocumentStore,
 } from "@/adapters/postgres/index.js";
+import { HttpFetcher } from "@/adapters/http-fetch/index.js";
 import { closeDb, getDb } from "@/db/index.js";
 
 /** The injected ports a runner needs, plus a shutdown hook for the DB pool. */
@@ -30,10 +32,11 @@ export interface Wiring {
   corpusSearchStore: CorpusSearchStore;
   fetchStateStore: FetchStateStore;
   rawDocumentStore: RawDocumentStore;
+  fetcher: Fetcher;
   shutdown(): Promise<void>;
 }
 
-/** Build the storage adapters over the shared Postgres pool. */
+/** Build the storage + HTTP adapters; injected into the contexts by the runners. */
 export function wire(): Wiring {
   const { client } = getDb();
   return {
@@ -41,6 +44,7 @@ export function wire(): Wiring {
     corpusSearchStore: new PostgresCorpusSearchStore(client),
     fetchStateStore: new PostgresFetchStateStore(client),
     rawDocumentStore: new PostgresRawDocumentStore(client),
+    fetcher: new HttpFetcher(),
     shutdown: () => closeDb(),
   };
 }

@@ -25,6 +25,7 @@ import {
   PostgresCorpusSearchStore,
   PostgresCorpusWriteStore,
   PostgresFetchStateStore,
+  PostgresRawDocumentReader,
   PostgresRawDocumentStore,
 } from "./index.js";
 
@@ -148,6 +149,7 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
   let searchStore: PostgresCorpusSearchStore;
   let fetchState: PostgresFetchStateStore;
   let rawStore: PostgresRawDocumentStore;
+  let rawReader: PostgresRawDocumentReader;
 
   beforeAll(async () => {
     sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {} });
@@ -162,6 +164,7 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
     searchStore = new PostgresCorpusSearchStore(sql);
     fetchState = new PostgresFetchStateStore(sql);
     rawStore = new PostgresRawDocumentStore(sql);
+    rawReader = new PostgresRawDocumentReader(sql);
   });
 
   afterAll(async () => {
@@ -301,5 +304,27 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
     const all = await sql`SELECT count(*)::int AS n FROM raw_documents
                             WHERE source_key = ${TEST_KEY} AND canonical_url = ${url}`;
     expect(all[0].n).toBe(2);
+  });
+
+  it("RawDocumentReader: lists pending rows (ISO fetchedAt) and markIngested drains them", async () => {
+    const u1 = `${URL_PREFIX}reader-1`;
+    const u2 = `${URL_PREFIX}reader-2`;
+    await rawStore.putRawDocument(rawDoc(u1, "reader body one", "rh1"));
+    await rawStore.putRawDocument(rawDoc(u2, "reader body two", "rh2"));
+
+    const pending = await rawReader.listPending({ sourceKey: TEST_KEY });
+    const mine = pending.filter((p) => p.canonicalUrl === u1 || p.canonicalUrl === u2);
+    expect(mine).toHaveLength(2);
+    const one = mine.find((p) => p.canonicalUrl === u1)!;
+    expect(one.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(one.rawContent).toBe("reader body one");
+    expect(one.fetch.bodyHash).toBe("rh1");
+    expect(one.fetch.fetchedAt).toBe("2026-05-22T00:00:00.000Z"); // Date → ISO string
+
+    await rawReader.markIngested(mine.map((p) => p.id));
+    const after = (await rawReader.listPending({ sourceKey: TEST_KEY })).filter(
+      (p) => p.canonicalUrl === u1 || p.canonicalUrl === u2,
+    );
+    expect(after).toHaveLength(0); // both drained
   });
 });

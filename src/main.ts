@@ -16,12 +16,14 @@ import type {
   Embedder,
   Fetcher,
   FetchStateStore,
+  RawDocumentReader,
   RawDocumentStore,
 } from "@/contracts/index.js";
 import {
   PostgresCorpusSearchStore,
   PostgresCorpusWriteStore,
   PostgresFetchStateStore,
+  PostgresRawDocumentReader,
   PostgresRawDocumentStore,
 } from "@/adapters/postgres/index.js";
 import { HttpFetcher } from "@/adapters/http-fetch/index.js";
@@ -35,6 +37,7 @@ export interface Wiring {
   corpusSearchStore: CorpusSearchStore;
   fetchStateStore: FetchStateStore;
   rawDocumentStore: RawDocumentStore;
+  rawDocumentReader: RawDocumentReader;
   fetcher: Fetcher;
   embedder: Embedder;
   shutdown(): Promise<void>;
@@ -49,6 +52,7 @@ export function wire(): Wiring {
     corpusSearchStore: new PostgresCorpusSearchStore(client),
     fetchStateStore: new PostgresFetchStateStore(client),
     rawDocumentStore: new PostgresRawDocumentStore(client),
+    rawDocumentReader: new PostgresRawDocumentReader(client),
     fetcher: new HttpFetcher(),
     embedder: new OpenRouterEmbedder({
       apiKey: env.OPENROUTER_API_KEY,

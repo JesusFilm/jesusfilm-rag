@@ -9,15 +9,15 @@ _Last updated: 2026-05-22_
 
 ## You are here
 
-**Slice #1 is acquired AND ingested — the corpus is now queryable-ready.** Both
-the Acquisition and Ingestion contexts are built and proven end-to-end:
-`pnpm acquire` staged 40 clean rows in `raw_documents`, then `pnpm index` drained
-them into the corpus — **40 docs → 183 chunks → 183 embeddings** (chunk_count
-consistent, chunks/doc avg 4.6, idempotent re-run drains 0). 46 tests green
-(incl. live-DB integration). **Retrieval / eval do not exist yet** — the corpus
-is populated but nothing queries it. The corpus is embedded with
-`openai/text-embedding-3-small` (1536 dims, locked decision-1) — a first run
-accidentally used a `.env` nvidia-free override and was corrected by re-embedding.
+**Slice #1 is acquired, ingested, AND queryable — the corpus now answers
+questions.** All three pipeline contexts are built and proven end-to-end:
+`pnpm acquire` staged 40 clean rows, `pnpm index` drained them to **40 docs →
+183 chunks → 183 embeddings** (`openai/text-embedding-3-small`, 1536 dims), and
+the new Retrieval context serves them — `pnpm query "How can I begin a
+relationship with God?"` returns **5 distinct, cited documents** (scores
+0.54–0.59, all on-topic). 59 tests green (incl. live-DB integration + 12 new
+fakes-only retrieval tests). **Only the spot-check remains** before slice #1 is
+done; `pnpm eval` is now wired to the real Retriever but has no golden cases yet.
 
 ## Next action
 
@@ -26,10 +26,10 @@ accidentally used a `.env` nvidia-free override and was corrected by re-embeddin
 resume hint live in **[docs/slices/starting-with-god.md](./slices/starting-with-god.md)**
 — that file + the slice branch's git log are the cold-start resume contract.
 
-**Stages 1 (Acquire) + 2 (Ingest) are done** ✅. **Stage 3 (Retrieve) is next**,
-pending the embedding-model decision: build `src/retrieval/` (embedQuery →
-vectorSearch fan-out → cosine rank → minScore 0.3 → 3-key dedup → citation) over
-the existing `CorpusSearchStore` + the OpenRouter Embedder query side.
+**Stages 1 (Acquire) + 2 (Ingest) + 3 (Retrieve) are done** ✅. **Stage 4
+(Spot-check) is next**: run a handful of representative queries through
+`pnpm query`, eyeball relevance, record findings in `sources.md` (→ Evaluated).
+Then offer to merge `slice/starting-with-god` into `main`.
 
 → **Resume with `/slice`** — it reads this file + the slice file, checks out the
 branch, and continues at the first unchecked sub-step.
@@ -104,3 +104,4 @@ high word counts confirm real content, not an anti-bot page.)
 - **2026-05-22** — lightweight tracking (this file) + vertical-slice build decision; reachability recon of all 6 sources.
 - **Slice #1, Stage 1 (Acquire)** — RawDocumentStore port/fake/adapter, SourceRegistry + Starting With God entry, Acquisition context (normalizeUrl/extraction/acquireOne/acquireSource), HTTP Fetcher adapter, `pnpm acquire`. Live crawl staged **40/40 clean rows** in `raw_documents`. On `slice/starting-with-god`.
 - **Slice #1, Stage 2 (Ingest)** — OpenRouter Embedder adapter, Ingestion context (normalize → jfa-ported chunk → embed → dedup → idempotent replaceDocument), RawDocumentReader read port/fake/adapter, `pnpm index`. Live run drained `raw_documents` → **40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`); idempotent re-run drains 0. 47 tests green. `pnpm index --force` = full re-index from the raw snapshot (used to re-embed off an accidental `.env` model override). On `slice/starting-with-god`.
+- **Slice #1, Stage 3 (Retrieve)** — Retrieval context (`src/retrieval/`): `createRetriever` runs invariant 5 (embedQuery → vectorSearch candidate fan-out → minScore 0.3 cutoff → soft preferSourceKey tiebreak → 3-key dedup → citation). Wired into `main.wire()`; `pnpm query "<q>"` entry point; `scripts/eval.ts` step-5 TODO closed (drives the real Retriever). 12 fakes-only tests (59 total). Live query returns 5 distinct cited docs. **Decision:** 3-key dedup ⇒ at most one chunk per document (content-hash is doc-level). On `slice/starting-with-god`.

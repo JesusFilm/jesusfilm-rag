@@ -76,11 +76,12 @@ high word counts confirm real content, not an anti-bot page.)
 
 ## Open decisions / blockers
 
-- **`.env` is missing `MCP_BEARER_TOKEN`** (dropped during an edit). The env
-  schema requires it even for the ingest/retrieve runners (`wire()` validates the
-  full schema), so `pnpm index`/`serve` fail without it. Re-embed was unblocked by
-  passing a throwaway value inline for one run; **restore the real token in `.env`**
-  (or the `.env.example` placeholder `local-dev-token-replace-me`).
+- ~~`.env` missing `MCP_BEARER_TOKEN`~~ — resolved by **removing** the unused
+  serving/auth vars (`MCP_PORT`, `MCP_BEARER_TOKEN`, `MCP_BEARER_SCOPES`,
+  `CLIENT_HASH_SECRET`, `ADMIN_PASSWORD`) from `src/env.ts`. No code reads them
+  yet; the env schema now declares only what's consumed (`DATABASE_URL`,
+  `OPENROUTER_API_KEY`, `EMBED_MODEL_ID`). They return in step 6 with the MCP
+  serving adapter that actually reads them.
 - ~~Embedding model diverged from decision 1~~ — resolved: re-embedded on
   `openai/text-embedding-3-small` (both it and the nvidia free model are reachable
   via OpenRouter at 1536 dims; openai is the locked choice).

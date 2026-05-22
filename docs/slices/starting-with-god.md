@@ -56,8 +56,9 @@ raw_documents ingested. Next concrete action: build `src/retrieval/` (embedQuery
 → vectorSearch candidate fan-out invariant 5 → cosine rank → minScore 0.3 →
 3-key dedup → citation) over the existing `CorpusSearchStore` (already
 implemented + integration-tested) and the OpenRouter Embedder query side, then a
-query entry point returns ranked cited hits. NOTE: `.env` needs `MCP_BEARER_TOKEN`
-restored (an edit dropped it; the env schema requires it even for ingest/retrieve
-runners). Last verify: green @ Stage 2 complete (depcruise/typecheck/lint, 47
+query entry point returns ranked cited hits. (Env schema now declares only the
+consumed vars — DATABASE_URL + OPENROUTER_API_KEY + EMBED_MODEL_ID; the unused
+MCP/serving/auth vars were removed until step 6.) Last verify: green @ Stage 2
+complete (depcruise/typecheck/lint, 47
 tests incl. live DB integration; live re-embed 40/40 → 183 openai chunks,
 idempotent re-run drains 0). Branch: slice/starting-with-god.

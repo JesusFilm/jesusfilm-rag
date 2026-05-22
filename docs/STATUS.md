@@ -77,6 +77,15 @@ high word counts confirm real content, not an anti-bot page.)
   (acquire didn't need it). **This is the blocker for Stage 2.**
 - ~~First source = Starting With God~~ — confirmed; acquired (40 rows).
 
+## Process TODOs (deferred)
+
+- **Seed-URL discovery.** Seed URLs are currently **curated by hand** from a
+  source's sitemap/homepage (worked cleanly for Starting With God — 40 URLs).
+  Before source #2, decide whether to build a `discover-seeds` helper (a guided
+  skill or a `scripts/discover-seeds.ts`) that fetches a site's sitemap/homepage,
+  lists candidate content URLs, and filters nav/category/cross-site links for a
+  human to curate into a registry entry. Deferred until we start the next source.
+
 ## Done
 
 - **Step 1** — bare-out + §6 schema + §5 enforcement gates (depcruise / max-lines / fakes-only).

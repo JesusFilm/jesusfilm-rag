@@ -8,6 +8,8 @@ A standalone, production-quality retrieval service that serves **biblically alig
 
 **Acquisition** fetches raw content (scrapers, source registry, robots, HTTP cache) and emits `RawDocument`s to a staging table → **Ingestion** normalizes, chunks, embeds, and writes through a storage port → **Retrieval** takes a query plus a policy and returns ranked, cited results. MCP/HTTP is a thin serving **adapter** over Retrieval, not a core concern. LLM generation and any safety/intent routing live in the *caller*, never here.
 
+**Mechanism, not policy.** The RAG is a reliable, parameterized retrieval mechanism: it ranks on similarity + the declared `RetrievalPolicy` (scope, language, category, cutoff, top-k) and returns deterministic, cited results. All "what's good for *this* audience" weighting lives in the consumer; corpus heterogeneity (e.g. football-campaign content next to doctrinal teaching) is solved by **ingest-time labeling and source-level on/off, not retrieve-time bias** — so the same engine serves a doctrinal apologist and a World Cup chat bot without either's preferences contaminating the other. See [`docs/architecture.md`](./docs/architecture.md) §1.
+
 ## Who consumes this
 
 Read-only retrieval over a curated, publicly accessible corpus. Consumers do their own generation:

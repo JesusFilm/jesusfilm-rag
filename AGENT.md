@@ -2,6 +2,8 @@
 
 A standalone, production-quality RAG over publicly accessible JesusFilm Project content. Read-only retrieval exposed to other tools (Claude Code, agents, internal services) via an MCP server. **Consumers generate; this service only retrieves.**
 
+**Core tenet — mechanism, not policy:** the RAG is a reliable, parameterized retrieval mechanism; all "what's good for this audience" weighting lives in the consumer; corpus heterogeneity is solved by ingest-time labeling (`category`/`tags`/`sourceKey`) and source-level on/off, **not** retrieve-time bias. The engine ranks on similarity + the declared `RetrievalPolicy` and returns deterministic, cited results. See [`docs/architecture.md`](./docs/architecture.md) §1 "Tenet: mechanism, not policy".
+
 **Design source of truth:** [`docs/architecture.md`](./docs/architecture.md). Read it before non-trivial work — especially §5 (Enforcement & dependency rules).
 
 ## Three bounded contexts (behind ports)

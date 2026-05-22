@@ -53,6 +53,18 @@ caller→ │ embedQuery → CorpusSearchStore (port)       │ ◀── reads
 
 The seams between the boxes are the architecture. Retrieval is a pure library over a search port, so the same code can be called in-process by a Mastra tool, by NextSteps, or behind the MCP server. MCP/HTTP is an **adapter**, not a fourth context.
 
+### Tenet: mechanism, not policy
+
+**The RAG is a reliable, parameterized retrieval mechanism; all "what's good for this audience" weighting lives in the consumer; corpus heterogeneity is solved by ingest-time labeling, not retrieve-time bias.**
+
+Given a query and a `RetrievalPolicy`, Retrieval ranks on embedding similarity and the **declared** parameters (scope, language, category, cutoff, top-k) and returns deterministic, cited results. It bakes in **no** audience- or value-weighting — "what's best for *this* asker" is consumer-relative (the same chunk is the right answer for a doctrinal apologist and noise for a World Cup chat bot), so it belongs in the consumer, not the engine. Baking a worldview into the engine makes it wrong for some consumer, undermines the multi-consumer reuse §1 is built on, and turns retrieval into an untestable black box.
+
+Corpus heterogeneity (football-campaign content sitting next to doctrinal teaching) is therefore handled by **structure, not bias**, on two levers:
+- **Ingest-time labels** (`category` / `tags` / `sourceKey`, set in Ingestion) — a consumer scopes declaratively and never sees off-topic content; it is *filtered out by parameter*, not *down-ranked by hidden logic*.
+- **Source-level enablement** (an operator switch — see FOLLOW-UP E) — turns a whole source on/off corpus-wide, the right lever for *seasonal* content.
+
+The only in-engine steering the architecture sanctions is **thin, declared, and tiebreak-only** (today: `minScore`, and `preferSourceKey` as a soft tiebreak — not a score boost). Anything thicker is a design smell: push it to the consumer.
+
 ---
 
 ## 2. Contracts (the seams)
@@ -137,7 +149,7 @@ interface Retriever { search(query: string, policy?: RetrievalPolicy): Promise<R
 - **Owns:** query embedding, candidate selection, cosine ranking + cutoff, 3-key dedup (content-hash / url+chunk / title+content fingerprint), citation assembly, source-scope resolution (`source`/`sourceKey` → domain + scopePath).
 - **Ports needed:** `CorpusSearchStore`, `Embedder` (query side), `SourceRegistry` (scope resolution).
 - **Ports from jfa:** `retrieve.ts` (with the `require('./store')` / `pgvector-store` direct coupling moved behind the port).
-- **Does NOT:** know about HTTP/MCP/Telegram, generate prose, or apply intent/crisis/scope routing — that arrives as `RetrievalPolicy` input.
+- **Does NOT:** know about HTTP/MCP/Telegram, generate prose, apply intent/crisis/scope routing, or apply audience/value weighting — it ranks on similarity + the declared `RetrievalPolicy` only (see the "mechanism, not policy" tenet above). All of that arrives as `RetrievalPolicy` input or is the caller's job.
 
 ---
 
@@ -355,3 +367,4 @@ The corpus is rebuilt **from sources by code**, not restored from a blob — thi
 - **FOLLOW-UP B — hybrid search.** jfa's hot path is vector-only (FTS exists but is unqueried). Forge uses RRF fusion. Keep `keywordSearch` as an optional port now; evaluate RRF hybrid against the harness later.
 - **FOLLOW-UP C — original-HTML snapshot.** `raw_documents.raw_content` holds extracted text; if full-fidelity reproducibility is wanted, persist original HTML to object storage keyed by `body_hash`.
 - **FOLLOW-UP D — zero-downtime reindex (blue/green).** Decision 6 accepts downtime/stale reads during a reindex. When retrieval becomes high-traffic or multi-tenant, revisit: build a candidate corpus (a `build_id`/version column + an active pointer, or a separate green database), eval it, then atomically swap production reads to it — so a bad or in-progress ingest never reaches live readers. Pairs with `raw_documents` as the cheap re-embed source (no re-crawl). Owner: TBD.
+- **FOLLOW-UP E — source enablement (operator on/off).** Requested by Miheret for *seasonal* sources (e.g. retire football-2026 once the tournament ends, re-enable for the next). The "mechanism, not policy" lever for corpus lifecycle: a persistent `enabled boolean` on `sources` (default true), enforced as an **unconditional** filter in `CorpusSearchStore.vectorSearch` (`… AND sources.enabled`). Disabling makes a source invisible to retrieval **while retaining its rows** — re-enable is instant, no re-crawl/re-embed. Distinct from the per-call `RetrievalPolicy.allowedSourceKeys` (consumer scope, one query) — this is operator state, corpus-wide, all consumers; effective visibility = `enabled sources ∩ allowedSourceKeys`. Flipped by a small admin action (e.g. `pnpm source enable|disable <key>`), not a code deploy; `acquire`/`index` may also skip disabled sources. Touches §6 schema (column + migration), the `CorpusSearchStore` port/adapter, and `docs/sources.md` (a `Disabled` lifecycle state, separate from `Deferred`). Owner: TBD.

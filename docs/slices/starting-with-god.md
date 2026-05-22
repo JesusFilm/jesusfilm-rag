@@ -12,8 +12,8 @@ spot-check. As slice #1 it also builds the first real path through each context
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents
-- [x] `RawDocumentStore` write port + in-memory fake + Postgres adapter, wired in main; integration test writes/reads a `raw_documents` row. Idempotent per (source_key, canonical_url) so re-runs don't duplicate.   <!-- sha: dca7fb5..next -->
-- [ ] Registry: `SourceEntry`/`CrawlPolicy` pure-data types + Starting With God entry (domain, seed content-page URLs, content selectors, requestDelayMs, maxPages) + lookups (by key); pure unit test.   <!-- sha: ________ -->
+- [x] `RawDocumentStore` write port + in-memory fake + Postgres adapter, wired in main; integration test writes/reads a `raw_documents` row. Idempotent per (source_key, canonical_url) so re-runs don't duplicate.   <!-- sha: 01cfd8b -->
+- [x] Registry: `SourceEntry`/`CrawlPolicy` pure-data types + Starting With God entry (40 article seed paths, `#content` selector + strip list, 1500ms delay, maxPages 60) + lookups (getSource/allSources/seedUrls); pure unit test.   <!-- sha: next -->
 - [ ] Acquisition context: `normalizeUrl()` (invariant 2 — strip fragments + tracking params, lowercase host, trim trailing slash), thin HTML extraction (title + main text via selectors, drop nav/boilerplate), `acquireOne` (fetch → extract → build `RawDocument` with bodyHash); fakes-only unit tests.   <!-- sha: ________ -->
 - [ ] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, body returned for hashing); wired in main.   <!-- sha: ________ -->
 - [ ] `scripts/acquire.ts` + `pnpm acquire --source <key>`: wires Acquisition with Fetcher + RawDocumentStore + registry, iterates seed URLs with the polite delay, writes RawDocuments. Typecheck + dry wire-up green.   <!-- sha: ________ -->
@@ -42,10 +42,13 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none (OpenRouter key needed before Stage 2; acquire does not need it).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "Registry: SourceEntry/CrawlPolicy + Starting With God entry". Next
-concrete action: create `src/registry/` with pure-data `SourceEntry`/`CrawlPolicy`
-types and a Starting With God entry (domain, seed content-page URLs, content
-selectors, requestDelayMs, maxPages) + a `getSource(key)` lookup, plus a
-fakes-only/pure unit test. Registry may import only `contracts` (depcruise rule).
-Last verify: green @ sub-step 1 (depcruise/typecheck/lint/test, 14 tests incl. the
-new RawDocumentStore integration test). Branch: slice/starting-with-god.
+At: Stage 1 — "Acquisition context: normalizeUrl + extraction + acquireOne". Next
+concrete action: in `src/acquisition/`, build `normalizeUrl()` (invariant 2),
+thin HTML extraction (select `contentSelectors`, drop `stripSelectors`, decode
+entities → title + main text — chosen parser: `node-html-parser`), and
+`acquireOne(fetcher, entry, url)` that fetches → extracts → returns a
+`RawDocument` (bodyHash = sha256(body)). Fakes-only unit tests with FakeFetcher
+serving canned HTML; assert RawDocument shape, canonicalUrl normalization, and
+that nav/boilerplate is stripped. Acquisition may import contracts + registry.
+Last verify: green @ sub-step 2 (depcruise/typecheck/lint/test, 18 tests incl. 4
+registry tests). Branch: slice/starting-with-god.

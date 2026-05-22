@@ -326,5 +326,11 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
       (p) => p.canonicalUrl === u1 || p.canonicalUrl === u2,
     );
     expect(after).toHaveLength(0); // both drained
+
+    // includeIngested re-surfaces the consumed rows (full re-index path).
+    const reindex = (
+      await rawReader.listPending({ sourceKey: TEST_KEY, includeIngested: true })
+    ).filter((p) => p.canonicalUrl === u1 || p.canonicalUrl === u2);
+    expect(reindex).toHaveLength(2);
   });
 });

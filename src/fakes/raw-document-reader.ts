@@ -19,9 +19,11 @@ export class FakeRawDocumentReader implements RawDocumentReader {
   }
 
   async listPending(
-    opts: { sourceKey?: string; limit?: number } = {},
+    opts: { sourceKey?: string; limit?: number; includeIngested?: boolean } = {},
   ): Promise<PendingRawDocument[]> {
-    let rows = this.pending.filter((d) => !this.ingested.has(d.id));
+    let rows = opts.includeIngested
+      ? this.pending
+      : this.pending.filter((d) => !this.ingested.has(d.id));
     if (opts.sourceKey) rows = rows.filter((d) => d.sourceKey === opts.sourceKey);
     if (opts.limit != null) rows = rows.slice(0, opts.limit);
     return rows.map((d) => ({ ...d }));

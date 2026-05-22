@@ -113,6 +113,24 @@ describe("ingestPending", () => {
     expect(d.reader.isIngested("thin")).toBe(true);
   });
 
+  it("force re-indexes already-ingested rows and re-embeds unchanged content", async () => {
+    const d = deps([pending({ id: "a" }), pending({ id: "b" })]);
+
+    await ingestPending(d); // first pass marks both ingested
+    const firstChunks = d.writer.totalChunks();
+    expect(d.reader.ingestedCount()).toBe(2);
+
+    // A plain re-run drains nothing (both already ingested).
+    expect((await ingestPending(d)).attempted).toBe(0);
+
+    // force re-drains the ingested rows and re-embeds them (delete-then-insert,
+    // so the chunk total stays the same — replaced, not accumulated).
+    const forced = await ingestPending(d, { force: true });
+    expect(forced).toMatchObject({ attempted: 2, updated: 2, unchanged: 0 });
+    expect(d.writer.allDocuments()).toHaveLength(2);
+    expect(d.writer.totalChunks()).toBe(firstChunks);
+  });
+
   it("skips an unknown source and leaves the row un-marked", async () => {
     const d = deps([pending({ id: "x", sourceKey: "no-such-source" })]);
 

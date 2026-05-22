@@ -41,14 +41,14 @@ export class PostgresRawDocumentReader implements RawDocumentReader {
   constructor(private readonly sql: postgres.Sql) {}
 
   async listPending(
-    opts: { sourceKey?: string; limit?: number } = {},
+    opts: { sourceKey?: string; limit?: number; includeIngested?: boolean } = {},
   ): Promise<PendingRawDocument[]> {
-    const { sourceKey, limit } = opts;
+    const { sourceKey, limit, includeIngested } = opts;
     const rows = await this.sql<PendingRow[]>`
       SELECT id, source_key, url, canonical_url, title, raw_content,
              status, body_hash, etag, last_modified, fetched_at, not_modified
         FROM raw_documents
-       WHERE ingested_at IS NULL
+       WHERE ${includeIngested ? this.sql`TRUE` : this.sql`ingested_at IS NULL`}
          ${sourceKey ? this.sql`AND source_key = ${sourceKey}` : this.sql``}
        ORDER BY fetched_at ASC, id ASC
        ${limit != null ? this.sql`LIMIT ${limit}` : this.sql``}

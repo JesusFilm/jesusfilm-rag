@@ -4,7 +4,8 @@
  *   pnpm index                              # drain all pending raw_documents
  *   pnpm index --source starting-with-god   # only this source's pending rows
  *   pnpm index --limit 10                    # cap rows this run
- *   pnpm index --force                       # re-chunk/re-embed even if unchanged
+ *   pnpm index --force                       # full re-index: re-drain already-ingested
+ *                                            #   rows AND re-embed (e.g. model change)
  *
  * Thin entry point: parse args, wire the adapters (main.wire()), drain
  * `raw_documents` (ingested_at IS NULL) through ingestPending (normalize → chunk

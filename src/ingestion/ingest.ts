@@ -48,6 +48,12 @@ export interface IngestSummary {
 export interface IngestOptions {
   sourceKey?: string;
   limit?: number;
+  /**
+   * Full re-index: re-drain already-ingested rows from the raw snapshot AND
+   * re-chunk/re-embed even when the contentHash is unchanged (bypasses the dedup
+   * skip). Use after an embedding-model or chunker change. Default false =
+   * incremental (only un-ingested rows, skip unchanged).
+   */
   force?: boolean;
   onProgress?: (line: string) => void;
 }
@@ -119,6 +125,7 @@ export async function ingestPending(
   const pending = await deps.reader.listPending({
     sourceKey: opts.sourceKey,
     limit: opts.limit,
+    includeIngested: opts.force ?? false, // force ⇒ re-index from the snapshot
   });
   const summary: IngestSummary = {
     attempted: 0,

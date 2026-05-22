@@ -68,13 +68,16 @@ export interface RawDocumentStore {
 
 export interface RawDocumentReader {
   /**
-   * Un-ingested staging rows (`ingested_at IS NULL`), oldest first. Optional
-   * source/limit scope. The read side of the Acquisition→Ingestion handoff —
-   * the write side is RawDocumentStore.
+   * Staging rows to ingest, oldest first. By default only un-ingested rows
+   * (`ingested_at IS NULL`); `includeIngested` returns already-consumed rows too
+   * (a full re-index from the raw snapshot, e.g. after an embedding-model change).
+   * Optional source/limit scope. The read side of the Acquisition→Ingestion
+   * handoff — the write side is RawDocumentStore.
    */
   listPending(opts?: {
     sourceKey?: string;
     limit?: number;
+    includeIngested?: boolean;
   }): Promise<PendingRawDocument[]>;
   /** Mark these `raw_documents` rows consumed (set `ingested_at`). */
   markIngested(ids: string[]): Promise<void>;

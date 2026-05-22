@@ -16,8 +16,10 @@ spot-check. As slice #1 it also builds the first real path through each context
 - [x] Registry: `SourceEntry`/`CrawlPolicy` pure-data types + Starting With God entry (40 article seed paths, `#content` selector + strip list, 1500ms delay, maxPages 60) + lookups (getSource/allSources/seedUrls); pure unit test.   <!-- sha: a3fa409 -->
 - [x] Acquisition context: `normalizeUrl()` (invariant 2 — strip fragments + tracking params, lowercase host, trim trailing slash), thin HTML extraction (node-html-parser; select `#content`, strip nav/sidebar/footer, decode entities, paragraph-preserving), `acquireOne` (fetch → extract → `RawDocument` w/ sha256 bodyHash, typed skips); fakes-only unit tests + real-fixture probe (clean 5698-char extraction).   <!-- sha: 3be1c4a -->
 - [x] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, 304→not-modified, body returned for hashing); wired in main; co-located stubbed-fetch unit test.   <!-- sha: a8a18b5 -->
-- [x] `acquireSource` orchestrator in the Acquisition context (seed walk + delay + maxPages cap, stages via injected RawDocumentStore; fakes-only test) + thin `scripts/acquire.ts` + `pnpm acquire --source <key>|--all`. Typecheck + dry invocation (usage/unknown-source) green.   <!-- sha: next -->
-- [ ] Live run `pnpm acquire --source starting-with-god`: rows land in `raw_documents`; spot-read `raw_content` = real article text, not nav/boilerplate. Record counts + observations in `sources.md`.   <!-- sha: ________ -->
+- [x] `acquireSource` orchestrator in the Acquisition context (seed walk + delay + maxPages cap, stages via injected RawDocumentStore; fakes-only test) + thin `scripts/acquire.ts` + `pnpm acquire --source <key>|--all`. Typecheck + dry invocation (usage/unknown-source) green.   <!-- sha: 6abfe62 -->
+- [x] Live run `pnpm acquire --source starting-with-god`: **40/40 pages staged**, avg 6,843 chars (412–20,877), all titled/status-200/body_hash; spot-reads clean (article text, paragraph breaks, entities decoded). Recorded in `sources.md` (→ Acquired).   <!-- sha: next -->
+
+**Stage 1 (Acquire) complete — verify green, 40 clean rows in `raw_documents`.**
 
 ### 2. Ingest → corpus tables (needs OpenRouter key in .env)
 - [ ] OpenRouter `Embedder` adapter (`openai/text-embedding-3-small`, 1536 dims, batch ≤100, dimension assertion); wired in main.
@@ -42,13 +44,12 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none (OpenRouter key needed before Stage 2; acquire does not need it).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "Live run + verify" (the last acquire sub-step). Next concrete
-action: ensure the Postgres container is up (`docker compose up -d`) and migrated
-(`pnpm db:migrate`), then run `pnpm acquire --source starting-with-god`. Confirm
-rows land: `SELECT count(*), avg(length(raw_content)) FROM raw_documents WHERE
-source_key='starting-with-god'` and spot-read a `raw_content` — real article
-text, not nav/boilerplate. Record counts + observations in `sources.md`
-(→ Acquired) and finish Stage 1 in this file. This is a stage boundary → pause
-and summarize before Stage 2 (Ingest, which needs the OpenRouter key).
-Last verify: green @ sub-step 5 (depcruise/typecheck/lint/test, 29 tests; dry
-acquire invocation clean). Branch: slice/starting-with-god.
+At: **Stage 2 (Ingest) — first sub-step: OpenRouter Embedder adapter.** Stage 1
+is done: 40 clean rows sit in `raw_documents` (ingested_at IS NULL), ready to
+drain. Next concrete action requires the OpenRouter API key in `.env`, then:
+build `src/adapters/openrouter/` (Embedder over `openai/text-embedding-3-small`,
+1536 dims, batch ≤100, dimension assertion) and wire it in main; then the
+Ingestion context (normalize → chunk 500/50/min-20 → embed → dedup) and
+`scripts/index.ts` to drain raw_documents → idempotent replaceDocument.
+Last verify: green @ Stage 1 complete (depcruise/typecheck/lint/test, 29 tests;
+live crawl 40/40 staged + DB spot-reads clean). Branch: slice/starting-with-god.

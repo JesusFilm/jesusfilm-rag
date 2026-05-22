@@ -9,10 +9,12 @@ _Last updated: 2026-05-22_
 
 ## You are here
 
-A **tested skeleton with zero content.** The DB schema + the three storage
-adapters work against the live Postgres container (13 tests green, incl. 4
-integration tests hitting `jesusfilm-rag-db`). Nothing has touched a real
-website yet — no acquire, ingest, retrieval, or eval exists.
+**Slice #1 has real content acquired.** The Acquisition context is built and
+proven end-to-end: `pnpm acquire --source starting-with-god` crawled the live
+site and staged **40 clean article rows** in `raw_documents` (avg 6,843 chars,
+nav/boilerplate stripped, entities decoded). 29 tests green (incl. live-DB
+integration). Ingestion / retrieval / eval do **not** exist yet — the corpus
+tables (`documents`/`chunks`/`chunk_embeddings`) are still empty.
 
 ## Next action
 
@@ -21,10 +23,10 @@ website yet — no acquire, ingest, retrieval, or eval exists.
 resume hint live in **[docs/slices/starting-with-god.md](./slices/starting-with-god.md)**
 — that file + the slice branch's git log are the cold-start resume contract.
 
-Currently driving **Stage 1 (Acquire)**: build the `RawDocumentStore` write port
-+ fake + Postgres adapter, a minimal registry entry for Starting With God, the
-Acquisition extraction path, an HTTP `Fetcher` adapter, and `scripts/acquire.ts`,
-then run it live so rows land in `raw_documents`.
+**Stage 1 (Acquire) is done** ✅ — 40 rows staged. **Stage 2 (Ingest) is next**
+and needs the **OpenRouter API key in `.env`** before it can run: build the
+OpenRouter Embedder adapter + the Ingestion context (normalize → chunk → embed →
+dedup) + `scripts/index.ts` to drain `raw_documents` → corpus tables.
 
 → **Resume with `/slice`** — it reads this file + the slice file, checks out the
 branch, and continues at the first unchecked sub-step.
@@ -71,12 +73,13 @@ high word counts confirm real content, not an anti-bot page.)
 
 ## Open decisions / blockers
 
-- **First source = Starting With God** (recommended) — confirm or override.
 - **OpenRouter API key** must be in `.env` before the *ingest* stage of slice #1
-  (acquire doesn't need it).
+  (acquire didn't need it). **This is the blocker for Stage 2.**
+- ~~First source = Starting With God~~ — confirmed; acquired (40 rows).
 
 ## Done
 
 - **Step 1** — bare-out + §6 schema + §5 enforcement gates (depcruise / max-lines / fakes-only).
 - **Step 2** — Postgres storage adapters (CorpusWrite, CorpusSearch, FetchState) + in-memory fakes; integration-tested against docker Postgres.
 - **2026-05-22** — lightweight tracking (this file) + vertical-slice build decision; reachability recon of all 6 sources.
+- **Slice #1, Stage 1 (Acquire)** — RawDocumentStore port/fake/adapter, SourceRegistry + Starting With God entry, Acquisition context (normalizeUrl/extraction/acquireOne/acquireSource), HTTP Fetcher adapter, `pnpm acquire`. Live crawl staged **40/40 clean rows** in `raw_documents`. On `slice/starting-with-god`.

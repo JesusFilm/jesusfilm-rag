@@ -48,7 +48,7 @@ time — we acquire and evaluate each one fresh and record the outcome here.
 | Jesus Film Project | https://www.jesusfilm.org | HTML | Not started | — | — |
 | Cru | https://www.cru.org | HTML | Not started | — | — |
 | EveryStudent | https://www.everystudent.com | HTML | Not started | — | — |
-| Starting With God | https://www.startingwithgod.com | HTML | Acquiring | — | Slice #1 (`slice/starting-with-god`). Acquire scope: bare fetch + polite delay; robots/http-cache deferred. Seed-list page discovery. |
+| Starting With God | https://www.startingwithgod.com | HTML | Acquired | 40/40 pages staged → `raw_documents`; `raw_content` avg 6,843 chars (412–20,877); all titled, status 200, body_hash captured; spot-reads clean (article text, paragraph breaks, entities decoded). | Slice #1 (`slice/starting-with-god`), acquired 2026-05-22. Seed-list of 40 article URLs (from sitemap; cross-site everystudent.com + category index pages excluded). `#content` extraction strips nav/sidebar/footer cleanly. A few thin promo pages (the-ripple-effect 412c, every-student-app 1000c, what-is-the-gospel 523c) — legit short content, not boilerplate. Bare fetch + 1500ms delay; robots/http-cache deferred. Next: ingest. |
 | Sightline Ministry | https://sightlineministry.org | HTML | Not started | — | — |
 | NextStep | https://nextstep.is | HTML | Not started | — | — |
 

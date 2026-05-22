@@ -18,6 +18,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "drizzle-orm": "^0.45.2",
+    "node-html-parser": "^7.1.0",
     "postgres": "^3.4.9",
     "yaml": "^2.7.0",
     "zod": "^3.23.8"

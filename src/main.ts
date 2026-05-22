@@ -14,11 +14,13 @@ import type {
   CorpusSearchStore,
   CorpusWriteStore,
   FetchStateStore,
+  RawDocumentStore,
 } from "@/contracts/index.js";
 import {
   PostgresCorpusSearchStore,
   PostgresCorpusWriteStore,
   PostgresFetchStateStore,
+  PostgresRawDocumentStore,
 } from "@/adapters/postgres/index.js";
 import { closeDb, getDb } from "@/db/index.js";
 
@@ -27,6 +29,7 @@ export interface Wiring {
   corpusWriteStore: CorpusWriteStore;
   corpusSearchStore: CorpusSearchStore;
   fetchStateStore: FetchStateStore;
+  rawDocumentStore: RawDocumentStore;
   shutdown(): Promise<void>;
 }
 
@@ -37,6 +40,7 @@ export function wire(): Wiring {
     corpusWriteStore: new PostgresCorpusWriteStore(client),
     corpusSearchStore: new PostgresCorpusSearchStore(client),
     fetchStateStore: new PostgresFetchStateStore(client),
+    rawDocumentStore: new PostgresRawDocumentStore(client),
     shutdown: () => closeDb(),
   };
 }

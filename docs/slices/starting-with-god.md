@@ -12,7 +12,7 @@ spot-check. As slice #1 it also builds the first real path through each context
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents
-- [ ] `RawDocumentStore` write port + in-memory fake + Postgres adapter, wired in main; integration test writes/reads a `raw_documents` row. Idempotent per (source_key, canonical_url) so re-runs don't duplicate.   <!-- sha: ________ -->
+- [x] `RawDocumentStore` write port + in-memory fake + Postgres adapter, wired in main; integration test writes/reads a `raw_documents` row. Idempotent per (source_key, canonical_url) so re-runs don't duplicate.   <!-- sha: dca7fb5..next -->
 - [ ] Registry: `SourceEntry`/`CrawlPolicy` pure-data types + Starting With God entry (domain, seed content-page URLs, content selectors, requestDelayMs, maxPages) + lookups (by key); pure unit test.   <!-- sha: ________ -->
 - [ ] Acquisition context: `normalizeUrl()` (invariant 2 — strip fragments + tracking params, lowercase host, trim trailing slash), thin HTML extraction (title + main text via selectors, drop nav/boilerplate), `acquireOne` (fetch → extract → build `RawDocument` with bodyHash); fakes-only unit tests.   <!-- sha: ________ -->
 - [ ] HTTP `Fetcher` adapter in `src/adapters/http-fetch/` (browser UA, follow redirects, conditional headers honored, body returned for hashing); wired in main.   <!-- sha: ________ -->
@@ -42,10 +42,10 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none (OpenRouter key needed before Stage 2; acquire does not need it).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "RawDocumentStore write port + fake + Postgres adapter". Next
-concrete action: add the `RawDocumentStore` interface to `src/contracts/ports.ts`,
-a `FakeRawDocumentStore` to `src/fakes/`, a `PostgresRawDocumentStore` to
-`src/adapters/postgres/`, wire it in `main.ts`, and extend
-`postgres-store.test.ts` to write+read a `raw_documents` row.
-Last verify: green baseline @ slice start (depcruise/lint/typecheck/test, 13 tests).
-Last commit: scaffold (see git log). Branch: slice/starting-with-god.
+At: Stage 1 — "Registry: SourceEntry/CrawlPolicy + Starting With God entry". Next
+concrete action: create `src/registry/` with pure-data `SourceEntry`/`CrawlPolicy`
+types and a Starting With God entry (domain, seed content-page URLs, content
+selectors, requestDelayMs, maxPages) + a `getSource(key)` lookup, plus a
+fakes-only/pure unit test. Registry may import only `contracts` (depcruise rule).
+Last verify: green @ sub-step 1 (depcruise/typecheck/lint/test, 14 tests incl. the
+new RawDocumentStore integration test). Branch: slice/starting-with-god.

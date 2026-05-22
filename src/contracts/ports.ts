@@ -3,7 +3,11 @@
  * src/adapters and are wired in src/main.ts — never imported by a context.
  * Types only. See docs/architecture.md §4.
  */
-import type { NormalizedDocument, EmbeddedChunk } from "./documents.js";
+import type {
+  RawDocument,
+  NormalizedDocument,
+  EmbeddedChunk,
+} from "./documents.js";
 import type { SourceRecord } from "./sources.js";
 import type { ScoredRow, SearchFilter } from "./retrieval.js";
 
@@ -47,6 +51,16 @@ export interface FetchStateStore {
   putHttpCache(entry: HttpCacheEntry): Promise<void>;
   getRobots(robotsUrl: string): Promise<RobotsEntry | null>;
   putRobots(entry: RobotsEntry): Promise<void>;
+}
+
+export interface RawDocumentStore {
+  /**
+   * Persist one acquired RawDocument to the `raw_documents` staging table.
+   * Idempotent per (sourceKey, canonicalUrl): replaces any not-yet-ingested row
+   * for the same identity, so re-acquiring a page never accumulates duplicate
+   * un-ingested rows. Already-ingested rows are left intact as the raw snapshot.
+   */
+  putRawDocument(doc: RawDocument): Promise<void>;
 }
 
 // ---- Ingestion ports -------------------------------------------------------

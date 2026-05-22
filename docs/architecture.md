@@ -4,7 +4,7 @@ _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, produc
 
 ## Resuming the build (start here)
 
-**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`). **Step 1 is done; step 2 (storage adapter) is next** — see §9.
+**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`) → Postgres storage adapter + in-memory fakes (step 2). **Steps 1–2 are done; step 3 (Acquisition) is next** — see §9.
 
 **To resume cold (a fresh agent, no prior chat context):**
 1. Read `AGENT.md`, then this doc — §9 for the step list, §2 + §4 for the contracts you implement, §5 for the boundary law.
@@ -23,6 +23,8 @@ _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, produc
 | 2 | Persistence schema | **Normalized** (`sources`/`documents`/`chunks`/`chunk_embeddings`) + jesusfilm-ai's richer fields. |
 | 3 | Retrieval `minScore` | Port **0.3 verbatim**. Quality fix deferred to a follow-up ticket (FOLLOW-UP A below). |
 | 4 | Acquisition→Ingestion handoff | **Raw staging table** (`raw_documents`), which is also the reproducible raw snapshot. |
+| 5 | v1 source scope *(added 2026-05-22)* | Curated HTML subset first — the **six** originally-scoped domains that previously yielded a working corpus (Jesus Film Project, Cru, EveryStudent, Starting With God, Sightline Ministry, NextStep). Full inventory + acquire→ingest→evaluate status tracked in [`docs/sources.md`](./sources.md); started fresh, no prior-project data carried. API/Drive/multi-language sources deferred. |
+| 6 | Reindex stability *(added 2026-05-22)* | **In-place reindex; no uptime/consistency guarantee during a run.** Ingestion writes directly to the live corpus tables (per-document delete-then-insert is atomic, but a full run is not). Temporary stale data, brief inconsistency, or downtime during reindex is **accepted for v1**. Blue/green candidate-build + atomic swap is deferred — see FOLLOW-UP D. |
 
 ---
 
@@ -153,7 +155,7 @@ interface CorpusSearchStore{ vectorSearch(queryVec, filter, k); keywordSearch?(q
 
 **Embedder adapter:** OpenRouter, model `openai/text-embedding-3-small`, 1536 dims, batch ≤ 100, dimension assertion on every response. Provider: https://openrouter.ai/openai/text-embedding-3-small.
 
-**Note (reconcile in build step 2):** the current `Embedder` implementation returns `number[][]` with a `dimensions()` method; the port spec above is `(number[]|null)[]` + `readonly dimensions`. The `null`-per-empty-input is load-bearing (the dedup/skip path relies on it) — adopt the port shape when the adapter is built.
+**Note (reconciled in build step 2):** the port (`src/contracts/ports.ts`) carries the final shape — `embed → (number[]|null)[]` + `readonly dimensions` (not the legacy `number[][]` + `dimensions()`). The `null`-per-empty-input is load-bearing (the dedup/skip path relies on it); `FakeEmbedder` adopts it, and the OpenRouter Embedder adapter (built in a later step) must too.
 
 ---
 
@@ -174,6 +176,7 @@ src/
   retrieval/    query-embed · rank · cutoff · dedup · cite
   adapters/     postgres/ · openrouter/ · http-fetch/   (concrete port implementations)
   serving/      mcp/ · http/   (delivery adapter over an injected Retriever)
+  fakes/        in-memory port doubles for fakes-only unit tests (imported only by *.test.ts)
   main.ts       composition root — the ONLY file that builds adapters and wires contexts
 ```
 
@@ -232,7 +235,7 @@ module.exports = {
 ```
 When a file starts mixing fetch+parse+persist it trips the cap and forces a split before it festers.
 
-**5.6 Fakes-only unit tests.** Every port ships an in-memory fake (`FakeFetcher`, `FakeFetchStateStore`, `FakeEmbedder`, `FakeCorpusWriteStore`, `FakeCorpusSearchStore`). Each context's unit tests run against fakes — **no Postgres, no network**. This is both the quality bar and the coupling detector: if a context can't be tested without a real adapter, it's already coupled (and `tests-never-touch-adapters` fails).
+**5.6 Fakes-only unit tests.** Every port ships an in-memory fake (`FakeFetcher`, `FakeFetchStateStore`, `FakeEmbedder`, `FakeCorpusWriteStore`, `FakeCorpusSearchStore`). Each context's unit tests run against fakes — **no Postgres, no network**. This is both the quality bar and the coupling detector: if a context can't be tested without a real adapter, it's already coupled (and `tests-never-touch-adapters` fails). Landed in `src/fakes/` (step 2): pure port doubles enforced by `fakes-import-only-contracts` + `fakes-are-test-only`, and kept faithful to each adapter's load-bearing invariants (e.g. `FakeCorpusWriteStore` enforces upsertSource-before-replaceDocument and delete-then-insert).
 
 **5.7 Per-context `AGENT.md`.** Each context dir carries a ~5-line fence so an agent working there reads its constraints first (the Forge pattern). Template:
 ```md
@@ -312,8 +315,8 @@ The infrastructure (DB factory, migrations, eval framework, MCP transport, idemp
 ## 9. Build sequence
 
 1. **Bare-out + schema** ✅ *done — clean root commit `acb2c62`* — §7 strip; §6 schema + baseline migration; embedder → `openai/text-embedding-3-small`/1536; chunker retuned. Legacy pipeline code stubbed with `TODO(step-N)` markers. **Enforcement scaffolding** also landed (commit `7a70fd5`): `src/contracts/` (ports + seam types), the per-context dir layout + `AGENT.md` fences, `.dependency-cruiser.cjs`, eslint `max-lines`, `src/main.ts` stub — depcruise/lint/typecheck green.
-2. **Storage adapter** — implement `CorpusWriteStore` + `CorpusSearchStore` + `FetchStateStore` in `src/adapters/postgres/`, wired in `src/main.ts`. (Reconcile the Embedder port shape here — see §4 note.)
-3. **Acquisition** — port registry + scraper-base + policy/robots/http-cache into `src/acquisition/`; `scripts/acquire.ts` writes `RawDocument`s to `raw_documents`. Verify against fixtures (no live crawl needed for tests).
+2. **Storage adapter** ✅ *done — `src/adapters/postgres/`, wired via `main.wire()`* — `CorpusWriteStore` + `CorpusSearchStore` + `FetchStateStore` over the §6 schema. Implemented as **raw SQL on the injected postgres-js client** (the import law forbids adapters → `src/db`, so the adapter targets the migration's table/column names rather than importing the Drizzle schema). Co-located `postgres-store.test.ts` integration test against the docker-compose Postgres (self-migrates; skips loudly when the DB is unreachable). Embedder port shape reconciled (§4 note). In-memory fakes for every port landed in `src/fakes/` (§5.6).
+3. **Acquisition** — port registry + scraper-base + policy/robots/http-cache into `src/acquisition/`; `scripts/acquire.ts` writes `RawDocument`s to `raw_documents`. Verify against fixtures (no live crawl needed for tests). **v1 scope = the six-source short list in [`docs/sources.md`](./sources.md)** (API/Drive/multi-language deferred); track each source's acquire→ingest→evaluate status there as we go.
 4. **Ingestion** — port normalize/chunk/embed into `src/ingestion/`; `scripts/index.ts` drains `raw_documents` → idempotent `replaceDocument`. Verify the dedup lifecycle.
 5. **Retrieval** — port `retrieve.ts` into `src/retrieval/` behind `CorpusSearchStore`; wire `RetrievalPolicy`.
 6. **Serving adapter** — re-attach MCP/HTTP in `src/serving/` over an injected `Retriever`.
@@ -351,3 +354,4 @@ The corpus is rebuilt **from sources by code**, not restored from a blob — thi
 - **FOLLOW-UP A — retrieval `minScore` quality.** 0.3 is ported verbatim but is almost certainly too low (Jaco's own RAGs ran ~0.85; <0.70 is noise). After step 7's eval baseline exists, re-derive the real cutoff from the harness. Owner: TBD.
 - **FOLLOW-UP B — hybrid search.** jfa's hot path is vector-only (FTS exists but is unqueried). Forge uses RRF fusion. Keep `keywordSearch` as an optional port now; evaluate RRF hybrid against the harness later.
 - **FOLLOW-UP C — original-HTML snapshot.** `raw_documents.raw_content` holds extracted text; if full-fidelity reproducibility is wanted, persist original HTML to object storage keyed by `body_hash`.
+- **FOLLOW-UP D — zero-downtime reindex (blue/green).** Decision 6 accepts downtime/stale reads during a reindex. When retrieval becomes high-traffic or multi-tenant, revisit: build a candidate corpus (a `build_id`/version column + an active pointer, or a separate green database), eval it, then atomically swap production reads to it — so a bad or in-progress ingest never reaches live readers. Pairs with `raw_documents` as the cheap re-embed source (no re-crawl). Owner: TBD.

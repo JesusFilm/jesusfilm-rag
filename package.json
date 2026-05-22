@@ -12,6 +12,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "acquire": "tsx scripts/acquire.ts",
     "index": "tsx scripts/index.ts",
+    "query": "tsx scripts/query.ts",
     "serve": "tsx scripts/serve.ts",
     "eval": "tsx scripts/eval.ts",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs"

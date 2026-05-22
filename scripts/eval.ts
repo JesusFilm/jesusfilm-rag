@@ -18,7 +18,8 @@ import path from "node:path";
 import YAML from "yaml";
 import { z } from "zod";
 import { getEnv } from "@/env.js";
-import { closeDb } from "@/db/index.js";
+import { wire } from "@/main.js";
+import type { Retriever } from "@/contracts/index.js";
 
 const GoldenCaseSchema = z.object({
   id: z.string(),
@@ -60,54 +61,62 @@ async function main(): Promise<void> {
 
   if (golden.cases.length === 0) {
     console.log(
-      "eval/qa-golden.yaml has no cases — nothing to run. Author cases once the corpus is ingested (port build step 7).",
+      "eval/qa-golden.yaml has no cases — nothing to run. Author cases now that the corpus is ingested + retrievable (slice #1).",
     );
-    await closeDb();
     return;
   }
 
-  console.log(
-    `running ${golden.cases.length} case(s) with top_k=${TOP_K}, model=${env.EMBED_MODEL_ID}`,
-  );
-  const results: CaseResult[] = [];
-  for (const c of golden.cases) {
-    const hits = await runOne(c.question);
-    const matchedRank = firstMatchingRank(hits, c);
-    results.push({ case: c, hits, matchedRank });
-    const tick = matchedRank !== null ? "✓" : "✗";
-    console.log(`  ${tick} ${c.id} — rank=${matchedRank ?? "miss"}`);
+  const wiring = wire();
+  try {
+    console.log(
+      `running ${golden.cases.length} case(s) with top_k=${TOP_K}, model=${env.EMBED_MODEL_ID}`,
+    );
+    const results: CaseResult[] = [];
+    for (const c of golden.cases) {
+      const hits = await runOne(wiring.retriever, c.question);
+      const matchedRank = firstMatchingRank(hits, c);
+      results.push({ case: c, hits, matchedRank });
+      const tick = matchedRank !== null ? "✓" : "✗";
+      console.log(`  ${tick} ${c.id} — rank=${matchedRank ?? "miss"}`);
+    }
+
+    const metrics = computeMetrics(results);
+    console.log("\nmetrics:");
+    for (const [k, v] of Object.entries(metrics)) {
+      console.log(`  ${k.padEnd(14)} ${typeof v === "number" ? v.toFixed(3) : v}`);
+    }
+
+    const date = new Date().toISOString().slice(0, 10);
+    const outPath = path.resolve(process.cwd(), `eval/results-${date}.md`);
+    await mkdir(path.dirname(outPath), { recursive: true });
+    await writeFile(outPath, renderMarkdown(env.EMBED_MODEL_ID, results, metrics));
+    console.log(`\nwrote ${path.relative(process.cwd(), outPath)}`);
+  } finally {
+    await wiring.shutdown();
   }
-
-  const metrics = computeMetrics(results);
-  console.log("\nmetrics:");
-  for (const [k, v] of Object.entries(metrics)) {
-    console.log(`  ${k.padEnd(14)} ${typeof v === "number" ? v.toFixed(3) : v}`);
-  }
-
-  const date = new Date().toISOString().slice(0, 10);
-  const outPath = path.resolve(process.cwd(), `eval/results-${date}.md`);
-  await mkdir(path.dirname(outPath), { recursive: true });
-  await writeFile(outPath, renderMarkdown(env.EMBED_MODEL_ID, results, metrics));
-  console.log(`\nwrote ${path.relative(process.cwd(), outPath)}`);
-
-  await closeDb();
 }
 
 /**
- * STUBBED until build step 5. The query path is the Retrieval context behind the
- * CorpusSearchStore port; once it lands, this harness is re-pointed at the real
- * corpus.
- *
- * TODO(step-5): call into the Retrieval library (embedQuery →
- *               CorpusSearchStore.vectorSearch → rank), mapping results to Hit[]
- *               (chunkId / docPath / docUrl / score). Match on `canonical_url`
- *               or a new `expected_*` matcher.
+ * One golden question through the real Retrieval library (the same Retriever the
+ * MCP server / `pnpm query` use), mapped to the eval Hit shape. `docUrl` is the
+ * chunk's canonical URL; `docPath` its pathname — golden cases match on either.
  */
-async function runOne(question: string): Promise<Hit[]> {
-  void question;
-  throw new Error(
-    "eval runOne: Retrieval not implemented — rebuilt in port build step 5. See scripts/eval.ts.",
-  );
+async function runOne(retriever: Retriever, question: string): Promise<Hit[]> {
+  const ranked = await retriever.search(question, { topK: TOP_K });
+  return ranked.map((r) => ({
+    chunkId: r.chunkId,
+    docPath: safePathname(r.citation.url),
+    docUrl: r.citation.url,
+    score: r.score,
+  }));
+}
+
+function safePathname(url: string): string {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url;
+  }
 }
 
 function firstMatchingRank(hits: Hit[], c: GoldenCase): number | null {

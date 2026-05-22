@@ -30,8 +30,10 @@ spot-check. As slice #1 it also builds the first real path through each context
 **Stage 2 (Ingest) complete — verify green, 40 docs / 183 chunks / 183 embeddings (openai/text-embedding-3-small) in the corpus. Model decision resolved.**
 
 ### 3. Retrieve → ranked results
-- [x] Retrieval context (`src/retrieval/`): `createRetriever({embedder, search})` runs invariant 5 — embedQuery → vectorSearch(candidateTopK fan-out) → minScore 0.3 cutoff → soft preferSourceKey tiebreak → 3-key dedup (content-hash / canonicalUrl+ord / title+text fingerprint) → slice topK → citation assembly. Pure helpers (`candidateTopK`, `policyToFilter`) exported. 12 fakes-only tests (ranking, cutoff, fan-out count, each dedup key, scope/language filter, preference). Verify green, 59 tests.   <!-- sha: 3e2e217 -->
-- [ ] A query entry (script/test) returns ranked, cited hits from Starting With God.
+- [x] Retrieval context (`src/retrieval/`): `createRetriever({embedder, search})` runs invariant 5 — embedQuery → vectorSearch(candidateTopK fan-out) → minScore 0.3 cutoff → soft preferSourceKey tiebreak → 3-key dedup (content-hash / canonicalUrl+ord / title+text fingerprint) → slice topK → citation assembly. Pure helpers (`candidateTopK`, `policyToFilter`) exported. 12 fakes-only tests (ranking, cutoff, fan-out count, each dedup key, scope/language filter, preference). Verify green, 59 tests.   <!-- sha: 8ad378b -->
+- [x] Query entry point: `retriever` wired into `main.wire()`; thin `scripts/query.ts` + `pnpm query "<q>"` (flags: `--top-k/--min-score/--source/--prefer/--language/--category`) prints ranked cited hits; `scripts/eval.ts` step-5 TODO closed (`runOne` now drives the real Retriever). Live: `pnpm query "How can I begin a relationship with God?"` → **5 distinct docs**, scores 0.54–0.59, all on-topic, each cited (title + canonical URL).   <!-- sha: pending -->
+
+**Stage 3 (Retrieve) complete — verify green (59 tests), live query returns ranked + cited hits from Starting With God. Per-document dedup confirmed (5 hits = 5 distinct URLs). Scores cluster ~0.55 — minScore 0.3 is generous (FOLLOW-UP A: re-derive from eval baseline).**
 
 ### 4. Spot-check
 - [ ] A handful of representative queries return relevant chunks (operator eyeballs); record findings in `sources.md`.
@@ -52,15 +54,13 @@ spot-check. As slice #1 it also builds the first real path through each context
 - none. (Embedding-model divergence is resolved — corpus is on `openai/text-embedding-3-small`.)
 
 ## Resume hint (for a cold start)
-At: **Stage 3 (Retrieve) — not started.** Stage 2 is done: corpus holds 40 docs /
-183 chunks / 183 embeddings (`openai/text-embedding-3-small`, 1536 dims); all
-raw_documents ingested. Next concrete action: build `src/retrieval/` (embedQuery
-→ vectorSearch candidate fan-out invariant 5 → cosine rank → minScore 0.3 →
-3-key dedup → citation) over the existing `CorpusSearchStore` (already
-implemented + integration-tested) and the OpenRouter Embedder query side, then a
-query entry point returns ranked cited hits. (Env schema now declares only the
-consumed vars — DATABASE_URL + OPENROUTER_API_KEY + EMBED_MODEL_ID; the unused
-MCP/serving/auth vars were removed until step 6.) Last verify: green @ Stage 2
-complete (depcruise/typecheck/lint, 47
-tests incl. live DB integration; live re-embed 40/40 → 183 openai chunks,
-idempotent re-run drains 0). Branch: slice/starting-with-god.
+At: **Stage 4 (Spot-check) — not started.** Stages 1–3 are done: the corpus (40
+docs / 183 chunks / 183 embeddings, `openai/text-embedding-3-small`) is now
+**queryable** via `src/retrieval/` + `pnpm query "<q>"` (and `pnpm eval` once
+golden cases exist). Next concrete action: run a handful of representative
+queries through `pnpm query`, eyeball relevance, and record findings in
+`sources.md` (→ Evaluated). Then the slice is done — offer to merge
+`slice/starting-with-god` into `main`. Last verify: green @ Stage 3 complete
+(depcruise/typecheck/lint, 59 tests; live query "How can I begin a relationship
+with God?" → 5 distinct cited docs, scores 0.54–0.59). Branch:
+slice/starting-with-god.

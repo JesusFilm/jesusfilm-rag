@@ -25,9 +25,9 @@ spot-check. As slice #1 it also builds the first real path through each context
 - [x] OpenRouter `Embedder` adapter (OpenAI-compatible `/embeddings`, 1536 dims, batch ≤100, per-response dimension assertion, null-per-blank skip); wired in main. 6 stubbed-fetch unit tests.   <!-- sha: 31ea558 -->
 - [x] Ingestion context: normalize (clean text, registry defaults, contentHash) → chunk (jfa 500/50/min-20 ported verbatim + best-effort spans/tokens) → embed → dedup gate → idempotent replaceDocument. Adds `RawDocumentReader` read port + fake. 10 fakes-only tests.   <!-- sha: 03d5ca9 -->
 - [x] `scripts/index.ts`: drain `raw_documents` (ingested_at IS NULL) via ingestPending → mark consumed; `--source/--limit/--force`. Postgres `RawDocumentReader` adapter + live integration test.   <!-- sha: 5a99d37 -->
-- [x] Live run `pnpm index --source starting-with-god`: **40/40 docs → 183 chunks → 183 embeddings**, chunk_count consistent (declared=actual=183, 0 mismatched), chunks/doc min 1 / avg 4.6 / max 14; sample chunk is clean article text. Idempotent re-run drains 0. ⚠ embedded with **`nvidia/llama-nemotron-embed-vl-1b-v2:free`** (the `.env` `EMBED_MODEL_ID`), NOT decision-1's `openai/text-embedding-3-small` — see open decision below.   <!-- sha: next -->
+- [x] Live run `pnpm index --source starting-with-god`: **40/40 docs → 183 chunks → 183 embeddings**, chunk_count consistent (declared=actual=183, 0 mismatched), chunks/doc min 1 / avg 4.6 / max 14; sample chunk is clean article text. Idempotent re-run drains 0. First run mistakenly used the `.env`'s nvidia free model; corrected by re-embedding (`--force`) → all 183 embeddings now **`openai/text-embedding-3-small`** (1536 dims), counts unchanged.   <!-- sha: 7983f7e (run) / b073a0f (--force) -->
 
-**Stage 2 (Ingest) complete — verify green, 40 docs / 183 chunks / 183 embeddings in the corpus. One open decision: the embedding model (below).**
+**Stage 2 (Ingest) complete — verify green, 40 docs / 183 chunks / 183 embeddings (openai/text-embedding-3-small) in the corpus. Model decision resolved.**
 
 ### 3. Retrieve → ranked results
 - [ ] Retrieval context: embedQuery → vectorSearch (candidate fan-out, invariant 5) → cosine rank → minScore 0.3 → 3-key dedup → citation assembly; fakes-only unit tests.
@@ -43,28 +43,21 @@ spot-check. As slice #1 it also builds the first real path through each context
 - 2026-05-22 — `RawDocumentStore` is the new write port for `raw_documents` (the §4 port list had no writer for the staging table); made idempotent per (source_key, canonical_url) on un-ingested rows so re-acquire doesn't duplicate.
 - 2026-05-22 — `RawDocumentReader` is the new **read** port for `raw_documents` (`listPending` + `markIngested`), symmetric to the write port — mirrors the CorpusWriteStore/CorpusSearchStore split so Acquisition sees only the writer and Ingestion only the reader. Same staging-table deviation from the §4 port list, read side.
 - 2026-05-22 — `char_start`/`char_end` on chunks are **best-effort source offsets** (located by matching each chunk against a whitespace-collapsed projection; sequential fallback when overlap/whitespace defeats a match). They're metadata only — retrieval ranks on the embedding, never on offsets — so approximate spans are acceptable; the columns are NOT NULL so a value is always written. `token_count` = jfa's `ceil(chars/4)`.
+- 2026-05-22 — **Embedding model = `openai/text-embedding-3-small`** (locked decision-1, confirmed by operator). The first ingest run accidentally used a `.env` `EMBED_MODEL_ID` override (`nvidia/llama-nemotron-embed-vl-1b-v2:free`); both models are reachable via OpenRouter at 1536 dims (probed), so it was a free choice, not a constraint. Corrected `.env` → openai and re-embedded all 183 chunks via `--force`. Probe also confirmed openai embeddings ARE served by OpenRouter (earlier assumption that they 404 was wrong).
+- 2026-05-22 — `pnpm index --force` = **full re-index from the raw snapshot** (re-drain ingested rows via `RawDocumentReader.includeIngested` + bypass the contentHash skip). The reproducible way to re-embed after a model/chunker change without re-crawling — used for the openai re-embed above.
 
 ## Open question / blocker
-- **OPEN — embedding model diverges from locked decision 1.** The corpus's 183
-  chunks are embedded with `nvidia/llama-nemotron-embed-vl-1b-v2:free` (the
-  `EMBED_MODEL_ID` set in `.env`, 1536 dims, served by OpenRouter), NOT decision
-  1's `openai/text-embedding-3-small`. The adapter behaved correctly — it used
-  the env-configured model. Retrieval (Stage 3) works as long as queries embed
-  with the same env model (cosine is internally consistent). Needs an operator
-  call before Stage 3: (A) accept the nvidia free model as the new decision-1 and
-  update architecture.md, or (B) re-embed with `openai/text-embedding-3-small`
-  (`pnpm index --force`) if it's reachable via OpenRouter / a direct OpenAI
-  route. Likely cause of the override: OpenRouter's embeddings catalogue is
-  limited and the openai model 404s there.
+- none. (Embedding-model divergence is resolved — corpus is on `openai/text-embedding-3-small`.)
 
 ## Resume hint (for a cold start)
-At: **Stage 3 (Retrieve) — not started**, pending the embedding-model decision
-above. Stage 2 is done: corpus holds 40 docs / 183 chunks / 183 embeddings
-(model `nvidia/llama-nemotron-embed-vl-1b-v2:free`); all raw_documents ingested.
-Next concrete action: resolve the model decision, then build `src/retrieval/`
-(embedQuery → vectorSearch candidate fan-out invariant 5 → cosine rank →
-minScore 0.3 → 3-key dedup → citation) over the existing `CorpusSearchStore`
-(already implemented + integration-tested) and the OpenRouter Embedder query side.
-Last verify: green @ Stage 2 complete (depcruise/typecheck/lint, 46 tests incl.
-live DB integration; live ingest 40/40 → 183 chunks, idempotent re-run drains 0).
-Branch: slice/starting-with-god.
+At: **Stage 3 (Retrieve) — not started.** Stage 2 is done: corpus holds 40 docs /
+183 chunks / 183 embeddings (`openai/text-embedding-3-small`, 1536 dims); all
+raw_documents ingested. Next concrete action: build `src/retrieval/` (embedQuery
+→ vectorSearch candidate fan-out invariant 5 → cosine rank → minScore 0.3 →
+3-key dedup → citation) over the existing `CorpusSearchStore` (already
+implemented + integration-tested) and the OpenRouter Embedder query side, then a
+query entry point returns ranked cited hits. NOTE: `.env` needs `MCP_BEARER_TOKEN`
+restored (an edit dropped it; the env schema requires it even for ingest/retrieve
+runners). Last verify: green @ Stage 2 complete (depcruise/typecheck/lint, 47
+tests incl. live DB integration; live re-embed 40/40 → 183 openai chunks,
+idempotent re-run drains 0). Branch: slice/starting-with-god.

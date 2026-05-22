@@ -15,11 +15,9 @@ the Acquisition and Ingestion contexts are built and proven end-to-end:
 them into the corpus — **40 docs → 183 chunks → 183 embeddings** (chunk_count
 consistent, chunks/doc avg 4.6, idempotent re-run drains 0). 46 tests green
 (incl. live-DB integration). **Retrieval / eval do not exist yet** — the corpus
-is populated but nothing queries it.
-
-⚠ **One open decision blocks Stage 3:** the corpus was embedded with
-`nvidia/llama-nemotron-embed-vl-1b-v2:free` (the `EMBED_MODEL_ID` in `.env`), not
-locked decision-1's `openai/text-embedding-3-small`. See "Open decisions" below.
+is populated but nothing queries it. The corpus is embedded with
+`openai/text-embedding-3-small` (1536 dims, locked decision-1) — a first run
+accidentally used a `.env` nvidia-free override and was corrected by re-embedding.
 
 ## Next action
 
@@ -78,15 +76,14 @@ high word counts confirm real content, not an anti-bot page.)
 
 ## Open decisions / blockers
 
-- **⚠ Embedding model diverges from locked decision 1 — resolve before Stage 3.**
-  Slice #1's corpus (183 chunks) is embedded with
-  `nvidia/llama-nemotron-embed-vl-1b-v2:free` (the `.env` `EMBED_MODEL_ID`, 1536
-  dims via OpenRouter), not decision-1's `openai/text-embedding-3-small`. The
-  adapter used the env-configured model correctly. Retrieval works as long as
-  queries use the same model. Decide: **(A)** accept the nvidia free model as the
-  new decision-1 (update architecture.md), or **(B)** re-embed with
-  `openai/text-embedding-3-small` (`pnpm index --force`) if reachable. Likely
-  cause: OpenRouter's embeddings catalogue is limited (openai model 404s).
+- **`.env` is missing `MCP_BEARER_TOKEN`** (dropped during an edit). The env
+  schema requires it even for the ingest/retrieve runners (`wire()` validates the
+  full schema), so `pnpm index`/`serve` fail without it. Re-embed was unblocked by
+  passing a throwaway value inline for one run; **restore the real token in `.env`**
+  (or the `.env.example` placeholder `local-dev-token-replace-me`).
+- ~~Embedding model diverged from decision 1~~ — resolved: re-embedded on
+  `openai/text-embedding-3-small` (both it and the nvidia free model are reachable
+  via OpenRouter at 1536 dims; openai is the locked choice).
 - ~~OpenRouter API key must be in `.env` before ingest~~ — present; Stage 2 ran.
 - ~~First source = Starting With God~~ — confirmed; acquired + ingested.
 
@@ -105,4 +102,4 @@ high word counts confirm real content, not an anti-bot page.)
 - **Step 2** — Postgres storage adapters (CorpusWrite, CorpusSearch, FetchState) + in-memory fakes; integration-tested against docker Postgres.
 - **2026-05-22** — lightweight tracking (this file) + vertical-slice build decision; reachability recon of all 6 sources.
 - **Slice #1, Stage 1 (Acquire)** — RawDocumentStore port/fake/adapter, SourceRegistry + Starting With God entry, Acquisition context (normalizeUrl/extraction/acquireOne/acquireSource), HTTP Fetcher adapter, `pnpm acquire`. Live crawl staged **40/40 clean rows** in `raw_documents`. On `slice/starting-with-god`.
-- **Slice #1, Stage 2 (Ingest)** — OpenRouter Embedder adapter, Ingestion context (normalize → jfa-ported chunk → embed → dedup → idempotent replaceDocument), RawDocumentReader read port/fake/adapter, `pnpm index`. Live run drained `raw_documents` → **40 docs / 183 chunks / 183 embeddings**; idempotent re-run drains 0. 46 tests green. ⚠ embedded with the `.env` nvidia free model (open decision above). On `slice/starting-with-god`.
+- **Slice #1, Stage 2 (Ingest)** — OpenRouter Embedder adapter, Ingestion context (normalize → jfa-ported chunk → embed → dedup → idempotent replaceDocument), RawDocumentReader read port/fake/adapter, `pnpm index`. Live run drained `raw_documents` → **40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`); idempotent re-run drains 0. 47 tests green. `pnpm index --force` = full re-index from the raw snapshot (used to re-embed off an accidental `.env` model override). On `slice/starting-with-god`.

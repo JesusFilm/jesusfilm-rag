@@ -42,4 +42,5 @@ No context imports another context. No context or serving imports a concrete ada
 - **Re-indexing is idempotent and source-scoped:** stale chunks for a changed source are deleted and replaced in the same transaction.
 - **Embedding model recorded per row** (`chunk_embeddings.embedding_model`). Don't silently change it — add a new model row, then migrate.
 - **Confirm before destructive ops** (dropping tables, deleting sources, force-pushing).
+- **Golden eval cases are authored with `/golden <source-key>`, not by hand.** After a source is ingested, the skill surveys the *real* corpus and drafts persona-diverse candidate questions — **seeker · skeptic · believer · newcomer**, each tied to a real document — plus off-topic negatives for cutoff calibration, for you to curate into `eval/qa-golden.yaml`. `pnpm eval` then scores recall@k / MRR. Retrieval-only — no intent/tone/answer judgment (that's a consumer concern). See [`.claude/skills/golden/SKILL.md`](./.claude/skills/golden/SKILL.md).
 - Defer to `~/Jaxs/CLAUDE.md` for workspace-wide conventions (gh account, tone, decision hierarchy).

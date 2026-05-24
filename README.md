@@ -28,6 +28,21 @@ Read-only retrieval over a curated, publicly accessible corpus. Consumers do the
 
 Sources are defined in the **source registry** (`src/registry`) — each entry carries its domain, crawl policy, default tags (`media:`/`audience:`/`topic:`/`lang:`), trust level, and languages. There is no local corpus directory: the corpus is **built from sources by code**. Acquisition crawls each source per its policy into the `raw_documents` staging table; Ingestion normalizes → chunks → embeds into the corpus tables. Re-runs are idempotent and source-scoped — unchanged pages are skipped. See [`docs/architecture.md`](./docs/architecture.md) §3 and §10.
 
+## Authoring evals (golden cases)
+
+Golden cases are **not hand-written**. After a source is ingested, run the
+**`/golden <source-key>`** skill: it surveys what *actually* landed in the corpus
+and drafts candidate questions from a balanced spread of personas — **seeker,
+skeptic, believer, newcomer** — each tied to a real document, plus off-topic
+negatives for cutoff calibration. You curate (approve / edit / reject) into
+`eval/qa-golden.yaml`; `pnpm eval` then scores recall@k / MRR. It works for any
+source because it reads the ingested corpus rather than assuming a topic.
+
+The eval is **retrieval-only** — did the right chunk come back, and does
+off-topic content stay out. No intent/tone/answer judgment lives here; that's a
+consumer concern (see [`docs/architecture.md`](./docs/architecture.md) §1,
+"mechanism, not policy"). See [`.claude/skills/golden/SKILL.md`](./.claude/skills/golden/SKILL.md).
+
 ## Access & filtering (two layers)
 
 - **Layer 1 — token scope (allowlist).** Each consumer holds a Bearer token whose scope is the set of tags it may see. Anything outside scope is invisible — not queryable, not fetchable by id, not discoverable.

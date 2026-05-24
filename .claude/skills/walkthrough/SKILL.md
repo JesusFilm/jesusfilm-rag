@@ -1,7 +1,7 @@
 ---
 name: walkthrough
 description: "Explain how a feature/flow works in this codebase as a code-flow DIAGRAM plus a high-level guided walkthrough — from the entry point down through the layers, with clickable file:line references and architecture-boundary annotations. Read-only (never edits code). Invoke /walkthrough <feature, flow, or entry point>, e.g. /walkthrough the acquire process or /walkthrough scripts/acquire.ts."
-allowed-tools: "Bash(grep *) Bash(git grep *) Bash(rg *) Bash(sed *) Bash(ls *) Bash(find *) Read(*) Grep(*) Glob(*)"
+allowed-tools: "Bash(grep *) Bash(git grep *) Bash(rg *) Bash(ls *) Bash(find *) Read(*) Grep(*) Glob(*)"
 disable-model-invocation: true
 ---
 

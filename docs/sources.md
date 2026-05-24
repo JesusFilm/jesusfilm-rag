@@ -11,6 +11,20 @@ sheet; the machine-readable crawl config lives in the code registry
 > `Not started`, and we record only what *we* observe when we acquire and
 > evaluate them ourselves.
 
+## Registry keys (how to refer to a source)
+
+Tools that act on one source — `/golden`, `pnpm acquire|index|query --source <key>` —
+take the **registry key**: a stable slug, not a number (numbers would drift as
+sources are added). You don't need to memorize it — **`/golden`** with no argument
+lists the ingested sources and lets you pick by number from that live menu. Keys,
+as sources are registered:
+
+| Key | Source |
+|-----|--------|
+| `starting-with-god` | Starting With God |
+
+(Only registered sources appear; the rest get a key when their slice begins.)
+
 ## How to use this tracker
 
 Update a row as it moves through the pipeline. Keep `Results` and `Notes`

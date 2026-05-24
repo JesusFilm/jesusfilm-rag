@@ -1,6 +1,6 @@
 ---
 name: golden
-description: "Author grounded golden eval cases for one ingested source, fast. Surveys what actually landed in the corpus for a source, then drafts persona-diverse candidate questions (each tied to a real document) plus off-topic negatives for cutoff calibration — for the operator to curate, not hand-write. Writes approved cases into eval/qa-golden.yaml. Invoke /golden <source-key> after that source is ingested."
+description: "Author grounded golden eval cases for one ingested source, fast. Surveys what actually landed in the corpus for a source, then drafts persona-diverse candidate questions (each tied to a real document) plus off-topic negatives for cutoff calibration — for the operator to curate, not hand-write. Writes approved cases into eval/qa-golden.yaml. Invoke /golden to pick from the ingested sources by number, or /golden <key|name|partial> to target one directly."
 allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 disable-model-invocation: true
 ---
@@ -72,9 +72,26 @@ The personas are the default balanced set; the operator may swap or add one.
 
 ## Procedure
 
-### 0. Preconditions
-The source must be ingested. Confirm `documents` has rows for it; if zero, stop
-and say "ingest this source first (slice Stage 2)".
+### 0. Resolve the source (the operator need not know the key)
+The canonical id is the registry **key** — a stable slug like `starting-with-god`,
+never a number (numbers drift as sources are added). But don't make the operator
+memorize it:
+- **`/golden`** (no argument) → list the ingested sources and let them pick by
+  number from that *live* menu:
+  ```sh
+  psql "$(grep -E '^DATABASE_URL=' .env | cut -d= -f2-)" -c \
+    "SELECT row_number() OVER (ORDER BY name) AS n, key, name FROM sources ORDER BY name;"
+  ```
+  The number is a transient picker for *this* list only — resolve it back to the
+  key immediately; never store or refer to the number.
+- **`/golden <key | name | partial>`** → resolve to a key (`starting`,
+  `Starting With God`, and `starting-with-god` all map to `starting-with-god`).
+  If the match is ambiguous or unknown, show the list and ask.
+
+Then confirm the source is **ingested**: it must appear in `sources` AND have rows
+in `documents`. If it has no documents, stop and say "ingest this source first
+(slice Stage 2)". (`docs/sources.md` → "Registry keys" lists every registered
+key.)
 
 ### 1. Survey the ingested corpus
 Read what actually landed for the source — **do not re-scrape**. Via psql against

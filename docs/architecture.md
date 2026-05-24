@@ -11,7 +11,6 @@ _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, produc
 2. Confirm the green baseline: `pnpm depcruise && pnpm lint && pnpm typecheck`.
 3. The behavioral source of truth for the porting steps is the **jesusfilm-ai** repo (the RAG this is based on); §8 maps which of its files feed each context. Step 2 is mostly self-contained — implement the contract ports over the schema in `src/db/schema.ts` — and needs little from it.
 4. **Testing:** contexts get fakes-only unit tests (no DB, no network); an **adapter** gets its own co-located `*.test.ts` integration test against the docker-compose Postgres (`docker compose up -d`).
-5. **Git:** local `main` is an orphan root that intentionally diverged from `origin/main` — do not force-push without intent.
 
 ---
 

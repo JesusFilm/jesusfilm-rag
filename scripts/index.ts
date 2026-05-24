@@ -25,10 +25,20 @@ interface Args {
 function parseArgs(argv: string[]): Args {
   const s = argv.indexOf("--source");
   const l = argv.indexOf("--limit");
-  const limit = l >= 0 ? Number(argv[l + 1]) : undefined;
+  let limit: number | undefined;
+  if (l >= 0) {
+    // Must be a positive integer: 0 would silently drain nothing, a negative or
+    // fractional value would build an invalid SQL LIMIT and throw deep in the store.
+    const n = Number(argv[l + 1]);
+    if (!Number.isInteger(n) || n <= 0) {
+      console.error(`error: --limit must be a positive integer, got "${argv[l + 1] ?? ""}"`);
+      process.exit(2);
+    }
+    limit = n;
+  }
   return {
     source: s >= 0 ? argv[s + 1] : undefined,
-    limit: limit != null && Number.isFinite(limit) ? limit : undefined,
+    limit,
     force: argv.includes("--force"),
   };
 }

@@ -32,7 +32,9 @@ function tidy(raw: string): string {
 /** Page title: the <title> tag with a trailing " | Site"/" - Site" suffix trimmed; falls back to the first <h1>. */
 function extractTitle(root: HTMLElement): string | null {
   const raw = root.querySelector("title")?.text?.trim();
-  if (raw) return raw.replace(/\s*[|–—-]\s*[^|–—-]{1,60}$/, "").trim() || raw;
+  // Require whitespace BEFORE the separator so a hyphenated final word
+  // ("Self-Aware", "Christ-Centered") isn't mistaken for a " - Site" suffix.
+  if (raw) return raw.replace(/\s+[|–—-]\s*[^|–—-]{1,60}$/, "").trim() || raw;
   return root.querySelector("h1")?.text?.trim() || null;
 }
 

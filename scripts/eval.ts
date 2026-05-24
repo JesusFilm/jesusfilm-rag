@@ -21,12 +21,23 @@ import { getEnv } from "@/env.js";
 import { wire } from "@/main.js";
 import type { Retriever } from "@/contracts/index.js";
 
-const GoldenCaseSchema = z.object({
-  id: z.string(),
-  question: z.string(),
-  expected_doc_paths: z.array(z.string()).optional(),
-  expected_url_contains: z.array(z.string()).optional(),
-});
+const GoldenCaseSchema = z
+  .object({
+    id: z.string(),
+    question: z.string(),
+    expected_doc_paths: z.array(z.string()).optional(),
+    expected_url_contains: z.array(z.string()).optional(),
+  })
+  .refine(
+    (c) =>
+      (c.expected_doc_paths?.length ?? 0) +
+        (c.expected_url_contains?.length ?? 0) >
+      0,
+    {
+      message:
+        "golden case needs at least one matcher (expected_doc_paths or expected_url_contains) — a case with none always scores as a miss",
+    },
+  );
 
 // `.min(1)` relaxed during the port (step 1): the seed cases were stripped and
 // the file ships as `cases: []` until the real corpus is ingested (step 7).

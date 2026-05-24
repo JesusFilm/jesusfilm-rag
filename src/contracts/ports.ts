@@ -84,7 +84,12 @@ export interface RawDocumentReader {
 }
 
 export interface Embedder {
-  /** Batch embed; returns null per empty/failed input (the skip path relies on this). */
+  /**
+   * Batch embed, index-aligned with `texts`. Returns null for an empty/blank
+   * input — the dedup/skip path relies on this. A genuine embedding failure (API
+   * error, count/width mismatch) THROWS rather than returning null, so a chunk is
+   * never silently dropped; the caller re-runs to resume (ingest marks per-doc).
+   */
   embed(texts: string[]): Promise<(number[] | null)[]>;
   embedQuery(text: string): Promise<number[]>;
   readonly model: string;

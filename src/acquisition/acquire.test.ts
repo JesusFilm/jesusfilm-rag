@@ -7,7 +7,7 @@
  */
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import type { FetchResult } from "@/contracts/index.js";
+import type { FetchResult, Fetcher } from "@/contracts/index.js";
 import type { SourceEntry } from "@/registry/index.js";
 import { FakeFetcher, FakeRawDocumentStore } from "@/fakes/index.js";
 import {
@@ -93,6 +93,16 @@ describe("extractContent", () => {
   it("keeps paragraph breaks between blocks", () => {
     const { text } = extractContent(PAGE, entry.crawl);
     expect(text.split("\n\n").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("does not truncate a title whose final word is hyphenated", () => {
+    // Only a spaced " | Site" / " - Site" suffix is stripped; a word-internal
+    // hyphen ("Self-Aware") must survive.
+    const hyphen = `<html><head><title>How to be Self-Aware</title></head><body><div id="content"><p>${"word ".repeat(10)}</p></div></body></html>`;
+    expect(extractContent(hyphen, entry.crawl).title).toBe("How to be Self-Aware");
+
+    const suffixed = `<html><head><title>Becoming Christ-Centered | Starting With God</title></head><body><div id="content"><p>${"word ".repeat(10)}</p></div></body></html>`;
+    expect(extractContent(suffixed, entry.crawl).title).toBe("Becoming Christ-Centered");
   });
 });
 
@@ -182,6 +192,23 @@ describe("acquireSource", () => {
       "https://t.example/a.html",
       "https://t.example/b.html",
     ]);
+  });
+
+  it("treats a thrown fetch (network/timeout) as a skip and keeps crawling", async () => {
+    const throwing: Fetcher = {
+      async fetch(url: string): Promise<FetchResult> {
+        if (url === "https://t.example/b.html") throw new Error("ETIMEDOUT");
+        return ok(PAGE);
+      },
+    };
+    const store = new FakeRawDocumentStore();
+
+    const summary = await acquireSource({ fetcher: throwing, store }, multi);
+
+    expect(summary.attempted).toBe(3);
+    expect(summary.written).toBe(2); // a.html + missing.html still acquired
+    expect(summary.skipped["fetch-failed"]).toBe(1); // b.html threw, did not abort
+    expect(store.count()).toBe(2); // proves the crawl continued past the throw
   });
 
   it("honors maxPages as a hard cap", async () => {

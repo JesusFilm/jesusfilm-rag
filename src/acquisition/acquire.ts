@@ -96,7 +96,17 @@ export async function acquireSource(
     if (i > 0 && entry.crawl.requestDelayMs > 0) await sleep(entry.crawl.requestDelayMs);
     const url = urls[i];
     summary.attempted++;
-    const out = await acquireOne(deps.fetcher, entry, url);
+    let out: AcquireOutcome;
+    try {
+      out = await acquireOne(deps.fetcher, entry, url);
+    } catch (err) {
+      // A network/timeout/DNS error rejects the fetch — count it as a skip and
+      // keep crawling. One flaky page must never abandon the rest of the source.
+      summary.skipped["fetch-failed"]++;
+      const msg = err instanceof Error ? err.message : String(err);
+      opts.onProgress?.(`  ⤫ ${url}  — fetch-failed (error: ${msg})`);
+      continue;
+    }
     if (out.ok) {
       await deps.store.putRawDocument(out.doc);
       summary.written++;

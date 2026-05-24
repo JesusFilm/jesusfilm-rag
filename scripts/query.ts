@@ -21,17 +21,37 @@ interface Args {
   policy: RetrievalPolicy;
 }
 
+const USAGE =
+  'usage: pnpm query [--top-k N] [--min-score S] [--source KEY] [--prefer KEY] [--language L] [--category C] "<question>"';
+
+function die(msg: string): never {
+  console.error(`error: ${msg}\n${USAGE}`);
+  process.exit(2);
+}
+
 function parseArgs(argv: string[]): Args {
   const policy: RetrievalPolicy = {};
   const free: string[] = [];
+  // Read a required value for `flag` at argv[i]; bail with usage if it's missing
+  // (e.g. `--source` as the last token would otherwise become `[undefined]`).
+  const val = (flag: string, i: number): string => {
+    const v = argv[i];
+    if (v === undefined) die(`${flag} needs a value`);
+    return v;
+  };
+  const num = (flag: string, raw: string): number => {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) die(`${flag} must be a number, got "${raw}"`);
+    return n;
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--top-k") policy.topK = Number(argv[++i]);
-    else if (a === "--min-score") policy.minScore = Number(argv[++i]);
-    else if (a === "--source") policy.allowedSourceKeys = [argv[++i]];
-    else if (a === "--prefer") policy.preferSourceKey = argv[++i];
-    else if (a === "--language") policy.language = argv[++i];
-    else if (a === "--category") policy.category = argv[++i];
+    if (a === "--top-k") policy.topK = num(a, val(a, ++i));
+    else if (a === "--min-score") policy.minScore = num(a, val(a, ++i));
+    else if (a === "--source") policy.allowedSourceKeys = [val(a, ++i)];
+    else if (a === "--prefer") policy.preferSourceKey = val(a, ++i);
+    else if (a === "--language") policy.language = val(a, ++i);
+    else if (a === "--category") policy.category = val(a, ++i);
     else free.push(a);
   }
   return { query: free.join(" ").trim(), policy };
@@ -47,10 +67,7 @@ function printHit(rank: number, hit: RankedResult): void {
 
 async function main(): Promise<void> {
   const { query, policy } = parseArgs(process.argv.slice(2));
-  if (!query) {
-    console.error('usage: pnpm query [--top-k N] [--min-score S] [--source KEY] "<question>"');
-    process.exit(2);
-  }
+  if (!query) die("a question is required");
 
   const wiring = wire();
   try {

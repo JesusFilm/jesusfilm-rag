@@ -9,27 +9,26 @@ _Last updated: 2026-05-22_
 
 ## You are here
 
-**Slice #1 is acquired, ingested, AND queryable — the corpus now answers
-questions.** All three pipeline contexts are built and proven end-to-end:
-`pnpm acquire` staged 40 clean rows, `pnpm index` drained them to **40 docs →
-183 chunks → 183 embeddings** (`openai/text-embedding-3-small`, 1536 dims), and
-the new Retrieval context serves them — `pnpm query "How can I begin a
-relationship with God?"` returns **5 distinct, cited documents** (scores
-0.54–0.59, all on-topic). 59 tests green (incl. live-DB integration + 12 new
-fakes-only retrieval tests). **Only the spot-check remains** before slice #1 is
-done; `pnpm eval` is now wired to the real Retriever but has no golden cases yet.
+**Slice #1 (Starting With God) is COMPLETE — acquired, ingested, retrievable, and
+evaluated.** `pnpm acquire` staged 40 clean rows → `pnpm index` drained them to
+**40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`) → the
+Retrieval context serves them → **eval baseline** (10 persona-diverse golden cases
+authored via `/golden`): **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @
+minScore **0.37** (re-derived from 0.3; FOLLOW-UP A resolved, hard floor 0.35). 61
+tests green (incl. 2 live-DB integration). The slice is up as a PR into `main`.
 
 ## Next action
 
-**Slice #1 — Starting With God — is in progress** on branch
-`slice/starting-with-god`. The unpacked sub-step checklist, decisions, and
-resume hint live in **[docs/slices/starting-with-god.md](./slices/starting-with-god.md)**
-— that file + the slice branch's git log are the cold-start resume contract.
+**Slice #1 is done (all 4 stages green); its PR is open into `main`.** The
+unpacked sub-step checklist, decisions, and findings live in
+**[docs/slices/starting-with-god.md](./slices/starting-with-god.md)**.
 
-**Stages 1 (Acquire) + 2 (Ingest) + 3 (Retrieve) are done** ✅. **Stage 4
-(Spot-check) is next**: run a handful of representative queries through
-`pnpm query`, eyeball relevance, record findings in `sources.md` (→ Evaluated).
-Then offer to merge `slice/starting-with-god` into `main`.
+**Next: start slice #2.** Pick the next source from the short list (Cru ·
+EveryStudent · NextStep · Jesus Film Project · Sightline) and run `/slice <source>`.
+Two things unblock the moment a second source is ingested — both deferred here by
+design: the **per-source eval** mechanism (`source` tag per golden case + `pnpm eval
+--source <key>` + per-source breakdown) and **FOLLOW-UP E** (consumer
+`excludedSourceKeys` filter).
 
 → **Resume with `/slice`** — it reads this file + the slice file, checks out the
 branch, and continues at the first unchecked sub-step.

@@ -1,6 +1,6 @@
 # Slice: Starting With God (starting-with-god)
 
-_Branch: `slice/starting-with-god` · Started: 2026-05-22 · Status: in-progress_
+_Branch: `slice/starting-with-god` · Started: 2026-05-22 · Status: done_
 <!-- Status: in-progress | blocked | done -->
 
 ## Goal (architecture altitude)

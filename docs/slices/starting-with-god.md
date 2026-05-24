@@ -38,13 +38,30 @@ spot-check. As slice #1 it also builds the first real path through each context
 
 ### 4. Precise eval + spot-check
 _(Scope confirmed by operator 2026-05-22: precise eval + tuning belongs here, not Stage 3. Stage 3 carries only the basic retrieve-over-real-store integration test, now done.)_
-- [ ] Author golden cases in `eval/qa-golden.yaml` (~8–10 questions grounded in the 40 Starting With God articles; `expected_url_contains` per case). Currently `cases: []`.
-- [ ] Run `pnpm eval` → recall@3 / recall@8 / MRR / precision@1 baseline; writes `eval/results-<date>.md`.
-- [ ] Re-derive `minScore` from the baseline (FOLLOW-UP A — 0.3 is too low; live scores cluster ~0.55). Decide the real cutoff and where it lives (policy default vs. per-call).
-- [ ] Spot-check: a handful of representative `pnpm query` calls, operator eyeballs relevance.
-- [ ] Record findings in `sources.md` (→ Evaluated) with concrete `Results`.
+- [x] Author golden cases via `/golden` — **10 cases across 4 balanced personas** (seeker · skeptic · believer · newcomer), each grounded in a real ingested doc; 3 carry multi-doc accepted clusters. In `eval/qa-golden.yaml`.
+- [x] Run `pnpm eval` → baseline (below); writes `eval/results-2026-05-24.md`.
+- [x] Re-derive `minScore` — **0.3 → 0.37** (hard floor 0.35), policy default in `retrieve.ts`. FOLLOW-UP A resolved.
+- [x] Spot-check: persona positives + 5 off-topic negatives run via `pnpm query`; relevance eyeballed.
+- [x] Record findings in `sources.md` (→ Evaluated).
+
+**Stage 4 (Eval) complete — verify green, 61 tests.** Baseline @ minScore 0.37,
+top_k=8, `openai/text-embedding-3-small`: **recall@3 0.90 · recall@8 1.00 · MRR
+0.82 · precision@1 0.70** (10/10 retrieved). Findings:
+- `minScore` 0.3 → 0.37: weakest genuine answer (anxiety → "How to Stop Worrying")
+  scored 0.383; faith-adjacent off-topic ("World Cup watch party") noise ~0.35;
+  pure-secular queries return nothing. 0.37 sits just above the noise. **Hard floor
+  0.35**; expect to re-derive downward as broader-topic sources land — re-confirm via
+  the whole-corpus eval each slice.
+- `swg-newcomer-gospel` retrieves at rank 5 — the "What is the gospel?" lesson is one
+  thin chunk that richer articles outrank. Acceptable (recall@8 hit); noted.
+- `swg-seeker-failure` accepts a 5-doc grace/sin/failure cluster — retrieval returned
+  a tight cluster of valid answers, not one canonical doc.
+- **Off-topic negatives (cutoff calibration; NOT in `qa-golden.yaml`):** "World Cup
+  watch party for my church", "budget my paycheck", "marriage counselor near me",
+  "weather tomorrow", "learn Python".
 
 ## Decisions made (this slice)
+- 2026-05-25 — **Eval authored via `/golden`** (persona-diverse: seeker/skeptic/believer/newcomer + off-topic negatives), one **shared** `qa-golden.yaml`. **`minScore` 0.3 → 0.37** (hard floor 0.35): keep the cutoff as low as possible to admit weak-genuine answers across topical breadth, just above the ~0.35 noise floor. Per-source eval (a `source` tag per case + `pnpm eval --source <key>` scoped run + per-source breakdown in the whole-corpus run) **deferred to slice #2**, when cross-source data exists to test it against.
 - 2026-05-22 — Source #1 = Starting With God — leanest of the six (44 KB / ~723 words home), server-rendered HTML, no anti-bot wall (STATUS recon).
 - 2026-05-22 — Acquire scope = **bare fetch + extract + write, with a polite per-request delay** (`requestDelayMs` in the crawl policy). robots.txt fetch/disallow enforcement AND http-cache conditional fetch are **deferred** to a later step — neither is load-bearing for proving the loop on one lean site. ("as per robot" read as: behave politely with a delay, not parse robots.txt.)
 - 2026-05-22 — Page discovery = **hardcoded seed list** of content URLs in the registry, not a discovery crawl. The generic-crawler-vs-per-source call stays deferred until 2–3 sources reveal the pattern (STATUS).
@@ -61,16 +78,13 @@ _(Scope confirmed by operator 2026-05-22: precise eval + tuning belongs here, no
 - none. (Embedding-model divergence is resolved — corpus is on `openai/text-embedding-3-small`.)
 
 ## Resume hint (for a cold start)
-At: **Stage 4 (Precise eval + spot-check) — not started; paused here by operator
-2026-05-22 with all of Stages 1–3 committed.** The corpus (40 docs / 183 chunks
-/ 183 embeddings, `openai/text-embedding-3-small`) is **queryable**: Retrieval
-context built + wired, `pnpm query "<q>"` works, and a live-DB integration test
-(`tests/retrieval.integration.test.ts`) proves real ranked+cited rows out of the
-store. Next concrete action: author golden cases in `eval/qa-golden.yaml` (still
-`cases: []`), run `pnpm eval` for a recall@k/MRR baseline, re-derive `minScore`
-(FOLLOW-UP A — 0.3 too low, scores ~0.55), spot-check via `pnpm query`, then
-record `sources.md` → Evaluated and offer to merge `slice/starting-with-god`.
-Last verify: green @ Stage 3 complete (depcruise/typecheck/lint, **61 tests**
-incl. 2 live-DB retrieval integration; live query "How can I begin a
-relationship with God?" → 5 distinct cited docs, scores 0.54–0.59). Branch:
-slice/starting-with-god.
+**All four stages complete — slice ready to close.** Starting With God is acquired
+(40 rows), ingested (40 docs / 183 chunks / 183 embeddings,
+`openai/text-embedding-3-small`), retrievable, AND evaluated: 10 persona-diverse
+golden cases in `eval/qa-golden.yaml`; `pnpm eval` baseline **recall@3 0.90 ·
+recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37** (re-derived from 0.3;
+FOLLOW-UP A resolved, hard floor 0.35). Last verify: green (depcruise/typecheck/
+lint, **61 tests** incl. 2 live-DB integration). **Next action: close the slice** —
+set this file's status to `done`, move Starting With God → Done in `STATUS.md`, and
+offer to merge `slice/starting-with-god` (the branch is a clean superset of
+origin/main). Branch: slice/starting-with-god.

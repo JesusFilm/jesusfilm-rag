@@ -20,7 +20,7 @@ export interface RetrievalPolicy {
   language?: string;
   category?: string;
   topK?: number; // default 5
-  minScore?: number; // default 0.3 (ported verbatim; see docs/architecture.md FOLLOW-UP A)
+  minScore?: number; // default 0.37 (re-derived from the SWG eval baseline; hard floor ~0.35 — see docs/architecture.md FOLLOW-UP A)
 }
 
 /** A ranked, cited result returned to the caller. */

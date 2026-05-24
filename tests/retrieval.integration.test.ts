@@ -163,7 +163,7 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
 
     const hits = await retriever.search("probe", { allowedSourceKeys: [TEST_KEY] });
 
-    // Orthogonal doc scores cosine 0 (< default minScore 0.3) and is dropped.
+    // Orthogonal doc scores cosine 0 (< default minScore 0.37) and is dropped.
     expect(hits).toHaveLength(1);
     const top = hits[0];
     expect(top.score).toBeCloseTo(1.0, 5);

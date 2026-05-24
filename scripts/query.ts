@@ -55,7 +55,7 @@ async function main(): Promise<void> {
   const wiring = wire();
   try {
     console.log(
-      `\n▶ "${query}"  (topK=${policy.topK ?? 5}, minScore=${policy.minScore ?? 0.3}` +
+      `\n▶ "${query}"  (topK=${policy.topK ?? 5}, minScore=${policy.minScore ?? 0.37}` +
         (policy.allowedSourceKeys ? `, source=${policy.allowedSourceKeys.join(",")}` : "") +
         ")",
     );

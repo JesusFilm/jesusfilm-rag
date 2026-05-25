@@ -6,4 +6,6 @@
 export { PostgresCorpusWriteStore } from "./corpus-write-store.js";
 export { PostgresCorpusSearchStore } from "./corpus-search-store.js";
 export { PostgresFetchStateStore } from "./fetch-state-store.js";
+export { PostgresRawDocumentStore } from "./raw-document-store.js";
+export { PostgresRawDocumentReader } from "./raw-document-reader.js";
 export { EMBEDDING_DIMENSIONS, toVectorLiteral } from "./vector.js";

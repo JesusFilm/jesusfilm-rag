@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 1 -->
+<!-- version: 2 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -131,7 +131,11 @@ When all four stages are green and the spot-check looks good:
 2. Update `sources.md` → `Evaluated` with concrete `Results`; update `STATUS.md`
    (move source to Done; set the next slice as "Next action").
 3. Set the slice file status to `done`.
-4. Offer next steps — merge `slice/<source-key>` into `main`, and/or
+4. **Check unblocked follow-ups.** If this completion means **≥2 sources are now
+   done end-to-end**, surface that **FOLLOW-UP E** (consumer source-exclude filter,
+   `excludedSourceKeys`) is unblocked — it was deferred precisely until a second
+   source exists to test exclusion against. See `docs/architecture.md` §11.
+5. Offer next steps — merge `slice/<source-key>` into `main`, and/or
    `/slice <next-source>`. Do not merge or push without the operator's say-so.
 
 ## The verify gate

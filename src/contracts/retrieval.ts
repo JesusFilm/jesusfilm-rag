@@ -4,14 +4,23 @@
  */
 import type { Citation } from "./documents.js";
 
-/** What the caller (a Mastra agent, NextSteps, the monorepo) hands to Retrieval. */
+/**
+ * What the caller (a Mastra agent, NextSteps, the monorepo) hands to Retrieval.
+ *
+ * Mechanism, not policy: the engine ranks on embedding similarity + these
+ * *declared* parameters only and returns deterministic, cited results. It bakes
+ * in no audience/value weighting — "what's good for this asker" is consumer-side.
+ * The only sanctioned in-engine steering is thin + tiebreak-only (`minScore`,
+ * `preferSourceKey` as a soft tiebreak, not a score boost).
+ * See docs/architecture.md §1 "Tenet: mechanism, not policy".
+ */
 export interface RetrievalPolicy {
   allowedSourceKeys?: string[]; // tenant/visibility scope (undefined = all)
   preferSourceKey?: string;
   language?: string;
   category?: string;
   topK?: number; // default 5
-  minScore?: number; // default 0.3 (ported verbatim; see docs/architecture.md FOLLOW-UP A)
+  minScore?: number; // default 0.37 (re-derived from the SWG eval baseline; hard floor ~0.35 — see docs/architecture.md FOLLOW-UP A)
 }
 
 /** A ranked, cited result returned to the caller. */

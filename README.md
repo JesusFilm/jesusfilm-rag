@@ -8,6 +8,8 @@ A standalone, production-quality retrieval service that serves **biblically alig
 
 **Acquisition** fetches raw content (scrapers, source registry, robots, HTTP cache) and emits `RawDocument`s to a staging table → **Ingestion** normalizes, chunks, embeds, and writes through a storage port → **Retrieval** takes a query plus a policy and returns ranked, cited results. MCP/HTTP is a thin serving **adapter** over Retrieval, not a core concern. LLM generation and any safety/intent routing live in the *caller*, never here.
 
+**Mechanism, not policy.** The RAG is a reliable, parameterized retrieval mechanism: it ranks on similarity + the declared `RetrievalPolicy` (scope, language, category, cutoff, top-k) and returns deterministic, cited results. All "what's good for *this* audience" weighting lives in the consumer; corpus heterogeneity (e.g. football-campaign content next to doctrinal teaching) is solved by **ingest-time labeling and source-level on/off, not retrieve-time bias** — so the same engine serves a doctrinal apologist and a World Cup chat bot without either's preferences contaminating the other. See [`docs/architecture.md`](./docs/architecture.md) §1.
+
 ## Who consumes this
 
 Read-only retrieval over a curated, publicly accessible corpus. Consumers do their own generation:
@@ -25,6 +27,21 @@ Read-only retrieval over a curated, publicly accessible corpus. Consumers do the
 ## Sources & corpus
 
 Sources are defined in the **source registry** (`src/registry`) — each entry carries its domain, crawl policy, default tags (`media:`/`audience:`/`topic:`/`lang:`), trust level, and languages. There is no local corpus directory: the corpus is **built from sources by code**. Acquisition crawls each source per its policy into the `raw_documents` staging table; Ingestion normalizes → chunks → embeds into the corpus tables. Re-runs are idempotent and source-scoped — unchanged pages are skipped. See [`docs/architecture.md`](./docs/architecture.md) §3 and §10.
+
+## Authoring evals (golden cases)
+
+Golden cases are **not hand-written**. After a source is ingested, run the
+**`/golden <source-key>`** skill: it surveys what *actually* landed in the corpus
+and drafts candidate questions from a balanced spread of personas — **seeker,
+skeptic, believer, newcomer** — each tied to a real document, plus off-topic
+negatives for cutoff calibration. You curate (approve / edit / reject) into
+`eval/qa-golden.yaml`; `pnpm eval` then scores recall@k / MRR. It works for any
+source because it reads the ingested corpus rather than assuming a topic.
+
+The eval is **retrieval-only** — did the right chunk come back, and does
+off-topic content stay out. No intent/tone/answer judgment lives here; that's a
+consumer concern (see [`docs/architecture.md`](./docs/architecture.md) §1,
+"mechanism, not policy"). See [`.claude/skills/golden/SKILL.md`](./.claude/skills/golden/SKILL.md).
 
 ## Access & filtering (two layers)
 

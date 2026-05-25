@@ -6,6 +6,8 @@
 export { FakeEmbedder, type FakeEmbedderOptions } from "./embedder.js";
 export { FakeFetcher } from "./fetcher.js";
 export { FakeFetchStateStore } from "./fetch-state-store.js";
+export { FakeRawDocumentStore } from "./raw-document-store.js";
+export { FakeRawDocumentReader } from "./raw-document-reader.js";
 export {
   FakeCorpusWriteStore,
   type StoredDocument,

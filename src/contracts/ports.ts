@@ -3,7 +3,12 @@
  * src/adapters and are wired in src/main.ts — never imported by a context.
  * Types only. See docs/architecture.md §4.
  */
-import type { NormalizedDocument, EmbeddedChunk } from "./documents.js";
+import type {
+  RawDocument,
+  PendingRawDocument,
+  NormalizedDocument,
+  EmbeddedChunk,
+} from "./documents.js";
 import type { SourceRecord } from "./sources.js";
 import type { ScoredRow, SearchFilter } from "./retrieval.js";
 
@@ -49,10 +54,42 @@ export interface FetchStateStore {
   putRobots(entry: RobotsEntry): Promise<void>;
 }
 
+export interface RawDocumentStore {
+  /**
+   * Persist one acquired RawDocument to the `raw_documents` staging table.
+   * Idempotent per (sourceKey, canonicalUrl): replaces any not-yet-ingested row
+   * for the same identity, so re-acquiring a page never accumulates duplicate
+   * un-ingested rows. Already-ingested rows are left intact as the raw snapshot.
+   */
+  putRawDocument(doc: RawDocument): Promise<void>;
+}
+
 // ---- Ingestion ports -------------------------------------------------------
 
+export interface RawDocumentReader {
+  /**
+   * Staging rows to ingest, oldest first. By default only un-ingested rows
+   * (`ingested_at IS NULL`); `includeIngested` returns already-consumed rows too
+   * (a full re-index from the raw snapshot, e.g. after an embedding-model change).
+   * Optional source/limit scope. The read side of the Acquisition→Ingestion
+   * handoff — the write side is RawDocumentStore.
+   */
+  listPending(opts?: {
+    sourceKey?: string;
+    limit?: number;
+    includeIngested?: boolean;
+  }): Promise<PendingRawDocument[]>;
+  /** Mark these `raw_documents` rows consumed (set `ingested_at`). */
+  markIngested(ids: string[]): Promise<void>;
+}
+
 export interface Embedder {
-  /** Batch embed; returns null per empty/failed input (the skip path relies on this). */
+  /**
+   * Batch embed, index-aligned with `texts`. Returns null for an empty/blank
+   * input — the dedup/skip path relies on this. A genuine embedding failure (API
+   * error, count/width mismatch) THROWS rather than returning null, so a chunk is
+   * never silently dropped; the caller re-runs to resume (ingest marks per-doc).
+   */
   embed(texts: string[]): Promise<(number[] | null)[]>;
   embedQuery(text: string): Promise<number[]>;
   readonly model: string;

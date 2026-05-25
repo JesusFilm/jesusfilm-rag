@@ -8,7 +8,10 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["src/**/*.test.ts"],
+    // src/** = fakes-only unit tests; tests/** = composition-level integration
+    // tests that wire a real adapter into a context (the import law confines that
+    // to outside src/ — see tests/retrieval.integration.test.ts).
+    include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
     environment: "node",
   },
 });

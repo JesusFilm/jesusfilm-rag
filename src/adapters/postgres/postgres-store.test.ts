@@ -14,12 +14,19 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
-import type { EmbeddedChunk, NormalizedDocument, SourceRecord } from "@/contracts/index.js";
+import type {
+  EmbeddedChunk,
+  NormalizedDocument,
+  RawDocument,
+  SourceRecord,
+} from "@/contracts/index.js";
 import {
   EMBEDDING_DIMENSIONS,
   PostgresCorpusSearchStore,
   PostgresCorpusWriteStore,
   PostgresFetchStateStore,
+  PostgresRawDocumentReader,
+  PostgresRawDocumentStore,
 } from "./index.js";
 
 const DATABASE_URL =
@@ -104,8 +111,27 @@ async function countWhere(sql: postgres.Sql, table: "chunks" | "embeddings", url
   return rows[0].n;
 }
 
+function rawDoc(canonicalUrl: string, rawContent: string, bodyHash: string): RawDocument {
+  return {
+    sourceKey: TEST_KEY,
+    url: canonicalUrl,
+    canonicalUrl,
+    title: "IT Raw Doc",
+    rawContent,
+    fetch: {
+      status: 200,
+      bodyHash,
+      etag: null,
+      lastModified: null,
+      fetchedAt: "2026-05-22T00:00:00.000Z",
+      notModified: false,
+    },
+  };
+}
+
 async function cleanup(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM sources WHERE key = ${TEST_KEY}`; // cascades documents → chunks → embeddings
+  await sql`DELETE FROM raw_documents WHERE source_key = ${TEST_KEY}`;
   await sql`DELETE FROM http_cache WHERE url LIKE ${URL_PREFIX + "%"}`;
   await sql`DELETE FROM robots_cache WHERE robots_url LIKE ${URL_PREFIX + "%"}`;
 }
@@ -122,6 +148,8 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
   let writeStore: PostgresCorpusWriteStore;
   let searchStore: PostgresCorpusSearchStore;
   let fetchState: PostgresFetchStateStore;
+  let rawStore: PostgresRawDocumentStore;
+  let rawReader: PostgresRawDocumentReader;
 
   beforeAll(async () => {
     sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {} });
@@ -135,6 +163,8 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
     writeStore = new PostgresCorpusWriteStore(sql);
     searchStore = new PostgresCorpusSearchStore(sql);
     fetchState = new PostgresFetchStateStore(sql);
+    rawStore = new PostgresRawDocumentStore(sql);
+    rawReader = new PostgresRawDocumentReader(sql);
   });
 
   afterAll(async () => {
@@ -244,5 +274,63 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
     );
     expect(hits.length).toBeGreaterThanOrEqual(1);
     expect(hits[0].text).toContain("prodigal");
+  });
+
+  it("RawDocumentStore: stages a row and replaces it idempotently per canonical_url", async () => {
+    const url = `${URL_PREFIX}raw-1`;
+    const pending = (): Promise<{ raw_content: string; body_hash: string }[]> =>
+      sql`SELECT raw_content, body_hash FROM raw_documents
+            WHERE source_key = ${TEST_KEY} AND canonical_url = ${url}
+              AND ingested_at IS NULL`;
+
+    await rawStore.putRawDocument(rawDoc(url, "first capture", "bh1"));
+    let rows = await pending();
+    expect(rows).toHaveLength(1);
+    expect(rows[0].raw_content).toBe("first capture");
+    expect(rows[0].body_hash).toBe("bh1");
+
+    // Re-acquire the same page → the un-ingested row is replaced, not appended.
+    await rawStore.putRawDocument(rawDoc(url, "second capture", "bh2"));
+    rows = await pending();
+    expect(rows).toHaveLength(1);
+    expect(rows[0].raw_content).toBe("second capture");
+
+    // An already-ingested snapshot row is left intact; a re-acquire stages a
+    // fresh pending row beside it (Ingestion drains the pending one).
+    await sql`UPDATE raw_documents SET ingested_at = now()
+                WHERE source_key = ${TEST_KEY} AND canonical_url = ${url}`;
+    await rawStore.putRawDocument(rawDoc(url, "third capture", "bh3"));
+    expect(await pending()).toHaveLength(1);
+    const all = await sql`SELECT count(*)::int AS n FROM raw_documents
+                            WHERE source_key = ${TEST_KEY} AND canonical_url = ${url}`;
+    expect(all[0].n).toBe(2);
+  });
+
+  it("RawDocumentReader: lists pending rows (ISO fetchedAt) and markIngested drains them", async () => {
+    const u1 = `${URL_PREFIX}reader-1`;
+    const u2 = `${URL_PREFIX}reader-2`;
+    await rawStore.putRawDocument(rawDoc(u1, "reader body one", "rh1"));
+    await rawStore.putRawDocument(rawDoc(u2, "reader body two", "rh2"));
+
+    const pending = await rawReader.listPending({ sourceKey: TEST_KEY });
+    const mine = pending.filter((p) => p.canonicalUrl === u1 || p.canonicalUrl === u2);
+    expect(mine).toHaveLength(2);
+    const one = mine.find((p) => p.canonicalUrl === u1)!;
+    expect(one.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(one.rawContent).toBe("reader body one");
+    expect(one.fetch.bodyHash).toBe("rh1");
+    expect(one.fetch.fetchedAt).toBe("2026-05-22T00:00:00.000Z"); // Date → ISO string
+
+    await rawReader.markIngested(mine.map((p) => p.id));
+    const after = (await rawReader.listPending({ sourceKey: TEST_KEY })).filter(
+      (p) => p.canonicalUrl === u1 || p.canonicalUrl === u2,
+    );
+    expect(after).toHaveLength(0); // both drained
+
+    // includeIngested re-surfaces the consumed rows (full re-index path).
+    const reindex = (
+      await rawReader.listPending({ sourceKey: TEST_KEY, includeIngested: true })
+    ).filter((p) => p.canonicalUrl === u1 || p.canonicalUrl === u2);
+    expect(reindex).toHaveLength(2);
   });
 });

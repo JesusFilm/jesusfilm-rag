@@ -1,0 +1,29 @@
+/**
+ * SourceRegistry — the source list as pure data, plus lookups. Zero I/O. A
+ * context (Acquisition) imports this for crawl policy; only `main.ts`/scripts
+ * pick which source(s) to run. See docs/architecture.md §3 / §5.1.
+ */
+import type { SourceEntry } from "./types.js";
+import { startingWithGod } from "./starting-with-god.js";
+
+export type { SourceEntry, CrawlPolicy } from "./types.js";
+
+/** Every registered source, in registry order. */
+export const SOURCES: readonly SourceEntry[] = [startingWithGod];
+
+/** Look up a source by its stable key; undefined if unknown. */
+export function getSource(key: string): SourceEntry | undefined {
+  return SOURCES.find((s) => s.key === key);
+}
+
+/** All registered sources. */
+export function allSources(): readonly SourceEntry[] {
+  return SOURCES;
+}
+
+/** Resolve a source's seed paths into absolute URLs (against its baseUrl). */
+export function seedUrls(entry: SourceEntry): string[] {
+  return entry.crawl.seedPaths.map(
+    (path) => new URL(path, entry.crawl.baseUrl).href,
+  );
+}

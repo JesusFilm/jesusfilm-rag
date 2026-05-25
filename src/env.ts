@@ -38,23 +38,15 @@ function loadDotEnv(): void {
 
 loadDotEnv();
 
+// The schema validates exactly what the running code consumes today: the DB,
+// the embedder, and the embedding model. Serving/auth env (MCP_PORT,
+// MCP_BEARER_TOKEN, MCP_BEARER_SCOPES, CLIENT_HASH_SECRET, ADMIN_PASSWORD) is
+// added back when the MCP serving adapter that reads it lands in build step 6 —
+// keeping the env contract honest rather than carrying unused, unenforced vars.
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   OPENROUTER_API_KEY: z.string().min(1),
   EMBED_MODEL_ID: z.string().min(1).default(DEFAULT_EMBED_MODEL_ID),
-  MCP_PORT: z.coerce.number().int().min(1).max(65535).default(3333),
-  MCP_BEARER_TOKEN: z.string().min(1),
-  MCP_BEARER_SCOPES: z
-    .string()
-    .default("")
-    .transform((s) =>
-      s
-        .split(",")
-        .map((x) => x.trim())
-        .filter(Boolean),
-    ),
-  CLIENT_HASH_SECRET: z.string().optional(),
-  ADMIN_PASSWORD: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

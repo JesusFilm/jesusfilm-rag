@@ -4,14 +4,13 @@ _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, produc
 
 ## Resuming the build (start here)
 
-**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`) → Postgres storage adapter + in-memory fakes (step 2). **Steps 1–2 are done; step 3 (Acquisition) is next** — see §9.
+**Status (2026-05-22):** clean root → enforcement scaffolding → operational-model docs → legacy strip (commits `acb2c62` … on `main`) → Postgres storage adapter + in-memory fakes (step 2). **Steps 1–2 are done.** Live status + the single next action now live in **[docs/STATUS.md](./STATUS.md)** — the churn layer this design doc deliberately stays out of. We build in **vertical per-source slices** (acquire → ingest → retrieve → spot-check, one source at a time), which refines §9's horizontal order without changing the module boundaries or ports below.
 
 **To resume cold (a fresh agent, no prior chat context):**
 1. Read `AGENT.md`, then this doc — §9 for the step list, §2 + §4 for the contracts you implement, §5 for the boundary law.
 2. Confirm the green baseline: `pnpm depcruise && pnpm lint && pnpm typecheck`.
 3. The behavioral source of truth for the porting steps is the **jesusfilm-ai** repo (the RAG this is based on); §8 maps which of its files feed each context. Step 2 is mostly self-contained — implement the contract ports over the schema in `src/db/schema.ts` — and needs little from it.
 4. **Testing:** contexts get fakes-only unit tests (no DB, no network); an **adapter** gets its own co-located `*.test.ts` integration test against the docker-compose Postgres (`docker compose up -d`).
-5. **Git:** local `main` is an orphan root that intentionally diverged from `origin/main` — do not force-push without intent.
 
 ---
 
@@ -52,6 +51,18 @@ caller→ │ embedQuery → CorpusSearchStore (port)       │ ◀── reads
 ```
 
 The seams between the boxes are the architecture. Retrieval is a pure library over a search port, so the same code can be called in-process by a Mastra tool, by NextSteps, or behind the MCP server. MCP/HTTP is an **adapter**, not a fourth context.
+
+### Tenet: mechanism, not policy
+
+**The RAG is a reliable, parameterized retrieval mechanism; all "what's good for this audience" weighting lives in the consumer; corpus heterogeneity is solved by ingest-time labeling, not retrieve-time bias.**
+
+Given a query and a `RetrievalPolicy`, Retrieval ranks on embedding similarity and the **declared** parameters (scope, language, category, cutoff, top-k) and returns deterministic, cited results. It bakes in **no** audience- or value-weighting — "what's best for *this* asker" is consumer-relative (the same chunk is the right answer for a doctrinal apologist and noise for a World Cup chat bot), so it belongs in the consumer, not the engine. Baking a worldview into the engine makes it wrong for some consumer, undermines the multi-consumer reuse §1 is built on, and turns retrieval into an untestable black box.
+
+Corpus heterogeneity (football-campaign content sitting next to doctrinal teaching) is therefore handled by **structure, not bias**, on two levers:
+- **Ingest-time labels** (`category` / `tags` / `sourceKey`, set in Ingestion) — a consumer scopes declaratively and never sees off-topic content; it is *filtered out by parameter*, not *down-ranked by hidden logic*.
+- **Source-level enablement** (an operator switch — see FOLLOW-UP E) — turns a whole source on/off corpus-wide, the right lever for *seasonal* content.
+
+The only in-engine steering the architecture sanctions is **thin, declared, and tiebreak-only** (today: `minScore`, and `preferSourceKey` as a soft tiebreak — not a score boost). Anything thicker is a design smell: push it to the consumer.
 
 ---
 
@@ -137,7 +148,7 @@ interface Retriever { search(query: string, policy?: RetrievalPolicy): Promise<R
 - **Owns:** query embedding, candidate selection, cosine ranking + cutoff, 3-key dedup (content-hash / url+chunk / title+content fingerprint), citation assembly, source-scope resolution (`source`/`sourceKey` → domain + scopePath).
 - **Ports needed:** `CorpusSearchStore`, `Embedder` (query side), `SourceRegistry` (scope resolution).
 - **Ports from jfa:** `retrieve.ts` (with the `require('./store')` / `pgvector-store` direct coupling moved behind the port).
-- **Does NOT:** know about HTTP/MCP/Telegram, generate prose, or apply intent/crisis/scope routing — that arrives as `RetrievalPolicy` input.
+- **Does NOT:** know about HTTP/MCP/Telegram, generate prose, apply intent/crisis/scope routing, or apply audience/value weighting — it ranks on similarity + the declared `RetrievalPolicy` only (see the "mechanism, not policy" tenet above). All of that arrives as `RetrievalPolicy` input or is the caller's job.
 
 ---
 
@@ -351,7 +362,12 @@ The corpus is rebuilt **from sources by code**, not restored from a blob — thi
 
 ## 11. Deferred follow-ups (tickets)
 
-- **FOLLOW-UP A — retrieval `minScore` quality.** 0.3 is ported verbatim but is almost certainly too low (Jaco's own RAGs ran ~0.85; <0.70 is noise). After step 7's eval baseline exists, re-derive the real cutoff from the harness. Owner: TBD.
+- **FOLLOW-UP A — retrieval `minScore`. RESOLVED 2026-05-25 → 0.37 (hard floor 0.35).** Re-derived from the first eval baseline (Starting With God, 10 golden cases). **Principle:** keep the cutoff **as low as possible to admit weak-but-genuine answers across a broad topic range**, but never below the **~0.35 noise floor** where off-topic content starts scoring. Evidence: a faith-*adjacent* off-topic query ("World Cup watch party for my church") pulled fellowship content at ~0.35; the weakest *genuine* answer seen — an anxiety→"how to stop worrying" match — scored 0.383; pure-secular queries return nothing at any sane cutoff. 0.37 sits just above the noise and keeps that weak-genuine answer; 0.4 was tried first but *cut* it. This is also why the original port was 0.3 — a low cutoff accommodates topical breadth. **Expect to re-derive (likely downward, toward but not below 0.35) as broader-topic sources are added; re-confirm each slice via the whole-corpus eval.** Lives as `DEFAULT_MIN_SCORE` in `src/retrieval/retrieve.ts` (policy default; callers may override per-call via `RetrievalPolicy.minScore`).
 - **FOLLOW-UP B — hybrid search.** jfa's hot path is vector-only (FTS exists but is unqueried). Forge uses RRF fusion. Keep `keywordSearch` as an optional port now; evaluate RRF hybrid against the harness later.
 - **FOLLOW-UP C — original-HTML snapshot.** `raw_documents.raw_content` holds extracted text; if full-fidelity reproducibility is wanted, persist original HTML to object storage keyed by `body_hash`.
 - **FOLLOW-UP D — zero-downtime reindex (blue/green).** Decision 6 accepts downtime/stale reads during a reindex. When retrieval becomes high-traffic or multi-tenant, revisit: build a candidate corpus (a `build_id`/version column + an active pointer, or a separate green database), eval it, then atomically swap production reads to it — so a bad or in-progress ingest never reaches live readers. Pairs with `raw_documents` as the cheap re-embed source (no re-crawl). Owner: TBD.
+- **FOLLOW-UP E — consumer source-exclude filter (`excludedSourceKeys`).** Requested by Miheret for *seasonal* sources (e.g. drop football-2026 from results once the tournament ends). **Approach chosen (2026-05-25): a consumer-side exclude filter, not an operator flag.** A query carries `excludedSourceKeys?: string[]` and the consumer omits whatever it doesn't want — keeping the engine a pure parameterized mechanism (the "mechanism, not policy" tenet: the decision is the caller's, per query).
+  - **No schema change.** The search SQL already joins `sources` and filters on `s.key` (`corpus-search-store.ts`), so exclude is `s.key NOT IN (…)` — the symmetric opposite of today's `allowedSourceKeys` allowlist. Change surface is additive (~half a day, no migration): `RetrievalPolicy` + `SearchFilter` gain `excludedSourceKeys?`; `policyToFilter()` passes it; `where()` adds the `NOT IN` when non-empty; `FakeCorpusSearchStore` mirrors it; tests. Composes with the allowlist: effective visibility = `allowedSourceKeys − excludedSourceKeys`.
+  - **DO NOT START until ≥2 sources have been taken end-to-end** (acquire → ingest → retrieve → eval). Rationale (2026-05-25): with a single ingested source the mechanism is **untestable** — a meaningful exclude test needs a source to exclude *and* a source that must remain. Natural trigger: completion of the **second** slice. (We are mid-slice-#1 — Starting With God — and don't pull this forward.)
+  - **Alternative considered + set aside:** an operator-level `enabled boolean` on `sources` (corpus-wide global off-switch, fail-safe-hidden default). Rejected for now — it needs a schema migration and bakes a global decision into corpus state; the consumer filter is more tenet-consistent. If a true "kill this source for *everyone*" need later appears, revisit it as a thin optional layer gating **retrieval only** — crawl scheduling stays a separate, manually-triggered process (a GH Action / script run when sources are added), never coupled to a visibility flag.
+  - **Related gap (separate, fold in when convenient):** tag include/exclude isn't wired either — `chunks.tags` has a GIN index and the README promises `filter.include`/`filter.exclude`, but `where()` filters only `category`. A tag-based exclude (`campaign:world-cup-2026`) is the more durable version of this lever. Owner: TBD.

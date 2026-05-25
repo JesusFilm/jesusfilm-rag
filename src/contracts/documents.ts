@@ -26,6 +26,14 @@ export interface RawDocument {
   fetch: FetchMeta;
 }
 
+/**
+ * An un-ingested `raw_documents` staging row, as Ingestion drains it: a
+ * RawDocument plus the row id needed to mark it consumed (ingested_at).
+ */
+export interface PendingRawDocument extends RawDocument {
+  id: string;
+}
+
 /** Cleaned + classified document, ready to chunk. Internal to Ingestion. */
 export interface NormalizedDocument {
   sourceKey: string;

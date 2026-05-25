@@ -1,6 +1,6 @@
 # Slice: EveryStudent (everystudent)
 
-_Branch: `slice/everystudent` · Started: 2026-05-25 · Status: in-progress_
+_Branch: `slice/everystudent` · Started: 2026-05-25 · Status: blocked_
 <!-- Status: in-progress | blocked | done -->
 
 ## Goal (architecture altitude)
@@ -38,12 +38,36 @@ deferred by design: **per-source eval** (a `source` tag per golden case + a scop
 - 2026-05-25 — **Seed sourcing = hand-curate again** (consistent with slice #1). The `discover-seeds` helper stays **deferred** until 2–3 sources reveal the pattern (operator decision; STATUS Process TODO). Revisit at source #3 if hand-curation starts to chafe.
 
 ## Open question / blocker
-- none
+- **BLOCKED 2026-05-25 — EveryStudent content pages are behind a Cloudflare JS
+  managed challenge; our plain HTTP fetcher cannot pass it.** Probe findings (browser
+  UA + full browser headers, with delays):
+  - Homepage `/` → **200** (stable; the recon's homepage-only GET passed here — a
+    false positive for reachability).
+  - **Every content path → 403** Cloudflare "Attention Required" with the
+    `challenge-platform` marker (the JS-challenge injector). Confirmed across
+    sections: `/sitemap.html`, `/sitemap.xml`, `/wires/loneliness.html`,
+    `/features/{faith,peace-of-mind}.html`, `/knowingGod.html`,
+    `/reasons-to-believe.html`, `/menus/issues.html`, `/contact.html`.
+  - Full browser headers (Accept, Accept-Language, sec-ch-ua, Sec-Fetch-*,
+    Upgrade-Insecure-Requests) did **not** help — a JS challenge needs JS execution
+    to earn the `cf_clearance` cookie, which `src/adapters/http-fetch` (undici
+    `fetch`, no JS engine) cannot do.
+  - **Scope:** specific to everystudent.com — not org-wide. Cru.org (the parent
+    org) and the other three short-list sources all serve **content pages** at 200
+    with no challenge (deep-probed 2026-05-25), so only 1 of 6 needs a JS bypass.
+
+  **Paths to unblock** (operator decision pending): (A) switch slice #2 to another
+  short-list source — NextStep / Jesus Film Project / Cru / Sightline all pass the
+  content-level probe — and revisit EveryStudent later; (B) build a headless-browser
+  `Fetcher` adapter (Playwright) that executes the CF challenge — slots behind the
+  existing `Fetcher` port, but a heavy dep and may still lose to a managed challenge;
+  (C) seek an authorized feed/API from Cru (EveryStudent is a Cru property).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — first sub-step ("probe everystudent.com + hand-curate seeds"). Next
-concrete action: fetch a sample EveryStudent article + its sitemap/homepage, pick
-the content selector + strip list, curate the article seed list. Branch
-`slice/everystudent` is off fresh `origin/main` (`da037f5`, the merged slice #1 —
-all machinery present). Last verify: green (depcruise / typecheck / lint / test).
-Branch: slice/everystudent.
+**BLOCKED at Stage 1, sub-step 1.** EveryStudent's content pages sit behind a
+Cloudflare JS challenge (homepage 200, all content 403 w/ `challenge-platform`);
+the plain HTTP fetcher can't pass it. The other four short-list sources are
+content-level reachable (deep-probed). **Decision pending** (see "Open question /
+blocker" above): switch slice #2 to another source, or build a Playwright-based
+`Fetcher`. No code written; branch `slice/everystudent` is off `origin/main`
+(`da037f5`), baseline green. Branch: slice/everystudent.

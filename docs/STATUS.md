@@ -14,22 +14,25 @@ _Last updated: 2026-05-25_
 embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
 
-**Slice #2 (EveryStudent) is IN PROGRESS** on `slice/everystudent` (branched off
-the merged `origin/main`). Because slice #1 built all the machinery, slice #2 is
-mostly a registry entry + driving the pipeline, plus the two cross-source pieces
-that only a 2nd source unblocks (below). Currently at **Stage 1 (Acquire)**.
+**Slice #2 (EveryStudent) is BLOCKED at Stage 1 (Acquire)** on `slice/everystudent`.
+EveryStudent's content pages sit behind a **Cloudflare JS managed challenge**
+(homepage 200, all content 403 with `challenge-platform`); our plain HTTP fetcher
+can't pass it. The other four short-list sources are content-level reachable
+(deep-probed 2026-05-25). Full findings + unblock paths in the slice file.
 
 ## Next action
 
-**Drive slice #2 — EveryStudent.** The unpacked sub-step checklist, decisions,
-and resume hint live in **[docs/slices/everystudent.md](./slices/everystudent.md)**.
-Next concrete step: probe everystudent.com + hand-curate its seed URLs (operator
-chose hand-curate; the `discover-seeds` helper stays deferred).
+**Resolve the EveryStudent blocker — operator decision pending.** Options:
+(A) **switch slice #2 to another source** — NextStep / Jesus Film Project / Cru /
+Sightline all pass the content-level probe; (B) **build a Playwright `Fetcher`
+adapter** to execute the CF challenge (slots behind the existing port; heavy dep;
+may still lose to a managed challenge); (C) **seek an authorized Cru feed/API**
+(EveryStudent is a Cru property). The blocker + evidence live in
+**[docs/slices/everystudent.md](./slices/everystudent.md)**.
 
-Two pieces unblock now that a 2nd source is landing — both fold into slice #2's
-Stage 4: the **per-source eval** mechanism (`source` tag per golden case + `pnpm
-eval --source <key>` + per-source breakdown), and **FOLLOW-UP E** (consumer
-`excludedSourceKeys` filter — surfaced at slice close per the architecture trigger).
+The two cross-source pieces (per-source eval; **FOLLOW-UP E** `excludedSourceKeys`)
+still fold into whichever source becomes slice #2 — they need a 2nd ingested source,
+not specifically EveryStudent.
 
 → **Resume with `/slice`** — it reads this file + the slice file, checks out the
 branch, and continues at the first unchecked sub-step.

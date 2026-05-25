@@ -36,7 +36,7 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 **Stage 3 (Retrieve) complete — verify green, cru-10 retrievable + cited, two sources coexist.**
 
 ### 4. Eval + spot-check (+ unblocked cross-source work)
-- [ ] **Per-source eval mechanism** (deferred to slice #2 in slice #1's decision log): add a `source` tag to the golden schema + `pnpm eval --source <key>` scoped run + a per-source breakdown in the whole-corpus run. Test coverage as appropriate.   <!-- sha: ________ -->
+- [x] **Per-source eval mechanism** (deferred to slice #2 in slice #1's decision log): add a `source` tag to the golden schema + `pnpm eval --source <key>` scoped run + a per-source breakdown in the whole-corpus run. Test coverage as appropriate.   **Result:** required `source` tag on the golden schema; `--source <key>` filters cases but retrieves **whole-corpus** (so the scoped number == that source's breakdown row — one source of truth, exposes cross-source interference); whole-corpus run prints + writes a per-source breakdown; scoped runs write `results-<date>-<source>.md`. Pure scoring/reporting logic split into `scripts/eval-metrics.ts` (unit-tested from `tests/` since vitest excludes `scripts/`) — **+15 tests, 80 total**. Backfilled the 10 SwG cases; `/golden` skill now emits `source`. **Finding (for sub-step 3):** scoped swg run dropped to recall@8 **0.90** (was 1.00) — `swg-newcomer-gospel`'s expected doc fell out of top-8, displaced by 3 cru-10 chunks scoring 0.469–0.472 (ranking competition, **not** a minScore cutoff issue).   <!-- sha: cdccfc0 -->
 - [ ] Author Cru 10-Basic-Steps golden cases via `/golden` (persona-diverse), tagged `source: cru-10-basic-steps`.   <!-- sha: ________ -->
 - [ ] Run the **whole-corpus** `pnpm eval` (now 2 sources: starting-with-god + cru-10-basic-steps) → re-confirm/re-derive `minScore` (FOLLOW-UP A: expect drift toward — not below — the 0.35 floor as breadth grows); write `eval/results-YYYY-MM-DD.md`.   <!-- sha: ________ -->
 - [ ] Spot-check: persona positives + off-topic negatives via `pnpm query`; record findings in `sources.md` (→ Evaluated).   <!-- sha: ________ -->
@@ -76,16 +76,22 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
   against real lesson prose** before the registry entry is committed.
 
 ## Resume hint (for a cold start)
-At: **Stage 4 (Eval + spot-check) — not started.** Stages 1–3 complete & verify-green:
-corpus holds **11 docs / 35 chunks / 35 embeddings** for cru-10-basic-steps; live queries
-return cited, on-topic cru-10 hits in both whole-corpus and source-scoped modes (it wins
-rank 1 on Witnessing / Abundant Life / Obedience). Stage 4 is the **first sub-step that
-needs new code:** add a `source` tag to the golden schema + `pnpm eval --source <key>`
-scoped run + per-source breakdown (deferred to slice #2 in slice #1's decision log). Then
-author persona-diverse cru-10 golden cases via `/golden`, run the **whole-corpus** `pnpm
-eval` (now 2 sources) to re-derive `minScore` (FOLLOW-UP A — expect drift toward but not
-below 0.35), and spot-check positives + off-topic negatives → `sources.md` (→ Evaluated).
-**Watch the accordion-TOC chunk wrinkle** (Stage 3 note) — quantify whether it costs recall.
-Branch `slice/cru-10-basic-steps` carries the EveryStudent (blocked) + NextStep (deferred)
-records forward; it's off the merged `origin/main` (`da037f5`). Last verify: green
-(depcruise / typecheck / lint / 65 tests). Branch: slice/cru-10-basic-steps.
+At: **Stage 4 (Eval + spot-check) — sub-step 1 DONE, resume at sub-step 2.** Stages 1–3
+complete & verify-green; corpus holds **11 docs / 35 chunks / 35 embeddings** for
+cru-10-basic-steps. Sub-step 1 (per-source eval mechanism) is committed (`cdccfc0`): the
+golden schema now requires a `source` tag, `pnpm eval --source <key>` runs one source's
+cases against the whole corpus, and the whole-corpus run emits a per-source breakdown.
+**Next concrete action (sub-step 2):** author persona-diverse cru-10 golden cases — follow
+the `/golden` procedure (survey the ingested cru corpus via psql, draft seeker/skeptic/
+believer/newcomer positives each grounded in a real cru lesson doc + 3–5 off-topic
+negatives), present for operator curation, then write approved positives (tagged
+`source: cru-10-basic-steps`) into `eval/qa-golden.yaml` and negatives into this file's
+Stage 4 section. **Then sub-step 3:** run the **whole-corpus** `pnpm eval` (2 sources) →
+re-derive `minScore` (FOLLOW-UP A — toward but not below 0.35) → write
+`eval/results-<date>.md`. **Then sub-step 4:** spot-check + record → `sources.md`
+(→ Evaluated). **Known finding to interpret in sub-step 3:** adding cru-10 already drops
+`swg-newcomer-gospel` out of top-8 (cru chunks at 0.469–0.472 out-rank it — competition,
+not cutoff); also watch the **accordion-TOC chunk wrinkle** (Stage 3 note). Branch
+`slice/cru-10-basic-steps` carries the EveryStudent (blocked) + NextStep (deferred) records
+forward; off the merged `origin/main` (`da037f5`). Last verify: green (depcruise /
+typecheck / lint / **80 tests**). Branch: slice/cru-10-basic-steps.

@@ -28,7 +28,8 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
       <!-- Discovery: sitemap_index.xml → 4 child sitemaps, 417 locs seen → 349 kept (2 bare /blog/ index pages + all /give/ + .kml correctly dropped). Crawl: staged 349/349, 0 skips. raw_content chars min 1796 / avg 9443 / max 45980. All 349 titles populated; 0 bodies start with nav text; largest (parables-of-jesus) is clean prose end-to-end. -->
 
 ### 2. Ingest → corpus tables
-- [ ] 2a. `pnpm index --source jesusfilm-org` drains raw_documents → documents/chunks/embeddings; counts sane; idempotent re-run drains 0.            <!-- sha: ________ -->
+- [x] 2a. `pnpm index --source jesusfilm-org` drains raw_documents → documents/chunks/embeddings; counts sane; idempotent re-run drains 0.            <!-- sha: 2a-commit -->
+      <!-- 349 inserted / 0 skipped → 349 docs / 2114 chunks / 2114 embeddings (1:1, no null-embeds dropped); chunks/doc avg 6.1. Single model openai/text-embedding-3-small; 0 chunk_count mismatches. Idempotent re-run drained 0. Data-only step → unit gate unchanged (86 tests, green). -->
 
 ### 3. Retrieve → ranked results
 - [ ] 3a. A real query returns ranked, cited jesusfilm.org hits in the now-3-source space.            <!-- sha: ________ -->
@@ -45,9 +46,9 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 2 — "2a. Ingest jesusfilm-org". Stage 1 done: 349/349 docs staged in
-raw_documents (all pending). Next concrete action: `pnpm index --source
-jesusfilm-org` to drain → normalize → chunk → embed → corpus tables; verify
-documents/chunks/chunk_embeddings counts sane, then re-run to confirm it drains
-0 (idempotent). Embed budget approved (full crawl). Last verify: green (86
-tests, 1d). Branch: slice/jesusfilm-org.
+At: Stage 3 — "3a. Retrieve". Stages 1–2 done: 349 docs / 2114 chunks / 2114
+embeddings ingested + idempotent. Next concrete action: run a real query via
+`pnpm query "<q>"` (e.g. "what are the parables of Jesus?" / "how do I share my
+faith?") and confirm ranked, cited jesusfilm.org hits surface in the now-3-source
+space (alongside SwG + Cru). Retrieval code is source-agnostic + already built —
+this stage is evidence, not new code. Last verify: green (86 tests). Branch: slice/jesusfilm-org.

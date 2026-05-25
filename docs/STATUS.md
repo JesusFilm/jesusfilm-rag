@@ -27,8 +27,11 @@ is too large to hand-list like slices #1–2. **Stage 1 (Acquire) DONE:** the
 discovery crawler is built + fakes-tested (1a–1c) and `jesusfilm-org` registered
 (owned WP source, `.entry-content`); the live discovery crawl staged **349/349
 blog articles, 0 skips** (417 sitemap locs → 349 kept; /give/ + .kml filtered).
-raw_content avg 9.4k chars, clean prose, all titles populated. **Next: Stage 2
-(Ingest)** — `pnpm index --source jesusfilm-org`.
+raw_content avg 9.4k chars, clean prose, all titles populated. **Stage 2
+(Ingest) DONE:** 349 docs / **2114 chunks / 2114 embeddings**
+(`openai/text-embedding-3-small`), 0 chunk_count mismatches, idempotent re-run
+drains 0. The corpus is now **3 sources** (swg + cru + jesusfilm-org). **Next:
+Stage 3 (Retrieve)** spot-query, then Stage 4 (`/golden jesusfilm-org` + eval).
 **Stage 4 built the eval, then reframed it.** v1 shipped a per-source breakdown with
 single-source expected docs; reviewing it with the operator surfaced a better model, now
 **implemented (`8fbee09`)**: cases are **source-agnostic questions + a multi-source `relevant`

@@ -81,3 +81,59 @@ cases:
     question: "Do I need to be baptized to become a Christian?"
     expected_doc_paths:
       - "/questions/baptism.html"
+
+  # --- Cru "10 Basic Steps Toward Christian Maturity" (slice #2) ---
+  # New-believer discipleship curriculum (Bill Bright). Persona spread:
+  # Believer x4, Newcomer x3, Seeker x2, Skeptic x1 — the curriculum is written
+  # for believers, so apologetic angles are naturally fewer. Cases 7/8/10 overlap
+  # topics Starting With God also covers (the honest cross-source hard cases).
+  - id: cru-newcomer-new-testament
+    source: cru-10-basic-steps
+    question: "I want to start reading the New Testament but don't know how it's organized or where to begin — can you orient me?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/10-the-new-testament.html"
+  - id: cru-believer-old-testament
+    source: cru-10-basic-steps
+    question: "The Old Testament feels like a confusing jumble of names and events. How does the whole story actually hang together?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/9-the-old-testament.html"
+  - id: cru-seeker-finances
+    source: cru-10-basic-steps
+    question: "Money stresses me out constantly. Does following God change how I'm supposed to handle my finances?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/8-giving.html"
+  - id: cru-believer-witnessing
+    source: cru-10-basic-steps
+    question: "I want to share my faith but I freeze up. How did Jesus himself approach people, and what does it take?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/7-the-christian-and-witnessing.html"
+  - id: cru-believer-guidance
+    source: cru-10-basic-steps
+    question: "How do I actually figure out what God wants me to do when I'm facing a hard decision?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
+  - id: cru-believer-bible-study
+    source: cru-10-basic-steps
+    question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+  - id: cru-newcomer-prayer
+    source: cru-10-basic-steps
+    question: "I never know what to actually say when I pray. Is there a simple way to build a daily prayer habit?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/4-prayer.html"
+  - id: cru-newcomer-holy-spirit
+    source: cru-10-basic-steps
+    question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
+  - id: cru-seeker-abundant-life
+    source: cru-10-basic-steps
+    question: "Being a Christian honestly feels flat and rule-bound to me. Is there supposed to be more life to it than this?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/2-abundant-life.html"
+  - id: cru-skeptic-jesus-uniqueness
+    source: cru-10-basic-steps
+    question: "Every religion has its founder. What actually sets Jesus apart from all the others?"
+    expected_doc_paths:
+      - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"

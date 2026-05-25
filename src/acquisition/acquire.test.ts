@@ -218,4 +218,41 @@ describe("acquireSource", () => {
     expect(summary.attempted).toBe(1);
     expect(summary.written).toBe(1);
   });
+
+  it("discovers URLs from a sitemap, then acquires only the discovered pages", async () => {
+    const discovery: SourceEntry = {
+      ...entry,
+      crawl: {
+        ...entry.crawl,
+        baseUrl: "https://d.example",
+        seedPaths: undefined, // pure discovery source
+        sitemaps: ["/sitemap.xml"],
+        allow: ["^https://d\\.example/"],
+        articleHints: ["/learn/"],
+        block: ["/donate"],
+      },
+    };
+    const fetcher = new FakeFetcher({
+      "https://d.example/sitemap.xml": ok(
+        `<?xml version="1.0"?><urlset>
+          <url><loc>https://d.example/learn/one</loc></url>
+          <url><loc>https://d.example/learn/two</loc></url>
+          <url><loc>https://d.example/donate</loc></url>
+        </urlset>`,
+      ),
+      "https://d.example/learn/one": ok(PAGE),
+      "https://d.example/learn/two": ok(PAGE),
+    });
+    const store = new FakeRawDocumentStore();
+
+    const summary = await acquireSource({ fetcher, store }, discovery);
+
+    // /donate dropped at discovery; the sitemap fetch is not an "attempt".
+    expect(summary.attempted).toBe(2);
+    expect(summary.written).toBe(2);
+    expect(store.bySourceKey("test-src").map((d) => d.canonicalUrl).sort()).toEqual([
+      "https://d.example/learn/one",
+      "https://d.example/learn/two",
+    ]);
+  });
 });

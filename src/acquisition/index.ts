@@ -6,6 +6,11 @@
 export { normalizeUrl } from "./normalize-url.js";
 export { extractContent, type Extracted } from "./extract.js";
 export {
+  discoverUrls,
+  type DiscoverDeps,
+  type DiscoverResult,
+} from "./discover.js";
+export {
   acquireOne,
   acquireSource,
   type AcquireOutcome,

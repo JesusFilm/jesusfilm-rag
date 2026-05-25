@@ -16,10 +16,11 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents (the discovery-crawl build)
-- [x] 1a. Extend `CrawlPolicy` with discovery fields (`sitemaps`/`allow`/`block`/`articleHints`); keep `seedPaths` working so SwG + Cru still validate. Registry types + registry test.            <!-- sha: 1a-commit -->
+- [x] 1a. Extend `CrawlPolicy` with discovery fields (`sitemaps`/`allow`/`block`/`articleHints`); keep `seedPaths` working so SwG + Cru still validate. Registry types + registry test.            <!-- sha: 1002dc9 -->
       <!-- seedPaths now optional; seedUrls() + acquire.ts log + registry test hardened; +1 discovery-shape test (79 total). -->
-- [ ] 1b. `src/acquisition/discover.ts`: fetch seeds via injected `Fetcher`, parse sitemap + sitemapindex (node-html-parser, recurse index→children), keep URLs matching allow∧articleHints, drop block, cap at maxPages. Fakes-only tests (canned XML).            <!-- sha: ________ -->
-- [ ] 1c. Wire discovery into `acquireSource` (discovery entries crawl `seeds`; `seedPaths` entries unchanged). Fakes-only test: a discovery entry crawls the discovered set.            <!-- sha: ________ -->
+- [x] 1b. `src/acquisition/discover.ts`: fetch sitemaps via injected `Fetcher`, parse sitemap + sitemapindex (node-html-parser, recurse index→children), keep URLs matching allow∧articleHints, drop block, cap at maxPages. Fakes-only tests (canned XML).            <!-- sha: 1b-commit -->
+      <!-- discoverUrls(deps, policy) → {urls, sitemapsFetched, totalSeen}; cycle guard + 404-skip + maxPages cap; 5 fakes-only tests (84 total). node-html-parser handles sitemap XML — no new dep. -->
+- [ ] 1c. Wire discovery into `acquireSource` (discovery entries crawl discovered URLs; `seedPaths` entries unchanged). Fakes-only test: a discovery entry crawls the discovered set.            <!-- sha: ________ -->
 - [ ] 1d. Probe jesusfilm.org sitemap + a real article DOM (read-only); register `jesusfilm-org` entry with confirmed `contentSelectors` + a conservative `maxPages`.            <!-- sha: ________ -->
 - [ ] 1e. Live crawl → `raw_documents`; spot-read content is real article prose, not nav/boilerplate. (Pause before this to confirm discovered-URL count + crawl budget.)            <!-- sha: ________ -->
 
@@ -41,9 +42,9 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1b. `src/acquisition/discover.ts`". Next concrete action: write a
-pure discovery function that takes (Fetcher, CrawlPolicy) → URL[]: fetch each
-`sitemaps` entry via the injected Fetcher, parse with node-html-parser, recurse
-`<sitemapindex>`→child `<sitemap>`, collect `<loc>` URLs, then keep allow∧
-articleHints / drop block, cap at maxPages. Fakes-only tests with canned XML
-(use FakeFetcher). Last verify: green (79 tests, 1a). Branch: slice/jesusfilm-org.
+At: Stage 1 — "1c. Wire discovery into `acquireSource`". Next concrete action:
+in `src/acquisition/acquire.ts`, when a policy has `sitemaps`, build the URL
+list via `discoverUrls()` instead of `seedUrls()` (union with any seedPaths),
+then run the existing acquireOne loop unchanged. Inject the Fetcher (already a
+dep). Add a fakes-only test: a discovery entry (canned sitemap + page bodies)
+stages the discovered docs. Last verify: green (84 tests, 1b). Branch: slice/jesusfilm-org.

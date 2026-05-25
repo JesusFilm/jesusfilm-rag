@@ -22,6 +22,7 @@ as sources are registered:
 | Key | Source |
 |-----|--------|
 | `starting-with-god` | Starting With God |
+| `everystudent` | EveryStudent |
 
 (Only registered sources appear; the rest get a key when their slice begins.)
 
@@ -61,7 +62,7 @@ time — we acquire and evaluate each one fresh and record the outcome here.
 |--------|-----|------|--------|---------|---------------------------|
 | Jesus Film Project | https://www.jesusfilm.org | HTML | Not started | — | — |
 | Cru | https://www.cru.org | HTML | Not started | — | — |
-| EveryStudent | https://www.everystudent.com | HTML | Not started | — | — |
+| EveryStudent | https://www.everystudent.com | HTML | Acquiring | — | Slice #2 (`slice/everystudent`), started 2026-05-25. Seed list hand-curated (operator decision). Recon: 60 KB / ~1283 words home, server-rendered, returned 200 with a browser UA (old jfa saw 403s here). |
 | Starting With God | https://www.startingwithgod.com | HTML | Evaluated | **Eval (2026-05-25):** 10 golden cases / 4 personas — recall@3 **0.90** · recall@8 **1.00** · MRR **0.82** · P@1 **0.70** @ minScore 0.37. Acquire: 40/40 pages staged → `raw_documents` (avg 6,843 chars). Ingest: **40/40 docs → 183 chunks → 183 embeddings**; chunk_count consistent (declared=actual=183, 0 mismatched); chunks/doc min 1 / avg 4.6 / max 14; idempotent re-run drains 0. | Slice #1 (`slice/starting-with-god`), acquired + ingested 2026-05-22. Seed-list of 40 article URLs; `#content` extraction clean. Chunker = jfa 500/50/min-20 paragraph-preserving. Embedded with **`openai/text-embedding-3-small`** (1536 dims via OpenRouter, locked decision-1) — a first run accidentally used a `.env` nvidia-free override and was corrected by re-embedding (`pnpm index --force`). Evaluated 2026-05-25 via `/golden` (persona-diverse cases + off-topic negatives); `minScore` re-derived 0.3 → **0.37** (hard floor 0.35, FOLLOW-UP A). |
 | Sightline Ministry | https://sightlineministry.org | HTML | Not started | — | — |
 | NextStep | https://nextstep.is | HTML | Not started | — | — |

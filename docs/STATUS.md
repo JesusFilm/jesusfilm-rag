@@ -5,30 +5,31 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-22_
+_Last updated: 2026-05-25_
 
 ## You are here
 
-**Slice #1 (Starting With God) is COMPLETE — acquired, ingested, retrievable, and
-evaluated.** `pnpm acquire` staged 40 clean rows → `pnpm index` drained them to
-**40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`) → the
-Retrieval context serves them → **eval baseline** (10 persona-diverse golden cases
-authored via `/golden`): **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @
-minScore **0.37** (re-derived from 0.3; FOLLOW-UP A resolved, hard floor 0.35). 61
-tests green (incl. 2 live-DB integration). The slice is up as a PR into `main`.
+**Slice #1 (Starting With God) is DONE and MERGED to `main`** (PR #2,
+2026-05-25) — acquired (40 rows), ingested (**40 docs / 183 chunks / 183
+embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
+**recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
+
+**Slice #2 (EveryStudent) is IN PROGRESS** on `slice/everystudent` (branched off
+the merged `origin/main`). Because slice #1 built all the machinery, slice #2 is
+mostly a registry entry + driving the pipeline, plus the two cross-source pieces
+that only a 2nd source unblocks (below). Currently at **Stage 1 (Acquire)**.
 
 ## Next action
 
-**Slice #1 is done (all 4 stages green); its PR is open into `main`.** The
-unpacked sub-step checklist, decisions, and findings live in
-**[docs/slices/starting-with-god.md](./slices/starting-with-god.md)**.
+**Drive slice #2 — EveryStudent.** The unpacked sub-step checklist, decisions,
+and resume hint live in **[docs/slices/everystudent.md](./slices/everystudent.md)**.
+Next concrete step: probe everystudent.com + hand-curate its seed URLs (operator
+chose hand-curate; the `discover-seeds` helper stays deferred).
 
-**Next: start slice #2.** Pick the next source from the short list (Cru ·
-EveryStudent · NextStep · Jesus Film Project · Sightline) and run `/slice <source>`.
-Two things unblock the moment a second source is ingested — both deferred here by
-design: the **per-source eval** mechanism (`source` tag per golden case + `pnpm eval
---source <key>` + per-source breakdown) and **FOLLOW-UP E** (consumer
-`excludedSourceKeys` filter).
+Two pieces unblock now that a 2nd source is landing — both fold into slice #2's
+Stage 4: the **per-source eval** mechanism (`source` tag per golden case + `pnpm
+eval --source <key>` + per-source breakdown), and **FOLLOW-UP E** (consumer
+`excludedSourceKeys` filter — surfaced at slice close per the architecture trigger).
 
 → **Resume with `/slice`** — it reads this file + the slice file, checks out the
 branch, and continues at the first unchecked sub-step.

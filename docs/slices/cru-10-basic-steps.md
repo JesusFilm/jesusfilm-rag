@@ -57,13 +57,25 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 - 2026-05-25 — **Seed sourcing = reuse jfa's curated URLs** (the human curation is the expensive part; we lift the 12 URLs + selector hints, adapted to our registry types).
 
 ## Open question / blocker
-- none
+- **Extraction wrinkle (not a blocker): Cru is Adobe AEM with no clean content
+  wrapper.** Probe 2026-05-25: all 12 seed URLs reachable, **no Cloudflare
+  challenge** (9/12 returned 200 cleanly; 3 intermittent timeouts on large ~115KB
+  AEM pages under fast 0.5s spacing — slowness, not blocking; our 1500ms delay +
+  idempotent re-runs handle stragglers). jfa's guessed `.article-content` /
+  `.content-body` selectors are **absent** from the live page; structure is AEM
+  (`cmp-container`, `data-cmp`, `aem-Grid`) wrapped in `header`/`nav`/`footer`/
+  `breadcrumb` + 9 `experiencefragment` chrome blocks, no `<main>`. So extraction
+  must be **body-minus-chrome** (mirroring jfa's org-pages approach: take a broad
+  container, strip nav/header/footer/breadcrumb/experiencefragment), **verified
+  against real lesson prose** before the registry entry is committed.
 
 ## Resume hint (for a cold start)
-At: Stage 1 — first sub-step ("probe the 12 jfa Cru URLs + find the content
-selector"). Next concrete action: fetch 2–3 of the seed URLs above (confirm 200,
-no Cloudflare challenge), inspect the HTML for cru.org's main-content container +
-chrome to strip, then add the `cru-10-basic-steps` registry entry. Branch
+At: Stage 1 — mid sub-step 1 (reachability ✓ confirmed, **selector still to finalize**).
+Reachability + no-wall verified; the wrinkle is the AEM extraction (see Open
+question above). Next concrete action: nail the content selector + strip list for
+Cru AEM (body-minus-chrome), confirm it yields clean lesson text on `/4-prayer.html`,
+then add the `cru-10-basic-steps` registry entry (12 seed paths above) + extend
+`registry.test.ts`, then `pnpm acquire --source cru-10-basic-steps`. Branch
 `slice/cru-10-basic-steps` carries the EveryStudent (blocked) + NextStep (deferred)
 records forward; it's off the merged `origin/main` (`da037f5`). Last verify: green
 (depcruise / typecheck / lint / test). Branch: slice/cru-10-basic-steps.

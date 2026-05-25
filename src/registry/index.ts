@@ -22,9 +22,10 @@ export function allSources(): readonly SourceEntry[] {
   return SOURCES;
 }
 
-/** Resolve a source's seed paths into absolute URLs (against its baseUrl). */
+/** Resolve a source's hand-listed seed paths into absolute URLs (against its
+ *  baseUrl). Empty for a pure discovery source (its URLs come from the sitemap). */
 export function seedUrls(entry: SourceEntry): string[] {
-  return entry.crawl.seedPaths.map(
+  return (entry.crawl.seedPaths ?? []).map(
     (path) => new URL(path, entry.crawl.baseUrl).href,
   );
 }

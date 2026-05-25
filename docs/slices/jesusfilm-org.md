@@ -16,7 +16,8 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents (the discovery-crawl build)
-- [ ] 1a. Extend `CrawlPolicy` with discovery fields (`seeds`/`sitemaps`/`allow`/`block`/`articleHints`); keep `seedPaths` working so SwG + Cru still validate. Registry types + registry test.            <!-- sha: ________ -->
+- [x] 1a. Extend `CrawlPolicy` with discovery fields (`sitemaps`/`allow`/`block`/`articleHints`); keep `seedPaths` working so SwG + Cru still validate. Registry types + registry test.            <!-- sha: 1a-commit -->
+      <!-- seedPaths now optional; seedUrls() + acquire.ts log + registry test hardened; +1 discovery-shape test (79 total). -->
 - [ ] 1b. `src/acquisition/discover.ts`: fetch seeds via injected `Fetcher`, parse sitemap + sitemapindex (node-html-parser, recurse index→children), keep URLs matching allow∧articleHints, drop block, cap at maxPages. Fakes-only tests (canned XML).            <!-- sha: ________ -->
 - [ ] 1c. Wire discovery into `acquireSource` (discovery entries crawl `seeds`; `seedPaths` entries unchanged). Fakes-only test: a discovery entry crawls the discovered set.            <!-- sha: ________ -->
 - [ ] 1d. Probe jesusfilm.org sitemap + a real article DOM (read-only); register `jesusfilm-org` entry with confirmed `contentSelectors` + a conservative `maxPages`.            <!-- sha: ________ -->
@@ -40,8 +41,9 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1a. Extend `CrawlPolicy` with discovery fields". Next concrete
-action: add `seeds`/`sitemaps`/`allow`/`block`/`articleHints` to `CrawlPolicy`
-in `src/registry/types.ts` (all optional alongside `seedPaths`), keep the
-registry test green. Last verify: green @ slice start (78 tests). Last commit:
-(none on branch yet). Branch: slice/jesusfilm-org.
+At: Stage 1 — "1b. `src/acquisition/discover.ts`". Next concrete action: write a
+pure discovery function that takes (Fetcher, CrawlPolicy) → URL[]: fetch each
+`sitemaps` entry via the injected Fetcher, parse with node-html-parser, recurse
+`<sitemapindex>`→child `<sitemap>`, collect `<loc>` URLs, then keep allow∧
+articleHints / drop block, cap at maxPages. Fakes-only tests with canned XML
+(use FakeFetcher). Last verify: green (79 tests, 1a). Branch: slice/jesusfilm-org.

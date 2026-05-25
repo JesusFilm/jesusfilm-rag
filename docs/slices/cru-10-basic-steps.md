@@ -31,7 +31,9 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 **Stage 2 (Ingest) complete — verify green, 11 docs / 35 chunks / 35 embeddings, idempotent.**
 
 ### 3. Retrieve → ranked results
-- [ ] Live `pnpm query "<10-basic-steps topic>"` → ranked, cited hits from this source; confirm on-topic + each cited. (No new code expected — reuses the Retrieval context.)   <!-- sha: ________ -->
+- [x] Live `pnpm query "<10-basic-steps topic>"` → ranked, cited hits from this source; confirm on-topic + each cited. (No new code expected — reuses the Retrieval context.)   **Result:** cru-10 surfaces correctly in the **whole-corpus** ranking (both sources coexist, right source wins by topic) and **in isolation** (`--source cru-10-basic-steps`), every hit cited to its `cru.org` lesson URL. Wins rank 1 on Witnessing (0.663), Abundant Life (0.604), Obedience (0.634, clean prose); rank 2 on Prayer (0.564) + Holy Spirit (0.643) behind relevant SwG pages. **Wrinkle for Stage 4:** the leading accordion-section TOC chunk sometimes surfaces instead of lesson prose (seen on Giving / Abundant Life) and cru-10 scores a bit lower than SwG; on "how to study the Bible" SwG swept top 3 and cru-10's Step 5 didn't place. Not a blocker — eval will quantify recall impact.   <!-- sha: ________ -->
+
+**Stage 3 (Retrieve) complete — verify green, cru-10 retrievable + cited, two sources coexist.**
 
 ### 4. Eval + spot-check (+ unblocked cross-source work)
 - [ ] **Per-source eval mechanism** (deferred to slice #2 in slice #1's decision log): add a `source` tag to the golden schema + `pnpm eval --source <key>` scoped run + a per-source breakdown in the whole-corpus run. Test coverage as appropriate.   <!-- sha: ________ -->
@@ -74,12 +76,16 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
   against real lesson prose** before the registry entry is committed.
 
 ## Resume hint (for a cold start)
-At: **Stage 3 (Retrieve) — not started.** Stages 1–2 complete & verify-green: corpus now
-holds **11 docs / 35 chunks / 35 embeddings** for cru-10-basic-steps (`openai/text-embedding-3-small`
-@ 1536 dims, consistent with starting-with-god), all 11 raw rows consumed, idempotent re-run
-drains 0. Next concrete action: run `pnpm query "<10-basic-steps topic>"` (e.g. a prayer /
-Holy Spirit / witnessing question) and confirm ranked, **cited** hits surface from
-cru-10-basic-steps, each on-topic — no new code expected (reuses the Retrieval context).
+At: **Stage 4 (Eval + spot-check) — not started.** Stages 1–3 complete & verify-green:
+corpus holds **11 docs / 35 chunks / 35 embeddings** for cru-10-basic-steps; live queries
+return cited, on-topic cru-10 hits in both whole-corpus and source-scoped modes (it wins
+rank 1 on Witnessing / Abundant Life / Obedience). Stage 4 is the **first sub-step that
+needs new code:** add a `source` tag to the golden schema + `pnpm eval --source <key>`
+scoped run + per-source breakdown (deferred to slice #2 in slice #1's decision log). Then
+author persona-diverse cru-10 golden cases via `/golden`, run the **whole-corpus** `pnpm
+eval` (now 2 sources) to re-derive `minScore` (FOLLOW-UP A — expect drift toward but not
+below 0.35), and spot-check positives + off-topic negatives → `sources.md` (→ Evaluated).
+**Watch the accordion-TOC chunk wrinkle** (Stage 3 note) — quantify whether it costs recall.
 Branch `slice/cru-10-basic-steps` carries the EveryStudent (blocked) + NextStep (deferred)
 records forward; it's off the merged `origin/main` (`da037f5`). Last verify: green
 (depcruise / typecheck / lint / 65 tests). Branch: slice/cru-10-basic-steps.

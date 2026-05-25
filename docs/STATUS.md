@@ -15,24 +15,30 @@ embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
 
 **Slice #2 is Cru "10 Basic Steps"** (`cru-10-basic-steps`), IN PROGRESS on
-`slice/cru-10-basic-steps`. **Stages 1–2 (Acquire + Ingest) are complete.** Acquire
-staged **11/12 clean lesson rows** in `raw_documents` (the index page correctly skipped
-too-thin), AEM `.article-long-form` selector verified. Ingest drained all 11 →
+`slice/cru-10-basic-steps`. **Stages 1–3 (Acquire + Ingest + Retrieve) are complete.**
+Acquire staged **11/12 clean lesson rows** in `raw_documents` (the index page correctly
+skipped too-thin), AEM `.article-long-form` selector verified. Ingest drained all 11 →
 **11 docs / 35 chunks / 35 embeddings** (`openai/text-embedding-3-small`, 1536 dims,
 consistent with starting-with-god); 0 chunk_count mismatches, idempotent re-run drains 0.
-65 tests green. Chosen after examining jfa's registry (12 ready-made URLs, on-mission,
+Retrieve: live queries return cited, on-topic cru-10 hits in both whole-corpus and
+source-scoped modes (wins rank 1 on Witnessing / Abundant Life / Obedience) — two sources
+now coexist in one ranked space. One quality wrinkle carried to Stage 4: the leading
+accordion-TOC chunk sometimes surfaces instead of lesson prose. 65 tests green. Chosen after examining jfa's registry (12 ready-made URLs, on-mission,
 fits the current `seedPaths` code). Two earlier candidates parked: **EveryStudent**
 `Blocked` (Cloudflare JS challenge, jfa-confirmed) and **NextStep** `Deferred` (8-page
 marketing site). The branch carries both records forward.
 
 ## Next action
 
-**Drive slice #2 Stage 3 (Retrieve).** The unpacked sub-step checklist, decisions, and
-resume hint live in **[docs/slices/cru-10-basic-steps.md](./slices/cru-10-basic-steps.md)**.
-Next concrete step: `pnpm query "<10-basic-steps topic>"` (e.g. a prayer / Holy Spirit /
-witnessing question) → confirm ranked, **cited** hits surface from cru-10-basic-steps,
-each on-topic (no new code expected — reuses the Retrieval context). Then Stage 4 (eval +
-the now-unblocked per-source eval + FOLLOW-UP E).
+**Drive slice #2 Stage 4 (Eval + spot-check).** The unpacked sub-step checklist, decisions,
+and resume hint live in **[docs/slices/cru-10-basic-steps.md](./slices/cru-10-basic-steps.md)**.
+This is the **first stage that needs new code:** (1) per-source eval mechanism — a `source`
+tag on the golden schema + `pnpm eval --source <key>` + a per-source breakdown; (2) author
+persona-diverse cru-10 golden cases via `/golden`; (3) run the **whole-corpus** `pnpm eval`
+(now 2 sources) → re-derive `minScore` (FOLLOW-UP A: expect drift toward, not below, 0.35);
+(4) spot-check positives + off-topic negatives → `sources.md` (→ Evaluated). Watch the
+accordion-TOC chunk wrinkle. **FOLLOW-UP E (`excludedSourceKeys`) unblocks at slice close**
+(2nd source now end-to-end).
 
 Two pieces unblock now that a 2nd source is landing — both fold into slice #2's
 Stage 4: the **per-source eval** mechanism (`source` tag per golden case + `pnpm

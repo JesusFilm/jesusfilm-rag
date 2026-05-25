@@ -14,20 +14,21 @@ _Last updated: 2026-05-25_
 embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
 
-**Slice #2 is NextStep** (re-targeted from EveryStudent), IN PROGRESS on
-`slice/nextstep` at **Stage 1 (Acquire)**. EveryStudent is parked `Blocked` —
-its content pages are behind a Cloudflare JS managed challenge our plain fetcher
-can't pass (record in `docs/slices/everystudent.md`); the `slice/nextstep` branch
-carries that record forward. NextStep passed the content-level probe (200, no
-challenge) and is the leanest reachable alternative.
+**Slice #2 is Cru "10 Basic Steps"** (`cru-10-basic-steps`), IN PROGRESS on
+`slice/cru-10-basic-steps` at **Stage 1 (Acquire)**. Chosen after examining jfa's
+registry: it hands us **12 ready-made curated URLs**, Cru is content-reachable
+(probed 200, no challenge), it's genuinely on-mission (new-believer discipleship),
+and it fits our current hand-listed `seedPaths` code with no crawler rebuild. Two
+earlier candidates are parked: **EveryStudent** `Blocked` (Cloudflare JS challenge,
+jfa-confirmed) and **NextStep** `Deferred` (8-page product-marketing site, jfa-confirmed
+— better as the FOLLOW-UP E seasonal fixture). The branch carries both records forward.
 
 ## Next action
 
-**Drive slice #2 — NextStep.** The unpacked sub-step checklist, decisions, and
-resume hint live in **[docs/slices/nextstep.md](./slices/nextstep.md)**. Next
-concrete step: content-level probe of nextstep.is (confirm a real article returns
-200, no CF challenge) + hand-curate its seed URLs (the `discover-seeds` helper
-stays deferred).
+**Drive slice #2 — Cru 10 Basic Steps.** The unpacked sub-step checklist, decisions,
+and resume hint live in **[docs/slices/cru-10-basic-steps.md](./slices/cru-10-basic-steps.md)**.
+Next concrete step: probe the 12 jfa Cru URLs at the content level (confirm 200, no
+challenge) + find the content selector, then add the `cru-10-basic-steps` registry entry.
 
 Two pieces unblock now that a 2nd source is landing — both fold into slice #2's
 Stage 4: the **per-source eval** mechanism (`source` tag per golden case + `pnpm
@@ -93,12 +94,16 @@ high word counts confirm real content, not an anti-bot page.)
 
 ## Process TODOs (deferred)
 
-- **Seed-URL discovery.** Seed URLs are currently **curated by hand** from a
-  source's sitemap/homepage (worked cleanly for Starting With God — 40 URLs).
-  Before source #2, decide whether to build a `discover-seeds` helper (a guided
-  skill or a `scripts/discover-seeds.ts`) that fetches a site's sitemap/homepage,
-  lists candidate content URLs, and filters nav/category/cross-site links for a
-  human to curate into a registry entry. Deferred until we start the next source.
+- **Seed-URL discovery → now informed by jfa.** We examined jfa's source registry
+  (2026-05-25); the full findings are in
+  **[docs/jfa-registry-findings.md](./jfa-registry-findings.md)** — read it before
+  picking the next source or deciding how to crawl one. Two recurring forks are now
+  written up as **architecture §11 FOLLOW-UP F** (adopt jfa's discovery-crawl policy
+  shape — `seeds`+`allow`/`block`/`articleHints`+`contentSelectors`+`sitemaps`;
+  trigger = first large source) and **FOLLOW-UP G** (Cloudflare/JS-walled sources —
+  EveryStudent confirmed walled; bypass options listed). For small curated scopes
+  (like `cru-10-basic-steps`, 12 ready-made URLs) the current hand-listed `seedPaths`
+  code is still fine; neither follow-up is taken in slice #2.
 
 ## Done
 

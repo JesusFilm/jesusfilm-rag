@@ -21,9 +21,14 @@ embeddings; retrievable + cited; two sources now coexist in one ranked space.
 **Slice #3 (Jesus Film Project, `jesusfilm-org`) is IN PROGRESS** on
 `slice/jesusfilm-org` (started 2026-05-26) — see
 [docs/slices/jesusfilm-org.md](./slices/jesusfilm-org.md). This is the source
-that triggers **FOLLOW-UP F**: Stage 1 builds the **discovery-crawl** model
-(sitemap seed → allow∧articleHints filter → drop block) because jesusfilm.org
-(~1,200 pages, owned) is too large to hand-list like slices #1–2.
+that triggers **FOLLOW-UP F**: Stage 1 built the **discovery-crawl** model
+(sitemap seed → allow∧articleHints filter → drop block), because jesusfilm.org
+is too large to hand-list like slices #1–2. **Stage 1 (Acquire) DONE:** the
+discovery crawler is built + fakes-tested (1a–1c) and `jesusfilm-org` registered
+(owned WP source, `.entry-content`); the live discovery crawl staged **349/349
+blog articles, 0 skips** (417 sitemap locs → 349 kept; /give/ + .kml filtered).
+raw_content avg 9.4k chars, clean prose, all titles populated. **Next: Stage 2
+(Ingest)** — `pnpm index --source jesusfilm-org`.
 **Stage 4 built the eval, then reframed it.** v1 shipped a per-source breakdown with
 single-source expected docs; reviewing it with the operator surfaced a better model, now
 **implemented (`8fbee09`)**: cases are **source-agnostic questions + a multi-source `relevant`

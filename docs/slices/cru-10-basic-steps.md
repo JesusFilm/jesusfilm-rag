@@ -26,7 +26,7 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 **Stage 1 (Acquire) complete — verify green, 11 clean lesson rows in `raw_documents`.**
 
 ### 2. Ingest → corpus tables
-- [x] Live `pnpm index --source cru-10-basic-steps` → documents / chunks / embeddings (`openai/text-embedding-3-small`); chunk counts sane; idempotent re-run drains 0. (No new code expected — reuses the Ingestion context.)   **Result:** drained all 11 pending raw rows → **11 docs / 35 chunks / 35 embeddings**; 0 chunk_count mismatches (declared=actual); chunks/doc min 2 / avg 3.2 / max 6; embeddings all `openai/text-embedding-3-small` @ **1536 dims** (consistent with starting-with-god — no model footgun). Idempotent re-run drained **0** pending, wrote 0 chunks, count held at 35. Verify gate green (depcruise/lint/typecheck/65 tests).   <!-- sha: ________ -->
+- [x] Live `pnpm index --source cru-10-basic-steps` → documents / chunks / embeddings (`openai/text-embedding-3-small`); chunk counts sane; idempotent re-run drains 0. (No new code expected — reuses the Ingestion context.)   **Result:** drained all 11 pending raw rows → **11 docs / 35 chunks / 35 embeddings**; 0 chunk_count mismatches (declared=actual); chunks/doc min 2 / avg 3.2 / max 6; embeddings all `openai/text-embedding-3-small` @ **1536 dims** (consistent with starting-with-god — no model footgun). Idempotent re-run drained **0** pending, wrote 0 chunks, count held at 35. Verify gate green (depcruise/lint/typecheck/65 tests).   <!-- sha: 30b7092 -->
 
 **Stage 2 (Ingest) complete — verify green, 11 docs / 35 chunks / 35 embeddings, idempotent.**
 

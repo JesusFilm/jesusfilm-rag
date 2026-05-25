@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-25_
+_Last updated: 2026-05-26_
 
 ## You are here
 
@@ -15,8 +15,15 @@ embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
 
 **Slice #2 (Cru "10 Basic Steps", `cru-10-basic-steps`) is DONE — all 4 stages green,
-Evaluated** — on `slice/cru-10-basic-steps`, **not yet merged**. 11 docs / 35 chunks / 35
+Evaluated, and MERGED to `main`** (PR #11, `b3105f7`). 11 docs / 35 chunks / 35
 embeddings; retrievable + cited; two sources now coexist in one ranked space.
+
+**Slice #3 (Jesus Film Project, `jesusfilm-org`) is IN PROGRESS** on
+`slice/jesusfilm-org` (started 2026-05-26) — see
+[docs/slices/jesusfilm-org.md](./slices/jesusfilm-org.md). This is the source
+that triggers **FOLLOW-UP F**: Stage 1 builds the **discovery-crawl** model
+(sitemap seed → allow∧articleHints filter → drop block) because jesusfilm.org
+(~1,200 pages, owned) is too large to hand-list like slices #1–2.
 **Stage 4 built the eval, then reframed it.** v1 shipped a per-source breakdown with
 single-source expected docs; reviewing it with the operator surfaced a better model, now
 **implemented (`8fbee09`)**: cases are **source-agnostic questions + a multi-source `relevant`
@@ -32,14 +39,13 @@ follow-up). 77 tests green. Parked candidates carried forward on the branch: **E
 
 ## Next action
 
-**Slice #2 is complete (Evaluated).** Two operator decisions, then pick the next slice:
-
-1. **Merge** `slice/cru-10-basic-steps` → `main` (carries the per-source eval mechanism +
-   the EveryStudent `Blocked` / NextStep `Deferred` records forward). Not done automatically.
-2. **Start slice #3.** Remaining short-list `Not started`: **Jesus Film Project**
-   (jesusfilm.org — owned, large) and **Sightline Ministry** (content-heavy). Read
-   `docs/jfa-registry-findings.md` before picking/crawling (FOLLOW-UP F/G live there for a
-   large or walled source).
+**Slice #3 (Jesus Film Project, `jesusfilm-org`) is in progress** — drive it with
+`/slice jesusfilm-org`; state lives in [docs/slices/jesusfilm-org.md](./slices/jesusfilm-org.md).
+Operator-confirmed (2026-05-26): build the **discovery crawler** (FOLLOW-UP F) now rather than
+hand-list a sub-scope — jesusfilm.org is the named trigger source. **Resume point:** Stage 1,
+sub-step 1a (extend `CrawlPolicy` with discovery fields). After this lands, remaining short-list
+`Not started`: **Sightline Ministry** (rides the now-built crawler; adds the skeptic axis).
+Read `docs/jfa-registry-findings.md` before crawling (FOLLOW-UP F/G live there).
 
 **Eval reframe (DONE 2026-05-25, `8fbee09`):** golden cases are now **source-agnostic questions
 + multi-source `relevant` maps**, scored on **recall + coverage** at **top-10** (P@1/MRR

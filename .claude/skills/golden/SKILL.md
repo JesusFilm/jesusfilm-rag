@@ -25,6 +25,13 @@ source's slice (after Stage 2 ingest has populated `documents`/`chunks`).
   (`expected_doc_paths`). `pnpm eval` scores recall@3/@8 / MRR / precision@1 over
   these. See `eval/qa-golden.yaml`'s header for the schema and why doc-path
   matching is preferred (it survives re-indexing).
+  - **Intended direction (see `docs/eval-approach.md`):** questions are
+    source-agnostic and a case's expected set should list **every** doc, across
+    sources, that legitimately answers it — and that set is **living**, so when a
+    new source is ingested, **re-review prior questions** for newly-relevant docs,
+    not only draft new ones. (The v1 cases list a single source's doc; the reframe
+    to multi-source `relevant` sets is queued — author with the intended model where
+    practical.)
 - A **negative** case = an off-topic question this source should *not* answer.
   Used to calibrate the `minScore` cutoff (the "is it honest?" check) by eyeball
   via `pnpm query`. (`eval.ts` does not auto-score negatives yet — see the note
@@ -131,7 +138,9 @@ unconfirmed cases.
 ### 5. Write approved cases
 - **Positives** → append to `eval/qa-golden.yaml` (preserve existing cases). Use
   unique, descriptive ids `<src>-<persona>-<topic>` (e.g. `swg-skeptic-suffering`,
-  `swg-seeker-begin`); each MUST carry at least `expected_doc_paths`.
+  `swg-seeker-begin`); each MUST carry `source: <registry-key>` (the resolved
+  source key — drives `pnpm eval --source` + the per-source breakdown) and at
+  least `expected_doc_paths`.
 - **Negatives** → save the list to the source's slice file (Stage 4 section) — do
   **not** put them in `qa-golden.yaml` (`eval.ts` would miscount them as misses).
 

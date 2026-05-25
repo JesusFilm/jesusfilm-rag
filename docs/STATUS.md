@@ -5,33 +5,57 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-22_
+_Last updated: 2026-05-25_
 
 ## You are here
 
-**Slice #1 (Starting With God) is COMPLETE — acquired, ingested, retrievable, and
-evaluated.** `pnpm acquire` staged 40 clean rows → `pnpm index` drained them to
-**40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`) → the
-Retrieval context serves them → **eval baseline** (10 persona-diverse golden cases
-authored via `/golden`): **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @
-minScore **0.37** (re-derived from 0.3; FOLLOW-UP A resolved, hard floor 0.35). 61
-tests green (incl. 2 live-DB integration). The slice is up as a PR into `main`.
+**Slice #1 (Starting With God) is DONE and MERGED to `main`** (PR #2,
+2026-05-25) — acquired (40 rows), ingested (**40 docs / 183 chunks / 183
+embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
+**recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
+
+**Slice #2 (Cru "10 Basic Steps", `cru-10-basic-steps`) is DONE — all 4 stages green,
+Evaluated** — on `slice/cru-10-basic-steps`, **not yet merged**. 11 docs / 35 chunks / 35
+embeddings; retrievable + cited; two sources now coexist in one ranked space.
+**Stage 4 built the eval, then reframed it.** v1 shipped a per-source breakdown with
+single-source expected docs; reviewing it with the operator surfaced a better model, now
+**implemented (`8fbee09`)**: cases are **source-agnostic questions + a multi-source `relevant`
+map**, scored on **recall + coverage** (P@1/MRR secondary) at **top-10**, with per-source
+coverage — see **[docs/eval-approach.md](./eval-approach.md)**. **v2 whole-corpus eval (20 cases
+/ 2 sources): recall@3 0.95 · recall@10 1.00 · coverage 0.896 · MRR 0.881 · P@1 0.80**; per-source
+coverage cru 0.929 / swg 0.906. This **resolved** the v1 cru "P@1 0.20" artifact — cru content
+surfaces reliably (per-source recall 0.929); retrieval was fine, v1 measured the wrong thing.
+minScore **0.37** held (FOLLOW-UP A). Citation-quality limitation remains: the leading
+**accordion-TOC chunk** is sometimes the top-cited cru snippet (extraction-side; candidate
+follow-up). 77 tests green. Parked candidates carried forward on the branch: **EveryStudent**
+`Blocked` (Cloudflare) + **NextStep** `Deferred` (marketing site).
 
 ## Next action
 
-**Slice #1 is done (all 4 stages green); its PR is open into `main`.** The
-unpacked sub-step checklist, decisions, and findings live in
-**[docs/slices/starting-with-god.md](./slices/starting-with-god.md)**.
+**Slice #2 is complete (Evaluated).** Two operator decisions, then pick the next slice:
 
-**Next: start slice #2.** Pick the next source from the short list (Cru ·
-EveryStudent · NextStep · Jesus Film Project · Sightline) and run `/slice <source>`.
-Two things unblock the moment a second source is ingested — both deferred here by
-design: the **per-source eval** mechanism (`source` tag per golden case + `pnpm eval
---source <key>` + per-source breakdown) and **FOLLOW-UP E** (consumer
-`excludedSourceKeys` filter).
+1. **Merge** `slice/cru-10-basic-steps` → `main` (carries the per-source eval mechanism +
+   the EveryStudent `Blocked` / NextStep `Deferred` records forward). Not done automatically.
+2. **Start slice #3.** Remaining short-list `Not started`: **Jesus Film Project**
+   (jesusfilm.org — owned, large) and **Sightline Ministry** (content-heavy). Read
+   `docs/jfa-registry-findings.md` before picking/crawling (FOLLOW-UP F/G live there for a
+   large or walled source).
 
-→ **Resume with `/slice`** — it reads this file + the slice file, checks out the
-branch, and continues at the first unchecked sub-step.
+**Eval reframe (DONE 2026-05-25, `8fbee09`):** golden cases are now **source-agnostic questions
++ multi-source `relevant` maps**, scored on **recall + coverage** at **top-10** (P@1/MRR
+secondary), with per-source coverage. The `relevant` set is **living** — re-review existing
+questions for newly-relevant docs each time a source is added (not just author new ones). Model
++ v2 baseline in **[docs/eval-approach.md](./eval-approach.md)**.
+
+**Now unblocked (2 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
+filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)). Can be a small
+standalone change or folded into slice #3; NextStep football2026 was earmarked as its
+seasonal-exclusion fixture. **New candidate follow-up:** strip the AEM accordion-section TOC
+during Cru acquisition (top-cited cru chunk is sometimes the section list, not prose —
+citation quality, not recall).
+
+→ **`/slice <source>`** starts the next slice; `/slice` alone resumes an in-progress one
+(none right now). Merge is the operator's call.
 
 ## How we're building (decided 2026-05-22)
 
@@ -89,12 +113,16 @@ high word counts confirm real content, not an anti-bot page.)
 
 ## Process TODOs (deferred)
 
-- **Seed-URL discovery.** Seed URLs are currently **curated by hand** from a
-  source's sitemap/homepage (worked cleanly for Starting With God — 40 URLs).
-  Before source #2, decide whether to build a `discover-seeds` helper (a guided
-  skill or a `scripts/discover-seeds.ts`) that fetches a site's sitemap/homepage,
-  lists candidate content URLs, and filters nav/category/cross-site links for a
-  human to curate into a registry entry. Deferred until we start the next source.
+- **Seed-URL discovery → now informed by jfa.** We examined jfa's source registry
+  (2026-05-25); the full findings are in
+  **[docs/jfa-registry-findings.md](./jfa-registry-findings.md)** — read it before
+  picking the next source or deciding how to crawl one. Two recurring forks are now
+  written up as **architecture §11 FOLLOW-UP F** (adopt jfa's discovery-crawl policy
+  shape — `seeds`+`allow`/`block`/`articleHints`+`contentSelectors`+`sitemaps`;
+  trigger = first large source) and **FOLLOW-UP G** (Cloudflare/JS-walled sources —
+  EveryStudent confirmed walled; bypass options listed). For small curated scopes
+  (like `cru-10-basic-steps`, 12 ready-made URLs) the current hand-listed `seedPaths`
+  code is still fine; neither follow-up is taken in slice #2.
 
 ## Done
 
@@ -104,3 +132,4 @@ high word counts confirm real content, not an anti-bot page.)
 - **Slice #1, Stage 1 (Acquire)** — RawDocumentStore port/fake/adapter, SourceRegistry + Starting With God entry, Acquisition context (normalizeUrl/extraction/acquireOne/acquireSource), HTTP Fetcher adapter, `pnpm acquire`. Live crawl staged **40/40 clean rows** in `raw_documents`. On `slice/starting-with-god`.
 - **Slice #1, Stage 2 (Ingest)** — OpenRouter Embedder adapter, Ingestion context (normalize → jfa-ported chunk → embed → dedup → idempotent replaceDocument), RawDocumentReader read port/fake/adapter, `pnpm index`. Live run drained `raw_documents` → **40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`); idempotent re-run drains 0. 47 tests green. `pnpm index --force` = full re-index from the raw snapshot (used to re-embed off an accidental `.env` model override). On `slice/starting-with-god`.
 - **Slice #1, Stage 3 (Retrieve)** — Retrieval context (`src/retrieval/`): `createRetriever` runs invariant 5 (embedQuery → vectorSearch candidate fan-out → minScore 0.3 cutoff → soft preferSourceKey tiebreak → 3-key dedup → citation). Wired into `main.wire()`; `pnpm query "<q>"` entry point; `scripts/eval.ts` step-5 TODO closed (drives the real Retriever). 12 fakes-only tests (59 total). Live query returns 5 distinct cited docs. **Decision:** 3-key dedup ⇒ at most one chunk per document (content-hash is doc-level). On `slice/starting-with-god`.
+- **Slice #2 (Cru "10 Basic Steps", `cru-10-basic-steps`)** — full acquire → ingest → retrieve → eval on `slice/cru-10-basic-steps` (not yet merged). 11 docs / 35 chunks / 35 embeddings (AEM `.article-long-form` extraction). **Stage 4 built the per-source eval mechanism:** required `source` tag on golden cases, `pnpm eval --source <key>`, and a per-source breakdown (pure logic in `scripts/eval-metrics.ts`, unit-tested from `tests/`; +15 tests, 80 total). 10 persona-diverse cru golden cases authored. Whole-corpus eval (20 cases / 2 sources): recall@3 0.80 / recall@8 0.90 / MRR 0.62 / P@1 0.45; minScore **0.37 (FOLLOW-UP A re-confirmed, held)**. **Stage 4 also reframed the eval** (`8fbee09`) to source-agnostic questions + multi-source `relevant` maps scored on recall + coverage — v2 whole-corpus recall@10 1.00 / coverage 0.896 / P@1 0.80, per-source coverage cru 0.929 / swg 0.906 (resolved the v1 cru P@1 0.20 artifact). Remaining: accordion-TOC chunk hurts cru citation quality (extraction-side follow-up). See `docs/eval-approach.md`; Cru → Evaluated in `sources.md`.

@@ -17,8 +17,28 @@ describe("SourceRegistry", () => {
     expect(swg?.crawl.seedPaths.length).toBeGreaterThan(0);
   });
 
+  it("resolves Cru 10 Basic Steps by key with the AEM long-form selector + 12 seeds", () => {
+    const cru = getSource("cru-10-basic-steps");
+    expect(cru).toBeDefined();
+    expect(cru?.domain).toBe("www.cru.org");
+    expect(cru?.trust).toBe("partner");
+    expect(cru?.ingestionMode).toBe("html-scrape");
+    // `.article-long-form` is the verified content container for Cru AEM lessons.
+    expect(cru?.crawl.contentSelectors[0]).toBe(".article-long-form");
+    expect(cru?.crawl.seedPaths).toHaveLength(12);
+    // every seed is within the 10-basic-steps scope.
+    for (const p of cru!.crawl.seedPaths) {
+      expect(p.startsWith("/us/en/train-and-grow/10-basic-steps")).toBe(true);
+    }
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
+  });
+
+  it("registry keys are unique", () => {
+    const keys = SOURCES.map((s) => s.key);
+    expect(new Set(keys).size).toBe(keys.length);
   });
 
   it("seedUrls() yields absolute, same-origin, de-duplicated URLs", () => {

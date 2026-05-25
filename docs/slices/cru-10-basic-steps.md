@@ -1,6 +1,6 @@
 # Slice: Cru — 10 Basic Steps (cru-10-basic-steps)
 
-_Branch: `slice/cru-10-basic-steps` · Started: 2026-05-25 · Status: in-progress_
+_Branch: `slice/cru-10-basic-steps` · Started: 2026-05-25 · Status: done (2026-05-25)_
 <!-- Status: in-progress | blocked | done -->
 
 ## Goal (architecture altitude)
@@ -39,7 +39,9 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 - [x] **Per-source eval mechanism** (deferred to slice #2 in slice #1's decision log): add a `source` tag to the golden schema + `pnpm eval --source <key>` scoped run + a per-source breakdown in the whole-corpus run. Test coverage as appropriate.   **Result:** required `source` tag on the golden schema; `--source <key>` filters cases but retrieves **whole-corpus** (so the scoped number == that source's breakdown row — one source of truth, exposes cross-source interference); whole-corpus run prints + writes a per-source breakdown; scoped runs write `results-<date>-<source>.md`. Pure scoring/reporting logic split into `scripts/eval-metrics.ts` (unit-tested from `tests/` since vitest excludes `scripts/`) — **+15 tests, 80 total**. Backfilled the 10 SwG cases; `/golden` skill now emits `source`. **Finding (for sub-step 3):** scoped swg run dropped to recall@8 **0.90** (was 1.00) — `swg-newcomer-gospel`'s expected doc fell out of top-8, displaced by 3 cru-10 chunks scoring 0.469–0.472 (ranking competition, **not** a minScore cutoff issue).   <!-- sha: cdccfc0 -->
 - [x] Author Cru 10-Basic-Steps golden cases via `/golden` (persona-diverse), tagged `source: cru-10-basic-steps`.   **Result:** 10 operator-approved positives (Believer ×4 / Newcomer ×3 / Seeker ×2 / Skeptic ×1), each grounded in a real lesson + persona-voiced (not title paraphrase); 4 off-topic negatives recorded above. Step 1 (assurance) left uncovered (SwG's strong suit). Scoped validation run (`--source cru-10-basic-steps`, whole-corpus retrieval): recall@3 **0.70** · recall@8 **0.90** · MRR **0.44** · P@1 **0.20**. One miss — `cru-seeker-finances` (Step 8 Giving) fell out of top-8; `cru-believer-bible-study` barely placed (rank 7). cru wins rank 1 only on guidance + abundant-life (P@1 0.20) — it rarely tops SwG in shared space.   <!-- sha: 3dd7baa -->
 - [x] Run the **whole-corpus** `pnpm eval` (now 2 sources: starting-with-god + cru-10-basic-steps) → re-confirm/re-derive `minScore` (FOLLOW-UP A: expect drift toward — not below — the 0.35 floor as breadth grows); write `eval/results-YYYY-MM-DD.md`.   **Result:** 20-case whole-corpus run → recall@3 **0.80** · recall@8 **0.90** · MRR **0.62** · P@1 **0.45** (local scratch `eval/results-2026-05-25.md`, gitignored — numbers recorded here). Per-source breakdown **equals** the scoped runs exactly (cru 0.70/0.90/0.44/0.20; swg 0.90/0.90/0.80/0.70) — the "scoped == breakdown row" design holds. **`minScore` HOLDS at 0.37** (FOLLOW-UP A re-confirmed in architecture.md): clean off-scope negatives score ≤0.28 (eschatology) / ~0.14 (secular) — noise floor did not rise; the "no-answer Christian query" (dating/marriage) returns nearest content at 0.40–0.43 (a consumer relevance call per §1, not a cutoff target). **Both misses are displacement, not cutoff:** gospel's expected doc is rank 9 @ 0.468 (out-ranked by 8 chunks @ 0.469–0.502), finances' Step 8 (Giving) absent from top-15 ("money stress" pulls SwG worry/trust content; Giving is about stewardship — a case-framing mismatch). **SwG out-ranks cru on shared topics** even when cru matches (holy-spirit top hit = SwG spirit-filled 0.684; bible-study top hit = SwG bible 0.632) — SwG's Q&A-shaped articles embed better against natural questions than cru's curriculum format; hence cru P@1 0.20. Verify gate green (80 tests).   <!-- sha: cb53cd6 -->
-- [ ] Spot-check: persona positives + off-topic negatives via `pnpm query`; record findings in `sources.md` (→ Evaluated).   <!-- sha: ________ -->
+- [x] Spot-check: persona positives + off-topic negatives via `pnpm query`; record findings in `sources.md` (→ Evaluated).   **Result:** cru source-scoped positives return the right lessons cited to `cru.org` URLs (recall solid). Negatives at the live 0.37 cutoff: clean off-scope (eschatology / sourdough) → **0 hits**; "find a church" → fellowship content (0.53, fair); "dating/marriage" (absent from corpus) → nearest general SwG content @ 0.39–0.43 (consumer-relevance boundary, §1). **Accordion-TOC wrinkle confirmed costing citation quality:** for "abundant life" the #1 cited cru chunk (0.601) is the leading section-list TOC, not teaching prose — right doc/URL (recall fine) but a poor snippet; extraction-side, candidate follow-up. Cru row → **Evaluated** in `sources.md`.   <!-- sha: 21b3b6c -->
+
+**Stage 4 (Eval + spot-check) complete — verify green (80 tests); cru-10-basic-steps Evaluated; minScore 0.37 held.**
 
 ## Seed URLs (from jfa `cru-10-basic-steps`, paths relative to https://www.cru.org)
 ```
@@ -84,7 +86,17 @@ golden file, since `eval.ts` would miscount a no-match case as a miss.
   container, strip nav/header/footer/breadcrumb/experiencefragment), **verified
   against real lesson prose** before the registry entry is committed.
 
-## Resume hint (for a cold start)
+## Slice complete (2026-05-25)
+**All four stages green; cru-10-basic-steps is queryable end-to-end and Evaluated.**
+Final state: 11 docs / 35 chunks / 35 embeddings; whole-corpus eval recall@3 0.80 /
+recall@8 0.90 / MRR 0.62 / P@1 0.45 over 20 cases / 2 sources; cru-10 breakdown
+0.70/0.90/0.44/0.20 @ minScore 0.37 (held). Branch `slice/cru-10-basic-steps` is **not
+yet merged** — operator decides merge → `main`. **FOLLOW-UP E (`excludedSourceKeys`) is now
+unblocked** (2nd source end-to-end) → [#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6).
+**New candidate follow-up:** strip the AEM accordion-section TOC during acquisition (Cru) so
+the top-cited chunk is teaching prose, not a section list — citation-quality, not recall.
+
+## Resume hint (superseded — slice done)
 At: **Stage 4 (Eval + spot-check) — sub-steps 1–3 DONE, resume at sub-step 4 (the last).**
 Stages 1–3 complete & verify-green; corpus holds **11 docs / 35 chunks / 35 embeddings** for
 cru-10-basic-steps. Committed: sub-step 1 (per-source eval mechanism, `cdccfc0`), sub-step 2

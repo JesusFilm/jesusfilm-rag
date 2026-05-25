@@ -14,25 +14,25 @@ _Last updated: 2026-05-25_
 embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
 
-**Slice #2 (EveryStudent) is BLOCKED at Stage 1 (Acquire)** on `slice/everystudent`.
-EveryStudent's content pages sit behind a **Cloudflare JS managed challenge**
-(homepage 200, all content 403 with `challenge-platform`); our plain HTTP fetcher
-can't pass it. The other four short-list sources are content-level reachable
-(deep-probed 2026-05-25). Full findings + unblock paths in the slice file.
+**Slice #2 is NextStep** (re-targeted from EveryStudent), IN PROGRESS on
+`slice/nextstep` at **Stage 1 (Acquire)**. EveryStudent is parked `Blocked` —
+its content pages are behind a Cloudflare JS managed challenge our plain fetcher
+can't pass (record in `docs/slices/everystudent.md`); the `slice/nextstep` branch
+carries that record forward. NextStep passed the content-level probe (200, no
+challenge) and is the leanest reachable alternative.
 
 ## Next action
 
-**Resolve the EveryStudent blocker — operator decision pending.** Options:
-(A) **switch slice #2 to another source** — NextStep / Jesus Film Project / Cru /
-Sightline all pass the content-level probe; (B) **build a Playwright `Fetcher`
-adapter** to execute the CF challenge (slots behind the existing port; heavy dep;
-may still lose to a managed challenge); (C) **seek an authorized Cru feed/API**
-(EveryStudent is a Cru property). The blocker + evidence live in
-**[docs/slices/everystudent.md](./slices/everystudent.md)**.
+**Drive slice #2 — NextStep.** The unpacked sub-step checklist, decisions, and
+resume hint live in **[docs/slices/nextstep.md](./slices/nextstep.md)**. Next
+concrete step: content-level probe of nextstep.is (confirm a real article returns
+200, no CF challenge) + hand-curate its seed URLs (the `discover-seeds` helper
+stays deferred).
 
-The two cross-source pieces (per-source eval; **FOLLOW-UP E** `excludedSourceKeys`)
-still fold into whichever source becomes slice #2 — they need a 2nd ingested source,
-not specifically EveryStudent.
+Two pieces unblock now that a 2nd source is landing — both fold into slice #2's
+Stage 4: the **per-source eval** mechanism (`source` tag per golden case + `pnpm
+eval --source <key>` + per-source breakdown), and **FOLLOW-UP E** (consumer
+`excludedSourceKeys` filter — surfaced at slice close per the architecture trigger).
 
 → **Resume with `/slice`** — it reads this file + the slice file, checks out the
 branch, and continues at the first unchecked sub-step.

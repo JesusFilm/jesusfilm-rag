@@ -43,6 +43,25 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 
 **Stage 4 (Eval + spot-check) complete — verify green (80 tests); cru-10-basic-steps Evaluated; minScore 0.37 held.**
 
+### Eval approach — revision intended (corpus-wide follow-up)
+The per-source mechanism shipped here is **v1**. Reviewing it with the operator (2026-05-25)
+surfaced a better model, now captured in **[docs/eval-approach.md](../eval-approach.md)** —
+read that for the full intent. In short:
+- Questions become **source-agnostic**; a case lists **all** docs (any source) that
+  legitimately answer it (a `relevant` set), and that set is **living** — adding a source can
+  make new docs relevant to *existing* questions, so each slice **re-reviews prior questions**,
+  not just authors new ones.
+- Eval runs **top-10 per question** (decided); **recall + coverage** lead, **P@1/MRR are
+  secondary** (ranking is the consumer's job, §1).
+- **Correction to this slice's record:** cru-10's **P@1 0.20** (and the "SwG out-ranks cru"
+  framing) is **largely a scoring artifact** of v1's single-source expected sets — shared-topic
+  cru questions listed only the cru doc, so an equally-correct SwG answer scored as a non-win.
+  Multi-source returns are verified working; cru's numbers here are a **v1 baseline**, to be
+  re-derived under the reframe.
+- The reframe is **corpus-wide, not cru-specific** — tracked as a follow-up (`eval-approach.md`
+  "Status & open questions"), not a reopened sub-step. Open items: coverage definition,
+  per-source view, engine `topK`.
+
 ## Seed URLs (from jfa `cru-10-basic-steps`, paths relative to https://www.cru.org)
 ```
 /us/en/train-and-grow/10-basic-steps.html                                  (index)

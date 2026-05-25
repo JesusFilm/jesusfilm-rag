@@ -79,25 +79,28 @@ case + `pnpm eval --source <key>` + a per-source breakdown. It groups *metrics b
 authored-source* and lists *single-source* expected docs — which distorts shared-topic
 questions (the cru P@1 artifact). Useful as a first cut; superseded by the model above.
 
-**The reframe (now fully specified, corpus-wide — NOT cru-specific):**
-1. Re-author cases as source-agnostic questions with multi-source `relevant` sets; drop the
-   per-case `source` tag. **(needs operator curation — which docs are legitimately relevant.)**
-2. Report **recall@10** (any relevant in top-10) **and coverage** (fraction of the relevant set
-   returned); demote P@1/MRR to secondary.
+**The reframe — IMPLEMENTED 2026-05-25 (commit `8fbee09`):**
+1. Cases re-authored as source-agnostic questions with multi-source `relevant` maps (operator-curated);
+   per-case `source` tag dropped; `cru-seeker-finances` reframed → `cru-stewardship`.
+2. Reports **recall@3 / recall@10 / coverage** (fraction of the relevant set returned); P@1/MRR secondary.
 3. Eval runs **top-10**; engine default `topK=5` unchanged.
-4. **Per-source coverage** view, derived from relevant-doc URLs (kept).
+4. **Per-source coverage** view, derived from the relevant docs' sources.
 
-**Decided 2026-05-25** (the three formerly-open questions):
+**Decided 2026-05-25** (the three formerly-open questions, now built):
 - **(a)** Report **both** recall@10 and coverage.
-- **(c)** **Keep** the per-source coverage view (per source, URL-derived) — it shows whether the
-  RAG needs adjustment as the corpus grows.
+- **(c)** **Keep** the per-source coverage view (per source) — it shows whether the RAG needs
+  adjustment as the corpus grows.
 - **(d)** **Leave** the engine default `topK=5`; change eval methodology only.
 
-## Correction to the slice #2 record
+**v2 baseline (whole-corpus, 20 cases / 2 sources, 2026-05-25):** recall@3 **0.95** · recall@10
+**1.00** · coverage **0.896** · MRR 0.881 · P@1 0.80. Per-source coverage: cru-10-basic-steps
+recall 0.929 / coverage 0.929 (n=14); starting-with-god recall 1.000 / coverage 0.906 (n=18).
 
-cru-10's **P@1 0.20** (and the "SwG out-ranks cru" framing first recorded in `sources.md` /
-`STATUS.md`) is **largely a scoring artifact** of v1's single-source expected sets: shared-topic
-cru questions listed only the cru doc as acceptable, so an equally-correct SwG answer at rank 1
-scored the case as a non-P@1 "miss." Retrieval on shared topics is behaving correctly (both
-sources return above the cutoff — verified). The multi-relevant reframe removes the artifact;
-cru's slice-#2 numbers are a **v1 baseline**, to be re-derived under the new model.
+## Correction to the slice #2 record — RESOLVED
+
+cru-10's v1 **P@1 0.20** (and the "SwG out-ranks cru" framing first recorded in `sources.md` /
+`STATUS.md`) was **largely a scoring artifact** of v1's single-source expected sets: shared-topic
+cru questions listed only the cru doc, so an equally-correct SwG answer at rank 1 scored the case
+as a non-P@1 "miss." The multi-relevant reframe removed the artifact — under v2, **cru's per-source
+recall is 0.929** (its content surfaces reliably when relevant). Retrieval was behaving correctly
+all along; the v1 metric was measuring the wrong thing.

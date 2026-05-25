@@ -43,24 +43,22 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 
 **Stage 4 (Eval + spot-check) complete — verify green (80 tests); cru-10-basic-steps Evaluated; minScore 0.37 held.**
 
-### Eval approach — revision intended (corpus-wide follow-up)
-The per-source mechanism shipped here is **v1**. Reviewing it with the operator (2026-05-25)
-surfaced a better model, now captured in **[docs/eval-approach.md](../eval-approach.md)** —
-read that for the full intent. In short:
-- Questions become **source-agnostic**; a case lists **all** docs (any source) that
-  legitimately answer it (a `relevant` set), and that set is **living** — adding a source can
-  make new docs relevant to *existing* questions, so each slice **re-reviews prior questions**,
-  not just authors new ones.
-- Eval runs **top-10 per question** (decided); **recall + coverage** lead, **P@1/MRR are
-  secondary** (ranking is the consumer's job, §1).
-- **Correction to this slice's record:** cru-10's **P@1 0.20** (and the "SwG out-ranks cru"
-  framing) is **largely a scoring artifact** of v1's single-source expected sets — shared-topic
-  cru questions listed only the cru doc, so an equally-correct SwG answer scored as a non-win.
-  Multi-source returns are verified working; cru's numbers here are a **v1 baseline**, to be
-  re-derived under the reframe.
-- The reframe is **corpus-wide, not cru-specific** — tracked as a follow-up (`eval-approach.md`
-  "Status & open questions"), not a reopened sub-step. Open items: coverage definition,
-  per-source view, engine `topK`.
+### Eval approach — reframed (DONE 2026-05-25, `8fbee09`)
+The per-source mechanism first shipped here (v1) used single-source expected docs, which
+distorted shared-topic questions (the cru "P@1 0.20" artifact). Reviewing it with the operator
+produced a better model, **now implemented** and documented in
+**[docs/eval-approach.md](../eval-approach.md)**:
+- Cases are **source-agnostic questions** + a multi-source `relevant` map listing every doc (any
+  source) that legitimately answers them. The relevant set is **living** — when a source is added,
+  **re-review prior questions** for newly-relevant docs, not just author new ones.
+- Scored on **recall@3 / recall@10 / coverage** (P@1/MRR secondary) at **top-10**, plus per-source
+  coverage. Engine default `topK=5` unchanged.
+- The 20 cases were re-authored with operator-curated multi-source relevant sets;
+  `cru-seeker-finances` → `cru-stewardship` (its real target — Step 8 is stewardship, not
+  money-anxiety; now rank 1).
+- **v2 whole-corpus baseline:** recall@3 **0.95** · recall@10 **1.00** · coverage **0.896** ·
+  MRR 0.881 · P@1 0.80; per-source coverage **cru 0.929** / swg 0.906. The v1 cru P@1 0.20
+  artifact is **resolved** — cru content surfaces reliably when relevant.
 
 ## Seed URLs (from jfa `cru-10-basic-steps`, paths relative to https://www.cru.org)
 ```

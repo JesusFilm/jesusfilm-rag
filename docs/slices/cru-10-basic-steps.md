@@ -19,8 +19,8 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents
-- [ ] Probe the 12 jfa Cru URLs at the **content level** (confirm 200, no challenge) + find cru.org's real main-content selector + strip list (jfa guessed `.article-content`/`.content-body` for AEM — verify against a live page).   <!-- sha: ________ -->
-- [ ] Add the `cru-10-basic-steps` `SourceEntry` (registry) — `scopePath`-style key, the 12 curated seed paths, verified content/strip selectors, polite delay; wire into `SOURCES`; extend `registry.test.ts` (pure unit test, verify green).   <!-- sha: ________ -->
+- [x] Probe the 12 jfa Cru URLs at the **content level** (all reachable, no Cloudflare challenge) + found the real content selector: **`.article-long-form`** (AEM long-form component; jfa's `.article-content` guess is absent). Verified against `/4-prayer.html` (2.8k chars) + `/5-the-bible.html` (7.1k chars) — clean lesson prose w/ attribution; only Material-icon ligatures + `.article-share` needed stripping.   <!-- sha: 562b798 (probe) -->
+- [x] Added the `cru-10-basic-steps` `SourceEntry` (`src/registry/cru-10-basic-steps.ts`) — 12 curated seed paths, `contentSelectors:['.article-long-form',…]`, strip Material-icons/share/chrome, 2000ms delay; wired into `SOURCES`; extended `registry.test.ts` (Cru-specific + key-uniqueness). Verify green, **65 tests**.   <!-- sha: ________ -->
 - [ ] Live `pnpm acquire --source cru-10-basic-steps` → rows in `raw_documents`; spot-read `raw_content` (real curriculum text, not nav/boilerplate). Record in `sources.md` (→ Acquired).   <!-- sha: ________ -->
 
 ### 2. Ingest → corpus tables
@@ -70,12 +70,12 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
   against real lesson prose** before the registry entry is committed.
 
 ## Resume hint (for a cold start)
-At: Stage 1 — mid sub-step 1 (reachability ✓ confirmed, **selector still to finalize**).
-Reachability + no-wall verified; the wrinkle is the AEM extraction (see Open
-question above). Next concrete action: nail the content selector + strip list for
-Cru AEM (body-minus-chrome), confirm it yields clean lesson text on `/4-prayer.html`,
-then add the `cru-10-basic-steps` registry entry (12 seed paths above) + extend
-`registry.test.ts`, then `pnpm acquire --source cru-10-basic-steps`. Branch
+At: Stage 1 — **sub-step 3 (live acquire)**. Sub-steps 1 (probe + selector) and 2
+(registry entry + test) are done & verify-green (65 tests). Content selector is
+`.article-long-form`. Next concrete action: run `pnpm acquire --source
+cru-10-basic-steps`, confirm ~12 rows in `raw_documents`, spot-read `raw_content`
+for clean lesson prose, then record in `sources.md` (→ Acquired) and check off the
+sub-step. Then Stage 2 (ingest). Branch
 `slice/cru-10-basic-steps` carries the EveryStudent (blocked) + NextStep (deferred)
 records forward; it's off the merged `origin/main` (`da037f5`). Last verify: green
 (depcruise / typecheck / lint / test). Branch: slice/cru-10-basic-steps.

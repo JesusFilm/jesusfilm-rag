@@ -15,20 +15,22 @@ embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 **recall@3 0.90 · recall@8 1.00 · MRR 0.82 · P@1 0.70** @ minScore **0.37**.
 
 **Slice #2 is Cru "10 Basic Steps"** (`cru-10-basic-steps`), IN PROGRESS on
-`slice/cru-10-basic-steps` at **Stage 1 (Acquire)**. Chosen after examining jfa's
-registry: it hands us **12 ready-made curated URLs**, Cru is content-reachable
-(probed 200, no challenge), it's genuinely on-mission (new-believer discipleship),
-and it fits our current hand-listed `seedPaths` code with no crawler rebuild. Two
-earlier candidates are parked: **EveryStudent** `Blocked` (Cloudflare JS challenge,
-jfa-confirmed) and **NextStep** `Deferred` (8-page product-marketing site, jfa-confirmed
-— better as the FOLLOW-UP E seasonal fixture). The branch carries both records forward.
+`slice/cru-10-basic-steps`. **Stage 1 (Acquire) is complete** — registry entry added
+(AEM `.article-long-form` selector, verified), `pnpm acquire` staged **11/12 clean
+lesson rows** in `raw_documents` (the index page correctly skipped too-thin), 65 tests
+green. Chosen after examining jfa's registry (12 ready-made URLs, on-mission, fits the
+current `seedPaths` code). Two earlier candidates parked: **EveryStudent** `Blocked`
+(Cloudflare JS challenge, jfa-confirmed) and **NextStep** `Deferred` (8-page marketing
+site). The branch carries both records forward.
 
 ## Next action
 
-**Drive slice #2 — Cru 10 Basic Steps.** The unpacked sub-step checklist, decisions,
-and resume hint live in **[docs/slices/cru-10-basic-steps.md](./slices/cru-10-basic-steps.md)**.
-Next concrete step: probe the 12 jfa Cru URLs at the content level (confirm 200, no
-challenge) + find the content selector, then add the `cru-10-basic-steps` registry entry.
+**Drive slice #2 Stage 2 (Ingest).** The unpacked sub-step checklist, decisions, and
+resume hint live in **[docs/slices/cru-10-basic-steps.md](./slices/cru-10-basic-steps.md)**.
+Next concrete step: `pnpm index --source cru-10-basic-steps` → docs/chunks/embeddings
+(`openai/text-embedding-3-small`); confirm sane chunk counts + idempotent re-run drains 0
+(no new code expected — reuses the Ingestion context). Then Stage 3 (Retrieve), then
+Stage 4 (eval + the now-unblocked per-source eval + FOLLOW-UP E).
 
 Two pieces unblock now that a 2nd source is landing — both fold into slice #2's
 Stage 4: the **per-source eval** mechanism (`source` tag per golden case + `pnpm

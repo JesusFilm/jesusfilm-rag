@@ -21,7 +21,9 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
 ### 1. Acquire → raw_documents
 - [x] Probe the 12 jfa Cru URLs at the **content level** (all reachable, no Cloudflare challenge) + found the real content selector: **`.article-long-form`** (AEM long-form component; jfa's `.article-content` guess is absent). Verified against `/4-prayer.html` (2.8k chars) + `/5-the-bible.html` (7.1k chars) — clean lesson prose w/ attribution; only Material-icon ligatures + `.article-share` needed stripping.   <!-- sha: 562b798 (probe) -->
 - [x] Added the `cru-10-basic-steps` `SourceEntry` (`src/registry/cru-10-basic-steps.ts`) — 12 curated seed paths, `contentSelectors:['.article-long-form',…]`, strip Material-icons/share/chrome, 2000ms delay; wired into `SOURCES`; extended `registry.test.ts` (Cru-specific + key-uniqueness). Verify green, **65 tests**.   <!-- sha: ________ -->
-- [ ] Live `pnpm acquire --source cru-10-basic-steps` → rows in `raw_documents`; spot-read `raw_content` (real curriculum text, not nav/boilerplate). Record in `sources.md` (→ Acquired).   <!-- sha: ________ -->
+- [x] Live `pnpm acquire --source cru-10-basic-steps`: **staged 11/12** (the `10-basic-steps.html` index page correctly skipped as too-thin — no lesson prose). All 11 rows status 200, body_hash present; chars min 2525 / avg 4688 / max 10132. Spot-read clean (real Bill Bright curriculum prose + attribution, leading accordion-section TOC is minor). Recorded in `sources.md` (→ Acquired).   <!-- sha: ________ -->
+
+**Stage 1 (Acquire) complete — verify green, 11 clean lesson rows in `raw_documents`.**
 
 ### 2. Ingest → corpus tables
 - [ ] Live `pnpm index --source cru-10-basic-steps` → documents / chunks / embeddings (`openai/text-embedding-3-small`); chunk counts sane; idempotent re-run drains 0. (No new code expected — reuses the Ingestion context.)   <!-- sha: ________ -->
@@ -70,12 +72,12 @@ and **FOLLOW-UP E** (`excludedSourceKeys`, surfaced at close).
   against real lesson prose** before the registry entry is committed.
 
 ## Resume hint (for a cold start)
-At: Stage 1 — **sub-step 3 (live acquire)**. Sub-steps 1 (probe + selector) and 2
-(registry entry + test) are done & verify-green (65 tests). Content selector is
-`.article-long-form`. Next concrete action: run `pnpm acquire --source
-cru-10-basic-steps`, confirm ~12 rows in `raw_documents`, spot-read `raw_content`
-for clean lesson prose, then record in `sources.md` (→ Acquired) and check off the
-sub-step. Then Stage 2 (ingest). Branch
+At: **Stage 2 (Ingest) — not started.** Stage 1 (Acquire) is complete & verify-green:
+**11 clean lesson rows** in `raw_documents` (1 index page skipped too-thin), content
+selector `.article-long-form`, 65 tests. Next concrete action: run `pnpm index
+--source cru-10-basic-steps`, confirm docs/chunks/embeddings (`openai/text-embedding-3-small`),
+sane chunk counts, idempotent re-run drains 0 — no new code expected (reuses the
+Ingestion context). Branch
 `slice/cru-10-basic-steps` carries the EveryStudent (blocked) + NextStep (deferred)
 records forward; it's off the merged `origin/main` (`da037f5`). Last verify: green
 (depcruise / typecheck / lint / test). Branch: slice/cru-10-basic-steps.

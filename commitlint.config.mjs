@@ -5,8 +5,8 @@
  * both pass.
  *
  * Squash-merge caveat: this governs LOCAL commit messages. The commit that lands
- * on `main` takes its subject from the PR title, which this hook never sees — keep
- * PR titles conventional too (or add a PR-title CI check later).
+ * on `main` takes its subject from the PR title, which this hook never sees — the
+ * PR title is linted separately by `.github/workflows/pr-title.yml`.
  */
 export default {
   extends: ["@commitlint/config-conventional"],

@@ -6,11 +6,16 @@
 import type { SourceEntry } from "./types.js";
 import { startingWithGod } from "./starting-with-god.js";
 import { cru10BasicSteps } from "./cru-10-basic-steps.js";
+import { jesusFilmOrg } from "./jesusfilm-org.js";
 
 export type { SourceEntry, CrawlPolicy } from "./types.js";
 
 /** Every registered source, in registry order. */
-export const SOURCES: readonly SourceEntry[] = [startingWithGod, cru10BasicSteps];
+export const SOURCES: readonly SourceEntry[] = [
+  startingWithGod,
+  cru10BasicSteps,
+  jesusFilmOrg,
+];
 
 /** Look up a source by its stable key; undefined if unknown. */
 export function getSource(key: string): SourceEntry | undefined {

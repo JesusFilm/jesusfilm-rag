@@ -20,10 +20,11 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
       <!-- seedPaths now optional; seedUrls() + acquire.ts log + registry test hardened; +1 discovery-shape test (79 total). -->
 - [x] 1b. `src/acquisition/discover.ts`: fetch sitemaps via injected `Fetcher`, parse sitemap + sitemapindex (node-html-parser, recurse index→children), keep URLs matching allow∧articleHints, drop block, cap at maxPages. Fakes-only tests (canned XML).            <!-- sha: 2dabb74 -->
       <!-- discoverUrls(deps, policy) → {urls, sitemapsFetched, totalSeen}; cycle guard + 404-skip + maxPages cap; 5 fakes-only tests (84 total). node-html-parser handles sitemap XML — no new dep. -->
-- [x] 1c. Wire discovery into `acquireSource` (discovery entries crawl discovered URLs; `seedPaths` entries unchanged). Fakes-only test: a discovery entry crawls the discovered set.            <!-- sha: 1c-commit -->
+- [x] 1c. Wire discovery into `acquireSource` (discovery entries crawl discovered URLs; `seedPaths` entries unchanged). Fakes-only test: a discovery entry crawls the discovered set.            <!-- sha: 7798079 -->
       <!-- resolveAcquireUrls(): sitemaps→discoverUrls (∪ any seedPaths), else seeds; capped at maxPages. +1 acquireSource discovery test (85 total). -->
-- [ ] 1d. Probe jesusfilm.org sitemap + a real article DOM (read-only); register `jesusfilm-org` entry with confirmed `contentSelectors` + a conservative `maxPages`.            <!-- sha: ________ -->
-- [ ] 1e. Live crawl → `raw_documents`; spot-read content is real article prose, not nav/boilerplate. (Pause before this to confirm discovered-URL count + crawl budget.)            <!-- sha: ________ -->
+- [x] 1d. Probe jesusfilm.org sitemap + a real article DOM (read-only); register `jesusfilm-org` entry with confirmed `contentSelectors` + `maxPages`.            <!-- sha: 1d-commit -->
+      <!-- Probed: WP/Yoast, Cloudflare-200 (no wall). Corpus = ~351 /blog/ posts; /give/+page-sitemap+.kml filtered. Entry: owned, sitemap_index.xml seed, allow same-host, articleHints /blog/<slug>/, block robots-disallows+/give/+.kml/.pdf, content .entry-content (strip related-posts). maxPages 400 (operator: full crawl). +1 registry test (86 total). -->
+- [ ] 1e. Live crawl → `raw_documents`; spot-read content is real article prose, not nav/boilerplate. (Budget approved: full ~351.)            <!-- sha: ________ -->
 
 ### 2. Ingest → corpus tables
 - [ ] 2a. `pnpm index --source jesusfilm-org` drains raw_documents → documents/chunks/embeddings; counts sane; idempotent re-run drains 0.            <!-- sha: ________ -->
@@ -43,11 +44,9 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1d. Probe jesusfilm.org sitemap + DOM; register entry". The
-discovery mechanism (1a–1c) is built + proven on fakes. Next concrete action:
-read-only probe `https://www.jesusfilm.org/sitemap*.xml` (find the real sitemap
-URL/shape — may be a sitemap index, may be .gz) + one real article page to
-confirm `contentSelectors`; then write `src/registry/jesusfilm-org.ts` (owned,
-sitemaps seed, allow/block/articleHints, conservative maxPages) + register it.
-Then PAUSE before 1e (the live crawl) to confirm discovered count + budget.
-Last verify: green (85 tests, 1c). Branch: slice/jesusfilm-org.
+At: Stage 1 — "1e. Live crawl → raw_documents". Mechanism + entry are done;
+budget approved (full ~351). Next concrete action: ensure the Postgres container
+is up + migrated, then `pnpm acquire --source jesusfilm-org`; confirm rows in
+raw_documents and spot-read a few raw_content bodies for clean blog prose (no
+nav/footer/related-posts). Then pause at the Stage 1→2 boundary. Last verify:
+green (86 tests, 1d). Branch: slice/jesusfilm-org.

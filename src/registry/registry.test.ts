@@ -33,6 +33,23 @@ describe("SourceRegistry", () => {
     }
   });
 
+  it("resolves Jesus Film Project as an owned discovery source (sitemap + /blog/ hints)", () => {
+    const jf = getSource("jesusfilm-org");
+    expect(jf).toBeDefined();
+    expect(jf?.domain).toBe("www.jesusfilm.org");
+    expect(jf?.trust).toBe("owned");
+    expect(jf?.ingestionMode).toBe("html-scrape");
+    // Discovery source: a sitemap seed + filters, no hand-listed seedPaths.
+    expect(jf?.crawl.sitemaps).toEqual(["/sitemap_index.xml"]);
+    expect(jf?.crawl.seedPaths).toBeUndefined();
+    expect(jf?.crawl.contentSelectors[0]).toBe(".entry-content");
+    // articleHints keep blog articles, drop the bare /blog/ index + /give/.
+    const hint = new RegExp(jf!.crawl.articleHints![0]);
+    expect(hint.test("https://www.jesusfilm.org/blog/parables-of-jesus/")).toBe(true);
+    expect(hint.test("https://www.jesusfilm.org/blog/")).toBe(false);
+    expect(hint.test("https://www.jesusfilm.org/give/why-give/")).toBe(false);
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
   });

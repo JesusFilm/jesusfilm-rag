@@ -14,8 +14,10 @@ trim, or weight them. The eval therefore tests the mechanism's one job — **did
 relevant content come back?** — and deliberately under-weights pure ranking (which the
 consumer overrides).
 
-- **Recall / coverage are primary:** of the documents that legitimately answer a
-  question, how many surfaced in the returned set.
+- **Recall / coverage are primary, and we report BOTH** (decided 2026-05-25):
+  - **recall@10** — did *at least one* relevant doc come back in top-10 (did we answer it at all);
+  - **coverage** — what *fraction* of the relevant set came back (did we surface *every* good
+    answer, e.g. 2 of 3). Coverage is the metric that notices a good answer being buried.
 - **P@1 / MRR are secondary.** They measure internal ranking, which is consumer-relative;
   a correct answer at rank 4 is still a correct answer the consumer can choose. (This is
   why slice #2's cru P@1 0.20 is largely a *scoring artifact*, not a quality verdict — see
@@ -54,6 +56,8 @@ survey step must re-scan prior questions against the new source, not only draft 
 - **top-k = 10 per question** (decided 2026-05-25). Generous enough to reflect "return the
   above-cutoff set; the consumer trims," without unbounded output.
 - **minScore = 0.37** (architecture FOLLOW-UP A; re-confirm per slice via the whole-corpus run).
+- **Engine default `topK` stays 5** (decided 2026-05-25) — a stable architecture default, overridable
+  per call via `RetrievalPolicy.topK`. Only the *eval* runs at 10; the engine is not changed.
 - Retrieval is **whole-corpus** in eval (never source-scoped) — cross-source competition is
   the realistic condition we want to measure. Both sources returning for one question is the
   expected, healthy case (verified 2026-05-25: e.g. a Holy-Spirit query returns SwG
@@ -61,11 +65,12 @@ survey step must re-scan prior questions against the new source, not only draft 
 
 ## Per-source view
 
-We still want to know "did a newly-added source's content actually become findable, or did it
-get buried?" Under the multi-relevant model this is **derived from the relevant docs' sources**,
-not from a case being "owned" by a source: for questions whose relevant set includes a doc from
-source X, how often does an X doc appear in the returned set (X's coverage). That keeps the
-burial signal without pretending one source owns a shared question.
+**Kept (decided 2026-05-25)** — it's the clearest signal of "did a newly-added source's content
+actually become findable, or did it get buried?", i.e. whether the RAG needs adjustment. Under
+the multi-relevant model it is **derived from the relevant docs' sources**, not from a case being
+"owned" by a source: for questions whose relevant set includes a doc from source X, how often does
+an X doc appear in the returned set (X's coverage). That keeps the burial signal without pretending
+one source owns a shared question.
 
 ## Status & open questions
 
@@ -74,17 +79,19 @@ case + `pnpm eval --source <key>` + a per-source breakdown. It groups *metrics b
 authored-source* and lists *single-source* expected docs — which distorts shared-topic
 questions (the cru P@1 artifact). Useful as a first cut; superseded by the model above.
 
-**Intended next (the reframe), corpus-wide — NOT cru-specific:**
+**The reframe (now fully specified, corpus-wide — NOT cru-specific):**
 1. Re-author cases as source-agnostic questions with multi-source `relevant` sets; drop the
-   per-case `source` tag.
-2. Add a **coverage** metric over the above-cutoff returned set; demote P@1/MRR to secondary.
-3. Eval top-k → 10; report recall@k + coverage.
-4. Replace the authored-source breakdown with relevant-doc-derived per-source coverage.
+   per-case `source` tag. **(needs operator curation — which docs are legitimately relevant.)**
+2. Report **recall@10** (any relevant in top-10) **and coverage** (fraction of the relevant set
+   returned); demote P@1/MRR to secondary.
+3. Eval runs **top-10**; engine default `topK=5` unchanged.
+4. **Per-source coverage** view, derived from relevant-doc URLs (kept).
 
-**Open (settle before implementing):**
-- **(a)** Coverage = "any relevant returned" (recall) / "all relevant returned" / report both?
-- **(c)** Keep a per-source coverage view, or just measure overall relevant-set coverage?
-- **(d)** Leave the engine default `topK=5` (change eval only), or revisit the engine cap too?
+**Decided 2026-05-25** (the three formerly-open questions):
+- **(a)** Report **both** recall@10 and coverage.
+- **(c)** **Keep** the per-source coverage view (per source, URL-derived) — it shows whether the
+  RAG needs adjustment as the corpus grows.
+- **(d)** **Leave** the engine default `topK=5`; change eval methodology only.
 
 ## Correction to the slice #2 record
 

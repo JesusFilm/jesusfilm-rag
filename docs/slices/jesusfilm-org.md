@@ -32,7 +32,8 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
       <!-- 349 inserted / 0 skipped → 349 docs / 2114 chunks / 2114 embeddings (1:1, no null-embeds dropped); chunks/doc avg 6.1. Single model openai/text-embedding-3-small; 0 chunk_count mismatches. Idempotent re-run drained 0. Data-only step → unit gate unchanged (86 tests, green). -->
 
 ### 3. Retrieve → ranked results
-- [ ] 3a. A real query returns ranked, cited jesusfilm.org hits in the now-3-source space.            <!-- sha: ________ -->
+- [x] 3a. A real query returns ranked, cited jesusfilm.org hits in the now-3-source space.            <!-- sha: 3a-commit -->
+      <!-- "parables of Jesus" → 5 cited jesusfilm.org articles, top 0.712. "share the gospel/witness" → 5 evangelism articles (0.65–0.69). Dedup intact (distinct URL/doc), scores healthy. Cross-source health: "assurance of heaven" → 4 swg + 1 jf (swg holds); "new-believer daily prayer" → 4 jf + 1 swg, **0 cru** (cru step-4 prayer displaced — carry to Stage 4 per-source coverage). Retrieval is source-agnostic + prebuilt; no code change. -->
 
 ### 4. Spot-check / eval
 - [ ] 4a. `/golden jesusfilm-org` + re-review existing `relevant` maps (the set is living); `pnpm eval` recall + coverage @ top-10; record per-source coverage across 3 sources.            <!-- sha: ________ -->
@@ -46,9 +47,11 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 3 — "3a. Retrieve". Stages 1–2 done: 349 docs / 2114 chunks / 2114
-embeddings ingested + idempotent. Next concrete action: run a real query via
-`pnpm query "<q>"` (e.g. "what are the parables of Jesus?" / "how do I share my
-faith?") and confirm ranked, cited jesusfilm.org hits surface in the now-3-source
-space (alongside SwG + Cru). Retrieval code is source-agnostic + already built —
-this stage is evidence, not new code. Last verify: green (86 tests). Branch: slice/jesusfilm-org.
+At: Stage 4 — "4a. Eval". Stages 1–3 done: 349 docs ingested + retrievable
+(cited, healthy scores). Next concrete action: author golden cases via
+`/golden jesusfilm-org` (drafts persona-diverse questions from the real corpus
+for the operator to curate into `eval/qa-golden.yaml`), AND re-review the
+existing swg/cru `relevant` maps for newly-relevant jesusfilm-org docs (the set
+is living). Then `pnpm eval` → recall + coverage @ top-10, watch per-source
+coverage across 3 sources (esp. whether cru/swg recall holds vs the +349 docs —
+see the Stage-3 cru-prayer displacement note). Last verify: green (86 tests). Branch: slice/jesusfilm-org.

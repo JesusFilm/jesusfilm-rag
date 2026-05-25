@@ -27,6 +27,7 @@ import { wire } from "@/main.js";
 import type { Retriever } from "@/contracts/index.js";
 import {
   GoldenFileSchema,
+  allRelevantPaths,
   computeMetrics,
   coverageBySource,
   firstMatchingRank,
@@ -75,7 +76,9 @@ async function main(): Promise<void> {
 
   let cases = golden.cases;
   if (args.source) {
-    cases = cases.filter((c) => args.source! in c.relevant);
+    cases = cases.filter((c) =>
+      Object.prototype.hasOwnProperty.call(c.relevant, args.source!),
+    );
     if (cases.length === 0) {
       const known = [
         ...new Set(golden.cases.flatMap((c) => Object.keys(c.relevant))),
@@ -100,7 +103,7 @@ async function main(): Promise<void> {
       const returned = returnedRelevant(hits, c);
       results.push({ case: c, hits, matchedRank, returnedRelevant: returned });
       const tick = matchedRank !== null ? "✓" : "✗";
-      const total = Object.values(c.relevant).flat().length;
+      const total = allRelevantPaths(c).length;
       console.log(
         `  ${tick} ${c.id} — rank=${matchedRank ?? "miss"} cov=${returned.length}/${total}`,
       );

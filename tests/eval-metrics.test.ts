@@ -104,6 +104,14 @@ describe("computeMetrics", () => {
   it("is zero (not NaN) for an empty set", () => {
     expect(computeMetrics([])).toMatchObject({ cases: 0, recall_at_10: 0, coverage: 0 });
   });
+
+  it("dedups a path shared across sources so perfect retrieval reaches coverage 1.0", () => {
+    // /shared.html listed under both sources — distinct count is 1, not 2.
+    const c = gcase({ relevant: { [SWG]: ["/shared.html"], [CRU]: ["/shared.html"] } });
+    expect(allRelevantPaths(c)).toEqual(["/shared.html"]);
+    const m = computeMetrics([result(c, hitsWith({ 1: "/shared.html" }))]);
+    expect(m.coverage).toBeCloseTo(1.0, 5);
+  });
 });
 
 describe("coverageBySource", () => {

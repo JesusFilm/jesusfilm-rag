@@ -74,9 +74,13 @@ export function safePathname(url: string): string {
   }
 }
 
-/** Every relevant pathname across sources, flattened. */
+/**
+ * Every relevant pathname across sources, **distinct**. Deduped so the coverage
+ * denominator matches the (also-deduped) returnedRelevant numerator — a doc
+ * listed under two sources counts once, so perfect retrieval still reaches 1.0.
+ */
 export function allRelevantPaths(c: GoldenCase): string[] {
-  return Object.values(c.relevant).flat();
+  return [...new Set(Object.values(c.relevant).flat())];
 }
 
 /** Distinct relevant paths that appear among the hits (the returned set). */

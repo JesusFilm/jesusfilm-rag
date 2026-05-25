@@ -36,22 +36,29 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
       <!-- "parables of Jesus" → 5 cited jesusfilm.org articles, top 0.712. "share the gospel/witness" → 5 evangelism articles (0.65–0.69). Dedup intact (distinct URL/doc), scores healthy. Cross-source health: "assurance of heaven" → 4 swg + 1 jf (swg holds); "new-believer daily prayer" → 4 jf + 1 swg, **0 cru** (cru step-4 prayer displaced — carry to Stage 4 per-source coverage). Retrieval is source-agnostic + prebuilt; no code change. -->
 
 ### 4. Spot-check / eval
-- [ ] 4a. `/golden jesusfilm-org` + re-review existing `relevant` maps (the set is living); `pnpm eval` recall + coverage @ top-10; record per-source coverage across 3 sources.            <!-- sha: ________ -->
+- [~] 4a. `/golden jesusfilm-org` + re-review existing `relevant` maps (the set is living); `pnpm eval` recall + coverage @ top-10; record per-source coverage across 3 sources.            <!-- sha: (pending /golden) -->
+      <!-- PRE-CURATION baseline run (3-source corpus, existing 20 stale cases): recall@3 0.75 / recall@10 0.85 / coverage 0.746 / MRR 0.602 / P@1 0.45; per-source cru 0.714 / swg 0.728 — DOWN from slice-#2 (0.95/1.00/0.896; cru 0.929/swg 0.906). DIAGNOSED as a stale-living-set artifact, NOT a retrieval regression: the 3 misses (swg-newcomer-gospel, cru-believer-witnessing, cru-newcomer-prayer) are displaced by genuinely-relevant jesusfilm.org docs (gospel→what-is-the-gospel(-really); witnessing→overcoming-fear/tips-getting-over-fear; prayer→how-to-pray/prayer-tips/why-do-we-pray + swg still at ranks 7&10). FIX = curation: operator runs /golden jesusfilm-org (drafts new cases AND re-scans the 20 prior cases for newly-relevant jf docs per eval-approach §"Relevant sets are LIVING"), then re-run pnpm eval. NOT done by hand (project norm). -->
 
 ## Decisions made (this slice)
 - 2026-05-26 — Source key is `jesusfilm-org` (matches jfa curation + our `cru-10-basic-steps` precedent), not the name-slug `jesus-film-project`.
 - 2026-05-26 — Build the discovery crawler now (FOLLOW-UP F) rather than hand-listing a sub-scope. Operator-confirmed; jesusfilm.org is the named trigger source.
 - 2026-05-26 — Parse sitemaps with the existing `node-html-parser` (sitemaps are trivial `<url><loc>` XML), **not** a new `fast-xml-parser` dep. Refines the earlier suggestion once we saw extract.ts already pulls node-html-parser.
+- 2026-05-26 — Crawl budget: full crawl (maxPages 400, all ~351 /blog/ posts). Operator-chosen.
+- 2026-05-26 — The Stage-4 pre-curation eval drop is a **stale living-relevant-set artifact, not a retrieval regression** (diagnosed: misses are displaced by valid jf answers). Fix is curation via `/golden`, per the documented LIVING-set workflow — not a retrieval/minScore change.
 
 ## Open question / blocker
-- none
+- **Stage 4 needs operator action:** run `/golden jesusfilm-org` (it's
+  disable-model-invocation by design — golden cases are curated, not
+  auto-written). That drafts new jesusfilm-org cases AND re-scans the 20 prior
+  cases for newly-relevant jf docs (the displaced gospel/witnessing/prayer
+  docs). Then re-run `pnpm eval`. Until then the slice is at Stage 4 (not done).
+- Minor: `pnpm eval` wrote `eval/results-2026-05-25.md` on 2026-05-26 (the dated
+  results filename looks stale/hardcoded). Out of slice scope; noted.
 
 ## Resume hint (for a cold start)
-At: Stage 4 — "4a. Eval". Stages 1–3 done: 349 docs ingested + retrievable
-(cited, healthy scores). Next concrete action: author golden cases via
-`/golden jesusfilm-org` (drafts persona-diverse questions from the real corpus
-for the operator to curate into `eval/qa-golden.yaml`), AND re-review the
-existing swg/cru `relevant` maps for newly-relevant jesusfilm-org docs (the set
-is living). Then `pnpm eval` → recall + coverage @ top-10, watch per-source
-coverage across 3 sources (esp. whether cru/swg recall holds vs the +349 docs —
-see the Stage-3 cru-prayer displacement note). Last verify: green (86 tests). Branch: slice/jesusfilm-org.
+At: Stage 4 — "4a. Eval", awaiting operator `/golden jesusfilm-org`. Stages 1–3
+done (349 docs ingested + retrievable). Pre-curation eval baseline captured +
+diagnosed (stale living set, not a regression). Next concrete action (OPERATOR):
+`/golden jesusfilm-org` to draft new cases + re-scan the 20 prior cases for
+newly-relevant jf docs; then `pnpm eval` and confirm recall/coverage recovers.
+Last verify: green (86 tests). Branch: slice/jesusfilm-org.

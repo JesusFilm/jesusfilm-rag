@@ -30,8 +30,18 @@ blog articles, 0 skips** (417 sitemap locs → 349 kept; /give/ + .kml filtered)
 raw_content avg 9.4k chars, clean prose, all titles populated. **Stage 2
 (Ingest) DONE:** 349 docs / **2114 chunks / 2114 embeddings**
 (`openai/text-embedding-3-small`), 0 chunk_count mismatches, idempotent re-run
-drains 0. The corpus is now **3 sources** (swg + cru + jesusfilm-org). **Next:
-Stage 3 (Retrieve)** spot-query, then Stage 4 (`/golden jesusfilm-org` + eval).
+drains 0. The corpus is now **3 sources** (swg + cru + jesusfilm-org). **Stage 3
+(Retrieve) DONE:** queries return ranked, cited jf hits (parables 0.712,
+evangelism 0.65–0.69). **Stage 4 (Eval) IN PROGRESS — needs operator
+`/golden jesusfilm-org`.** Pre-curation eval (3-source corpus, the 20 *stale*
+swg/cru cases): recall@3 0.75 / recall@10 0.85 / coverage 0.746 (down from
+slice-#2's 0.95/1.00/0.896). **Diagnosed as a stale living-relevant-set artifact,
+NOT a retrieval regression:** the 3 misses (gospel/witnessing/prayer) are
+displaced by genuinely-relevant jesusfilm.org docs (e.g. gospel→
+`/blog/what-is-the-gospel`, prayer→`/blog/how-to-pray`). Fix = curation via
+`/golden` (drafts new jf cases AND re-scans the 20 prior cases per eval-approach
+§"Relevant sets are LIVING"), then re-run `pnpm eval`. **Next: operator runs
+`/golden jesusfilm-org`.**
 **Stage 4 built the eval, then reframed it.** v1 shipped a per-source breakdown with
 single-source expected docs; reviewing it with the operator surfaced a better model, now
 **implemented (`8fbee09`)**: cases are **source-agnostic questions + a multi-source `relevant`

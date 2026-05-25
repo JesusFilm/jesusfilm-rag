@@ -7,21 +7,29 @@
 #
 #   cases:
 #     - id: short-stable-id            # required, unique
+#       source: registry-key           # required — the source this case exercises
 #       question: "natural-language question"   # required
 #       expected_doc_paths:            # optional; at least one matcher required
 #         - "articles/example.md"
 #       expected_url_contains:         # optional; substring match against doc URL
 #         - "example.org/article"
 #
+# `source` is the registry key (e.g. starting-with-god, cru-10-basic-steps). It
+# drives `pnpm eval --source <key>` (run only that source's cases) and the
+# per-source breakdown in the whole-corpus run. Retrieval is always whole-corpus,
+# so a source's breakdown reflects real cross-source competition.
+#
 # Keep questions natural-language — this set is the user-facing surface contract.
 # Cases are authored once the real corpus is ingested (see docs/architecture.md §9 step 7).
 
 cases:
   - id: swg-seeker-anxiety
+    source: starting-with-god
     question: "My mind races with anxiety constantly and I can't switch it off — is there a way to actually find peace?"
     expected_doc_paths:
       - "/questions/how-to-stop-worrying.html"
   - id: swg-seeker-failure
+    source: starting-with-god
     question: "I keep messing up and feel like God must be so disappointed in me. Is there any hope?"
     # Several articles legitimately answer "I keep failing — is there hope?"; accept the cluster.
     expected_doc_paths:
@@ -31,37 +39,45 @@ cases:
       - "/questions/sin.html"
       - "/struggles/forgiven.html"
   - id: swg-seeker-porn
+    source: starting-with-god
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     expected_doc_paths:
       - "/struggles/how-to-get-free-from-porn.html"
   - id: swg-skeptic-faith-proof
+    source: starting-with-god
     question: "Isn't faith just believing something with no proof? Sounds like wishful thinking."
     expected_doc_paths:
       - "/knowing-god/what-is-faith.html"
       - "/knowing-god/faith.html"
   - id: swg-skeptic-jesus-deity
+    source: starting-with-god
     question: "Did Jesus ever actually claim to be God, or did the church invent that later?"
     expected_doc_paths:
       - "/new-life/jesus.html"
   - id: swg-skeptic-gods-love
+    source: starting-with-god
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
     expected_doc_paths:
       - "/questions/does-god-really-love-me.html"
   - id: swg-believer-assurance
+    source: starting-with-god
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
     expected_doc_paths:
       - "/new-life/how-to-be-sure-of-heaven.html"
       - "/new-life/will-this-last.html"
   - id: swg-believer-holy-spirit
+    source: starting-with-god
     question: "How do I actually live day to day in the power of the Holy Spirit?"
     expected_doc_paths:
       - "/new-life/spirit-filled.html"
       - "/knowing-god/holy-spirit.html"
   - id: swg-newcomer-gospel
+    source: starting-with-god
     question: "What's the core message of Christianity — what's it actually all about?"
     expected_doc_paths:
       - "/bible-study/what-is-the-gospel.html"
   - id: swg-newcomer-baptism
+    source: starting-with-god
     question: "Do I need to be baptized to become a Christian?"
     expected_doc_paths:
       - "/questions/baptism.html"

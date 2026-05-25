@@ -131,7 +131,9 @@ unconfirmed cases.
 ### 5. Write approved cases
 - **Positives** → append to `eval/qa-golden.yaml` (preserve existing cases). Use
   unique, descriptive ids `<src>-<persona>-<topic>` (e.g. `swg-skeptic-suffering`,
-  `swg-seeker-begin`); each MUST carry at least `expected_doc_paths`.
+  `swg-seeker-begin`); each MUST carry `source: <registry-key>` (the resolved
+  source key — drives `pnpm eval --source` + the per-source breakdown) and at
+  least `expected_doc_paths`.
 - **Negatives** → save the list to the source's slice file (Stage 4 section) — do
   **not** put them in `qa-golden.yaml` (`eval.ts` would miscount them as misses).
 

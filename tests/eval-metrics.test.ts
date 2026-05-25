@@ -1,178 +1,149 @@
 /**
  * Unit tests for the eval harness's pure scoring + reporting logic
  * (scripts/eval-metrics.ts). No DB, network, or env — vitest includes tests/**,
- * and the module is side-effect-free, so the scoring math + the new per-source
- * grouping (slice #2) are testable in isolation from scripts/eval.ts's I/O.
+ * and the module is side-effect-free. Covers the source-agnostic multi-relevant
+ * model: matching against the relevant union, recall@3/@10, coverage, and the
+ * per-source coverage breakdown (docs/eval-approach.md).
  */
 import { describe, expect, it } from "vitest";
 import {
   GoldenCaseSchema,
-  breakdownBySource,
+  allRelevantPaths,
   computeMetrics,
+  coverageBySource,
   firstMatchingRank,
-  matchesExpected,
   renderMarkdown,
+  returnedRelevant,
   safePathname,
   type CaseResult,
   type GoldenCase,
   type Hit,
 } from "../scripts/eval-metrics.js";
 
+const SWG = "starting-with-god";
+const CRU = "cru-10-basic-steps";
+
 function gcase(over: Partial<GoldenCase> = {}): GoldenCase {
   return {
     id: "c1",
-    source: "starting-with-god",
     question: "q?",
-    expected_doc_paths: ["/a.html"],
+    relevant: { [SWG]: ["/a.html", "/b.html"], [CRU]: ["/x.html"] },
     ...over,
   };
 }
 
-function hit(over: Partial<Hit> = {}): Hit {
+function hit(docPath: string, score = 0.5): Hit {
+  return { chunkId: docPath, docPath, docUrl: `https://t.test${docPath}`, score };
+}
+
+/** Hits where the given relevant paths land at the given 1-indexed ranks; fill the rest with misses. */
+function hitsWith(at: Record<number, string>, len = 10): Hit[] {
+  return Array.from({ length: len }, (_, i) => at[i + 1] ? hit(at[i + 1]) : hit(`/miss-${i}.html`));
+}
+
+function result(c: GoldenCase, hits: Hit[]): CaseResult {
   return {
-    chunkId: "k",
-    docPath: "/a.html",
-    docUrl: "https://x.test/a.html",
-    score: 0.5,
-    ...over,
+    case: c,
+    hits,
+    matchedRank: firstMatchingRank(hits, c),
+    returnedRelevant: returnedRelevant(hits, c),
   };
-}
-
-/** Build a CaseResult with a chosen matched rank, padding hits so ranks line up. */
-function result(source: string, matchedRank: number | null): CaseResult {
-  const hits: Hit[] = Array.from({ length: 8 }, (_, i) =>
-    hit({ docPath: `/miss-${i}.html`, docUrl: `https://x.test/miss-${i}.html` }),
-  );
-  if (matchedRank !== null) {
-    hits[matchedRank - 1] = hit({ docPath: "/a.html" });
-  }
-  return { case: gcase({ source }), hits, matchedRank };
 }
 
 describe("GoldenCaseSchema", () => {
-  it("requires a source tag", () => {
-    const parsed = GoldenCaseSchema.safeParse({
-      id: "c1",
-      question: "q?",
-      expected_doc_paths: ["/a.html"],
-    });
-    expect(parsed.success).toBe(false);
-  });
-
-  it("requires at least one matcher", () => {
-    const parsed = GoldenCaseSchema.safeParse({
-      id: "c1",
-      source: "s",
-      question: "q?",
-    });
-    expect(parsed.success).toBe(false);
-  });
-
-  it("accepts a well-formed case", () => {
+  it("accepts a well-formed multi-source case", () => {
     expect(GoldenCaseSchema.safeParse(gcase()).success).toBe(true);
   });
-});
 
-describe("matchesExpected", () => {
-  it("matches on doc path", () => {
-    expect(matchesExpected(hit({ docPath: "/a.html" }), gcase())).toBe(true);
+  it("rejects an empty relevant map", () => {
+    expect(GoldenCaseSchema.safeParse({ id: "c", question: "q", relevant: {} }).success).toBe(false);
   });
 
-  it("matches on url substring", () => {
-    const c = gcase({ expected_doc_paths: undefined, expected_url_contains: ["a.html"] });
-    expect(matchesExpected(hit({ docUrl: "https://x.test/sub/a.html" }), c)).toBe(true);
-  });
-
-  it("does not match an unrelated hit", () => {
-    expect(matchesExpected(hit({ docPath: "/z.html" }), gcase())).toBe(false);
+  it("rejects a source with no paths", () => {
+    expect(
+      GoldenCaseSchema.safeParse({ id: "c", question: "q", relevant: { [SWG]: [] } }).success,
+    ).toBe(false);
   });
 });
 
-describe("firstMatchingRank", () => {
-  it("returns the 1-indexed rank of the first match", () => {
-    const hits = [hit({ docPath: "/x.html" }), hit({ docPath: "/a.html" })];
+describe("allRelevantPaths / returnedRelevant / firstMatchingRank", () => {
+  it("flattens relevant paths across sources", () => {
+    expect(allRelevantPaths(gcase()).sort()).toEqual(["/a.html", "/b.html", "/x.html"]);
+  });
+
+  it("matches a hit against any relevant path and finds the first rank", () => {
+    const hits = hitsWith({ 2: "/x.html", 5: "/a.html" });
     expect(firstMatchingRank(hits, gcase())).toBe(2);
+    expect(returnedRelevant(hits, gcase()).sort()).toEqual(["/a.html", "/x.html"]);
   });
 
-  it("returns null on a miss", () => {
-    expect(firstMatchingRank([hit({ docPath: "/x.html" })], gcase())).toBeNull();
+  it("returns null rank + empty returned set on a miss", () => {
+    const hits = hitsWith({});
+    expect(firstMatchingRank(hits, gcase())).toBeNull();
+    expect(returnedRelevant(hits, gcase())).toEqual([]);
   });
 });
 
 describe("computeMetrics", () => {
-  it("computes recall@3/@8, MRR, precision@1", () => {
-    // ranks: 1 (hit@1), 2, miss, 5
+  it("computes recall@3/@10, coverage, MRR, P@1", () => {
+    const c = gcase(); // 3 relevant paths
     const results = [
-      result("s", 1),
-      result("s", 2),
-      result("s", null),
-      result("s", 5),
+      result(c, hitsWith({ 1: "/a.html", 4: "/x.html" })), // rank 1; 2/3 covered
+      result(c, hitsWith({ 9: "/b.html" })), // rank 9 (in @10, not @3); 1/3 covered
+      result(c, hitsWith({})), // miss; 0/3
     ];
     const m = computeMetrics(results);
-    expect(m.cases).toBe(4);
-    expect(m.recall_at_3).toBeCloseTo(2 / 4, 5); // ranks 1,2 within 3
-    expect(m.recall_at_8).toBeCloseTo(3 / 4, 5); // ranks 1,2,5 within 8
-    expect(m.precision_at_1).toBeCloseTo(1 / 4, 5); // only rank 1
-    expect(m.mrr).toBeCloseTo((1 + 1 / 2 + 1 / 5) / 4, 5);
+    expect(m.cases).toBe(3);
+    expect(m.recall_at_3).toBeCloseTo(1 / 3, 5); // only the rank-1 case
+    expect(m.recall_at_10).toBeCloseTo(2 / 3, 5); // rank 1 and rank 9
+    expect(m.precision_at_1).toBeCloseTo(1 / 3, 5);
+    expect(m.mrr).toBeCloseTo((1 + 1 / 9) / 3, 5);
+    expect(m.coverage).toBeCloseTo((2 / 3 + 1 / 3 + 0) / 3, 5);
   });
 
   it("is zero (not NaN) for an empty set", () => {
-    const m = computeMetrics([]);
-    expect(m).toMatchObject({ cases: 0, recall_at_3: 0, mrr: 0, precision_at_1: 0 });
+    expect(computeMetrics([])).toMatchObject({ cases: 0, recall_at_10: 0, coverage: 0 });
   });
 });
 
-describe("breakdownBySource", () => {
-  it("groups by source, ordered by key, with per-group metrics", () => {
+describe("coverageBySource", () => {
+  it("reports per-source recall + coverage over cases where the source is relevant", () => {
+    // c1: SWG[/a,/b] + CRU[/x]; c2: CRU[/x,/y] only
+    const c1 = gcase({ id: "c1" });
+    const c2 = gcase({ id: "c2", relevant: { [CRU]: ["/x.html", "/y.html"] } });
     const results = [
-      result("starting-with-god", 1),
-      result("cru-10-basic-steps", null),
-      result("starting-with-god", 2),
-      result("cru-10-basic-steps", 1),
+      result(c1, hitsWith({ 1: "/a.html", 2: "/x.html" })), // SWG 1/2, CRU 1/1
+      result(c2, hitsWith({ 3: "/x.html" })), // CRU 1/2
     ];
-    const bd = breakdownBySource(results);
-    expect(bd.map((b) => b.source)).toEqual([
-      "cru-10-basic-steps", // sorted
-      "starting-with-god",
-    ]);
-    const cru = bd.find((b) => b.source === "cru-10-basic-steps")!;
-    expect(cru.metrics.cases).toBe(2);
-    expect(cru.metrics.precision_at_1).toBeCloseTo(1 / 2, 5); // one rank-1, one miss
-    const swg = bd.find((b) => b.source === "starting-with-god")!;
-    expect(swg.metrics.recall_at_3).toBeCloseTo(2 / 2, 5); // ranks 1,2
+    const bd = coverageBySource(results);
+    expect(bd.map((b) => b.source)).toEqual([CRU, SWG]); // sorted
+
+    const cru = bd.find((b) => b.source === CRU)!;
+    expect(cru.cases).toBe(2); // relevant in both
+    expect(cru.recall).toBeCloseTo(2 / 2, 5); // got >=1 in both
+    expect(cru.coverage).toBeCloseTo((1 / 1 + 1 / 2) / 2, 5);
+
+    const swg = bd.find((b) => b.source === SWG)!;
+    expect(swg.cases).toBe(1); // only c1 has SWG
+    expect(swg.coverage).toBeCloseTo(1 / 2, 5); // /a returned, /b not
   });
 });
 
 describe("renderMarkdown", () => {
-  const base = {
-    modelId: "openai/text-embedding-3-small",
-    topK: 8,
-  };
-
-  it("includes a per-source breakdown only when >1 source is present", () => {
-    const results = [result("starting-with-god", 1), result("cru-10-basic-steps", 2)];
+  it("includes coverage, per-source coverage, and a per-case coverage column", () => {
+    const c = gcase();
+    const results = [result(c, hitsWith({ 1: "/a.html", 2: "/x.html" }))];
     const md = renderMarkdown({
-      ...base,
+      modelId: "openai/text-embedding-3-small",
+      topK: 10,
       scope: null,
       results,
       metrics: computeMetrics(results),
-      breakdown: breakdownBySource(results),
+      perSource: coverageBySource(results),
     });
-    expect(md).toContain("## Per-source breakdown");
-    expect(md).toContain("whole-corpus");
-  });
-
-  it("omits the breakdown and labels the scope for a single-source run", () => {
-    const results = [result("cru-10-basic-steps", 1)];
-    const md = renderMarkdown({
-      ...base,
-      scope: "cru-10-basic-steps",
-      results,
-      metrics: computeMetrics(results),
-      breakdown: breakdownBySource(results),
-    });
-    expect(md).not.toContain("## Per-source breakdown");
-    expect(md).toContain("`cru-10-basic-steps`");
+    expect(md).toContain("| coverage |");
+    expect(md).toContain("## Per-source coverage");
+    expect(md).toContain("first rank");
   });
 });
 

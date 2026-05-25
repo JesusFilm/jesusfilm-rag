@@ -1,139 +1,179 @@
-# Hand-authored QA pairs for the corpus. Each case is judged correct if a
-# top-k semantic_search hit comes from one of the listed `expected_doc_paths`
-# or matches one of `expected_url_contains`. Doc-path matching is preferred —
-# it survives re-indexing without depending on chunk-id stability.
+# Hand-authored QA pairs for the corpus. Each case is a SOURCE-AGNOSTIC question
+# plus a `relevant` map of {sourceKey: [doc pathnames]} — every document, across
+# sources, that legitimately answers it. A top-k hit is judged correct if its
+# doc pathname matches ANY path in the relevant set. Doc-path matching survives
+# re-indexing (it doesn't depend on chunk-id stability).
 #
 # Schema (consumed by scripts/eval.ts):
 #
 #   cases:
 #     - id: short-stable-id            # required, unique
-#       source: registry-key           # required — the source this case exercises
 #       question: "natural-language question"   # required
-#       expected_doc_paths:            # optional; at least one matcher required
-#         - "articles/example.md"
-#       expected_url_contains:         # optional; substring match against doc URL
-#         - "example.org/article"
+#       relevant:                      # required; >=1 source, each with >=1 path
+#         starting-with-god:
+#           - "/path/one.html"
+#         cru-10-basic-steps:
+#           - "/us/en/.../lesson.html"
 #
-# `source` is the registry key (e.g. starting-with-god, cru-10-basic-steps). It
-# drives `pnpm eval --source <key>` (run only that source's cases) and the
-# per-source breakdown in the whole-corpus run. Retrieval is always whole-corpus,
-# so a source's breakdown reflects real cross-source competition.
+# `pnpm eval` reports recall@3 / recall@10 / COVERAGE (fraction of the relevant
+# set returned) + per-source coverage; P@1/MRR are secondary (ranking is the
+# consumer's job — docs/eval-approach.md). `pnpm eval --source <key>` runs the
+# cases whose relevant set includes that source (still whole-corpus retrieval).
 #
-# Keep questions natural-language — this set is the user-facing surface contract.
-# Cases are authored once the real corpus is ingested (see docs/architecture.md §9 step 7).
+# The relevant set is LIVING: when a new source is ingested, RE-REVIEW these
+# questions and extend their relevant sets with any newly-relevant docs — don't
+# only add new questions. ids keep historical swg-/cru- prefixes but questions
+# are source-agnostic. Off-topic NEGATIVES live in the slice files (eval.ts would
+# miscount them as misses), not here.
 
 cases:
   - id: swg-seeker-anxiety
-    source: starting-with-god
     question: "My mind races with anxiety constantly and I can't switch it off — is there a way to actually find peace?"
-    expected_doc_paths:
-      - "/questions/how-to-stop-worrying.html"
+    relevant:
+      starting-with-god:
+        - "/questions/how-to-stop-worrying.html"
+        - "/struggles/into-negative.html"
+        - "/bible-study/what-to-do-with-problems.html"
   - id: swg-seeker-failure
-    source: starting-with-god
     question: "I keep messing up and feel like God must be so disappointed in me. Is there any hope?"
-    # Several articles legitimately answer "I keep failing — is there hope?"; accept the cluster.
-    expected_doc_paths:
-      - "/knowing-god/gods-grace.html"
-      - "/struggles/expect.html"
-      - "/struggles/fall.html"
-      - "/questions/sin.html"
-      - "/struggles/forgiven.html"
+    relevant:
+      starting-with-god:
+        - "/knowing-god/gods-grace.html"
+        - "/struggles/expect.html"
+        - "/struggles/fall.html"
+        - "/questions/sin.html"
+        - "/struggles/forgiven.html"
+        - "/struggles/changes.html"
   - id: swg-seeker-porn
-    source: starting-with-god
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
-    expected_doc_paths:
-      - "/struggles/how-to-get-free-from-porn.html"
+    relevant:
+      starting-with-god:
+        - "/struggles/how-to-get-free-from-porn.html"
+        - "/struggles/how-to-live-the-christian-life.html"
+        - "/struggles/changes.html"
   - id: swg-skeptic-faith-proof
-    source: starting-with-god
     question: "Isn't faith just believing something with no proof? Sounds like wishful thinking."
-    expected_doc_paths:
-      - "/knowing-god/what-is-faith.html"
-      - "/knowing-god/faith.html"
+    relevant:
+      starting-with-god:
+        - "/knowing-god/faith.html"
+        - "/knowing-god/what-is-faith.html"
   - id: swg-skeptic-jesus-deity
-    source: starting-with-god
     question: "Did Jesus ever actually claim to be God, or did the church invent that later?"
-    expected_doc_paths:
-      - "/new-life/jesus.html"
+    relevant:
+      starting-with-god:
+        - "/new-life/jesus.html"
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
   - id: swg-skeptic-gods-love
-    source: starting-with-god
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
-    expected_doc_paths:
-      - "/questions/does-god-really-love-me.html"
+    relevant:
+      starting-with-god:
+        - "/questions/does-god-really-love-me.html"
+        - "/new-life/gods-love.html"
+        - "/knowing-god/gods-grace.html"
   - id: swg-believer-assurance
-    source: starting-with-god
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
-    expected_doc_paths:
-      - "/new-life/how-to-be-sure-of-heaven.html"
-      - "/new-life/will-this-last.html"
+    relevant:
+      starting-with-god:
+        - "/new-life/how-to-be-sure-of-heaven.html"
+        - "/new-life/will-this-last.html"
+        - "/questions/sin.html"
+        - "/new-life/am-i-christian.html"
+        - "/bible-study/lesson-2.html"
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/1-the-christian-adventure.html"
   - id: swg-believer-holy-spirit
-    source: starting-with-god
     question: "How do I actually live day to day in the power of the Holy Spirit?"
-    expected_doc_paths:
-      - "/new-life/spirit-filled.html"
-      - "/knowing-god/holy-spirit.html"
+    relevant:
+      starting-with-god:
+        - "/new-life/spirit-filled.html"
+        - "/knowing-god/holy-spirit.html"
+        - "/struggles/how-to-live-the-christian-life.html"
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
   - id: swg-newcomer-gospel
-    source: starting-with-god
     question: "What's the core message of Christianity — what's it actually all about?"
-    expected_doc_paths:
-      - "/bible-study/what-is-the-gospel.html"
+    relevant:
+      starting-with-god:
+        - "/bible-study/what-is-the-gospel.html"
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
   - id: swg-newcomer-baptism
-    source: starting-with-god
     question: "Do I need to be baptized to become a Christian?"
-    expected_doc_paths:
-      - "/questions/baptism.html"
-
-  # --- Cru "10 Basic Steps Toward Christian Maturity" (slice #2) ---
-  # New-believer discipleship curriculum (Bill Bright). Persona spread:
-  # Believer x4, Newcomer x3, Seeker x2, Skeptic x1 — the curriculum is written
-  # for believers, so apologetic angles are naturally fewer. Cases 7/8/10 overlap
-  # topics Starting With God also covers (the honest cross-source hard cases).
+    relevant:
+      starting-with-god:
+        - "/questions/baptism.html"
   - id: cru-newcomer-new-testament
-    source: cru-10-basic-steps
     question: "I want to start reading the New Testament but don't know how it's organized or where to begin — can you orient me?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/10-the-new-testament.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/10-the-new-testament.html"
+        - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+      starting-with-god:
+        - "/knowing-god/bible.html"
   - id: cru-believer-old-testament
-    source: cru-10-basic-steps
     question: "The Old Testament feels like a confusing jumble of names and events. How does the whole story actually hang together?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/9-the-old-testament.html"
-  - id: cru-seeker-finances
-    source: cru-10-basic-steps
-    question: "Money stresses me out constantly. Does following God change how I'm supposed to handle my finances?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/8-giving.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/9-the-old-testament.html"
+        - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+  - id: cru-stewardship
+    question: "As a Christian, does God have a claim on my money — how am I supposed to handle my finances and possessions?"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/8-giving.html"
   - id: cru-believer-witnessing
-    source: cru-10-basic-steps
     question: "I want to share my faith but I freeze up. How did Jesus himself approach people, and what does it take?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/7-the-christian-and-witnessing.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/7-the-christian-and-witnessing.html"
+      starting-with-god:
+        - "/questions/start-easy-conversations-about-god.html"
   - id: cru-believer-guidance
-    source: cru-10-basic-steps
     question: "How do I actually figure out what God wants me to do when I'm facing a hard decision?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
+      starting-with-god:
+        - "/knowing-god/how-god-speaks.html"
+        - "/directors-blog/is-god-willing-to-give-me-direction-in-my-life.html"
   - id: cru-believer-bible-study
-    source: cru-10-basic-steps
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+      starting-with-god:
+        - "/knowing-god/bible.html"
+        - "/knowing-god/how-god-speaks.html"
   - id: cru-newcomer-prayer
-    source: cru-10-basic-steps
     question: "I never know what to actually say when I pray. Is there a simple way to build a daily prayer habit?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/4-prayer.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/4-prayer.html"
+      starting-with-god:
+        - "/knowing-god/motivating.html"
+        - "/bible-study/lesson-5.html"
   - id: cru-newcomer-holy-spirit
-    source: cru-10-basic-steps
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
+      starting-with-god:
+        - "/new-life/spirit-filled.html"
+        - "/knowing-god/holy-spirit.html"
   - id: cru-seeker-abundant-life
-    source: cru-10-basic-steps
     question: "Being a Christian honestly feels flat and rule-bound to me. Is there supposed to be more life to it than this?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/2-abundant-life.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/2-abundant-life.html"
+      starting-with-god:
+        - "/new-life/spirit-filled.html"
+        - "/struggles/how-to-live-the-christian-life.html"
+        - "/knowing-god/gods-grace.html"
   - id: cru-skeptic-jesus-uniqueness
-    source: cru-10-basic-steps
     question: "Every religion has its founder. What actually sets Jesus apart from all the others?"
-    expected_doc_paths:
-      - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+    relevant:
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+      starting-with-god:
+        - "/new-life/jesus.html"

@@ -1,18 +1,19 @@
 /**
  * On-demand eval runner.
  *
- *   pnpm eval                          # whole corpus + per-source breakdown
- *   pnpm eval --source cru-10-basic-steps   # only that source's golden cases
+ *   pnpm eval                          # whole corpus + per-source coverage
+ *   pnpm eval --source cru-10-basic-steps   # cases whose relevant set includes it
  *
  * Reads eval/qa-golden.yaml, runs each question through the same Retriever the
- * MCP server / `pnpm query` use (top_k=8), and computes recall@3 / recall@8 /
- * MRR / precision@1. A whole-corpus run also reports a per-source breakdown.
+ * MCP server / `pnpm query` use (top_k=10), and reports recall@3 / recall@10 /
+ * coverage / MRR / precision@1, plus a per-source coverage breakdown. Each case
+ * is a source-agnostic question + a `relevant` map of {sourceKey: [paths]} — see
+ * docs/eval-approach.md for the model (recall + coverage lead; ranking is the
+ * consumer's job, so P@1/MRR are secondary).
  *
- * `--source <key>` filters the golden cases to that source but STILL retrieves
- * against the whole corpus — so the scoped number equals that source's row in
- * the whole-corpus breakdown (one source of truth) and surfaces cross-source
- * interference rather than hiding it. For isolated, source-scoped retrieval use
- * `pnpm query --source <key>`.
+ * `--source <key>` filters to the cases whose relevant set includes that source,
+ * but STILL retrieves against the whole corpus — the realistic, competitive
+ * condition. For isolated, source-scoped retrieval use `pnpm query --source`.
  *
  * Writes a markdown summary to eval/results-YYYY-MM-DD[-<source>].md and prints
  * the headline numbers to stdout. No CI hook — operator-invoked only.
@@ -26,17 +27,18 @@ import { wire } from "@/main.js";
 import type { Retriever } from "@/contracts/index.js";
 import {
   GoldenFileSchema,
-  breakdownBySource,
   computeMetrics,
+  coverageBySource,
   firstMatchingRank,
   renderMarkdown,
+  returnedRelevant,
   safePathname,
   type CaseResult,
   type Hit,
   type Metrics,
 } from "./eval-metrics.js";
 
-const TOP_K = 8;
+const TOP_K = 10;
 
 interface Args {
   source: string | null;
@@ -67,19 +69,19 @@ async function main(): Promise<void> {
   const golden = GoldenFileSchema.parse(YAML.parse(goldenRaw));
 
   if (golden.cases.length === 0) {
-    console.log(
-      "eval/qa-golden.yaml has no cases — nothing to run. Author cases now that the corpus is ingested + retrievable (slice #1).",
-    );
+    console.log("eval/qa-golden.yaml has no cases — nothing to run.");
     return;
   }
 
   let cases = golden.cases;
   if (args.source) {
-    cases = cases.filter((c) => c.source === args.source);
+    cases = cases.filter((c) => args.source! in c.relevant);
     if (cases.length === 0) {
-      const known = [...new Set(golden.cases.map((c) => c.source))].sort();
+      const known = [
+        ...new Set(golden.cases.flatMap((c) => Object.keys(c.relevant))),
+      ].sort();
       console.error(
-        `error: no golden cases tagged source="${args.source}". known sources: ${known.join(", ")}`,
+        `error: no golden cases with source="${args.source}" in their relevant set. known sources: ${known.join(", ")}`,
       );
       process.exit(2);
     }
@@ -95,22 +97,23 @@ async function main(): Promise<void> {
     for (const c of cases) {
       const hits = await runOne(wiring.retriever, c.question);
       const matchedRank = firstMatchingRank(hits, c);
-      results.push({ case: c, hits, matchedRank });
+      const returned = returnedRelevant(hits, c);
+      results.push({ case: c, hits, matchedRank, returnedRelevant: returned });
       const tick = matchedRank !== null ? "✓" : "✗";
-      console.log(`  ${tick} ${c.id} [${c.source}] — rank=${matchedRank ?? "miss"}`);
+      const total = Object.values(c.relevant).flat().length;
+      console.log(
+        `  ${tick} ${c.id} — rank=${matchedRank ?? "miss"} cov=${returned.length}/${total}`,
+      );
     }
 
     const metrics = computeMetrics(results);
     printMetrics("metrics", metrics);
 
-    const breakdown = breakdownBySource(results);
-    if (breakdown.length > 1) {
-      console.log("\nper-source breakdown:");
-      for (const b of breakdown) {
-        console.log(
-          `  ${b.source.padEnd(20)} n=${b.metrics.cases}  r@3=${b.metrics.recall_at_3.toFixed(3)}  r@8=${b.metrics.recall_at_8.toFixed(3)}  mrr=${b.metrics.mrr.toFixed(3)}  p@1=${b.metrics.precision_at_1.toFixed(3)}`,
-        );
-      }
+    console.log("\nper-source coverage:");
+    for (const s of coverageBySource(results)) {
+      console.log(
+        `  ${s.source.padEnd(20)} n=${s.cases}  recall=${s.recall.toFixed(3)}  coverage=${s.coverage.toFixed(3)}`,
+      );
     }
 
     const date = new Date().toISOString().slice(0, 10);
@@ -125,7 +128,7 @@ async function main(): Promise<void> {
         scope: args.source,
         results,
         metrics,
-        breakdown,
+        perSource: coverageBySource(results),
       }),
     );
     console.log(`\nwrote ${path.relative(process.cwd(), outPath)}`);
@@ -143,9 +146,9 @@ function printMetrics(label: string, metrics: Metrics): void {
 
 /**
  * One golden question through the real Retrieval library (the same Retriever the
- * MCP server / `pnpm query` use), mapped to the eval Hit shape. `docUrl` is the
- * chunk's canonical URL; `docPath` its pathname — golden cases match on either.
- * Retrieval is whole-corpus (no source scope) even under `--source`.
+ * MCP server / `pnpm query` use), mapped to the eval Hit shape. `docPath` is the
+ * citation URL's pathname — relevant sets match on it. Retrieval is whole-corpus
+ * (no source scope) even under `--source`.
  */
 async function runOne(retriever: Retriever, question: string): Promise<Hit[]> {
   const ranked = await retriever.search(question, { topK: TOP_K });

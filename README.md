@@ -74,6 +74,7 @@ The pipeline is being built out per [`docs/architecture.md`](./docs/architecture
 | `pnpm index` | Ingestion pipeline. **Stubbed** pending build steps 2 & 4 (consumes `raw_documents`, idempotent + source-scoped). |
 | `pnpm serve` | Start the `/v1` HTTP serving adapter over the wired `Retriever`. Binds `PORT` (Railway-injected; default 8080); requires `SERVE_BEARER_TOKENS`. |
 | `pnpm gen:contract` | Regenerate `contracts/openapi.v1.json` from the Zod source (`src/contracts/retrieval.schema.ts`). The drift test fails if it's out of sync. |
+| `pnpm smoke "<query>"` | Consumer-perspective probe of a **running** `/v1` server (`SMOKE_BASE_URL`, default localhost; `SMOKE_TOKEN`). Gates on correctness — public interface → RAG → back returns a contract-valid 200 — and reports latency (`SMOKE_MAX_MS` is a hang ceiling, default 5s, not a sub-second SLA). A post-deploy / CD gate, not part of `pnpm test`. |
 | `pnpm eval` | Run `eval/qa-golden.yaml` (recall@k, MRR). Harness kept; query path **stubbed** until Retrieval (step 5). |
 | `pnpm depcruise` / `pnpm lint` / `pnpm typecheck` / `pnpm test` | Quality + boundary gates. |
 

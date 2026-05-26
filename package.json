@@ -14,6 +14,7 @@
     "index": "tsx scripts/index.ts",
     "query": "tsx scripts/query.ts",
     "serve": "tsx scripts/serve.ts",
+    "smoke": "tsx scripts/smoke.ts",
     "gen:contract": "tsx scripts/gen-contract.ts",
     "eval": "tsx scripts/eval.ts",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs",

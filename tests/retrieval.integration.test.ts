@@ -60,6 +60,24 @@ function oneHot(i: number): number[] {
   return v;
 }
 
+/**
+ * Unit vector with cosine `c` to oneHot(0): puts `c` on axis 0 and the remainder
+ * on axis 1. Used for the second fixture doc. We deliberately give it a *positive*
+ * cosine (not 0) so it stays inside pgvector's HNSW candidate window (ef_search,
+ * default 40) even when the shared dev DB holds thousands of real chunks: the
+ * source filter (`allowedSourceKeys`) is applied AFTER the index walk, so a
+ * cosine-0 in-scope doc gets pushed out of the window by nearer out-of-scope
+ * neighbors once the corpus is large (real embeddings score ≪0.15 on a one-hot
+ * axis, so 0.3 reliably ranks 2nd globally). The under-recall this exposes for
+ * filtered queries on a large corpus is tracked as a retrieval follow-up.
+ */
+function cosTo0(c: number): number[] {
+  const v = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
+  v[0] = c;
+  v[1] = Math.sqrt(1 - c * c);
+  return v;
+}
+
 function sentinelSource(): SourceRecord {
   return {
     key: TEST_KEY,
@@ -144,7 +162,7 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
       chunk("the matching passage", oneHot(0)),
     ]);
     await writeStore.replaceDocument(doc("orthogonal", "hash-ortho"), [
-      chunk("an unrelated passage", oneHot(1)),
+      chunk("an unrelated passage", cosTo0(0.3)), // cosine 0.3 to the query: below the 0.37 cutoff, above the HNSW noise
     ]);
   });
 
@@ -163,7 +181,7 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
 
     const hits = await retriever.search("probe", { allowedSourceKeys: [TEST_KEY] });
 
-    // Orthogonal doc scores cosine 0 (< default minScore 0.37) and is dropped.
+    // Orthogonal doc scores cosine 0.3 (< default minScore 0.37) and is dropped.
     expect(hits).toHaveLength(1);
     const top = hits[0];
     expect(top.score).toBeCloseTo(1.0, 5);
@@ -189,7 +207,7 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
 
     expect(hits.map((h) => h.citation.url)).toEqual([
       `${URL_PREFIX}match`, // cosine 1.0 first
-      `${URL_PREFIX}orthogonal`, // cosine 0.0 second
+      `${URL_PREFIX}orthogonal`, // cosine 0.3 second
     ]);
   });
 });

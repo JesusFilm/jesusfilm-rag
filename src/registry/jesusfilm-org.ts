@@ -34,16 +34,20 @@ export const jesusFilmOrg: SourceEntry = {
     // Content articles are /blog/<slug>/ — this also drops the bare /blog/
     // index, /give/, /about, the homepage, and the .kml location entry.
     articleHints: ["/blog/[^/]+/"],
-    // robots.txt disallows + donation/fundraising + non-HTML assets.
+    // robots.txt disallows (top-level paths) + donation/fundraising + non-HTML
+    // assets. Anchored to the path root (`jesusfilm.org/<path>`) so a blog slug
+    // that merely *contains* one of these substrings — e.g. /blog/devotions or
+    // /blog/design-for-discipleship — is NOT dropped (an unanchored "/dev" would
+    // false-positive on it).
     block: [
-      "/wp-admin",
-      "/dev",
-      "/messages",
-      "/email",
-      "/passionpurpose",
-      "/lac",
-      "/design",
-      "/give/",
+      "jesusfilm\\.org/wp-admin",
+      "jesusfilm\\.org/dev(/|$)",
+      "jesusfilm\\.org/messages(/|$)",
+      "jesusfilm\\.org/email(/|$)",
+      "jesusfilm\\.org/passionpurpose(/|$)",
+      "jesusfilm\\.org/lac(/|$)",
+      "jesusfilm\\.org/design(/|$)",
+      "jesusfilm\\.org/give(/|$)",
       "\\.kml($|\\?)",
       "\\.pdf($|\\?)",
     ],

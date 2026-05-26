@@ -50,6 +50,20 @@ describe("SourceRegistry", () => {
     expect(hint.test("https://www.jesusfilm.org/give/why-give/")).toBe(false);
   });
 
+  it("jesusfilm-org block patterns hit top-level disallows but not blog slugs that contain the substring", () => {
+    const jf = getSource("jesusfilm-org")!;
+    const block = (jf.crawl.block ?? []).map((p) => new RegExp(p));
+    const blocked = (u: string): boolean => block.some((re) => re.test(u));
+    // top-level robots disallows + assets ARE blocked
+    expect(blocked("https://www.jesusfilm.org/dev")).toBe(true);
+    expect(blocked("https://www.jesusfilm.org/give/ways-to-give/")).toBe(true);
+    expect(blocked("https://www.jesusfilm.org/locations.kml")).toBe(true);
+    // blog articles whose slug merely contains a disallowed substring are NOT blocked
+    expect(blocked("https://www.jesusfilm.org/blog/devotions")).toBe(false);
+    expect(blocked("https://www.jesusfilm.org/blog/lacking-faith")).toBe(false);
+    expect(blocked("https://www.jesusfilm.org/blog/design-for-discipleship")).toBe(false);
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
   });

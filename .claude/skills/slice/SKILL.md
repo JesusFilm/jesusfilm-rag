@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 2 -->
+<!-- version: 3 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -121,6 +121,17 @@ Pause and hand back to the operator, in plain language, when:
 - **A blocker appears** (site anti-bot, JS-rendered content, missing API key,
   flaky verify). Set the slice status to `blocked`, write the blocker plainly in
   the slice file + `sources.md` Notes, and surface it. Don't paper over it.
+- **Before a live _discovery_ crawl, confirm the budget.** Unlike a hand-listed
+  seed set, a discovery crawl's scale is unknown until you parse the sitemap, and
+  it drives both fetch politeness and embedding cost. Do a dry discovery (count
+  URLs), then confirm `maxPages` + the embedding spend with the operator before the
+  full crawl + ingest. (slice #3: ~351 discovered before committing to the crawl.)
+- **A new source "regressing" the eval is usually a stale relevant-set, not a
+  retrieval bug.** Adding a source to an existing corpus lets its genuinely-relevant
+  docs displace the old expected docs on _existing_ cases, so recall/coverage drops.
+  Re-review the **living `relevant` maps** via `/golden` (it re-scans prior cases)
+  _before_ suspecting retrieval/minScore. (slice #3: recall@10 0.85 → 0.938 after
+  re-review, no engine change.)
 
 ### Step 5 — Slice complete
 
@@ -145,6 +156,11 @@ The bar for "this sub-step is real":
 - **Always:** `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm test` — green.
   `depcruise` red usually means a boundary was crossed (architecture §5) — fix the
   placement, don't loosen the rule.
+- **Re-run the full gate after Acquire/Ingest, not only after code changes.**
+  `pnpm test` includes integration tests that query the live Postgres, so a *data*
+  stage can turn them red with **zero** code changes (slice #3: ingesting 349 docs
+  broke `tests/retrieval.integration.test.ts`, whose fixture assumed a small DB).
+  Never check off a data stage on the strength of "no code changed" — run it.
 - **Plus the stage's evidence:**
   - *Acquire* — rows in `raw_documents` for the source; spot-read `raw_content`,
     confirm it's real article text, not nav/boilerplate.
@@ -161,6 +177,11 @@ The bar for "this sub-step is real":
   `feat(retrieve): …`, `test(acquire): …`, `docs(slice): …`.
 - Commit message body: one line on what it does + the verify result.
 - End commit messages with the standard `Co-Authored-By` trailer.
+- **commitlint gotchas** (husky `commit-msg` hook): the subject must be
+  **lowercase** — a sentence-case subject like `Stage 4 …` is rejected
+  (`subject-case`); and the `Co-Authored-By` trailer needs a **blank line before
+  it** (`footer-leading-blank`). The same rules bind the squash-merge **PR title**
+  (linted by `.github/workflows/pr-title.yml`).
 - **This skill commits at each verified checkpoint** — a deliberate override of
   the global "commit only when asked", confirmed when the skill was created.
   Pushing and merging are NOT automatic; the operator decides.

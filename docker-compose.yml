@@ -20,6 +20,13 @@ services:
 
   # The read-only /v1 HTTP serving adapter, alongside the RAG it serves.
   # `docker compose up` brings this up once Postgres is healthy — no manual env.
+  #
+  # NO HOT-RELOAD: the image COPIES the source (see Dockerfile), it is not
+  # bind-mounted. Code changes are NOT live in the container until you rebuild:
+  #     docker compose up -d --build serve
+  # Hot-reload would need a source bind-mount + a node_modules volume + a watch
+  # runner (e.g. tsx watch); intentionally omitted (robust, deploy-like image
+  # over dev ergonomics). See README → "Serving the /v1 API (Docker)".
   serve:
     build:
       context: .

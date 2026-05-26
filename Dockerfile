@@ -12,6 +12,11 @@ USER node
 COPY --chown=node:node package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
+# COPY, not bind-mount — the image is self-contained and deploy-like, and the
+# host's (darwin) node_modules/esbuild never leak into this linux image. The
+# trade-off: code changes need a rebuild (`docker compose up -d --build serve`);
+# there is NO hot-reload. Hot-reload would mean a source bind-mount + a
+# node_modules volume + a watch runner (e.g. tsx watch) — intentionally not done.
 COPY --chown=node:node . .
 
 EXPOSE 8080

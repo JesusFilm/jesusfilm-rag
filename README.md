@@ -64,15 +64,36 @@ pnpm install
 pnpm db:migrate             # schema + migrations are live
 ```
 
-`docker compose up` runs the **`serve`** container alongside Postgres, so the `/v1` API is live on `:8080` with no manual env — the DB host, `OPENROUTER_API_KEY` (from `.env`), and a dev bearer token (`local-dev-token`) are wired in `docker-compose.yml`. Verify:
+### Serving the `/v1` API (Docker)
 
+`docker compose up -d` runs the **`serve`** container alongside Postgres, so the `/v1` API is live on `:8080` with **no manual env vars** — the DB host (`postgres:5432` inside the compose network), `OPENROUTER_API_KEY` (pulled from `.env` via compose substitution, never baked into the image), and a dev bearer token (`local-dev-token` → all sources) are wired in [`docker-compose.yml`](./docker-compose.yml).
+
+Health check (unauthenticated):
 ```sh
 curl localhost:8080/v1/health
-curl -X POST localhost:8080/v1/search -H 'authorization: Bearer local-dev-token' \
-  -H 'content-type: application/json' -d '{"query":"how do I become a Christian?"}'
+# → {"status":"ok"}
 ```
 
-The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. The serving adapter is live — a versioned `/v1` HTTP surface over the wired `Retriever` (§3.1); run it in Docker (above) or directly on the host via `pnpm serve`. The schema, migrations, env, and devcontainer are live too.
+Search — a consumer call, bearer token + query:
+```sh
+curl -X POST localhost:8080/v1/search \
+  -H 'authorization: Bearer local-dev-token' \
+  -H 'content-type: application/json' \
+  -d '{"query":"how do I become a Christian?","policy":{"topK":3}}'
+# → {"results":[{ "chunkId":…, "score":…, "text":…, "citation":{…} }, …]}
+```
+
+Ops: `docker compose logs -f serve` (tail), `docker compose down` (stop — keeps the corpus volume; `down -v` wipes it).
+
+> **⚠️ Code changes require a rebuild — there is no hot-reload.** The image **COPIES** the source at build time (see [`Dockerfile`](./Dockerfile)); there is no bind-mount, deliberately, so the host's (darwin) `node_modules` / `esbuild` binaries never clash with the linux container. The cost: edits to the serving code are **not** picked up by the running container until you rebuild it:
+> ```sh
+> docker compose up -d --build serve
+> ```
+> Live hot-reload would require a source bind-mount + a dedicated `node_modules` volume + a watch runner (e.g. `tsx watch`). That is **intentionally not configured** here — we favour a robust, deploy-like image over in-container dev ergonomics. Add it only if iteration speed in the container becomes a real need.
+
+(You can also run the adapter directly on the host with `pnpm serve` — but it binds the same `:8080`, so use the container *or* the host, not both.)
+
+The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. The serving adapter is live — a versioned `/v1` HTTP surface over the wired `Retriever` (§3.1). The schema, migrations, env, and devcontainer are live too.
 
 ### Scripts
 | Script | What it does |

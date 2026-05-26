@@ -56,8 +56,11 @@ async function main(): Promise<void> {
   const wiring = wire();
   try {
     for (const entry of entries) {
+      const plan = entry.crawl.sitemaps?.length
+        ? `discovery via ${entry.crawl.sitemaps.length} sitemap(s)`
+        : `${(entry.crawl.seedPaths ?? []).length} seed pages`;
       console.log(
-        `\n▶ acquiring ${entry.name} (${entry.key}) — ${entry.crawl.seedPaths.length} seed pages, ${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}`,
+        `\n▶ acquiring ${entry.name} (${entry.key}) — ${plan}, ${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}`,
       );
       const summary = await acquireSource(
         { fetcher: wiring.fetcher, store: wiring.rawDocumentStore },

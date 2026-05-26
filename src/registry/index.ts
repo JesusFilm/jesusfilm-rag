@@ -6,11 +6,16 @@
 import type { SourceEntry } from "./types.js";
 import { startingWithGod } from "./starting-with-god.js";
 import { cru10BasicSteps } from "./cru-10-basic-steps.js";
+import { jesusFilmOrg } from "./jesusfilm-org.js";
 
 export type { SourceEntry, CrawlPolicy } from "./types.js";
 
 /** Every registered source, in registry order. */
-export const SOURCES: readonly SourceEntry[] = [startingWithGod, cru10BasicSteps];
+export const SOURCES: readonly SourceEntry[] = [
+  startingWithGod,
+  cru10BasicSteps,
+  jesusFilmOrg,
+];
 
 /** Look up a source by its stable key; undefined if unknown. */
 export function getSource(key: string): SourceEntry | undefined {
@@ -22,9 +27,10 @@ export function allSources(): readonly SourceEntry[] {
   return SOURCES;
 }
 
-/** Resolve a source's seed paths into absolute URLs (against its baseUrl). */
+/** Resolve a source's hand-listed seed paths into absolute URLs (against its
+ *  baseUrl). Empty for a pure discovery source (its URLs come from the sitemap). */
 export function seedUrls(entry: SourceEntry): string[] {
-  return entry.crawl.seedPaths.map(
+  return (entry.crawl.seedPaths ?? []).map(
     (path) => new URL(path, entry.crawl.baseUrl).href,
   );
 }

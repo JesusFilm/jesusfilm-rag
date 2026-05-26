@@ -11,6 +11,7 @@
 import { createHash } from "node:crypto";
 import type { Fetcher, RawDocument, RawDocumentStore } from "@/contracts/index.js";
 import { type SourceEntry, seedUrls } from "@/registry/index.js";
+import { discoverUrls } from "./discover.js";
 import { extractContent } from "./extract.js";
 import { normalizeUrl } from "./normalize-url.js";
 
@@ -74,17 +75,43 @@ export interface AcquireDeps {
 }
 
 /**
- * Acquire one source end-to-end: walk its seed URLs (capped at maxPages) with a
- * polite requestDelayMs between fetches, acquireOne each, stage the ok docs via
- * the injected RawDocumentStore, and tally outcomes. Ports are injected — no
- * adapter is constructed here. `onProgress` lets the runner stream live lines.
+ * Resolve the URL list to acquire for a source. A discovery source (one with
+ * `sitemaps`) is walked via discoverUrls; its result is unioned with any
+ * hand-listed seedPaths (so a discovery source can still pin extra pages). A
+ * pure hand-listed source just uses its seeds. Capped at maxPages either way.
+ */
+async function resolveAcquireUrls(
+  deps: AcquireDeps,
+  entry: SourceEntry,
+  opts: { onProgress?: (line: string) => void },
+): Promise<string[]> {
+  const seeds = seedUrls(entry);
+  if (!entry.crawl.sitemaps?.length) {
+    return seeds.slice(0, entry.crawl.maxPages);
+  }
+  opts.onProgress?.(
+    `  ↪ discovering from ${entry.crawl.sitemaps.length} sitemap(s)…`,
+  );
+  const disc = await discoverUrls({ fetcher: deps.fetcher }, entry.crawl, opts);
+  opts.onProgress?.(
+    `  ↪ discovered ${disc.urls.length} URL(s) (${disc.totalSeen} seen across ${disc.sitemapsFetched} sitemap(s))`,
+  );
+  return [...new Set([...seeds, ...disc.urls])].slice(0, entry.crawl.maxPages);
+}
+
+/**
+ * Acquire one source end-to-end: resolve its URL list (hand-listed seeds or
+ * sitemap discovery, capped at maxPages) and walk it with a polite
+ * requestDelayMs between fetches, acquireOne each, stage the ok docs via the
+ * injected RawDocumentStore, and tally outcomes. Ports are injected — no adapter
+ * is constructed here. `onProgress` lets the runner stream live lines.
  */
 export async function acquireSource(
   deps: AcquireDeps,
   entry: SourceEntry,
   opts: { onProgress?: (line: string) => void } = {},
 ): Promise<AcquireSummary> {
-  const urls = seedUrls(entry).slice(0, entry.crawl.maxPages);
+  const urls = await resolveAcquireUrls(deps, entry, opts);
   const summary: AcquireSummary = {
     sourceKey: entry.key,
     attempted: 0,

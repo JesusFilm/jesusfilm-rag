@@ -34,6 +34,9 @@ cases:
         - "/questions/how-to-stop-worrying.html"
         - "/struggles/into-negative.html"
         - "/bible-study/what-to-do-with-problems.html"
+      jesusfilm-org:
+        - "/blog/fear-bible-verses"
+        - "/blog/peace-bible-verses"
   - id: swg-seeker-failure
     question: "I keep messing up and feel like God must be so disappointed in me. Is there any hope?"
     relevant:
@@ -44,6 +47,9 @@ cases:
         - "/questions/sin.html"
         - "/struggles/forgiven.html"
         - "/struggles/changes.html"
+      jesusfilm-org:
+        - "/blog/is-failure-fatal"
+        - "/blog/what-to-do-when-you-stumble-christian-walk"
   - id: swg-seeker-porn
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
@@ -64,6 +70,10 @@ cases:
         - "/new-life/jesus.html"
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+      jesusfilm-org:
+        - "/blog/did-jesus-claim-to-be-god"
+        - "/blog/was-jesus-god"
+        - "/blog/was-jesus-lord-liar-or-lunatic"
   - id: swg-skeptic-gods-love
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
     relevant:
@@ -91,6 +101,8 @@ cases:
         - "/struggles/how-to-live-the-christian-life.html"
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
+      jesusfilm-org:
+        - "/blog/walking-in-spirit"
   - id: swg-newcomer-gospel
     question: "What's the core message of Christianity — what's it actually all about?"
     relevant:
@@ -98,6 +110,9 @@ cases:
         - "/bible-study/what-is-the-gospel.html"
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+      jesusfilm-org:
+        - "/blog/what-is-the-gospel"
+        - "/blog/what-is-the-gospel-really"
   - id: swg-newcomer-baptism
     question: "Do I need to be baptized to become a Christian?"
     relevant:
@@ -122,6 +137,9 @@ cases:
     relevant:
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/8-giving.html"
+      jesusfilm-org:
+        - "/blog/jesus-talk-about-money"
+        - "/blog/cheerful-giver"
   - id: cru-believer-witnessing
     question: "I want to share my faith but I freeze up. How did Jesus himself approach people, and what does it take?"
     relevant:
@@ -129,6 +147,11 @@ cases:
         - "/us/en/train-and-grow/10-basic-steps/7-the-christian-and-witnessing.html"
       starting-with-god:
         - "/questions/start-easy-conversations-about-god.html"
+      jesusfilm-org:
+        - "/blog/overcoming-fear-sharing-gospel"
+        - "/blog/tips-getting-over-fear-of-sharing-faith"
+        - "/blog/sharing-even-when-nervous"
+        - "/blog/evangelism-tips-non-evangelists"
   - id: cru-believer-guidance
     question: "How do I actually figure out what God wants me to do when I'm facing a hard decision?"
     relevant:
@@ -137,6 +160,9 @@ cases:
       starting-with-god:
         - "/knowing-god/how-god-speaks.html"
         - "/directors-blog/is-god-willing-to-give-me-direction-in-my-life.html"
+      jesusfilm-org:
+        - "/blog/what-is-gods-will-how-can-know"
+        - "/blog/gods-will-bible-verses"
   - id: cru-believer-bible-study
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
@@ -145,6 +171,8 @@ cases:
       starting-with-god:
         - "/knowing-god/bible.html"
         - "/knowing-god/how-god-speaks.html"
+      jesusfilm-org:
+        - "/blog/best-way-to-read-the-bible"
   - id: cru-newcomer-prayer
     question: "I never know what to actually say when I pray. Is there a simple way to build a daily prayer habit?"
     relevant:
@@ -153,6 +181,9 @@ cases:
       starting-with-god:
         - "/knowing-god/motivating.html"
         - "/bible-study/lesson-5.html"
+      jesusfilm-org:
+        - "/blog/how-to-pray"
+        - "/blog/prayer-tips"
   - id: cru-newcomer-holy-spirit
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
     relevant:
@@ -177,3 +208,75 @@ cases:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
       starting-with-god:
         - "/new-life/jesus.html"
+      jesusfilm-org:
+        - "/blog/5-key-teachings-that-set-jesus-apart"
+
+  # --- jesusfilm-org cases (slice #3, 2026-05-26) — persona-diverse, exercising
+  #     jf's distinctive strengths: parables, apologetics, missions, Jesus' life. ---
+  - id: jf-newcomer-who-is-jesus
+    question: "I don't really know anything about Jesus — who was he and what did he actually do?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/who-is-jesus"
+        - "/blog/jesus-facts"
+        - "/blog/story-of-jesus"
+  - id: jf-newcomer-why-jesus-died
+    question: "What was the point of Jesus dying on a cross — why did it have to happen?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/why-did-jesus-need-to-die"
+        - "/blog/jesus-on-the-cross"
+  - id: jf-newcomer-great-commission
+    question: "Christians keep talking about being 'sent to make disciples of all nations' — where's that from and what does it mean?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/what-is-the-great-commission"
+        - "/blog/the-importance-of-the-great-commission"
+  - id: jf-skeptic-resurrection
+    question: "Christians stake everything on the resurrection — why would an empty tomb 2,000 years ago even matter?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/resurrection-important"
+  - id: jf-skeptic-bible-contradictions
+    question: "People say the Bible is riddled with contradictions and errors — how do you square that?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/bible-filled-with-contradictions-errors"
+  - id: jf-skeptic-intolerant
+    question: "Isn't it arrogant for Christians to claim Jesus is the only way? That seems intolerant."
+    relevant:
+      jesusfilm-org:
+        - "/blog/is-christianity-intolerant"
+  - id: jf-believer-parable-sower
+    question: "What's Jesus really getting at in the story about a farmer scattering seed on different soils?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/parable-of-sower"
+  - id: jf-believer-good-samaritan
+    question: "What's the deeper point of the story about the man beaten on the road and the foreigner who stopped to help?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/parable-good-samaritan"
+  - id: jf-believer-missional-everyday
+    question: "I'm not a missionary, just someone with a normal job — how do I actually live 'on mission' in ordinary life?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/mission-field-between-your-feet"
+        - "/blog/becoming-a-more-missional-christian"
+  - id: jf-believer-disciple-making
+    question: "I want to help someone else grow in their faith, not just grow myself — where do I even start?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/how-to-make-disciples"
+        - "/blog/disciple-making-101"
+  - id: jf-seeker-grief
+    question: "I just lost someone I love and I'm drowning — does Jesus have anything for someone grieving?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/what-jesus-teaches-about-grief"
+  - id: jf-seeker-distant-god
+    question: "God feels distant and silent lately — how do I get close to him again?"
+    relevant:
+      jesusfilm-org:
+        - "/blog/how-can-get-closer-to-god"
+        - "/blog/when-you-dont-feel-close-to-god"

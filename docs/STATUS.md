@@ -18,58 +18,43 @@ embeddings**, `openai/text-embedding-3-small`), retrievable, evaluated:
 Evaluated, and MERGED to `main`** (PR #11, `b3105f7`). 11 docs / 35 chunks / 35
 embeddings; retrievable + cited; two sources now coexist in one ranked space.
 
-**Slice #3 (Jesus Film Project, `jesusfilm-org`) is IN PROGRESS** on
-`slice/jesusfilm-org` (started 2026-05-26) — see
-[docs/slices/jesusfilm-org.md](./slices/jesusfilm-org.md). This is the source
-that triggers **FOLLOW-UP F**: Stage 1 built the **discovery-crawl** model
-(sitemap seed → allow∧articleHints filter → drop block), because jesusfilm.org
-is too large to hand-list like slices #1–2. **Stage 1 (Acquire) DONE:** the
-discovery crawler is built + fakes-tested (1a–1c) and `jesusfilm-org` registered
-(owned WP source, `.entry-content`); the live discovery crawl staged **349/349
-blog articles, 0 skips** (417 sitemap locs → 349 kept; /give/ + .kml filtered).
-raw_content avg 9.4k chars, clean prose, all titles populated. **Stage 2
-(Ingest) DONE:** 349 docs / **2114 chunks / 2114 embeddings**
-(`openai/text-embedding-3-small`), 0 chunk_count mismatches, idempotent re-run
-drains 0. The corpus is now **3 sources** (swg + cru + jesusfilm-org). **Stage 3
-(Retrieve) DONE:** queries return ranked, cited jf hits (parables 0.712,
-evangelism 0.65–0.69). **Stage 4 (Eval) IN PROGRESS — needs operator
-`/golden jesusfilm-org`.** Pre-curation eval (3-source corpus, the 20 *stale*
-swg/cru cases): recall@3 0.75 / recall@10 0.85 / coverage 0.746 (down from
-slice-#2's 0.95/1.00/0.896). **Diagnosed as a stale living-relevant-set artifact,
-NOT a retrieval regression:** the 3 misses (gospel/witnessing/prayer) are
-displaced by genuinely-relevant jesusfilm.org docs (e.g. gospel→
-`/blog/what-is-the-gospel`, prayer→`/blog/how-to-pray`). Fix = curation via
-`/golden` (drafts new jf cases AND re-scans the 20 prior cases per eval-approach
-§"Relevant sets are LIVING"), then re-run `pnpm eval`. **Next: operator runs
-`/golden jesusfilm-org`.**
-**Stage 4 built the eval, then reframed it.** v1 shipped a per-source breakdown with
-single-source expected docs; reviewing it with the operator surfaced a better model, now
-**implemented (`8fbee09`)**: cases are **source-agnostic questions + a multi-source `relevant`
-map**, scored on **recall + coverage** (P@1/MRR secondary) at **top-10**, with per-source
-coverage — see **[docs/eval-approach.md](./eval-approach.md)**. **v2 whole-corpus eval (20 cases
-/ 2 sources): recall@3 0.95 · recall@10 1.00 · coverage 0.896 · MRR 0.881 · P@1 0.80**; per-source
-coverage cru 0.929 / swg 0.906. This **resolved** the v1 cru "P@1 0.20" artifact — cru content
-surfaces reliably (per-source recall 0.929); retrieval was fine, v1 measured the wrong thing.
-minScore **0.37** held (FOLLOW-UP A). Citation-quality limitation remains: the leading
-**accordion-TOC chunk** is sometimes the top-cited cru snippet (extraction-side; candidate
-follow-up). 77 tests green. Parked candidates carried forward on the branch: **EveryStudent**
-`Blocked` (Cloudflare) + **NextStep** `Deferred` (marketing site).
+**Slice #3 (Jesus Film Project, `jesusfilm-org`) is DONE — all 4 stages green,
+Evaluated** — on `slice/jesusfilm-org` (2026-05-26), **not yet merged**. It
+triggered **FOLLOW-UP F**: Stage 1 built the **discovery-crawl** model
+(`CrawlPolicy.sitemaps`+`allow`/`block`/`articleHints`; `src/acquisition/discover.ts`
+recurses a sitemap index → filters → URL list; fakes-tested), because jesusfilm.org
+is too large to hand-list. The live crawl staged **349/349 blog articles, 0 skips**
+(417 sitemap locs → 349 kept; /give/ + .kml filtered), ingested to **349 docs /
+2114 chunks / 2114 embeddings**, retrievable + cited. The corpus is now **3 sources**.
+**Stage 4 (eval) via `/golden`:** 12 new persona-diverse jf cases + re-reviewed 11
+existing cases' living `relevant` maps (qa-golden.yaml now **32 cases**). Curated
+whole-corpus eval @ top-10: **recall@3 0.906 · recall@10 0.938 · coverage 0.803 ·
+MRR 0.777 · P@1 0.656**; per-source **jf 0.913** / swg 0.833 / cru 0.714. **Key
+lesson re-confirmed:** the pre-curation drop (stale 20 cases → recall@10 0.85) was a
+**living-relevant-set artifact, not a retrieval regression** — re-reviewing the maps
+made the 3 displaced misses (gospel/witnessing/prayer) pass. 2 honest misses remain
+(`jf-skeptic-intolerant` out-ranked by uniqueness docs; `jf-believer-disciple-making`
+a vocabulary gap). **minScore 0.37 held** (FOLLOW-UP A @ 3 sources). 86 tests green.
+Two follow-ups filed this slice: **#14 (H)** ingest-time tag/keyword enrichment, **#15
+(I)** consumer-specified retrieval diversity. EveryStudent `Blocked` / NextStep `Deferred`.
+
+Eval methodology (source-agnostic questions + multi-source living `relevant` sets,
+recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-approach.md)**.
 
 ## Next action
 
-**Slice #3 (Jesus Film Project, `jesusfilm-org`) is in progress** — drive it with
-`/slice jesusfilm-org`; state lives in [docs/slices/jesusfilm-org.md](./slices/jesusfilm-org.md).
-Operator-confirmed (2026-05-26): build the **discovery crawler** (FOLLOW-UP F) now rather than
-hand-list a sub-scope — jesusfilm.org is the named trigger source. **Resume point:** Stage 1,
-sub-step 1a (extend `CrawlPolicy` with discovery fields). After this lands, remaining short-list
-`Not started`: **Sightline Ministry** (rides the now-built crawler; adds the skeptic axis).
-Read `docs/jfa-registry-findings.md` before crawling (FOLLOW-UP F/G live there).
+**Slice #3 is complete (Evaluated).** Two operator decisions, then pick the next slice:
 
-**Eval reframe (DONE 2026-05-25, `8fbee09`):** golden cases are now **source-agnostic questions
-+ multi-source `relevant` maps**, scored on **recall + coverage** at **top-10** (P@1/MRR
-secondary), with per-source coverage. The `relevant` set is **living** — re-review existing
-questions for newly-relevant docs each time a source is added (not just author new ones). Model
-+ v2 baseline in **[docs/eval-approach.md](./eval-approach.md)**.
+1. **Merge** `slice/jesusfilm-org` → `main` (carries the discovery-crawl model + the
+   jesusfilm-org source + the §11 FOLLOW-UP H/I index + the curated 32-case eval). Not
+   done automatically. **Note:** `git push` hit "Repository not found" under the local
+   https credential — pushing/merging needs the `jaco-brink` git credential sorted (gh
+   itself works: `jaco-brink` has ADMIN). 11 checkpoint commits on the branch, unpushed.
+2. **Start slice #4.** With the **discovery crawler now built**, the next large source is
+   cheap: **Sightline Ministry** (~2,500 pages, explicit sitemaps, apologetics — adds the
+   skeptic axis) rides the same `sitemaps`+`allow`/`block`/`articleHints` machinery. Other
+   remaining short-list source: none `Not started` besides Sightline (EveryStudent `Blocked`,
+   NextStep `Deferred`). Read `docs/jfa-registry-findings.md` before crawling.
 
 **Now unblocked (2 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
 filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)). Can be a small

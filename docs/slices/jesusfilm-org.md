@@ -1,6 +1,6 @@
 # Slice: Jesus Film Project (jesusfilm-org)
 
-_Branch: `slice/jesusfilm-org` · Started: 2026-05-26 · Status: in-progress_
+_Branch: `slice/jesusfilm-org` · Started: 2026-05-26 · Status: done_
 <!-- Status: in-progress | blocked | done -->
 
 ## Goal (architecture altitude)
@@ -36,8 +36,26 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
       <!-- "parables of Jesus" → 5 cited jesusfilm.org articles, top 0.712. "share the gospel/witness" → 5 evangelism articles (0.65–0.69). Dedup intact (distinct URL/doc), scores healthy. Cross-source health: "assurance of heaven" → 4 swg + 1 jf (swg holds); "new-believer daily prayer" → 4 jf + 1 swg, **0 cru** (cru step-4 prayer displaced — carry to Stage 4 per-source coverage). Retrieval is source-agnostic + prebuilt; no code change. -->
 
 ### 4. Spot-check / eval
-- [~] 4a. `/golden jesusfilm-org` + re-review existing `relevant` maps (the set is living); `pnpm eval` recall + coverage @ top-10; record per-source coverage across 3 sources.            <!-- sha: (pending /golden) -->
-      <!-- PRE-CURATION baseline run (3-source corpus, existing 20 stale cases): recall@3 0.75 / recall@10 0.85 / coverage 0.746 / MRR 0.602 / P@1 0.45; per-source cru 0.714 / swg 0.728 — DOWN from slice-#2 (0.95/1.00/0.896; cru 0.929/swg 0.906). DIAGNOSED as a stale-living-set artifact, NOT a retrieval regression: the 3 misses (swg-newcomer-gospel, cru-believer-witnessing, cru-newcomer-prayer) are displaced by genuinely-relevant jesusfilm.org docs (gospel→what-is-the-gospel(-really); witnessing→overcoming-fear/tips-getting-over-fear; prayer→how-to-pray/prayer-tips/why-do-we-pray + swg still at ranks 7&10). FIX = curation: operator runs /golden jesusfilm-org (drafts new cases AND re-scans the 20 prior cases for newly-relevant jf docs per eval-approach §"Relevant sets are LIVING"), then re-run pnpm eval. NOT done by hand (project norm). -->
+- [x] 4a. `/golden jesusfilm-org` + re-review existing `relevant` maps (the set is living); `pnpm eval` recall + coverage @ top-10; record per-source coverage across 3 sources.            <!-- sha: 4a-commit -->
+      <!-- Curated via /golden (operator approved all, 2026-05-26): Part A re-reviewed 11 existing cases (+jf docs to their relevant maps), Part B added 12 new persona-diverse jf cases (3 newcomer/3 skeptic/4 believer/2 seeker). qa-golden.yaml now 32 cases. -->
+
+#### Stage 4 results (2026-05-26)
+**Curated eval (3 sources, 32 cases, top-10):** recall@3 **0.906** · recall@10 **0.938** · coverage **0.803** · MRR **0.777** · P@1 **0.656**.
+Per-source: jesusfilm-org **0.913** (n=23) · starting-with-god 0.833 (n=18) · cru-10-basic-steps 0.714 (n=14).
+
+The curation **resolved the pre-curation drop**: the pre-curation run on the *stale* 20 cases scored recall@3 0.75 / recall@10 0.85 / coverage 0.746 — a stale-living-set artifact, not a retrieval regression. After re-reviewing the relevant maps, the 3 displaced misses (gospel/witnessing/prayer) all pass (rank 1/1/3). recall@10 0.938 vs slice-#2's 1.00 is the 2 honest misses below, not a regression.
+
+**2 honest misses (not gamed):**
+- `jf-skeptic-intolerant`: the "only way / intolerant" framing pulls the genuinely-relevant *uniqueness/deity* cluster (5-key-teachings, did-jesus-claim-to-be-god, was-jesus-lord-liar-or-lunatic) ahead of the specific `is-christianity-intolerant` doc. Well-answered, expected doc out-ranked. Could extend the relevant set; left honest.
+- `jf-believer-disciple-making`: vocabulary gap — "help someone *grow in faith*" retrieves evangelism/relationship content, not the `disciple-making` docs (which lean on the word "disciple" the persona phrasing avoided). A real retrieval limitation; guardrail-#1 working as intended.
+
+**minScore 0.37 holds (FOLLOW-UP A re-confirmed @ 3 sources):** secular negatives (index funds / faucet / cricket) return nothing above cutoff; faith-adjacent Quran/Ramadan peeks to 0.389 (admitted by 0.37, cut by 0.4 — the weak-adjacent behavior the principle expects). No change.
+
+**Negatives (cutoff calibration — kept out of qa-golden.yaml; eval.ts would miscount them as misses):**
+- "What's the best way to invest in index funds for retirement?" → nothing ≥ 0.37
+- "How do I fix a leaking kitchen faucet?" → nothing ≥ 0.37
+- "What are the rules of cricket?" → nothing ≥ 0.37
+- "What does the Quran teach about fasting during Ramadan?" → top 0.389 (faith-adjacent; below the positive cluster)
 
 ## Decisions made (this slice)
 - 2026-05-26 — Source key is `jesusfilm-org` (matches jfa curation + our `cru-10-basic-steps` precedent), not the name-slug `jesus-film-project`.
@@ -47,18 +65,15 @@ Acquisition *owns* `allow`/`block` fetch policy; this finishes that.
 - 2026-05-26 — The Stage-4 pre-curation eval drop is a **stale living-relevant-set artifact, not a retrieval regression** (diagnosed: misses are displaced by valid jf answers). Fix is curation via `/golden`, per the documented LIVING-set workflow — not a retrieval/minScore change.
 
 ## Open question / blocker
-- **Stage 4 needs operator action:** run `/golden jesusfilm-org` (it's
-  disable-model-invocation by design — golden cases are curated, not
-  auto-written). That drafts new jesusfilm-org cases AND re-scans the 20 prior
-  cases for newly-relevant jf docs (the displaced gospel/witnessing/prayer
-  docs). Then re-run `pnpm eval`. Until then the slice is at Stage 4 (not done).
-- Minor: `pnpm eval` wrote `eval/results-2026-05-25.md` on 2026-05-26 (the dated
-  results filename looks stale/hardcoded). Out of slice scope; noted.
+- none — slice complete (all 4 stages green + evaluated).
+- Optional refinements (not blockers): (a) extend `jf-skeptic-intolerant`'s relevant
+  set to credit the uniqueness/deity docs the "only way" framing legitimately pulls;
+  (b) `jf-believer-disciple-making` documents a real "grow in faith"↔"disciple"
+  vocabulary gap — a candidate signal if hybrid/keyword search (FOLLOW-UP B) is taken up.
 
 ## Resume hint (for a cold start)
-At: Stage 4 — "4a. Eval", awaiting operator `/golden jesusfilm-org`. Stages 1–3
-done (349 docs ingested + retrievable). Pre-curation eval baseline captured +
-diagnosed (stale living set, not a regression). Next concrete action (OPERATOR):
-`/golden jesusfilm-org` to draft new cases + re-scan the 20 prior cases for
-newly-relevant jf docs; then `pnpm eval` and confirm recall/coverage recovers.
-Last verify: green (86 tests). Branch: slice/jesusfilm-org.
+DONE. Slice #3 complete: discovery crawler (FOLLOW-UP F) built + fakes-tested;
+jesusfilm-org acquired (349) → ingested (349 docs / 2114 chunks) → retrievable →
+evaluated (32-case curated eval: recall@10 0.938, coverage 0.803, jf per-source
+0.913). Next: operator's call to merge `slice/jesusfilm-org` → `main`, then
+`/slice sightline-ministry` (rides the now-built discovery crawler). Branch: slice/jesusfilm-org.

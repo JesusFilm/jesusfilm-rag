@@ -1,0 +1,15 @@
+# Keep the build context lean and the image clean. node_modules is excluded so
+# the host's (darwin) install — esbuild/tsx native binaries — never leaks into
+# the linux image; deps are installed fresh in the Dockerfile. .env is excluded
+# so secrets are injected at runtime (compose), never baked into a layer.
+node_modules
+.git
+.env
+.env.*
+!.env.example
+dist
+coverage
+.vitest-cache
+*.log
+.devcontainer
+eval/results-*.md

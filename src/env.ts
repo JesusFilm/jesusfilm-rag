@@ -38,15 +38,20 @@ function loadDotEnv(): void {
 
 loadDotEnv();
 
-// The schema validates exactly what the running code consumes today: the DB,
-// the embedder, and the embedding model. Serving/auth env (MCP_PORT,
-// MCP_BEARER_TOKEN, MCP_BEARER_SCOPES, CLIENT_HASH_SECRET, ADMIN_PASSWORD) is
-// added back when the MCP serving adapter that reads it lands in build step 6 —
-// keeping the env contract honest rather than carrying unused, unenforced vars.
+// The schema validates exactly what the running code consumes: the DB, the
+// embedder, the embedding model, and (build step 6) the HTTP serving adapter.
+// The serving vars are OPTIONAL here so the CLI runners (acquire/index/query),
+// which also call getEnv(), don't require them; scripts/serve.ts asserts
+// SERVE_BEARER_TOKENS is set before it binds a listener — keeping the env
+// contract honest rather than carrying unused, unenforced vars.
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   OPENROUTER_API_KEY: z.string().min(1),
   EMBED_MODEL_ID: z.string().min(1).default(DEFAULT_EMBED_MODEL_ID),
+  PORT: z.coerce.number().int().positive().default(8080), // Railway injects PORT
+  // JSON map of bearer token → allowed source keys (["*"] = all). Parsed by the
+  // serving adapter (src/serving/http/auth.ts); required only by `pnpm serve`.
+  SERVE_BEARER_TOKENS: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

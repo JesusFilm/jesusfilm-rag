@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-26_
+_Last updated: 2026-05-27_
 
 ## You are here
 
@@ -112,8 +112,9 @@ high word counts confirm real content, not an anti-bot page.)
   serving/auth vars (`MCP_PORT`, `MCP_BEARER_TOKEN`, `MCP_BEARER_SCOPES`,
   `CLIENT_HASH_SECRET`, `ADMIN_PASSWORD`) from `src/env.ts`. No code reads them
   yet; the env schema now declares only what's consumed (`DATABASE_URL`,
-  `OPENROUTER_API_KEY`, `EMBED_MODEL_ID`). They return in step 6 with the MCP
-  serving adapter that actually reads them.
+  `OPENROUTER_API_KEY`, `EMBED_MODEL_ID`). **Update — step 6 landed (PR #19):**
+  serving added `PORT` + `SERVE_BEARER_TOKENS` (HTTP `/v1`, not the old `MCP_*`
+  set); `CLIENT_HASH_SECRET` / `ADMIN_PASSWORD` stay dropped.
 - ~~Embedding model diverged from decision 1~~ — resolved: re-embedded on
   `openai/text-embedding-3-small` (both it and the nvidia free model are reachable
   via OpenRouter at 1536 dims; openai is the locked choice).
@@ -142,3 +143,4 @@ high word counts confirm real content, not an anti-bot page.)
 - **Slice #1, Stage 2 (Ingest)** — OpenRouter Embedder adapter, Ingestion context (normalize → jfa-ported chunk → embed → dedup → idempotent replaceDocument), RawDocumentReader read port/fake/adapter, `pnpm index`. Live run drained `raw_documents` → **40 docs / 183 chunks / 183 embeddings** (`openai/text-embedding-3-small`); idempotent re-run drains 0. 47 tests green. `pnpm index --force` = full re-index from the raw snapshot (used to re-embed off an accidental `.env` model override). On `slice/starting-with-god`.
 - **Slice #1, Stage 3 (Retrieve)** — Retrieval context (`src/retrieval/`): `createRetriever` runs invariant 5 (embedQuery → vectorSearch candidate fan-out → minScore 0.3 cutoff → soft preferSourceKey tiebreak → 3-key dedup → citation). Wired into `main.wire()`; `pnpm query "<q>"` entry point; `scripts/eval.ts` step-5 TODO closed (drives the real Retriever). 12 fakes-only tests (59 total). Live query returns 5 distinct cited docs. **Decision:** 3-key dedup ⇒ at most one chunk per document (content-hash is doc-level). On `slice/starting-with-god`.
 - **Slice #2 (Cru "10 Basic Steps", `cru-10-basic-steps`)** — full acquire → ingest → retrieve → eval on `slice/cru-10-basic-steps` (not yet merged). 11 docs / 35 chunks / 35 embeddings (AEM `.article-long-form` extraction). **Stage 4 built the per-source eval mechanism:** required `source` tag on golden cases, `pnpm eval --source <key>`, and a per-source breakdown (pure logic in `scripts/eval-metrics.ts`, unit-tested from `tests/`; +15 tests, 80 total). 10 persona-diverse cru golden cases authored. Whole-corpus eval (20 cases / 2 sources): recall@3 0.80 / recall@8 0.90 / MRR 0.62 / P@1 0.45; minScore **0.37 (FOLLOW-UP A re-confirmed, held)**. **Stage 4 also reframed the eval** (`8fbee09`) to source-agnostic questions + multi-source `relevant` maps scored on recall + coverage — v2 whole-corpus recall@10 1.00 / coverage 0.896 / P@1 0.80, per-source coverage cru 0.929 / swg 0.906 (resolved the v1 cru P@1 0.20 artifact). Remaining: accordion-TOC chunk hurts cru citation quality (extraction-side follow-up). See `docs/eval-approach.md`; Cru → Evaluated in `sources.md`.
+- **Serving (step 6) — DONE** (`feat/serving-v1`, PR #19; closes #9 + #12). Versioned `/v1` HTTP adapter (`src/serving/http/`, Hono) over the injected `Retriever`: `POST /v1/search` + `GET /v1/health`, bearer auth + `allowedSourceKeys` scope intersection (narrow-only). Single-source **Zod** contract (`src/contracts/retrieval.schema.ts`) → generated `contracts/openapi.v1.json` (`pnpm gen:contract`) + drift test; versioning policy in architecture §3.1. Runs in `docker compose` alongside Postgres (`:8080`, no manual env); `pnpm smoke` is the consumer/CD probe. 108 tests green. **MCP adapter deferred** (a later variant over the same `Retriever`).

@@ -150,6 +150,17 @@ interface Retriever { search(query: string, policy?: RetrievalPolicy): Promise<R
 - **Ports from jfa:** `retrieve.ts` (with the `require('./store')` / `pgvector-store` direct coupling moved behind the port).
 - **Does NOT:** know about HTTP/MCP/Telegram, generate prose, apply intent/crisis/scope routing, or apply audience/value weighting — it ranks on similarity + the declared `RetrievalPolicy` only (see the "mechanism, not policy" tenet above). All of that arrives as `RetrievalPolicy` input or is the caller's job.
 
+### 3.1 Serving — *delivery adapter over an injected `Retriever`; transport + auth only, versioned /v1*
+
+The Serving adapter is **not** a fourth context — it owns no retrieval logic. It maps HTTP onto a `Retriever` handed to it by the serve runner and enforces access. It is published as a **versioned, consumer-agnostic contract** so ≥2 consumers (the reference client, the future jesusfilm-ai façade) can pin against a stable shape.
+
+- **Surface.** `POST /v1/search` (`{ query, policy? }` → `{ results: RankedResult[] }`) and `GET /v1/health` (unauthenticated liveness). Routes are namespaced `/v1` **from the first line** — versioning is cheap now, expensive to retrofit.
+- **Single source of truth.** The request (`RetrievalPolicy`) and response (`RankedResult`) shapes are defined ONCE as Zod schemas in `src/contracts/retrieval.schema.ts`. The serving adapter validates both directions against them; the OpenAPI 3 artifact `contracts/openapi.v1.json` is **generated** from them (`pnpm gen:contract`) and committed so consumers codegen / pin against it. A drift test (`tests/contract-artifact.test.ts`) fails if the artifact and the schemas diverge.
+- **Versioning policy.** *Additive* change (a new optional field, a new endpoint) = same major, stays on `/v1`. *Breaking* change (remove/rename a field, tighten a type, change semantics) = a new `/v2` served **beside** `/v1`; `/v1` is kept for a deprecation window of **≥1 minor release cycle and ≥90 days** (whichever is longer), with consumers notified at deprecation.
+- **Canonical shape.** The published `RankedResult` (`chunkId` / `score` / `text` / `ord` / `tags` / `citation`) is the canonical contract — **consumers map onto it; the engine does not bend toward a consumer's preferences** (the "mechanism, not policy" tenet, §1). The consumer-side anti-corruption layer / field mapping is each consumer's job (e.g. the jesusfilm-ai façade), never the engine's.
+- **Access (Layer 1, README).** Bearer token → the set of source keys it may see (`["*"]` = all). The server intersects the token scope with the request's `allowedSourceKeys` — a request may **narrow** its visibility but never **widen** it past the token; an empty intersection returns zero results without leaking what exists. Finer tag-level scope is a future refinement.
+- **Does NOT:** implement retrieval logic, inject a write store (read-only surface — no write path on the server), or apply audience/value weighting.
+
 ---
 
 ## 4. Ports & adapters (one Postgres adapter implements the stores)
@@ -330,7 +341,7 @@ The infrastructure (DB factory, migrations, eval framework, MCP transport, idemp
 3. **Acquisition** — port registry + scraper-base + policy/robots/http-cache into `src/acquisition/`; `scripts/acquire.ts` writes `RawDocument`s to `raw_documents`. Verify against fixtures (no live crawl needed for tests). **v1 scope = the six-source short list in [`docs/sources.md`](./sources.md)** (API/Drive/multi-language deferred); track each source's acquire→ingest→evaluate status there as we go.
 4. **Ingestion** — port normalize/chunk/embed into `src/ingestion/`; `scripts/index.ts` drains `raw_documents` → idempotent `replaceDocument`. Verify the dedup lifecycle.
 5. **Retrieval** — port `retrieve.ts` into `src/retrieval/` behind `CorpusSearchStore`; wire `RetrievalPolicy`.
-6. **Serving adapter** — re-attach MCP/HTTP in `src/serving/` over an injected `Retriever`.
+6. **Serving adapter** ✅ *done — `src/serving/http/`, PR #19 (closes #9 + #12)* — versioned `/v1` HTTP adapter over the injected `Retriever` (`POST /v1/search` + `GET /v1/health`), bearer auth + `allowedSourceKeys` scope intersection, single-source Zod contract → generated `contracts/openapi.v1.json`. Runs in `docker compose`; `pnpm smoke` probes it. **MCP** deferred (a later variant over the same `Retriever`). See §3.1.
 7. **Bootstrap the corpus + eval** *(the deliverable)* — once 2–4 exist, `pnpm acquire --all && pnpm index` populates the full corpus from sources; then re-point the eval harness at it and record the baseline. **The corpus is buildable the moment step 4 lands; 5–6 make it queryable.** How the runners are triggered: §10.
 
 Critical path to a delivered, queryable RAG: **2 → 3 → 4 → bootstrap → 5 → 6**. Each step is independently verifiable — the reason for the seams. Step 1's §5 enforcement scaffolding is already in place, so every porting step lands under the import law + size caps from the first line.

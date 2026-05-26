@@ -35,6 +35,11 @@ describe("published retrieval contract", () => {
     expect(retrievalPolicySchema.safeParse({ topK: 0 }).success).toBe(false);
   });
 
+  it("bounds topK to the engine's candidate ceiling (1..50)", () => {
+    expect(retrievalPolicySchema.safeParse({ topK: 50 }).success).toBe(true);
+    expect(retrievalPolicySchema.safeParse({ topK: 51 }).success).toBe(false);
+  });
+
   it("round-trips a RankedResult with its citation", () => {
     const result = {
       chunkId: "c1",
@@ -52,10 +57,13 @@ describe("published retrieval contract", () => {
     expect(rankedResultSchema.parse(result)).toEqual(result);
   });
 
-  it("requires a non-empty query on the search request", () => {
+  it("requires a non-empty, length-bounded query on the search request", () => {
     expect(searchRequestSchema.safeParse({ query: "" }).success).toBe(false);
     expect(
       searchRequestSchema.safeParse({ query: "how do I pray" }).success,
     ).toBe(true);
+    expect(
+      searchRequestSchema.safeParse({ query: "x".repeat(2001) }).success,
+    ).toBe(false);
   });
 });

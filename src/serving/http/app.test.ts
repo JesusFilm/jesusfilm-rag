@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type {
   RankedResult,
   RetrievalPolicy,
@@ -79,6 +79,26 @@ describe("POST /v1/search — auth", () => {
     );
     expect(res.status).toBe(401);
   });
+
+  it("carries a WWW-Authenticate challenge on 401 (RFC 7235)", async () => {
+    const { retriever } = spyRetriever();
+    const res = await createApp({ retriever, tokens: TOKENS }).request(
+      post({ query: "x" }),
+    );
+    expect(res.status).toBe(401);
+    expect(res.headers.get("WWW-Authenticate")).toBe("Bearer");
+  });
+
+  it("accepts a case-insensitive Bearer scheme", async () => {
+    const { retriever } = spyRetriever();
+    const req = new Request("http://local/v1/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "bearer tok-all" },
+      body: JSON.stringify({ query: "how to pray" }),
+    });
+    const res = await createApp({ retriever, tokens: TOKENS }).request(req);
+    expect(res.status).toBe(200);
+  });
 });
 
 describe("POST /v1/search — validation", () => {
@@ -145,5 +165,23 @@ describe("POST /v1/search — Layer-1 scope intersection", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ results: [] });
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe("POST /v1/search — error handling", () => {
+  it("returns a contract-shaped JSON 500 when the retriever throws", async () => {
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const retriever: Retriever = {
+      search: async () => {
+        throw new Error("db down");
+      },
+    };
+    const res = await createApp({ retriever, tokens: TOKENS }).request(
+      post({ query: "how to pray" }, "tok-all"),
+    );
+    expect(res.status).toBe(500);
+    expect(res.headers.get("content-type")).toContain("application/json");
+    expect(await res.json()).toEqual({ error: "internal" });
+    errSpy.mockRestore();
   });
 });

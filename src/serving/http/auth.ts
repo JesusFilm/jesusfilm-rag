@@ -42,7 +42,8 @@ export function parseTokenRegistry(json: string): TokenRegistry {
 /** Extract a Bearer token from an Authorization header, or null if absent/malformed. */
 export function bearerToken(authorization: string | undefined): string | null {
   if (!authorization) return null;
-  const match = /^Bearer (.+)$/.exec(authorization.trim());
+  // RFC 7235: the auth-scheme is case-insensitive (`Bearer`/`bearer` both ok).
+  const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
   return match ? match[1].trim() : null;
 }
 

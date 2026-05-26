@@ -39,7 +39,9 @@ export const retrievalPolicySchema = z
     preferSourceKey: z.string().optional(),
     language: z.string().optional(),
     category: z.string().optional(),
-    topK: z.number().int().positive().optional(), // default 5 (engine-applied)
+    // 1..50 — the engine caps candidate fan-out at 50, so a larger topK can
+    // never return more; bounding it keeps the contract honest + rejects abuse.
+    topK: z.number().int().positive().max(50).optional(), // default 5 (engine-applied)
     minScore: z.number().min(0).max(1).optional(), // default 0.37 (engine-applied)
   })
   .strict();
@@ -59,7 +61,9 @@ export const rankedResultSchema = z
 /** POST /v1/search request body. */
 export const searchRequestSchema = z
   .object({
-    query: z.string().min(1),
+    // Bounded generously — a search query is a short question; the cap rejects
+    // a megabyte body before it costs an embedding call.
+    query: z.string().min(1).max(2000),
     policy: retrievalPolicySchema.optional(),
   })
   .strict();

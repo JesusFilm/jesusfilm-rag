@@ -23,12 +23,26 @@ export interface AppDeps {
 export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
 
+  // Any uncaught error (e.g. a retrieval or embedding-provider failure, or the
+  // response-side drift guard below) returns a contract-shaped JSON 500 — never
+  // Hono's default plain-text body — so a consumer that always JSON-parses the
+  // response never chokes. Documented as 500 in contracts/openapi.v1.json.
+  app.onError((err, c) => {
+    console.error("serve: unhandled error", err);
+    return c.json({ error: "internal" }, 500);
+  });
+
   // Unauthenticated liveness probe (Railway healthcheck hits this).
   app.get("/v1/health", (c) => c.json({ status: "ok" }));
 
   app.post("/v1/search", async (c) => {
     const scope = lookupScope(deps.tokens, c.req.header("Authorization"));
-    if (!scope) return c.json({ error: "unauthorized" }, 401);
+    if (!scope) {
+      // RFC 7235 §3.1: a 401 carries a WWW-Authenticate challenge.
+      return c.json({ error: "unauthorized" }, 401, {
+        "WWW-Authenticate": "Bearer",
+      });
+    }
 
     let raw: unknown;
     try {

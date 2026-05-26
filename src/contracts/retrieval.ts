@@ -4,10 +4,10 @@
  *
  * The PUBLISHED, caller-facing shapes — `RetrievalPolicy` (request) and
  * `RankedResult` (response) — are defined ONCE as Zod schemas in
- * ./retrieval.schema.ts (the versioned contract) and re-exported here so the
- * retrieval engine keeps importing them from the same place. The
- * engine-internal shapes (`SearchFilter`, `ScoredRow`) stay plain types — they
- * never cross the published seam.
+ * ./retrieval.schema.ts (the versioned contract). They're imported here only
+ * for the `Retriever` signature below; the contracts barrel re-exports them
+ * from the schema module (this file does not). The engine-internal shapes
+ * (`SearchFilter`, `ScoredRow`) stay plain types — they never cross the seam.
  */
 import type { RetrievalPolicy, RankedResult } from "./retrieval.schema.js";
 

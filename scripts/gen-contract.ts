@@ -24,8 +24,14 @@ import {
 
 export const ARTIFACT_PATH = "contracts/openapi.v1.json";
 
-const jsonSchema = (schema: Parameters<typeof zodToJsonSchema>[0]): unknown =>
-  zodToJsonSchema(schema, { target: "openApi3", $refStrategy: "none" });
+type JsonObj = Record<string, unknown>;
+
+/** Generate an OpenAPI 3 schema from a Zod schema, as a mutable object. */
+const jsonSchema = (schema: Parameters<typeof zodToJsonSchema>[0]): JsonObj =>
+  zodToJsonSchema(schema, { target: "openApi3", $refStrategy: "none" }) as JsonObj;
+
+const ref = (name: string): JsonObj => ({ $ref: `#/components/schemas/${name}` });
+const propsOf = (schema: JsonObj): JsonObj => schema.properties as JsonObj;
 
 const ERROR_SCHEMA = {
   type: "object",
@@ -35,11 +41,23 @@ const ERROR_SCHEMA = {
 
 const errorResponse = (description: string) => ({
   description,
-  content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+  content: { "application/json": { schema: ref("Error") } },
 });
 
 /** The OpenAPI 3 document — the canonical published shape of the /v1 surface. */
 export function buildOpenApiDoc(): Record<string, unknown> {
+  // Composite schemas $ref their parts (rather than inlining) so every named
+  // component is referenced — consumers codegen RankedResult / RetrievalPolicy /
+  // Citation as first-class types, with no duplicated anonymous copies.
+  const citation = jsonSchema(citationSchema);
+  const retrievalPolicy = jsonSchema(retrievalPolicySchema);
+  const rankedResult = jsonSchema(rankedResultSchema);
+  propsOf(rankedResult).citation = ref("Citation");
+  const searchRequest = jsonSchema(searchRequestSchema);
+  propsOf(searchRequest).policy = ref("RetrievalPolicy");
+  const searchResponse = jsonSchema(searchResponseSchema);
+  (propsOf(searchResponse).results as JsonObj).items = ref("RankedResult");
+
   return {
     openapi: "3.0.3",
     info: {
@@ -93,6 +111,7 @@ export function buildOpenApiDoc(): Record<string, unknown> {
             },
             "400": errorResponse("Malformed JSON or request failing the contract."),
             "401": errorResponse("Missing or unknown bearer token."),
+            "500": errorResponse("Internal error — e.g. a retrieval or embedding-provider failure."),
           },
         },
       },
@@ -102,11 +121,11 @@ export function buildOpenApiDoc(): Record<string, unknown> {
         bearerAuth: { type: "http", scheme: "bearer" },
       },
       schemas: {
-        RetrievalPolicy: jsonSchema(retrievalPolicySchema),
-        RankedResult: jsonSchema(rankedResultSchema),
-        Citation: jsonSchema(citationSchema),
-        SearchRequest: jsonSchema(searchRequestSchema),
-        SearchResponse: jsonSchema(searchResponseSchema),
+        RetrievalPolicy: retrievalPolicy,
+        RankedResult: rankedResult,
+        Citation: citation,
+        SearchRequest: searchRequest,
+        SearchResponse: searchResponse,
         Error: ERROR_SCHEMA,
       },
     },

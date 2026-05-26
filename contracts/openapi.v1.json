@@ -82,6 +82,16 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "Internal error — e.g. a retrieval or embedding-provider failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -116,7 +126,8 @@
           "topK": {
             "type": "integer",
             "exclusiveMinimum": true,
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 50
           },
           "minScore": {
             "type": "number",
@@ -148,29 +159,7 @@
             }
           },
           "citation": {
-            "type": "object",
-            "properties": {
-              "sourceKey": {
-                "type": "string"
-              },
-              "sourceName": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string",
-                "nullable": true
-              },
-              "url": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "sourceKey",
-              "sourceName",
-              "title",
-              "url"
-            ],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/Citation"
           }
         },
         "required": [
@@ -213,38 +202,11 @@
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 2000
           },
           "policy": {
-            "type": "object",
-            "properties": {
-              "allowedSourceKeys": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "preferSourceKey": {
-                "type": "string"
-              },
-              "language": {
-                "type": "string"
-              },
-              "category": {
-                "type": "string"
-              },
-              "topK": {
-                "type": "integer",
-                "exclusiveMinimum": true,
-                "minimum": 0
-              },
-              "minScore": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1
-              }
-            },
-            "additionalProperties": false
+            "$ref": "#/components/schemas/RetrievalPolicy"
           }
         },
         "required": [
@@ -258,61 +220,7 @@
           "results": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "chunkId": {
-                  "type": "string"
-                },
-                "score": {
-                  "type": "number"
-                },
-                "text": {
-                  "type": "string"
-                },
-                "ord": {
-                  "type": "integer"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "citation": {
-                  "type": "object",
-                  "properties": {
-                    "sourceKey": {
-                      "type": "string"
-                    },
-                    "sourceName": {
-                      "type": "string"
-                    },
-                    "title": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "url": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "sourceKey",
-                    "sourceName",
-                    "title",
-                    "url"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "required": [
-                "chunkId",
-                "score",
-                "text",
-                "ord",
-                "tags",
-                "citation"
-              ],
-              "additionalProperties": false
+              "$ref": "#/components/schemas/RankedResult"
             }
           }
         },

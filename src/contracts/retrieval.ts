@@ -1,37 +1,15 @@
 /**
  * Retrieval seam: the query + policy in, ranked cited results out.
  * Types only. See docs/architecture.md §2.
- */
-import type { Citation } from "./documents.js";
-
-/**
- * What the caller (a Mastra agent, NextSteps, the monorepo) hands to Retrieval.
  *
- * Mechanism, not policy: the engine ranks on embedding similarity + these
- * *declared* parameters only and returns deterministic, cited results. It bakes
- * in no audience/value weighting — "what's good for this asker" is consumer-side.
- * The only sanctioned in-engine steering is thin + tiebreak-only (`minScore`,
- * `preferSourceKey` as a soft tiebreak, not a score boost).
- * See docs/architecture.md §1 "Tenet: mechanism, not policy".
+ * The PUBLISHED, caller-facing shapes — `RetrievalPolicy` (request) and
+ * `RankedResult` (response) — are defined ONCE as Zod schemas in
+ * ./retrieval.schema.ts (the versioned contract) and re-exported here so the
+ * retrieval engine keeps importing them from the same place. The
+ * engine-internal shapes (`SearchFilter`, `ScoredRow`) stay plain types — they
+ * never cross the published seam.
  */
-export interface RetrievalPolicy {
-  allowedSourceKeys?: string[]; // tenant/visibility scope (undefined = all)
-  preferSourceKey?: string;
-  language?: string;
-  category?: string;
-  topK?: number; // default 5
-  minScore?: number; // default 0.37 (re-derived from the SWG eval baseline; hard floor ~0.35 — see docs/architecture.md FOLLOW-UP A)
-}
-
-/** A ranked, cited result returned to the caller. */
-export interface RankedResult {
-  chunkId: string;
-  score: number; // cosine 0..1
-  text: string;
-  ord: number;
-  tags: string[];
-  citation: Citation;
-}
+import type { RetrievalPolicy, RankedResult } from "./retrieval.schema.js";
 
 /** Filter the search store applies during candidate selection. */
 export interface SearchFilter {

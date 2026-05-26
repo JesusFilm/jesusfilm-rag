@@ -22,7 +22,7 @@ Read-only retrieval over a curated, publicly accessible corpus. Consumers do the
 
 - **PostgreSQL + `pgvector`** — the only datastore. HNSW cosine index on `halfvec(1536)` embeddings. No alternative vector DBs.
 - **OpenRouter** — embedding provider. Model `openai/text-embedding-3-small` (1536d), recorded per row so it can be swapped without losing history.
-- **MCP server** — the read-only Streamable HTTP surface other systems call.
+- **HTTP `/v1` API** — the read-only retrieval surface other systems call: a versioned REST contract (`POST /v1/search`, `GET /v1/health`) published as [`contracts/openapi.v1.json`](./contracts/openapi.v1.json). An MCP adapter is a later variant over the same `Retriever`.
 
 ## Sources & corpus
 
@@ -45,10 +45,10 @@ consumer concern (see [`docs/architecture.md`](./docs/architecture.md) §1,
 
 ## Access & filtering (two layers)
 
-- **Layer 1 — token scope (allowlist).** Each consumer holds a Bearer token whose scope is the set of tags it may see. Anything outside scope is invisible — not queryable, not fetchable by id, not discoverable.
-- **Layer 2 — query filter (refinement).** Within scope, a search call may pass `filter.include` / `filter.exclude`. The server intersects the filter with the token scope; an out-of-scope filter returns zero results without erroring or leaking what exists.
+- **Layer 1 — token scope (allowlist).** Each consumer holds a Bearer token whose scope is the set of source keys it may see (`["*"]` = all). Anything outside scope is invisible — not queryable. (A finer tag-level scope is a future refinement.)
+- **Layer 2 — query narrowing (refinement).** Within scope, a search call may pass `policy.allowedSourceKeys` to narrow further. The server intersects it with the token scope — a request may narrow but never widen past the token; an out-of-scope request returns zero results without erroring or leaking what exists.
 
-Token scopes live in Railway env on the MCP service, issued one per consumer, rotated per-consumer.
+Token scopes live in Railway env on the serving service (`SERVE_BEARER_TOKENS`, a JSON map of token → source keys), issued one per consumer, rotated per-consumer.
 
 ## Running
 
@@ -64,7 +64,7 @@ pnpm install
 pnpm db:migrate             # schema + migrations are live
 ```
 
-The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. Until the contexts land, `pnpm index` / `pnpm serve` / `pnpm eval` are stubbed (they carry `TODO(step-N)` markers); the schema, migrations, env, and devcontainer are live.
+The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. The serving adapter (`pnpm serve`) is live — a versioned `/v1` HTTP surface over the wired `Retriever` (§3.1); the schema, migrations, env, and devcontainer are live too.
 
 ### Scripts
 | Script | What it does |
@@ -72,7 +72,8 @@ The pipeline is being built out per [`docs/architecture.md`](./docs/architecture
 | `pnpm db:generate` | Regenerate migrations from `src/db/schema.ts`. |
 | `pnpm db:migrate` | Apply migrations + pgvector + generated FTS column. |
 | `pnpm index` | Ingestion pipeline. **Stubbed** pending build steps 2 & 4 (consumes `raw_documents`, idempotent + source-scoped). |
-| `pnpm serve` | **Stubbed** — the Serving (MCP) adapter is rebuilt in step 6 over an injected `Retriever`. |
+| `pnpm serve` | Start the `/v1` HTTP serving adapter over the wired `Retriever`. Binds `PORT` (Railway-injected; default 8080); requires `SERVE_BEARER_TOKENS`. |
+| `pnpm gen:contract` | Regenerate `contracts/openapi.v1.json` from the Zod source (`src/contracts/retrieval.schema.ts`). The drift test fails if it's out of sync. |
 | `pnpm eval` | Run `eval/qa-golden.yaml` (recall@k, MRR). Harness kept; query path **stubbed** until Retrieval (step 5). |
 | `pnpm depcruise` / `pnpm lint` / `pnpm typecheck` / `pnpm test` | Quality + boundary gates. |
 

@@ -58,13 +58,21 @@ Token scopes live in Railway env on the serving service (`SERVE_BEARER_TOKENS`, 
 
 ### Quick start
 ```sh
-cp .env.example .env
-docker compose up -d        # pgvector/pgvector:pg16, host port 5434
+cp .env.example .env        # set OPENROUTER_API_KEY
+docker compose up -d        # postgres (:5434) + the /v1 serving API (:8080)
 pnpm install
 pnpm db:migrate             # schema + migrations are live
 ```
 
-The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. The serving adapter (`pnpm serve`) is live — a versioned `/v1` HTTP surface over the wired `Retriever` (§3.1); the schema, migrations, env, and devcontainer are live too.
+`docker compose up` runs the **`serve`** container alongside Postgres, so the `/v1` API is live on `:8080` with no manual env — the DB host, `OPENROUTER_API_KEY` (from `.env`), and a dev bearer token (`local-dev-token`) are wired in `docker-compose.yml`. Verify:
+
+```sh
+curl localhost:8080/v1/health
+curl -X POST localhost:8080/v1/search -H 'authorization: Bearer local-dev-token' \
+  -H 'content-type: application/json' -d '{"query":"how do I become a Christian?"}'
+```
+
+The pipeline is being built out per [`docs/architecture.md`](./docs/architecture.md) §9. The serving adapter is live — a versioned `/v1` HTTP surface over the wired `Retriever` (§3.1); run it in Docker (above) or directly on the host via `pnpm serve`. The schema, migrations, env, and devcontainer are live too.
 
 ### Scripts
 | Script | What it does |

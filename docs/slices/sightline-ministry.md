@@ -36,8 +36,10 @@ honest skeptic misses left open at the end of slice #3.
 
 
 ### 3. Retrieve → ranked results
-- [ ] 3a. A real apologetics/skeptic query returns ranked, cited sightline hits in
-      the now-4-source space; dedup intact; cross-source health checked.            <!-- sha: ________ -->
+- [x] 3a. A real apologetics/skeptic query returns ranked, cited sightline hits in
+      the now-4-source space; dedup intact; cross-source health checked.            <!-- sha: 3a-commit -->
+      <!-- "Is Christianity intolerant…?" → Sightline's own "Is Christianity Intolerant?" RANK 1 (0.616), jf's at #2 — directly addresses the slice-#3 jf-skeptic-intolerant miss. "What proof God exists?" → 5 Sightline apologetics docs (0.647 top: first-cause/personal-experience/God-Delusion). "Blind faith?" → faith-apologetics incl. the exact doc. Cross-source HEALTH: "sure of heaven" → swg "How to Be Sure of Heaven" still #1 (0.677), swg 3/5; "begin a relationship with God" → swg "New Christian" #1 — other sources NOT drowned. minScore 0.37 HOLDS @ 4 sources: secular (index funds) 0 hits; faith-adjacent Quran/Ramadan top 0.389 (unchanged from slice #3, noise floor not raised). Dedup intact (distinct URLs). Note: Sightline has near-duplicate REPUBLISHED devotionals (annual re-runs, -2/-7 slugs) the 3-key dedup doesn't collapse (near-, not exact-dup) — citation-quality nit, candidate follow-up. Retrieval prebuilt + source-agnostic; no code change. -->
+
 
 ### 4. Spot-check / eval
 - [ ] 4a. `/golden sightline-ministry` (new skeptic-axis cases) + re-review living

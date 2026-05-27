@@ -29,9 +29,11 @@ honest skeptic misses left open at the end of slice #3.
 
 
 ### 2. Ingest → corpus tables
-- [ ] 2a. `pnpm index --source sightline-ministry` drains `raw_documents` →
+- [x] 2a. `pnpm index --source sightline-ministry` drains `raw_documents` →
       documents/chunks/embeddings; counts sane; 1:1 chunks:embeddings; idempotent
-      re-run drains 0. **Re-run the FULL gate** (integration tests query live PG).            <!-- sha: ________ -->
+      re-run drains 0. **Re-run the FULL gate** (integration tests query live PG).            <!-- sha: 2a-commit -->
+      <!-- Drained all 1390 → 1390 docs / 3470 chunks / 3470 embeddings (1:1, no null-embeds dropped). Single model openai/text-embedding-3-small; 0 chunk_count mismatches; chunks/doc min 1 / avg 2.5 / max 12 (devos lean ~1-2, apologetics 3-4+). Idempotent re-run drained 0. Full gate re-run GREEN (110 tests) — the 4x corpus growth did NOT break a fixture (slice #3 lesson held). Corpus now 4 sources. -->
+
 
 ### 3. Retrieve → ranked results
 - [ ] 3a. A real apologetics/skeptic query returns ranked, cited sightline hits in

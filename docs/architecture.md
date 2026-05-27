@@ -16,14 +16,22 @@ _2026-05-21 — architecture of record for `jesusfilm-rag`: a standalone, produc
 
 ## Locked decisions (2026-05-21)
 
-| # | Decision | Choice |
-|---|---|---|
-| 1 | Embedding model + dims | `openai/text-embedding-3-small` via OpenRouter, **1536** dims. Matches jesusfilm-ai and Forge. |
-| 2 | Persistence schema | **Normalized** (`sources`/`documents`/`chunks`/`chunk_embeddings`) + jesusfilm-ai's richer fields. |
-| 3 | Retrieval `minScore` | Port **0.3 verbatim**. Quality fix deferred to a follow-up ticket (FOLLOW-UP A below). |
-| 4 | Acquisition→Ingestion handoff | **Raw staging table** (`raw_documents`), which is also the reproducible raw snapshot. |
-| 5 | v1 source scope *(added 2026-05-22)* | Curated HTML subset first — the **six** originally-scoped domains that previously yielded a working corpus (Jesus Film Project, Cru, EveryStudent, Starting With God, Sightline Ministry, NextStep). Full inventory + acquire→ingest→evaluate status tracked in [`docs/sources.md`](./sources.md); started fresh, no prior-project data carried. API/Drive/multi-language sources deferred. |
-| 6 | Reindex stability *(added 2026-05-22)* | **In-place reindex; no uptime/consistency guarantee during a run.** Ingestion writes directly to the live corpus tables (per-document delete-then-insert is atomic, but a full run is not). Temporary stale data, brief inconsistency, or downtime during reindex is **accepted for v1**. Blue/green candidate-build + atomic swap is deferred — see FOLLOW-UP D → [#5](https://github.com/JesusFilm/jesusfilm-rag/issues/5). |
+This table is the **index** of locked decisions. Decisions with full rationale
+(context · alternatives rejected · consequences) are extracted as ADRs in
+[`docs/decisions/`](./decisions/); the **ADR** column links them. Rows without an
+ADR are recorded inline here until they earn extraction — see
+[`docs/decisions/README.md`](./decisions/README.md) for the convention.
+
+| # | Decision | Choice | ADR |
+|---|---|---|---|
+| 1 | Embedding model + dims | `openai/text-embedding-3-small` via OpenRouter, **1536** dims. Matches jesusfilm-ai and Forge. | [ADR-0002](./decisions/0002-embeddings-halfvec-1536.md) |
+| 2 | Persistence schema | **Normalized** (`sources`/`documents`/`chunks`/`chunk_embeddings`) + jesusfilm-ai's richer fields. | — |
+| 3 | Retrieval `minScore` | Port **0.3 verbatim**. Quality fix deferred to a follow-up ticket (FOLLOW-UP A below). | — |
+| 4 | Acquisition→Ingestion handoff | **Raw staging table** (`raw_documents`), which is also the reproducible raw snapshot. | — |
+| 5 | v1 source scope *(added 2026-05-22)* | Curated HTML subset first — the **six** originally-scoped domains that previously yielded a working corpus (Jesus Film Project, Cru, EveryStudent, Starting With God, Sightline Ministry, NextStep). Full inventory + acquire→ingest→evaluate status tracked in [`docs/sources.md`](./sources.md); started fresh, no prior-project data carried. API/Drive/multi-language sources deferred. | — |
+| 6 | Reindex stability *(added 2026-05-22)* | **In-place reindex; no uptime/consistency guarantee during a run.** Ingestion writes directly to the live corpus tables (per-document delete-then-insert is atomic, but a full run is not). Temporary stale data, brief inconsistency, or downtime during reindex is **accepted for v1**. Blue/green candidate-build + atomic swap is deferred — see FOLLOW-UP D → [#5](https://github.com/JesusFilm/jesusfilm-rag/issues/5). | — |
+| 7 | Architecture boundary | **Three bounded contexts behind ports + the import law** — everything depends on `contracts` interfaces; only `main.ts` builds adapters; mechanically enforced by dependency-cruiser (§5). | [ADR-0001](./decisions/0001-ports-and-adapters-boundary.md) |
+| 8 | Data-access mechanism *(added 2026-05-27)* | **Drizzle's query builder for adapter CRUD**, behind the ports; Drizzle stays the single schema + migration tool; pgvector/FTS hot paths remain raw `sql` fragments. Prisma / full ORM rejected. Implementation tracked by [#20](https://github.com/JesusFilm/jesusfilm-rag/issues/20). | [ADR-0003](./decisions/0003-data-access-drizzle-query-builder.md) |
 
 ---
 
@@ -183,7 +191,9 @@ interface CorpusSearchStore{ vectorSearch(queryVec, filter, k); keywordSearch?(q
 
 ## 5. Enforcement & dependency rules — keeping the AI (and us) from re-coupling
 
-The §3 boundaries are only real if crossing one **fails the build**. jesusfilm-ai rotted because nothing stopped "just one more import" or a 1,400-line `store.ts` that everything reached into. These rules turn each boundary into a mechanical gate. Mechanism: **`dependency-cruiser`** (import boundaries) + eslint `max-lines` + a fakes-only test rule, all run in CI.
+_This section's decision (the boundary + the import law) is recorded as [ADR-0001](./decisions/0001-ports-and-adapters-boundary.md)._
+
+The §3 boundaries are only real if crossing one **fails the build**. jesusfilm-ai became unmaintainable because nothing stopped "just one more import" or a 1,400-line `store.ts` that everything reached into. These rules turn each boundary into a mechanical gate. Mechanism: **`dependency-cruiser`** (import boundaries) + eslint `max-lines` + a fakes-only test rule, all run in CI.
 
 **5.1 Layout = boundaries.** One directory per context, a dependency-free `contracts` module, and a single composition root:
 
@@ -250,7 +260,7 @@ module.exports = {
 
 **5.4 Dependency injection, one composition root.** No module-level singletons, no top-level `new Adapter()`. Contexts and serving receive their ports as constructor/factory arguments; `main.ts` is the only wiring point. The `contexts-import-only-ports` + `adapters` rules above enforce this structurally.
 
-**5.5 File-size cap** (eslint) — the antidote to 1,468/2,673-line god-objects:
+**5.5 File-size cap** (eslint) — the antidote to 1,468/2,673-line do-everything files:
 ```jsonc
 "max-lines": ["error", { "max": 300, "skipBlankLines": true, "skipComments": true }],
 "max-lines-per-function": ["warn", 80]
@@ -307,7 +317,7 @@ raw_documents      id(uuid pk) · source_key · url · canonical_url · title
 
 Notes:
 - Visibility filter is `sources.key IN (:allowedSourceKeys)` (cleaner than jfa's `metadata->>'source_key'`). The jfa `OR source_key IS NULL` back-compat branch is **dropped** — fresh build, every chunk has a source.
-- `halfvec(1536)` keeps the storage-efficiency choice at the new dimension; `vector(1536)` is an acceptable swap if simpler.
+- `halfvec(1536)` keeps the storage-efficiency choice at the new dimension; `vector(1536)` is an acceptable swap if simpler. Recorded as [ADR-0002](./decisions/0002-embeddings-halfvec-1536.md).
 - Language/category live on `documents`; `tags` denormalized onto `chunks` for filtering.
 
 ---

@@ -18,9 +18,11 @@ honest skeptic misses left open at the end of slice #3.
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents (reuse the discovery crawler)
-- [ ] 1a. Register `sightline-ministry` SourceEntry (content sitemaps per the budget
+- [x] 1a. Register `sightline-ministry` SourceEntry (content sitemaps per the budget
       decision below, `.o-longform-content__content` selector, allow/block/articleHints,
-      maxPages) + registry test.            <!-- sha: ________ -->
+      maxPages) + registry test.            <!-- sha: 69250c2 -->
+      <!-- partner discovery source seeding /post-sitemap.xml + /daily-devo-sitemap.xml; articleHints validated against live sitemaps (414 posts + 1000 devos kept, 2 index pages dropped); +2 registry tests (110 total). Verify green. -->
+
 - [ ] 1b. Live crawl → `raw_documents`; spot-read content is real apologetics prose,
       not nav/boilerplate. (Budget confirmed below before crawling.)            <!-- sha: ________ -->
 
@@ -66,12 +68,14 @@ honest skeptic misses left open at the end of slice #3.
   `daily-devo-sitemap.xml`) scopes precisely to teaching content.
 - 2026-05-27 — Resources (45) use a `.o-principle-block` card/hub template, not
   `.o-longform-content__content` — excluded (would extract as nav, not prose).
-- 2026-05-27 — Crawl budget/scope: _pending operator decision (posts-only ~414 vs posts+devotionals ~1,414)._
+- 2026-05-27 — Crawl budget/scope: **posts + daily devotionals (~1,414)** — operator
+  chose the broader scope (2026-05-27). Seed `post-sitemap.xml` (415 → 414 after
+  dropping `/blog/`) + `daily-devo-sitemap.xml` (1001 → 1000 after dropping
+  `/daily-devotions/`). `maxPages` 1600 (headroom). Resources still excluded
+  (card template). Embedding $ trivial; ~35 min polite crawl at 1500ms.
 
 ## Open question / blocker
-- Budget/scope decision pending (posts-only ~414 vs posts+devotionals ~1,414).
-  Embedding $ is trivial (text-embedding-3-small); the real trade-off is crawl
-  time + corpus coherence (1000 devotionals dilute the apologetics signal).
+- none — budget confirmed (posts + devotionals, ~1,414). Live crawl runs in 1b.
 
 ## Resume hint (for a cold start)
 At: Stage 1 — awaiting the operator's budget/scope decision before registering the

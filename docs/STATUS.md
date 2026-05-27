@@ -43,28 +43,27 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Slice #3 is complete (Evaluated).** Two operator decisions, then pick the next slice:
+**Slice #3 (jesusfilm-org) was MERGED to `main`** (PR #16, `964067e`) — the earlier
+"not yet merged" note above is stale.
 
-1. **Merge** `slice/jesusfilm-org` → `main` (carries the discovery-crawl model + the
-   jesusfilm-org source + the §11 FOLLOW-UP H/I index + the curated 32-case eval). Not
-   done automatically. **Note:** `git push` hit "Repository not found" under the local
-   https credential — pushing/merging needs the `jaco-brink` git credential sorted (gh
-   itself works: `jaco-brink` has ADMIN). 11 checkpoint commits on the branch, unpushed.
-2. **Start slice #4.** With the **discovery crawler now built**, the next large source is
-   cheap: **Sightline Ministry** (~2,500 pages, explicit sitemaps, apologetics — adds the
-   skeptic axis) rides the same `sitemaps`+`allow`/`block`/`articleHints` machinery. Other
-   remaining short-list source: none `Not started` besides Sightline (EveryStudent `Blocked`,
-   NextStep `Deferred`). Read `docs/jfa-registry-findings.md` before crawling.
+**Slice #4 (Sightline Ministry, `sightline-ministry`) is IN PROGRESS** on
+`slice/sightline-ministry` (started 2026-05-27) — see `docs/slices/sightline-ministry.md`.
+It **reuses slice #3's discovery crawler unchanged** (Sightline is the same WP/Yoast shape
+as jesusfilm.org: `sitemap_index.xml`, serves 200, no challenge wall). Value = the
+**apologetics / skeptic / evidence** axis (targets the 2 honest skeptic misses from slice
+#3). **Currently paused at the Stage-1 budget gate:** dry discovery done (post **415** /
+daily-devo **1001** / resource 45 (card-hub, excluded) / page 65 / asset 470 + taxonomy);
+content selector `.o-longform-content__content` confirmed on posts + devos. Awaiting the
+operator's scope decision — **posts-only (~414)** vs **posts + daily devotionals (~1,414)** —
+before registering the entry + live crawl.
 
-**Now unblocked (2 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
-filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)). Can be a small
-standalone change or folded into slice #3; NextStep football2026 was earmarked as its
-seasonal-exclusion fixture. **New candidate follow-up:** strip the AEM accordion-section TOC
-during Cru acquisition (top-cited cru chunk is sometimes the section list, not prose —
-citation quality, not recall).
+**Now unblocked (3 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
+filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)); NextStep football2026
+was earmarked as its seasonal-exclusion fixture. **Candidate follow-up:** strip the AEM
+accordion-section TOC during Cru acquisition (citation quality, not recall).
 
-→ **`/slice <source>`** starts the next slice; `/slice` alone resumes an in-progress one
-(none right now). Merge is the operator's call.
+→ `/slice` alone resumes slice #4 from its budget gate; the slice file + branch are the
+resume contract. Merge of slice #4 is the operator's call at the end.
 
 ## How we're building (decided 2026-05-22)
 

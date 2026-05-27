@@ -64,6 +64,35 @@ describe("SourceRegistry", () => {
     expect(blocked("https://www.jesusfilm.org/blog/design-for-discipleship")).toBe(false);
   });
 
+  it("resolves Sightline as a partner discovery source seeding two content sitemaps", () => {
+    const sl = getSource("sightline-ministry");
+    expect(sl).toBeDefined();
+    expect(sl?.domain).toBe("sightlineministry.org");
+    expect(sl?.trust).toBe("partner");
+    expect(sl?.ingestionMode).toBe("html-scrape");
+    // Discovery source: seeds the two TEACHING sitemaps directly, no hand-listed seeds.
+    expect(sl?.crawl.sitemaps).toEqual([
+      "/post-sitemap.xml",
+      "/daily-devo-sitemap.xml",
+    ]);
+    expect(sl?.crawl.seedPaths).toBeUndefined();
+    expect(sl?.crawl.contentSelectors[0]).toBe(".o-longform-content__content");
+  });
+
+  it("sightline articleHints keep posts + devos but drop the bare index pages", () => {
+    const sl = getSource("sightline-ministry")!;
+    const hints = (sl.crawl.articleHints ?? []).map((p) => new RegExp(p));
+    const block = (sl.crawl.block ?? []).map((p) => new RegExp(p));
+    const kept = (u: string): boolean =>
+      hints.some((re) => re.test(u)) && !block.some((re) => re.test(u));
+    // apologetics post (bare-root slug) + daily devotional are kept
+    expect(kept("https://sightlineministry.org/why-does-god-seem-hidden-from-us/")).toBe(true);
+    expect(kept("https://sightlineministry.org/daily-devo/for-goodness-sake-2/")).toBe(true);
+    // the two bare index pages each sitemap lists are dropped
+    expect(kept("https://sightlineministry.org/blog/")).toBe(false);
+    expect(kept("https://sightlineministry.org/daily-devotions/")).toBe(false);
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
   });

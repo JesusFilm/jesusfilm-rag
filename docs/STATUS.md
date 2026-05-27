@@ -43,28 +43,39 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Slice #3 is complete (Evaluated).** Two operator decisions, then pick the next slice:
+**Slice #3 (jesusfilm-org) was MERGED to `main`** (PR #16, `964067e`) — the earlier
+"not yet merged" note above is stale.
 
-1. **Merge** `slice/jesusfilm-org` → `main` (carries the discovery-crawl model + the
-   jesusfilm-org source + the §11 FOLLOW-UP H/I index + the curated 32-case eval). Not
-   done automatically. **Note:** `git push` hit "Repository not found" under the local
-   https credential — pushing/merging needs the `jaco-brink` git credential sorted (gh
-   itself works: `jaco-brink` has ADMIN). 11 checkpoint commits on the branch, unpushed.
-2. **Start slice #4.** With the **discovery crawler now built**, the next large source is
-   cheap: **Sightline Ministry** (~2,500 pages, explicit sitemaps, apologetics — adds the
-   skeptic axis) rides the same `sitemaps`+`allow`/`block`/`articleHints` machinery. Other
-   remaining short-list source: none `Not started` besides Sightline (EveryStudent `Blocked`,
-   NextStep `Deferred`). Read `docs/jfa-registry-findings.md` before crawling.
+**Slice #4 (Sightline Ministry, `sightline-ministry`) is DONE — all 4 stages green, Evaluated**
+on `slice/sightline-ministry` (2026-05-27), **not yet merged**. It **reused slice #3's discovery
+crawler unchanged** (same WP/Yoast shape as jesusfilm.org) — zero new acquisition code. Operator
+chose the broad scope (**posts + daily devotionals**). **Acquire:** discovery kept 1,392 unique URLs
+(22 Yoast-sitemap dups + 2 index pages dropped); crawl staged **1390/1392** (2 too-thin). **Ingest:**
+**1390 docs / 3470 chunks / 3470 embeddings** (`openai/text-embedding-3-small`, 1:1, idempotent).
+**Eval via `golden` skill (operator-approved):** Part A re-reviewed 14 existing cases' living `relevant`
+maps + Part B added 10 new Sightline skeptic-axis cases (qa-golden.yaml now **42 cases**). **Curated
+whole-corpus @ top-10: recall@3 0.810 · recall@10 0.976 · coverage 0.583 · MRR 0.709 · P@1 0.571**;
+per-source **sightline 0.750/0.468** / jf 0.913/0.779 / swg 0.611/0.419 / cru 0.357/0.321. Curation
+resolved the living-set artifact (P@1 0.375→0.571). **Closed slice-#3's `jf-skeptic-intolerant` miss
+→ rank 1**; 8/10 new cases rank 1; `jf-believer-disciple-making` remains an honest vocab-gap miss.
+**minScore 0.37 held @ 4 sources.** **Honest finding:** cru/swg per-source coverage did not recover —
+Sightline's 1390 broad docs crowd small sources out of top-10 on shared topics (FOLLOW-UP I/J signal,
+not a regression). Commits 1a `5903b2a` · 1b `35dc82a` · 2a `b34ffa9` · 3a `c966bd6` · 4a (this).
+**Corpus is now 4 sources.**
 
-**Now unblocked (2 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
-filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)). Can be a small
-standalone change or folded into slice #3; NextStep football2026 was earmarked as its
-seasonal-exclusion fixture. **New candidate follow-up:** strip the AEM accordion-section TOC
-during Cru acquisition (top-cited cru chunk is sometimes the section list, not prose —
-citation quality, not recall).
+**Now unblocked (3 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
+filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)); NextStep football2026
+was earmarked as its seasonal-exclusion fixture. **Candidate follow-up:** strip the AEM
+accordion-section TOC during Cru acquisition (citation quality, not recall).
 
-→ **`/slice <source>`** starts the next slice; `/slice` alone resumes an in-progress one
-(none right now). Merge is the operator's call.
+→ **Next: two operator decisions.** (1) **Merge** `slice/sightline-ministry` → `main` (carries the
+`sightline-ministry` source + the curated 42-case eval). Not done automatically. (2) **Pick the next
+slice** — the v1 short list is now exhausted of `Not started` sources (EveryStudent `Blocked`/Cloudflare,
+NextStep `Deferred`). Candidates: a backlog source (GotQuestions ~1500 / FamilyLife ~15000 / Power to
+Change ~1200 — all sitemap-driven, ride the discovery crawler), **or** take a now-ripe follow-up:
+**FOLLOW-UP I** (`maxPerSource`/MMR diversity — the small-source crowding this slice surfaced) or
+**FOLLOW-UP E** (`excludedSourceKeys`, unblocked since 2+ sources). `/slice <source>` starts the next
+slice; `/slice` alone resumes an in-progress one (none now). Merge is the operator's call.
 
 ## How we're building (decided 2026-05-22)
 

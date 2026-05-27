@@ -193,7 +193,7 @@ interface CorpusSearchStore{ vectorSearch(queryVec, filter, k); keywordSearch?(q
 
 _This section's decision (the boundary + the import law) is recorded as [ADR-0001](./decisions/0001-ports-and-adapters-boundary.md)._
 
-The §3 boundaries are only real if crossing one **fails the build**. jesusfilm-ai rotted because nothing stopped "just one more import" or a 1,400-line `store.ts` that everything reached into. These rules turn each boundary into a mechanical gate. Mechanism: **`dependency-cruiser`** (import boundaries) + eslint `max-lines` + a fakes-only test rule, all run in CI.
+The §3 boundaries are only real if crossing one **fails the build**. jesusfilm-ai became unmaintainable because nothing stopped "just one more import" or a 1,400-line `store.ts` that everything reached into. These rules turn each boundary into a mechanical gate. Mechanism: **`dependency-cruiser`** (import boundaries) + eslint `max-lines` + a fakes-only test rule, all run in CI.
 
 **5.1 Layout = boundaries.** One directory per context, a dependency-free `contracts` module, and a single composition root:
 
@@ -260,7 +260,7 @@ module.exports = {
 
 **5.4 Dependency injection, one composition root.** No module-level singletons, no top-level `new Adapter()`. Contexts and serving receive their ports as constructor/factory arguments; `main.ts` is the only wiring point. The `contexts-import-only-ports` + `adapters` rules above enforce this structurally.
 
-**5.5 File-size cap** (eslint) — the antidote to 1,468/2,673-line god-objects:
+**5.5 File-size cap** (eslint) — the antidote to 1,468/2,673-line do-everything files:
 ```jsonc
 "max-lines": ["error", { "max": 300, "skipBlankLines": true, "skipComments": true }],
 "max-lines-per-function": ["warn", 80]

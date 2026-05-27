@@ -7,7 +7,7 @@
 
 ## Context
 
-The predecessor project (jesusfilm-ai) rotted: a ~1,400-line `store.ts` that
+The predecessor project (jesusfilm-ai) became unmaintainable: a ~1,400-line `store.ts` that
 "everything reached into" via `require('./store')`, with no enforced boundaries,
 so "just one more import" steadily coupled every layer until change became risky.
 We re-founded this service specifically to not repeat that.
@@ -31,8 +31,9 @@ architecture.md §5.
 - **Convention-only boundaries (no enforcement)** — what jesusfilm-ai had. It
   relies on discipline and erodes one import at a time. A boundary that doesn't
   fail the build isn't real.
-- **A shared data/store module imported everywhere** — the exact god-object that
-  rotted the predecessor; convenient at first, unmaintainable at scale.
+- **A shared data/store module imported everywhere** — the exact do-everything
+  module that made the predecessor unmaintainable; convenient at first,
+  unworkable at scale.
 
 ## Consequences
 
@@ -41,4 +42,4 @@ architecture.md §5.
 - (+) The database technology is confined to `src/adapters` and swappable without
   touching any context — this is what makes ADR-0003 a low-risk change.
 - (–) Indirection has a cost: ports, fakes, and a composition root are more
-  upfront structure than a direct call. We accept it as the price of not rotting.
+  upfront structure than a direct call. We accept it as the price of staying maintainable.

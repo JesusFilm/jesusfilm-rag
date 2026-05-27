@@ -153,18 +153,21 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
 
   beforeAll(async () => {
     sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {} });
+    // The adapters now take a Drizzle db (ADR-0003); raw `sql` stays for the
+    // test's own setup/assert helpers. Both wrap the same connection.
+    const db = drizzle(sql);
     await sql`CREATE EXTENSION IF NOT EXISTS vector;`;
-    await migrate(drizzle(sql), { migrationsFolder: "./migrations" });
+    await migrate(db, { migrationsFolder: "./migrations" });
     await sql`
       ALTER TABLE chunks ADD COLUMN IF NOT EXISTS search_tsv tsvector
       GENERATED ALWAYS AS (to_tsvector('english', text)) STORED;`;
     await sql`CREATE INDEX IF NOT EXISTS chunks_search_tsv_gin ON chunks USING GIN (search_tsv);`;
     await cleanup(sql);
-    writeStore = new PostgresCorpusWriteStore(sql);
-    searchStore = new PostgresCorpusSearchStore(sql);
-    fetchState = new PostgresFetchStateStore(sql);
-    rawStore = new PostgresRawDocumentStore(sql);
-    rawReader = new PostgresRawDocumentReader(sql);
+    writeStore = new PostgresCorpusWriteStore(db);
+    searchStore = new PostgresCorpusSearchStore(db);
+    fetchState = new PostgresFetchStateStore(db);
+    rawStore = new PostgresRawDocumentStore(db);
+    rawReader = new PostgresRawDocumentReader(db);
   });
 
   afterAll(async () => {

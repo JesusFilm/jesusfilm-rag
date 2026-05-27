@@ -9,35 +9,40 @@
  * left untouched — they are the historical snapshot Ingestion has consumed — so
  * re-acquiring leaves at most one pending row per page for Ingestion to drain.
  *
- * Raw SQL over the injected postgres-js client — the import law forbids adapters
- * from importing the Drizzle schema (src/db), so the table/column names below
- * are the adapter's contract with the migration, not a typed reference.
+ * Drizzle's query builder over src/db/schema.ts (ADR-0003).
  */
-import type postgres from "postgres";
+import { and, eq, isNull } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { RawDocument, RawDocumentStore } from "@/contracts/index.js";
+import { rawDocuments } from "@/db/schema.js";
 
 export class PostgresRawDocumentStore implements RawDocumentStore {
-  constructor(private readonly sql: postgres.Sql) {}
+  constructor(private readonly db: PostgresJsDatabase) {}
 
   async putRawDocument(doc: RawDocument): Promise<void> {
-    await this.sql.begin(async (tx) => {
-      await tx`
-        DELETE FROM raw_documents
-         WHERE source_key = ${doc.sourceKey}
-           AND canonical_url = ${doc.canonicalUrl}
-           AND ingested_at IS NULL
-      `;
-      await tx`
-        INSERT INTO raw_documents
-          (source_key, url, canonical_url, title, raw_content, status,
-           body_hash, etag, last_modified, fetched_at, not_modified)
-        VALUES (
-          ${doc.sourceKey}, ${doc.url}, ${doc.canonicalUrl}, ${doc.title},
-          ${doc.rawContent}, ${doc.fetch.status}, ${doc.fetch.bodyHash},
-          ${doc.fetch.etag}, ${doc.fetch.lastModified},
-          ${doc.fetch.fetchedAt}::timestamptz, ${doc.fetch.notModified}
-        )
-      `;
+    await this.db.transaction(async (tx) => {
+      await tx
+        .delete(rawDocuments)
+        .where(
+          and(
+            eq(rawDocuments.sourceKey, doc.sourceKey),
+            eq(rawDocuments.canonicalUrl, doc.canonicalUrl),
+            isNull(rawDocuments.ingestedAt),
+          ),
+        );
+      await tx.insert(rawDocuments).values({
+        sourceKey: doc.sourceKey,
+        url: doc.url,
+        canonicalUrl: doc.canonicalUrl,
+        title: doc.title,
+        rawContent: doc.rawContent,
+        status: doc.fetch.status,
+        bodyHash: doc.fetch.bodyHash,
+        etag: doc.fetch.etag,
+        lastModified: doc.fetch.lastModified,
+        fetchedAt: new Date(doc.fetch.fetchedAt),
+        notModified: doc.fetch.notModified,
+      });
     });
   }
 }

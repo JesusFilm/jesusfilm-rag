@@ -54,10 +54,16 @@ module.exports = {
     },
     {
       name: "adapters-import-only-contracts",
-      comment: "Adapters implement contract ports; they never import a context.",
+      comment:
+        "Adapters implement contract ports; they never import a context. The one " +
+        "exemption (ADR-0003): the Postgres adapter may import src/db/schema.ts to " +
+        "drive Drizzle's query builder — an internal module we own, not a context.",
       severity: "error",
       from: { path: "^src/adapters/" },
-      to: { path: "^src/(?!(contracts|adapters)/)" },
+      to: {
+        path: "^src/(?!(contracts|adapters)/)",
+        pathNot: "^src/db/schema\\.ts$",
+      },
     },
     {
       name: "fakes-import-only-contracts",

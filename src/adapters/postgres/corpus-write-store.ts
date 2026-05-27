@@ -8,10 +8,12 @@
  * chunk_embeddings → chunks FK), then inserts the new chunk set. Skipping the
  * delete double-indexes the document.
  *
- * Raw SQL over the injected postgres-js client — the import law forbids adapters
- * from importing the Drizzle schema (src/db).
+ * CRUD runs through Drizzle's query builder over the schema in src/db/schema.ts
+ * (ADR-0003 — one tool for schema + queries). The pgvector embedding literal is
+ * the only raw fragment: no ORM types `halfvec`, so it stays a `sql`…`` cast.
  */
-import type postgres from "postgres";
+import { eq, and, sql } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type {
   CorpusWriteStore,
   DedupRecord,
@@ -19,64 +21,67 @@ import type {
   NormalizedDocument,
   SourceRecord,
 } from "@/contracts/index.js";
+import {
+  chunkEmbeddings,
+  chunks,
+  documents,
+  sources,
+} from "@/db/schema.js";
 import { toVectorLiteral } from "./vector.js";
 
-type IdRow = { id: string };
-
 export class PostgresCorpusWriteStore implements CorpusWriteStore {
-  constructor(private readonly sql: postgres.Sql) {}
+  constructor(private readonly db: PostgresJsDatabase) {}
 
   async upsertSource(source: SourceRecord): Promise<string> {
-    const rows = await this.sql<IdRow[]>`
-      INSERT INTO sources
-        (key, name, domain, trust, ingestion_mode, languages, default_tags,
-         default_category, rights, content_hash, updated_at)
-      VALUES (
-        ${source.key}, ${source.name}, ${source.domain}, ${source.trust},
-        ${source.ingestionMode}, ${JSON.stringify(source.languages)}::jsonb,
-        ${JSON.stringify(source.defaultTags)}::jsonb, ${source.defaultCategory},
-        ${source.rights}, ${source.contentHash}, now()
-      )
-      ON CONFLICT (key) DO UPDATE SET
-        name             = EXCLUDED.name,
-        domain           = EXCLUDED.domain,
-        trust            = EXCLUDED.trust,
-        ingestion_mode   = EXCLUDED.ingestion_mode,
-        languages        = EXCLUDED.languages,
-        default_tags     = EXCLUDED.default_tags,
-        default_category = EXCLUDED.default_category,
-        rights           = EXCLUDED.rights,
-        content_hash     = EXCLUDED.content_hash,
-        updated_at       = now()
-      RETURNING id
-    `;
-    return rows[0].id;
+    // The mutable columns are identical on insert and on conflict (a single-row
+    // upsert), so the same object drives `set` — no `excluded.*` indirection.
+    const mutable = {
+      name: source.name,
+      domain: source.domain,
+      trust: source.trust,
+      ingestionMode: source.ingestionMode,
+      languages: source.languages,
+      defaultTags: source.defaultTags,
+      defaultCategory: source.defaultCategory,
+      rights: source.rights,
+      contentHash: source.contentHash,
+      updatedAt: sql`now()`,
+    };
+    const [row] = await this.db
+      .insert(sources)
+      .values({ key: source.key, ...mutable })
+      .onConflictDoUpdate({ target: sources.key, set: mutable })
+      .returning({ id: sources.id });
+    return row.id;
   }
 
   async getDedup(
     sourceKey: string,
     canonicalUrl: string,
   ): Promise<DedupRecord | null> {
-    const rows = await this.sql<{ content_hash: string }[]>`
-      SELECT d.content_hash
-        FROM documents d
-        JOIN sources s ON s.id = d.source_id
-       WHERE s.key = ${sourceKey} AND d.canonical_url = ${canonicalUrl}
-    `;
-    const row = rows[0];
-    return row ? { contentHash: row.content_hash } : null;
+    const [row] = await this.db
+      .select({ contentHash: documents.contentHash })
+      .from(documents)
+      .innerJoin(sources, eq(sources.id, documents.sourceId))
+      .where(
+        and(
+          eq(sources.key, sourceKey),
+          eq(documents.canonicalUrl, canonicalUrl),
+        ),
+      );
+    return row ? { contentHash: row.contentHash } : null;
   }
 
   async replaceDocument(
     doc: NormalizedDocument,
-    chunks: EmbeddedChunk[],
+    embedded: EmbeddedChunk[],
   ): Promise<void> {
-    await this.sql.begin(async (tx) => {
-      const sources = await tx<IdRow[]>`
-        SELECT id FROM sources WHERE key = ${doc.sourceKey}
-      `;
-      const sourceId = sources[0]?.id;
-      if (!sourceId) {
+    await this.db.transaction(async (tx) => {
+      const [src] = await tx
+        .select({ id: sources.id })
+        .from(sources)
+        .where(eq(sources.key, doc.sourceKey));
+      if (!src) {
         throw new Error(
           `replaceDocument: unknown source key '${doc.sourceKey}' — call upsertSource first`,
         );
@@ -85,50 +90,53 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
       // Upsert the document row first so we have its id; canonical_url is the
       // dedup identity (unique per source). NormalizedDocument carries only the
       // canonical URL at this seam, so `url` mirrors it.
-      const docs = await tx<IdRow[]>`
-        INSERT INTO documents
-          (source_id, canonical_url, url, title, language, category,
-           content_hash, chunk_count, last_seen, indexed_at)
-        VALUES (
-          ${sourceId}, ${doc.canonicalUrl}, ${doc.canonicalUrl}, ${doc.title},
-          ${doc.language}, ${doc.category}, ${doc.contentHash}, ${chunks.length},
-          now(), now()
-        )
-        ON CONFLICT (source_id, canonical_url) DO UPDATE SET
-          url          = EXCLUDED.url,
-          title        = EXCLUDED.title,
-          language     = EXCLUDED.language,
-          category     = EXCLUDED.category,
-          content_hash = EXCLUDED.content_hash,
-          chunk_count  = EXCLUDED.chunk_count,
-          last_seen    = now(),
-          indexed_at   = now()
-        RETURNING id
-      `;
-      const documentId = docs[0].id;
+      const docMutable = {
+        url: doc.canonicalUrl,
+        title: doc.title,
+        language: doc.language,
+        category: doc.category,
+        contentHash: doc.contentHash,
+        chunkCount: embedded.length,
+        lastSeen: sql`now()`,
+        indexedAt: sql`now()`,
+      };
+      const [documentRow] = await tx
+        .insert(documents)
+        .values({
+          sourceId: src.id,
+          canonicalUrl: doc.canonicalUrl,
+          ...docMutable,
+        })
+        .onConflictDoUpdate({
+          target: [documents.sourceId, documents.canonicalUrl],
+          set: docMutable,
+        })
+        .returning({ id: documents.id });
 
       // Delete-then-insert: drop stale chunks (embeddings cascade) before
       // inserting the fresh set, all inside this transaction.
-      await tx`DELETE FROM chunks WHERE document_id = ${documentId}::uuid`;
+      await tx.delete(chunks).where(eq(chunks.documentId, documentRow.id));
 
-      for (const c of chunks) {
-        const inserted = await tx<IdRow[]>`
-          INSERT INTO chunks
-            (document_id, source_id, ord, text, char_start, char_end,
-             token_count, tags)
-          VALUES (
-            ${documentId}, ${sourceId}, ${c.ord}, ${c.text}, ${c.charStart},
-            ${c.charEnd}, ${c.tokenCount}, ${JSON.stringify(c.tags)}::jsonb
-          )
-          RETURNING id
-        `;
-        await tx`
-          INSERT INTO chunk_embeddings (chunk_id, embedding, embedding_model)
-          VALUES (
-            ${inserted[0].id}, ${toVectorLiteral(c.embedding)}::halfvec,
-            ${c.embeddingModel}
-          )
-        `;
+      for (const c of embedded) {
+        const [chunkRow] = await tx
+          .insert(chunks)
+          .values({
+            documentId: documentRow.id,
+            sourceId: src.id,
+            ord: c.ord,
+            text: c.text,
+            charStart: c.charStart,
+            charEnd: c.charEnd,
+            tokenCount: c.tokenCount,
+            tags: c.tags,
+          })
+          .returning({ id: chunks.id });
+        await tx.insert(chunkEmbeddings).values({
+          chunkId: chunkRow.id,
+          // halfvec has no ORM type — bind the literal and cast (ADR-0003).
+          embedding: sql`${toVectorLiteral(c.embedding)}::halfvec`,
+          embeddingModel: c.embeddingModel,
+        });
       }
     });
   }

@@ -46,24 +46,37 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 **Slice #3 (jesusfilm-org) was MERGED to `main`** (PR #16, `964067e`) — the earlier
 "not yet merged" note above is stale.
 
-**Slice #4 (Sightline Ministry, `sightline-ministry`) is IN PROGRESS** on
-`slice/sightline-ministry` (started 2026-05-27) — see `docs/slices/sightline-ministry.md`.
-It **reuses slice #3's discovery crawler unchanged** (Sightline is the same WP/Yoast shape
-as jesusfilm.org: `sitemap_index.xml`, serves 200, no challenge wall). Value = the
-**apologetics / skeptic / evidence** axis (targets the 2 honest skeptic misses from slice
-#3). **Currently paused at the Stage-1 budget gate:** dry discovery done (post **415** /
-daily-devo **1001** / resource 45 (card-hub, excluded) / page 65 / asset 470 + taxonomy);
-content selector `.o-longform-content__content` confirmed on posts + devos. Awaiting the
-operator's scope decision — **posts-only (~414)** vs **posts + daily devotionals (~1,414)** —
-before registering the entry + live crawl.
+**Slice #4 (Sightline Ministry, `sightline-ministry`) — Stages 1–3 GREEN** on
+`slice/sightline-ministry` (2026-05-27) — see `docs/slices/sightline-ministry.md`. It
+**reuses slice #3's discovery crawler unchanged** (same WP/Yoast shape as jesusfilm.org).
+Operator chose the broad scope (**posts + daily devotionals**). **Acquire:** discovery kept
+1,392 unique URLs (22 Yoast-sitemap dups + 2 index pages dropped); crawl staged **1390/1392**
+(2 too-thin) → `raw_documents`. **Ingest:** drained all 1390 → **1390 docs / 3470 chunks /
+3470 embeddings** (`openai/text-embedding-3-small`, 1:1, 0 mismatches; idempotent). **Retrieve:**
+apologetics/skeptic queries return cited Sightline hits — "Is Christianity intolerant?" → Sightline
+**rank 1 (0.616)**, jf #2 (closes slice #3's `jf-skeptic-intolerant` gap); cross-source health holds;
+**minScore 0.37 holds @ 4 sources**. Commits 1a `5903b2a` · 1b `35dc82a` · 2a `b34ffa9` · 3a `c966bd6`.
+Corpus is now **4 sources**.
+
+**PAUSED at the Stage 4 boundary (eval).** Pre-curation `pnpm eval` on the stale 32 cases @ 4
+sources: recall@3 0.688 / recall@10 **0.969** / coverage 0.618 / P@1 0.375 — the drop is the
+**living-relevant-set artifact** (cru 0.714→0.321, swg 0.833→0.419, jf unchanged 0.913; recall@10
+*rose*, so expected docs are displaced from top ranks, not absent), **not a regression**. Stage 4 =
+`/golden` curation: re-review the 32 cases' living `relevant` maps to credit genuinely-relevant
+Sightline docs + add new skeptic-axis cases, then re-run eval. **Operator-in-the-loop — see "Next
+action" below.**
 
 **Now unblocked (3 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
 filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)); NextStep football2026
 was earmarked as its seasonal-exclusion fixture. **Candidate follow-up:** strip the AEM
 accordion-section TOC during Cru acquisition (citation quality, not recall).
 
-→ `/slice` alone resumes slice #4 from its budget gate; the slice file + branch are the
-resume contract. Merge of slice #4 is the operator's call at the end.
+→ **Next: drive Stage 4 (eval) curation.** Run `/golden sightline-ministry` to (A) re-review
+the 32 existing cases' living `relevant` maps (credit genuinely-relevant Sightline docs — this
+recovers the displaced cru/swg coverage) and (B) author new Sightline skeptic-axis cases; then
+`pnpm eval` for the curated 4-source numbers + re-check the 2 slice-#3 skeptic misses. `/slice`
+alone resumes slice #4 from this Stage-4 boundary; the slice file + branch are the resume
+contract. Merge of slice #4 is the operator's call at the end.
 
 ## How we're building (decided 2026-05-22)
 

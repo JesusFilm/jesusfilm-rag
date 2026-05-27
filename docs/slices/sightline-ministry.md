@@ -87,10 +87,23 @@ honest skeptic misses left open at the end of slice #3.
   `discoverUrls`'s `Set` correctly collapses (no double-indexing). 1,392 = 413
   posts (414 − `/blog/` index) + 979 devos (980 − `/daily-devotions/` index).
 
+## Pre-curation eval (read-only, 2026-05-27 — the living-set artifact)
+Whole-corpus `pnpm eval` on the **stale 32 cases** (no Sightline in any `relevant`
+map yet) against the **4-source** corpus: recall@3 **0.688** · recall@10 **0.969** ·
+coverage **0.618** · MRR 0.565 · P@1 0.375. Per-source: jf **0.913/0.779**
+(unchanged) · swg 0.611/0.419 (was 0.833) · cru 0.357/0.321 (was 0.714). recall@10
+*rose* to 0.969 — expected docs are still in top-10, just **displaced from top ranks**
+by genuinely-relevant Sightline content. Classic stale-living-set artifact (slice #3:
+0.85→0.938), **not** a retrieval regression. Fix = `/golden` curation, not an engine
+change. (Wrote `eval/results-2026-05-27.md`; will be overwritten by the curated run.)
+
 ## Resume hint (for a cold start)
-At: Stage 1 — **live crawl IN PROGRESS** (background `pnpm acquire --source
-sightline-ministry`, ~35 min, log `/tmp/sl-crawl/acquire.log`). 1a done (`5903b2a`).
-Discovery confirmed: **1,392 unique** content URLs kept (413 posts + 979 devos;
-22 sitemap dups + 2 index pages dropped). Next concrete action: when the crawl
-exits, verify `raw_documents` count + spot-read content is real prose → check off
-1b + commit → ingest (2a). Branch: slice/sightline-ministry. Baseline green.
+At: **Stages 1–3 GREEN & committed** (1a `5903b2a` · 1b `35dc82a` · 2a `b34ffa9` ·
+3a `c966bd6`). Corpus is now **4 sources**: Sightline = 1390 docs / 3470 chunks /
+3470 embeddings, retrievable + cited, minScore 0.37 holds. **PAUSED at the Stage 4
+boundary (eval).** Next concrete action: **`/golden` curation** — (A) re-review the
+32 existing cases' living `relevant` maps to credit genuinely-relevant Sightline docs
+(this recovers the displaced cru/swg coverage above), and (B) add new Sightline
+skeptic-axis cases; then re-run `pnpm eval` for the curated 4-source numbers + re-check
+the 2 slice-#3 skeptic misses (jf-skeptic-intolerant now has Sightline #1). Branch:
+slice/sightline-ministry. Baseline green.

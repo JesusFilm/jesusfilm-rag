@@ -50,6 +50,9 @@ cases:
       jesusfilm-org:
         - "/blog/is-failure-fatal"
         - "/blog/what-to-do-when-you-stumble-christian-walk"
+      sightline-ministry:
+        - "/jesus-died-so-why-do-i-still-feel-guilt"
+        - "/fully-forgiven-god-sees"
   - id: swg-seeker-porn
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
@@ -63,6 +66,10 @@ cases:
       starting-with-god:
         - "/knowing-god/faith.html"
         - "/knowing-god/what-is-faith.html"
+      sightline-ministry:
+        - "/doesnt-believing-in-god-require-faith"
+        - "/faith-in-the-bible-not-thin-ice"
+        - "/hope-not-wishful-thinking-for-christians"
   - id: swg-skeptic-jesus-deity
     question: "Did Jesus ever actually claim to be God, or did the church invent that later?"
     relevant:
@@ -74,6 +81,10 @@ cases:
         - "/blog/did-jesus-claim-to-be-god"
         - "/blog/was-jesus-god"
         - "/blog/was-jesus-lord-liar-or-lunatic"
+      sightline-ministry:
+        - "/jesus-say-he-is-god"
+        - "/deity-of-christ-true-or-false"
+        - "/jesus-liar-lunatic-lord"
   - id: swg-skeptic-gods-love
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
     relevant:
@@ -113,6 +124,9 @@ cases:
       jesusfilm-org:
         - "/blog/what-is-the-gospel"
         - "/blog/what-is-the-gospel-really"
+      sightline-ministry:
+        - "/three-foundational-truths-christianity"
+        - "/why-need-jesus-as-savior"
   - id: swg-newcomer-baptism
     question: "Do I need to be baptized to become a Christian?"
     relevant:
@@ -152,6 +166,9 @@ cases:
         - "/blog/tips-getting-over-fear-of-sharing-faith"
         - "/blog/sharing-even-when-nervous"
         - "/blog/evangelism-tips-non-evangelists"
+      sightline-ministry:
+        - "/talking-to-people-like-jesus-did"
+        - "/can-we-talk-about-jesus"
   - id: cru-believer-guidance
     question: "How do I actually figure out what God wants me to do when I'm facing a hard decision?"
     relevant:
@@ -163,6 +180,8 @@ cases:
       jesusfilm-org:
         - "/blog/what-is-gods-will-how-can-know"
         - "/blog/gods-will-bible-verses"
+      sightline-ministry:
+        - "/will-of-god"
   - id: cru-believer-bible-study
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
@@ -201,6 +220,8 @@ cases:
         - "/new-life/spirit-filled.html"
         - "/struggles/how-to-live-the-christian-life.html"
         - "/knowing-god/gods-grace.html"
+      sightline-ministry:
+        - "/bible-rule-book"
   - id: cru-skeptic-jesus-uniqueness
     question: "Every religion has its founder. What actually sets Jesus apart from all the others?"
     relevant:
@@ -210,6 +231,10 @@ cases:
         - "/new-life/jesus.html"
       jesusfilm-org:
         - "/blog/5-key-teachings-that-set-jesus-apart"
+      sightline-ministry:
+        - "/copycat-religion-christianity"
+        - "/jesus-liar-lunatic-lord"
+        - "/deity-of-christ-true-or-false"
 
   # --- jesusfilm-org cases (slice #3, 2026-05-26) — persona-diverse, exercising
   #     jf's distinctive strengths: parables, apologetics, missions, Jesus' life. ---
@@ -226,6 +251,9 @@ cases:
       jesusfilm-org:
         - "/blog/why-did-jesus-need-to-die"
         - "/blog/jesus-on-the-cross"
+      sightline-ministry:
+        - "/why-need-jesus-as-savior"
+        - "/god-became-man-incarnation"
   - id: jf-newcomer-great-commission
     question: "Christians keep talking about being 'sent to make disciples of all nations' — where's that from and what does it mean?"
     relevant:
@@ -237,16 +265,29 @@ cases:
     relevant:
       jesusfilm-org:
         - "/blog/resurrection-important"
+      sightline-ministry:
+        - "/jesus-really-rise-death"
+        - "/jesus-resurrection-importance"
+        - "/resurrection-jesus-hoax-truth"
+        - "/disillusioned-disciples-die-for-lie"
   - id: jf-skeptic-bible-contradictions
     question: "People say the Bible is riddled with contradictions and errors — how do you square that?"
     relevant:
       jesusfilm-org:
         - "/blog/bible-filled-with-contradictions-errors"
+      sightline-ministry:
+        - "/contradictions-skew-bible-truth"
+        - "/disagreements-in-the-bible"
+        - "/bible-human-error"
   - id: jf-skeptic-intolerant
     question: "Isn't it arrogant for Christians to claim Jesus is the only way? That seems intolerant."
     relevant:
       jesusfilm-org:
         - "/blog/is-christianity-intolerant"
+      sightline-ministry:
+        - "/is-christianity-intolerant"
+        - "/christian-view-on-tolerance"
+        - "/is-jesus-the-way-john-14-6"
   - id: jf-believer-parable-sower
     question: "What's Jesus really getting at in the story about a farmer scattering seed on different soils?"
     relevant:
@@ -274,9 +315,88 @@ cases:
     relevant:
       jesusfilm-org:
         - "/blog/what-jesus-teaches-about-grief"
+      sightline-ministry:
+        - "/jesus-understands-your-pain"
   - id: jf-seeker-distant-god
     question: "God feels distant and silent lately — how do I get close to him again?"
     relevant:
       jesusfilm-org:
         - "/blog/how-can-get-closer-to-god"
         - "/blog/when-you-dont-feel-close-to-god"
+      sightline-ministry:
+        - "/why-does-god-seem-hidden-from-us"
+        - "/discern-gods-voice"
+
+  # --- sightline-ministry cases (slice #4, 2026-05-27) — persona-diverse,
+  #     exercising Sightline's distinctive apologetics / skeptic / evidence axis
+  #     (arguments for God, gospel/Bible reliability, science, morality, doubt). ---
+  - id: sl-skeptic-god-exists
+    question: "Is there any actual evidence that God exists, or is it just blind belief?"
+    relevant:
+      sightline-ministry:
+        - "/know-god-really-exists"
+        - "/what-is-the-first-cause-argument-for-gods-existence"
+        - "/what-is-the-design-argument-for-gods-existence"
+        - "/what-is-the-moral-law-argument-for-gods-existence"
+        - "/why-believe-in-god"
+  - id: sl-skeptic-suffering
+    question: "If God is real and good, why is there so much suffering and evil in the world?"
+    relevant:
+      sightline-ministry:
+        - "/3-reasons-suffering-serves-a-purpose"
+        - "/security-in-suffering"
+  - id: sl-skeptic-science
+    question: "Hasn't science basically disproved religion? How can a thinking person believe in miracles?"
+    relevant:
+      sightline-ministry:
+        - "/christianity-science-bogus-feud"
+        - "/science-disprove-miracles"
+        - "/science-genesis-coexist"
+  - id: sl-skeptic-morality
+    question: "I'm an atheist and a good person. Why would anyone need God to be moral?"
+    relevant:
+      sightline-ministry:
+        - "/good-without-god"
+        - "/absolute-right-wrong"
+        - "/what-is-the-moral-law-argument-for-gods-existence"
+  - id: sl-skeptic-gospels-reliable
+    question: "How can anyone trust the Gospels when they were written decades later by biased followers?"
+    relevant:
+      sightline-ministry:
+        - "/are-the-gospels-reliable-video-1"
+        - "/historical-reliability-new-testament"
+        - "/gospels-proven-historically"
+        - "/could-gospel-writers-know"
+  - id: sl-skeptic-hidden-god
+    question: "If God wanted a relationship with me, why does he stay so hidden and silent?"
+    relevant:
+      sightline-ministry:
+        - "/why-does-god-seem-hidden-from-us"
+        - "/why-believe-in-god"
+  - id: sl-skeptic-copycat
+    question: "Isn't Jesus just a recycled myth — a copy of older dying-and-rising gods?"
+    relevant:
+      sightline-ministry:
+        - "/copycat-religion-christianity"
+        - "/pagan-influences-gospels-reliable-video-6"
+  - id: sl-seeker-meaning
+    question: "Nothing in my life feels like it means anything. Is there actually a point to any of this?"
+    relevant:
+      sightline-ministry:
+        - "/why-life-feels-so-meaningless"
+        - "/feeling-purposeless-cause-cure"
+        - "/jesus-christ-offers-meaning"
+  - id: sl-believer-doubt
+    question: "I'm a Christian but I'm wracked with doubts and it scares me. Is doubting a sin?"
+    relevant:
+      sightline-ministry:
+        - "/is-it-wrong-to-have-doubts-about-god"
+        - "/christian-doubt-okay-faith"
+        - "/inspiration-doubting-thomas"
+  - id: sl-believer-apologetics
+    question: "How do I have a productive conversation about faith with a skeptical friend without it turning into an argument?"
+    relevant:
+      sightline-ministry:
+        - "/effectively-dialogue-skeptics"
+        - "/more-effectively-talk-skeptic"
+        - "/should-christians-practice-apologetics"

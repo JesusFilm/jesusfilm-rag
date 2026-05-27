@@ -4,72 +4,63 @@
  * by cosine score; the minScore cutoff and 3-key dedup are Retrieval's job
  * (architecture §2, invariant 5), not the store's.
  *
- * Raw SQL over the injected postgres-js client (the import law forbids adapters
- * from importing the Drizzle schema). Single embedding model today, so no
- * model filter — a multi-model corpus would scope by embedding_model here
- * (schema note: "add a new model row, then migrate").
+ * Joins/filters run through Drizzle's query builder over src/db/schema.ts
+ * (ADR-0003). The two hot paths no ORM can type stay as `sql`…`` fragments
+ * interleaved in the builder: the pgvector `<=>` distance and the FTS
+ * `ts_rank_cd` / `websearch_to_tsquery` over the generated `search_tsv` column
+ * (added by scripts/migrate.ts, so it is not in the Drizzle schema). Single
+ * embedding model today, so no model filter — a multi-model corpus would scope
+ * by embedding_model here ("add a new model row, then migrate").
  */
-import type postgres from "postgres";
+import { and, desc, eq, inArray, like, sql, type SQL } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type {
   CorpusSearchStore,
   ScoredRow,
   SearchFilter,
 } from "@/contracts/index.js";
+import { chunkEmbeddings, chunks, documents, sources } from "@/db/schema.js";
 import { assertQueryDimensions, toVectorLiteral } from "./vector.js";
 
-type SearchRow = {
-  chunk_id: string;
-  text: string;
-  ord: number;
-  tags: string[];
-  source_key: string;
-  source_name: string;
-  title: string | null;
-  canonical_url: string;
-  content_hash: string;
-  score: number;
+/**
+ * The non-score columns of a ScoredRow, named so the builder result maps to the
+ * port shape directly (no snake→camel pass). Each query adds its own `score`.
+ */
+const scoredColumns = {
+  chunkId: chunks.id,
+  text: chunks.text,
+  ord: chunks.ord,
+  tags: chunks.tags,
+  sourceKey: sources.key,
+  sourceName: sources.name,
+  title: documents.title,
+  canonicalUrl: documents.canonicalUrl,
+  contentHash: documents.contentHash,
 };
 
-function toScoredRow(row: SearchRow): ScoredRow {
-  return {
-    chunkId: row.chunk_id,
-    score: row.score,
-    text: row.text,
-    ord: row.ord,
-    tags: row.tags,
-    sourceKey: row.source_key,
-    sourceName: row.source_name,
-    title: row.title,
-    canonicalUrl: row.canonical_url,
-    contentHash: row.content_hash,
-  };
-}
-
 export class PostgresCorpusSearchStore implements CorpusSearchStore {
-  constructor(private readonly sql: postgres.Sql) {}
+  constructor(private readonly db: PostgresJsDatabase) {}
 
-  /** AND-combined WHERE fragment for the candidate filter (TRUE when empty). */
-  private where(filter: SearchFilter): postgres.Fragment {
-    const sql = this.sql;
-    const conds: postgres.Fragment[] = [];
+  /** AND-combined candidate filter (undefined = no filter). */
+  private buildWhere(filter: SearchFilter): SQL | undefined {
+    const conds: SQL[] = [];
     if (filter.allowedSourceKeys !== undefined) {
       // Empty allow-list = no visible sources (architecture §6 dropped the
       // legacy `OR source_key IS NULL` branch — every chunk has a source).
       conds.push(
         filter.allowedSourceKeys.length === 0
-          ? sql`1 = 0`
-          : sql`s.key IN ${sql(filter.allowedSourceKeys)}`,
+          ? sql`false`
+          : inArray(sources.key, filter.allowedSourceKeys),
       );
     }
-    if (filter.sourceKey) conds.push(sql`s.key = ${filter.sourceKey}`);
-    if (filter.domain) conds.push(sql`s.domain = ${filter.domain}`);
+    if (filter.sourceKey) conds.push(eq(sources.key, filter.sourceKey));
+    if (filter.domain) conds.push(eq(sources.domain, filter.domain));
     if (filter.urlPrefix) {
-      conds.push(sql`d.canonical_url LIKE ${filter.urlPrefix + "%"}`);
+      conds.push(like(documents.canonicalUrl, `${filter.urlPrefix}%`));
     }
-    if (filter.language) conds.push(sql`d.language = ${filter.language}`);
-    if (filter.category) conds.push(sql`d.category = ${filter.category}`);
-    if (conds.length === 0) return sql`TRUE`;
-    return conds.reduce((acc, c) => sql`${acc} AND ${c}`);
+    if (filter.language) conds.push(eq(documents.language, filter.language));
+    if (filter.category) conds.push(eq(documents.category, filter.category));
+    return conds.length ? and(...conds) : undefined;
   }
 
   async vectorSearch(
@@ -79,21 +70,16 @@ export class PostgresCorpusSearchStore implements CorpusSearchStore {
   ): Promise<ScoredRow[]> {
     assertQueryDimensions(queryVec);
     const lit = toVectorLiteral(queryVec);
-    const where = this.where(filter);
-    const rows = await this.sql<SearchRow[]>`
-      SELECT c.id AS chunk_id, c.text, c.ord, c.tags,
-             s.key AS source_key, s.name AS source_name,
-             d.title, d.canonical_url, d.content_hash,
-             (1 - (e.embedding <=> ${lit}::halfvec)) AS score
-        FROM chunk_embeddings e
-        JOIN chunks c    ON c.id = e.chunk_id
-        JOIN documents d ON d.id = c.document_id
-        JOIN sources s   ON s.id = c.source_id
-       WHERE ${where}
-       ORDER BY e.embedding <=> ${lit}::halfvec
-       LIMIT ${k}
-    `;
-    return rows.map(toScoredRow);
+    const distance = sql`${chunkEmbeddings.embedding} <=> ${lit}::halfvec`;
+    return this.db
+      .select({ ...scoredColumns, score: sql<number>`1 - (${distance})` })
+      .from(chunkEmbeddings)
+      .innerJoin(chunks, eq(chunks.id, chunkEmbeddings.chunkId))
+      .innerJoin(documents, eq(documents.id, chunks.documentId))
+      .innerJoin(sources, eq(sources.id, chunks.sourceId))
+      .where(this.buildWhere(filter))
+      .orderBy(distance)
+      .limit(k);
   }
 
   async keywordSearch(
@@ -101,38 +87,29 @@ export class PostgresCorpusSearchStore implements CorpusSearchStore {
     filter: SearchFilter,
     k: number,
   ): Promise<ScoredRow[]> {
-    // FTS over the generated `search_tsv` column (added by scripts/migrate.ts).
-    // score is a raw ts_rank_cd, NOT a 0..1 cosine — Retrieval fuses the two
-    // (RRF) in FOLLOW-UP B; it is not directly comparable to vectorSearch.
-    const where = this.where(filter);
-    const rows = await this.sql<SearchRow[]>`
-      SELECT c.id AS chunk_id, c.text, c.ord, c.tags,
-             s.key AS source_key, s.name AS source_name,
-             d.title, d.canonical_url, d.content_hash,
-             ts_rank_cd(c.search_tsv, websearch_to_tsquery('english', ${query})) AS score
-        FROM chunks c
-        JOIN documents d ON d.id = c.document_id
-        JOIN sources s   ON s.id = c.source_id
-       WHERE ${where}
-         AND c.search_tsv @@ websearch_to_tsquery('english', ${query})
-       ORDER BY score DESC
-       LIMIT ${k}
-    `;
-    return rows.map(toScoredRow);
+    // FTS over the generated `search_tsv` column. score is a raw ts_rank_cd, NOT
+    // a 0..1 cosine — Retrieval fuses the two (RRF) in FOLLOW-UP B; it is not
+    // directly comparable to vectorSearch.
+    const rank = sql<number>`ts_rank_cd(chunks.search_tsv, websearch_to_tsquery('english', ${query}))`;
+    const matches = sql`chunks.search_tsv @@ websearch_to_tsquery('english', ${query})`;
+    const where = this.buildWhere(filter);
+    return this.db
+      .select({ ...scoredColumns, score: rank })
+      .from(chunks)
+      .innerJoin(documents, eq(documents.id, chunks.documentId))
+      .innerJoin(sources, eq(sources.id, chunks.sourceId))
+      .where(where ? and(where, matches) : matches)
+      .orderBy(desc(rank))
+      .limit(k);
   }
 
   async fetchById(chunkId: string): Promise<ScoredRow | null> {
-    const rows = await this.sql<SearchRow[]>`
-      SELECT c.id AS chunk_id, c.text, c.ord, c.tags,
-             s.key AS source_key, s.name AS source_name,
-             d.title, d.canonical_url, d.content_hash,
-             1 AS score
-        FROM chunks c
-        JOIN documents d ON d.id = c.document_id
-        JOIN sources s   ON s.id = c.source_id
-       WHERE c.id = ${chunkId}::uuid
-    `;
-    const row = rows[0];
-    return row ? toScoredRow(row) : null;
+    const [row] = await this.db
+      .select({ ...scoredColumns, score: sql<number>`1` })
+      .from(chunks)
+      .innerJoin(documents, eq(documents.id, chunks.documentId))
+      .innerJoin(sources, eq(sources.id, chunks.sourceId))
+      .where(eq(chunks.id, chunkId));
+    return row ?? null;
   }
 }

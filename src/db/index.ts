@@ -1,11 +1,10 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { getEnv } from "@/env.js";
 
-let cached: { client: postgres.Sql; db: ReturnType<typeof drizzle> } | null =
-  null;
+let cached: { client: postgres.Sql; db: PostgresJsDatabase } | null = null;
 
-export function getDb(): { client: postgres.Sql; db: ReturnType<typeof drizzle> } {
+export function getDb(): { client: postgres.Sql; db: PostgresJsDatabase } {
   if (cached) return cached;
   const { DATABASE_URL } = getEnv();
   const client = postgres(DATABASE_URL, { max: 5 });

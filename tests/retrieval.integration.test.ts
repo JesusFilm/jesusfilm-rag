@@ -19,7 +19,7 @@
  * the minScore cutoff + citation assembly end-to-end through the real store.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import type {
@@ -146,17 +146,19 @@ if (!dbUp) {
 
 describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", () => {
   let sql: postgres.Sql;
+  let db: PostgresJsDatabase;
 
   beforeAll(async () => {
     sql = postgres(DATABASE_URL, { max: 4, onnotice: () => {} });
+    db = drizzle(sql);
     await sql`CREATE EXTENSION IF NOT EXISTS vector;`;
-    await migrate(drizzle(sql), { migrationsFolder: "./migrations" });
+    await migrate(db, { migrationsFolder: "./migrations" });
     await sql`
       ALTER TABLE chunks ADD COLUMN IF NOT EXISTS search_tsv tsvector
       GENERATED ALWAYS AS (to_tsvector('english', text)) STORED;`;
     await cleanup(sql);
 
-    const writeStore = new PostgresCorpusWriteStore(sql);
+    const writeStore = new PostgresCorpusWriteStore(db);
     await writeStore.upsertSource(sentinelSource());
     await writeStore.replaceDocument(doc("match", "hash-match"), [
       chunk("the matching passage", oneHot(0)),
@@ -176,7 +178,7 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
   it("returns ranked, cited rows from the store and applies the minScore cutoff", async () => {
     const retriever = createRetriever({
       embedder: new StubEmbedder(oneHot(0)), // aligns with the "match" doc's chunk
-      search: new PostgresCorpusSearchStore(sql),
+      search: new PostgresCorpusSearchStore(db),
     });
 
     const hits = await retriever.search("probe", { allowedSourceKeys: [TEST_KEY] });
@@ -197,7 +199,7 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
   it("returns both docs when the cutoff is relaxed, ranked by cosine", async () => {
     const retriever = createRetriever({
       embedder: new StubEmbedder(oneHot(0)),
-      search: new PostgresCorpusSearchStore(sql),
+      search: new PostgresCorpusSearchStore(db),
     });
 
     const hits = await retriever.search("probe", {

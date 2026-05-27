@@ -25,10 +25,12 @@ Everything depends on *interfaces* (`src/contracts`), never on concrete code, ex
 | `contracts/` | nothing |
 | `registry/` | `contracts` |
 | `acquisition/` `ingestion/` `retrieval/` `serving/` | `contracts`, `registry`, itself |
-| `adapters/` | `contracts` (+ external libs) |
+| `adapters/` | `contracts`, `src/db/schema` (+ external libs) |
 | `main.ts` | anything (it wires) |
 
 No context imports another context. No context or serving imports a concrete adapter. The only place adapters are constructed is `main.ts`, which injects them. A violation fails the build (`pnpm depcruise`).
+
+Adapters may import **`src/db/schema.ts`** — the one relaxation of the law (ADR-0003): the Postgres adapter drives Drizzle's query builder off the schema for CRUD. The pgvector `<=>` and FTS `tsvector` hot paths stay raw `sql\`…\`` fragments interleaved in the builder (no ORM types them).
 
 ## Conventions
 

@@ -219,10 +219,12 @@ src/
 | `contracts/` | nothing (internal) |
 | `registry/` | `contracts` |
 | `acquisition/` `ingestion/` `retrieval/` `serving/` | `contracts`, `registry`, and **itself** |
-| `adapters/` | `contracts` (+ external libs) |
+| `adapters/` | `contracts`, `src/db/schema` (+ external libs) |
 | `main.ts` | anything (it wires) |
 
 Consequences: no context imports another context; no context or serving imports a concrete adapter; the only place `new PostgresStore()` / `new OpenRouterEmbedder()` exists is `main.ts`, which injects them. This is the direct antidote to jfa's `require('./store')`-from-everywhere singleton.
+
+The adapters row's `src/db/schema` is the law's one deliberate relaxation (**ADR-0003**): the Postgres adapter drives Drizzle's query builder off `src/db/schema.ts` for CRUD, so it imports that one internal module (not `src/db/index.ts`, which builds the client — `main.ts` still owns construction). The pgvector `<=>` and FTS `tsvector` hot paths stay raw `sql\`…\`` fragments interleaved in the builder, since no ORM types them.
 
 **5.3 `dependency-cruiser` config** (`.dependency-cruiser.cjs`):
 
@@ -241,9 +243,9 @@ module.exports = {
       from: { path: '^src/(acquisition|ingestion|retrieval|serving)/' },
       to:   { path: '^src/', pathNot: '^src/(contracts|registry|$1)/' } }, // $1 = same context
 
-    { name: 'adapters-import-only-contracts', severity: 'error',
+    { name: 'adapters-import-only-contracts', severity: 'error',  // + src/db/schema (ADR-0003)
       from: { path: '^src/adapters/' },
-      to:   { path: '^src/', pathNot: '^src/(contracts|adapters)/' } },
+      to:   { path: '^src/(?!(contracts|adapters)/)', pathNot: '^src/db/schema\\.ts$' } },
 
     { name: 'tests-never-touch-adapters', severity: 'error',
       comment: 'unit tests run on fakes; a test needing a real adapter = coupling bug',
@@ -347,7 +349,7 @@ The infrastructure (DB factory, migrations, eval framework, MCP transport, idemp
 ## 9. Build sequence
 
 1. **Bare-out + schema** ✅ *done — clean root commit `acb2c62`* — §7 strip; §6 schema + baseline migration; embedder → `openai/text-embedding-3-small`/1536; chunker retuned. Legacy pipeline code stubbed with `TODO(step-N)` markers. **Enforcement scaffolding** also landed (commit `7a70fd5`): `src/contracts/` (ports + seam types), the per-context dir layout + `AGENT.md` fences, `.dependency-cruiser.cjs`, eslint `max-lines`, `src/main.ts` stub — depcruise/lint/typecheck green.
-2. **Storage adapter** ✅ *done — `src/adapters/postgres/`, wired via `main.wire()`* — `CorpusWriteStore` + `CorpusSearchStore` + `FetchStateStore` over the §6 schema. Implemented as **raw SQL on the injected postgres-js client** (the import law forbids adapters → `src/db`, so the adapter targets the migration's table/column names rather than importing the Drizzle schema). Co-located `postgres-store.test.ts` integration test against the docker-compose Postgres (self-migrates; skips loudly when the DB is unreachable). Embedder port shape reconciled (§4 note). In-memory fakes for every port landed in `src/fakes/` (§5.6).
+2. **Storage adapter** ✅ *done — `src/adapters/postgres/`, wired via `main.wire()`* — `CorpusWriteStore` + `CorpusSearchStore` + `FetchStateStore` over the §6 schema. CRUD runs through **Drizzle's query builder over `src/db/schema.ts`** (**ADR-0003**, #20); only the pgvector `<=>` and FTS `tsvector` hot paths stay raw `sql\`…\`` fragments interleaved in the builder, since no ORM types them. (Originally hand-written SQL on the injected postgres-js client; the query-builder migration kept the ports — and the parity gate — unchanged.) Co-located `postgres-store.test.ts` integration test against the docker-compose Postgres (self-migrates; skips loudly when the DB is unreachable). Embedder port shape reconciled (§4 note). In-memory fakes for every port landed in `src/fakes/` (§5.6).
 3. **Acquisition** — port registry + scraper-base + policy/robots/http-cache into `src/acquisition/`; `scripts/acquire.ts` writes `RawDocument`s to `raw_documents`. Verify against fixtures (no live crawl needed for tests). **v1 scope = the six-source short list in [`docs/sources.md`](./sources.md)** (API/Drive/multi-language deferred); track each source's acquire→ingest→evaluate status there as we go.
 4. **Ingestion** — port normalize/chunk/embed into `src/ingestion/`; `scripts/index.ts` drains `raw_documents` → idempotent `replaceDocument`. Verify the dedup lifecycle.
 5. **Retrieval** — port `retrieve.ts` into `src/retrieval/` behind `CorpusSearchStore`; wire `RetrievalPolicy`.

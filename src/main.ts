@@ -49,18 +49,18 @@ export interface Wiring {
 /** Build the storage + HTTP + embedding adapters; injected into the contexts by the runners. */
 export function wire(): Wiring {
   const env = getEnv();
-  const { client } = getDb();
-  const corpusSearchStore = new PostgresCorpusSearchStore(client);
+  const { db } = getDb();
+  const corpusSearchStore = new PostgresCorpusSearchStore(db);
   const embedder = new OpenRouterEmbedder({
     apiKey: env.OPENROUTER_API_KEY,
     model: env.EMBED_MODEL_ID,
   });
   return {
-    corpusWriteStore: new PostgresCorpusWriteStore(client),
+    corpusWriteStore: new PostgresCorpusWriteStore(db),
     corpusSearchStore,
-    fetchStateStore: new PostgresFetchStateStore(client),
-    rawDocumentStore: new PostgresRawDocumentStore(client),
-    rawDocumentReader: new PostgresRawDocumentReader(client),
+    fetchStateStore: new PostgresFetchStateStore(db),
+    rawDocumentStore: new PostgresRawDocumentStore(db),
+    rawDocumentReader: new PostgresRawDocumentReader(db),
     fetcher: new HttpFetcher(),
     embedder,
     retriever: createRetriever({ embedder, search: corpusSearchStore }),

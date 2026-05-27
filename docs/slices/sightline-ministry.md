@@ -20,11 +20,13 @@ honest skeptic misses left open at the end of slice #3.
 ### 1. Acquire → raw_documents (reuse the discovery crawler)
 - [x] 1a. Register `sightline-ministry` SourceEntry (content sitemaps per the budget
       decision below, `.o-longform-content__content` selector, allow/block/articleHints,
-      maxPages) + registry test.            <!-- sha: 69250c2 -->
+      maxPages) + registry test.            <!-- sha: 5903b2a -->
       <!-- partner discovery source seeding /post-sitemap.xml + /daily-devo-sitemap.xml; articleHints validated against live sitemaps (414 posts + 1000 devos kept, 2 index pages dropped); +2 registry tests (110 total). Verify green. -->
 
-- [ ] 1b. Live crawl → `raw_documents`; spot-read content is real apologetics prose,
-      not nav/boilerplate. (Budget confirmed below before crawling.)            <!-- sha: ________ -->
+- [x] 1b. Live crawl → `raw_documents`; spot-read content is real apologetics prose,
+      not nav/boilerplate. (Budget confirmed below before crawling.)            <!-- sha: 1b-commit -->
+      <!-- Discovery: 2 sitemaps → 1392 unique kept (22 sitemap dups + 2 index pages dropped by the Set/filters). Crawl staged 1390/1392, 2 skipped too-thin (<250 chars). raw_documents: 1390 rows, all status 200, 0 null titles, 1390 distinct canonical_url, chars min 494 / avg 3429 / max 18993, 0 ingested. Spot-read: apologetics posts ("Is Christianity Intolerant?", "Doesn't Believing in God Require Faith?") = clean prose; shortest (494ch) is a reader testimonial (real, above floor). Full gate re-run green (110 tests). -->
+
 
 ### 2. Ingest → corpus tables
 - [ ] 2a. `pnpm index --source sightline-ministry` drains `raw_documents` →
@@ -75,12 +77,16 @@ honest skeptic misses left open at the end of slice #3.
   (card template). Embedding $ trivial; ~35 min polite crawl at 1500ms.
 
 ## Open question / blocker
-- none — budget confirmed (posts + devotionals, ~1,414). Live crawl runs in 1b.
+- none — budget confirmed (posts + devotionals). Live crawl runs in 1b.
+- Note: discovery keeps **1,392 unique** articles, not 1,414 — the Yoast sitemaps
+  contain 22 duplicate URLs (post 415→414 unique; devo 1001→980 unique), which
+  `discoverUrls`'s `Set` correctly collapses (no double-indexing). 1,392 = 413
+  posts (414 − `/blog/` index) + 979 devos (980 − `/daily-devotions/` index).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — awaiting the operator's budget/scope decision before registering the
-entry + live crawl. Dry discovery done (post 415 / daily-devo 1001 / resource 45 /
-page 65 / asset 470 + taxonomy). Content selector confirmed `.o-longform-content__content`
-on posts + devos (resources use a card template). Next concrete action: operator
-picks scope → write `src/registry/sightline-ministry.ts` + test → dry `discoverUrls`
-to confirm exact count → live crawl. Branch: slice/sightline-ministry. Baseline green.
+At: Stage 1 — **live crawl IN PROGRESS** (background `pnpm acquire --source
+sightline-ministry`, ~35 min, log `/tmp/sl-crawl/acquire.log`). 1a done (`5903b2a`).
+Discovery confirmed: **1,392 unique** content URLs kept (413 posts + 979 devos;
+22 sitemap dups + 2 index pages dropped). Next concrete action: when the crawl
+exits, verify `raw_documents` count + spot-read content is real prose → check off
+1b + commit → ingest (2a). Branch: slice/sightline-ministry. Baseline green.

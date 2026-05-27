@@ -1,0 +1,85 @@
+name: ci
+
+# Quality gate for merges to main. Railway deploys on push to `main` with no
+# deploy step in this repo (#10), so green checks here — enforced by branch
+# protection — are the only thing between a bad commit and production.
+# Mirrors JesusFilm/forge's `forge-ci`, slimmed for this single-package repo.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: lint · typecheck · depcruise
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Dependency boundaries (three-context architecture)
+        run: pnpm depcruise
+
+  test:
+    name: test (postgres + vitest)
+    runs-on: ubuntu-latest
+    # pgvector image for parity with docker-compose — guarantees the `vector`
+    # extension that `pnpm db:migrate` enables. Without this service the
+    # skipIf(!dbUp) integration suites would silently skip; we want them to run.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: jesusfilm_rag
+          POSTGRES_PASSWORD: jesusfilm_rag_dev
+          POSTGRES_DB: jesusfilm_rag
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jesusfilm_rag -d jesusfilm_rag"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # Overrides the test default (host port 5434); points at the service above.
+      DATABASE_URL: postgresql://jesusfilm_rag:jesusfilm_rag_dev@localhost:5432/jesusfilm_rag
+      # Required by getEnv() in `db:migrate`. Tests use StubEmbedder and never
+      # call OpenRouter, so this is a throwaway — not a real secret.
+      OPENROUTER_API_KEY: ci-stub-embedder-no-network
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Apply migrations (enables pgvector + FTS column)
+        run: pnpm db:migrate
+      - name: Test
+        run: pnpm test

@@ -3,11 +3,14 @@
 # builder = our Dockerfile; its `CMD ["pnpm","serve"]` binds Railway's $PORT,
 # so no startCommand is needed here.
 #
-# releaseCommand runs ON Railway, after the image builds and BEFORE traffic
-# cuts over, against the real DB. `pnpm db:migrate` is idempotent: it enables
-# pgvector (CREATE EXTENSION IF NOT EXISTS vector), applies the Drizzle
-# migrations, and adds the generated FTS column + GIN index. This mirrors
-# Forge's `releaseCommand` pattern (confirmed to work with Dockerfile builds).
+# preDeployCommand runs ON Railway, after the image builds and BEFORE the new
+# container takes traffic, against the real DB. `pnpm db:migrate` is idempotent:
+# it enables pgvector (CREATE EXTENSION IF NOT EXISTS vector), applies the
+# Drizzle migrations, and adds the generated FTS column + GIN index.
+#
+# Railway's field is `preDeployCommand`, an ARRAY whose element is the full
+# shell command — NOT `releaseCommand` (silently ignored: it ran in 00:00 and
+# migrations never executed) and NOT argv-split. See docs/reference/config-as-code.
 #
 # Env values (DATABASE_URL, OPENROUTER_API_KEY, EMBED_MODEL_ID,
 # SERVE_BEARER_TOKENS) live in the Railway dashboard, never in git.
@@ -16,7 +19,7 @@
 dockerfilePath = "Dockerfile"
 
 [deploy]
-releaseCommand = "pnpm db:migrate"
+preDeployCommand = ["pnpm db:migrate"]
 healthcheckPath = "/v1/health"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"

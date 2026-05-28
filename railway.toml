@@ -1,0 +1,23 @@
+# Railway config for the jesusfilm-rag /v1 serving service.
+#
+# builder = our Dockerfile; its `CMD ["pnpm","serve"]` binds Railway's $PORT,
+# so no startCommand is needed here.
+#
+# releaseCommand runs ON Railway, after the image builds and BEFORE traffic
+# cuts over, against the real DB. `pnpm db:migrate` is idempotent: it enables
+# pgvector (CREATE EXTENSION IF NOT EXISTS vector), applies the Drizzle
+# migrations, and adds the generated FTS column + GIN index. This mirrors
+# Forge's `releaseCommand` pattern (confirmed to work with Dockerfile builds).
+#
+# Env values (DATABASE_URL, OPENROUTER_API_KEY, EMBED_MODEL_ID,
+# SERVE_BEARER_TOKENS) live in the Railway dashboard, never in git.
+
+[build]
+dockerfilePath = "Dockerfile"
+
+[deploy]
+releaseCommand = "pnpm db:migrate"
+healthcheckPath = "/v1/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

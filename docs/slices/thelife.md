@@ -32,30 +32,51 @@ needs a different discovery path).
       decided the pivot from powertochange.com → thelife.com and the scope.
       Findings recorded in "Decisions made" below.            <!-- sha: 86a98c4 -->
 - [x] 1b. Register `thelife` SourceEntry in `src/registry/` with one flat
-      `/sitemap.xml`, `articleHints` admitting `/articles/<slug>` and
-      `/devotionals/<slug>` (operator-chosen broad scope), `.article-body`
-      content selector (confirmed on BOTH shapes — articles AND devotionals
-      probed). Wired into `SOURCES`. Fakes-only registry tests assert the
-      registration shape and the hint semantics (non-article paths drop by
-      failing hints, not by explicit block).            <!-- sha: 1b-commit -->
-      <!-- src/registry/thelife.ts + +2 tests in registry.test.ts (112 total, was 110). Devotional probe confirmed `<section class="article-body dropcap">` is the same wrapper as articles — open question closed. Trust = partner (Cru Canada brand, not directly owned by JF). maxPages 6000 covers 478+5015 + headroom. requestDelayMs 1500 → ~138 min crawl budget at this scope; revisited at 1c. Verify green: depcruise 0/75, typecheck clean, tests 112/112. -->
+      `/sitemap.xml`, `.article-body` content selector (confirmed on BOTH
+      articles AND devotionals). **Initial articleHints were wrong** — see
+      1c below; corrected as part of the dry-discovery commit.            <!-- sha: cb4281d -->
 
-- [ ] 1c. **Dry discovery** — run `discover.ts` against live `/sitemap.xml`,
-      confirm the filter math produces ~5,493 kept URLs (478 `/articles/` +
-      5,015 `/devotionals/`). **OPERATOR PAUSE — confirm crawl + embedding
-      budget** for ~5,500 docs before live fetch (the architectural risk is
-      crowding small sources further; see FOLLOW-UP I).
+- [x] 1c. **Dry discovery** + **policy correction**. Ran `discover.ts` against
+      live `/sitemap.xml`; the initial filter math was wrong because the
+      recon's path-distribution awk hid the real URL structure. Corrected
+      and re-ran.
+
+      _True URL shape on thelife.com_:
+      - **Articles live at bare-root** single-segment slugs `/<slug>` (628 in
+        sitemap, ~5 are nav/utility blocked → **623 article slugs**).
+      - `/articles/...` namespace contains ONLY tag-index pages
+        (`/articles/tags/<tag>`) — 478 of them, NOT articles.
+      - **Devotionals** at `/devotionals/<slug>` — **3,929**.
+      - `/devotionals/tags/<tag>` is another 1,086 tag indexes (fail
+        single-segment hint, drop).
+
+      `articleHints` updated to `^/[^/]+/?$` (bare-root) + `^/devotionals/[^/]+/?$`
+      (single-segment devotional). `block` extended to catch the nav/utility
+      bare-root slugs that match the broader hint (`chat`, `give`, `partners`,
+      `about`, `contact`, `error-report`, `content-submission-form`,
+      `chat-terms-of-service`, `editorial-*`, `writing-for-the-internet`) and
+      defensive section indexes. Registry test rewritten to assert the new
+      shape — articles at bare-root kept; `/articles/tags/*` dropped; nav
+      slugs dropped; off-shape paths dropped.
+
+      **Dry-discovery result: 4,552 kept / 7,834 seen** (3,929 devotionals
+      + 623 articles). `maxPages` lowered 6000 → 5000.            <!-- sha: 1c-commit -->
+
+      **OPERATOR PAUSE — confirm crawl + embedding budget** for 4,552 docs
+      before live fetch. Numbers: crawl ~114 min at 1500ms delay; embed cost
+      ~$0.11 at ~2.5 chunks/doc (Sightline's average) × ~500 tok/chunk × $0.02/M
+      tokens for `text-embedding-3-small`.
 - [ ] 1d. Live `pnpm acquire --source thelife` stages rows in `raw_documents`;
       spot-read content (real article / devotional prose, not nav/boilerplate);
-      counts match discovery (minus too-thin skips). Verify gate green.
+      counts match discovery (4,552 minus too-thin skips). Verify gate green.
 
 ### 2. Ingest → corpus tables
 - [ ] 2a. `pnpm index --source thelife` drains `raw_documents` →
       documents/chunks/embeddings; 1:1 chunks:embeddings; 0 chunk_count
       mismatches; chunks/doc sane; idempotent re-run drains 0. **Re-run the FULL
       gate** (integration tests query live PG — the slice-#3 lesson: a data stage
-      can break a fixture with zero code changes; at ~5500 docs the corpus
-      doubles, the risk is real).
+      can break a fixture with zero code changes; at ~4,552 docs the corpus
+      ~3× grows, the risk is real).
 
 ### 3. Retrieve → ranked results
 - [ ] 3a. A handful of discipleship / devotional / life-issues queries return
@@ -69,8 +90,8 @@ needs a different discovery path).
       living `relevant` maps of existing 42 cases (the set is living — slice
       #3/#4 lesson). Whole-corpus eval @ top-10 (recall@3 / recall@10 / coverage /
       MRR / P@1); per-source breakdown across 5 sources. Honest log of any
-      regressions (likely **stronger** small-source crowding given 5,500 docs ≈
-      4× Sightline's 1,390 — feeds FOLLOW-UP I #15 with sharper data).
+      regressions (likely **stronger** small-source crowding given 4,552 docs ≈
+      3.3× Sightline's 1,390 — feeds FOLLOW-UP I #15 with sharper data).
       Update `sources.md` → `Evaluated` with concrete `Results`.
 
 ## Decisions made (this slice)
@@ -99,9 +120,10 @@ needs a different discovery path).
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1c. Dry discovery". 1a (recon + pivot) and 1b (register source)
-done. Next concrete action: run `discover.ts` (or a small script that invokes
-it) against the live `/sitemap.xml` to confirm the filter math produces ~5,493
-kept URLs (478 `/articles/` + 5,015 `/devotionals/`); **pause for operator
-budget confirmation** before live crawl. Last verify: green (depcruise 0/75,
-tests 112/112). Last commit: 1b. Branch: slice/thelife.
+At: Stage 1 — operator pause after 1c. 1a (recon + pivot), 1b (register source —
+articleHints initially wrong) and 1c (dry discovery + policy correction) done;
+the live `/sitemap.xml` produces **4,552 kept URLs** (3,929 devotionals + 623
+articles). **Waiting on operator confirmation of the crawl + embedding budget
+(~114 min crawl @ 1500ms, ~$0.11 embed)** before 1d (live `pnpm acquire`). Last
+verify: green (depcruise 0/75, tests 112/112). Last commit: 1c. Branch:
+slice/thelife.

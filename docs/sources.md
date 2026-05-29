@@ -27,6 +27,7 @@ as sources are registered:
 | `cru-10-basic-steps` | Cru — 10 Basic Steps (sub-scope of Cru) |
 | `jesusfilm-org` | Jesus Film Project |
 | `sightline-ministry` | Sightline Ministry |
+| `thelife` | thelife (Cru Canada — successor to Power to Change) |
 
 (Only registered sources appear; the rest get a key when their slice begins.)
 
@@ -83,7 +84,8 @@ source we currently know of.)
 |--------|-----|------|--------|---------|---------------------------|
 | GotQuestions | https://www.gotquestions.org | HTML | Not started | — | — |
 | FamilyLife | https://www.familylife.com | HTML | Not started | — | — |
-| Power to Change | https://powertochange.com | HTML | Not started | — | — |
+| Power to Change | https://powertochange.com | HTML | Deferred | — | **Deferred 2026-05-29 — decommissioned.** Recon on slice #5 found powertochange.com 301-redirects every content URL to thelife.com (homepage, `/blogposts/*`) or issuesiface.com (`/discover/*`, `/itv/*`). Sitemap still served (1000 entries, jetpack-WP) but it's a 2014-2017 relic; content is fully migrated. **Slice #5 pivoted to `thelife` (new row below)**; Issues I Face stays its own backlog row. See `docs/slices/thelife.md`. |
+| thelife (Cru Canada) | https://thelife.com | HTML | Acquiring | — | **Slice #5** (`slice/thelife`), started 2026-05-29 — **live successor to Power to Change**. Statamic-powered, open robots (`Disallow:` empty), flat `/sitemap.xml` (7,834 `<loc>` entries, 6,478 with `lastmod` 2026 — actively maintained). **First Statamic source for the discovery crawler** (slice #3/#4 were WordPress/Yoast). Path distribution: 5,015 `/devotionals/` + 478 `/articles/` + 1,358 `/tags/` + 289 `/author/` + 47 `/series/` + ~50 other. **Operator-chosen scope: articles + devotionals (~5,500 docs)** — explicit fork over articles-only (478) given the FOLLOW-UP I crowding signal; taking the broader scope to sharpen #15 evidence rather than soften it. Candidate selector `.article-body` (confirmed for `/articles/`, devotionals TBD at sub-step 1b). See `docs/slices/thelife.md`. |
 | KnowGod / GodTools | https://knowgod.com | API / HTML | Not started | — | — |
 | Victory Beyond the Cup | https://victorybeyondthecup.com | HTML | Not started | — | — |
 | Victory Host Kit | Google Drive archive | Manual | Not started | — | — |

@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-27_
+_Last updated: 2026-05-29_
 
 ## You are here
 
@@ -43,39 +43,37 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Slice #3 (jesusfilm-org) was MERGED to `main`** (PR #16, `964067e`) — the earlier
-"not yet merged" note above is stale.
+**Slice #4 (Sightline Ministry) was MERGED to `main`** (PR #22, `2c5c57f`) — the
+earlier "not yet merged" note above is stale.
 
-**Slice #4 (Sightline Ministry, `sightline-ministry`) is DONE — all 4 stages green, Evaluated**
-on `slice/sightline-ministry` (2026-05-27), **not yet merged**. It **reused slice #3's discovery
-crawler unchanged** (same WP/Yoast shape as jesusfilm.org) — zero new acquisition code. Operator
-chose the broad scope (**posts + daily devotionals**). **Acquire:** discovery kept 1,392 unique URLs
-(22 Yoast-sitemap dups + 2 index pages dropped); crawl staged **1390/1392** (2 too-thin). **Ingest:**
-**1390 docs / 3470 chunks / 3470 embeddings** (`openai/text-embedding-3-small`, 1:1, idempotent).
-**Eval via `golden` skill (operator-approved):** Part A re-reviewed 14 existing cases' living `relevant`
-maps + Part B added 10 new Sightline skeptic-axis cases (qa-golden.yaml now **42 cases**). **Curated
-whole-corpus @ top-10: recall@3 0.810 · recall@10 0.976 · coverage 0.583 · MRR 0.709 · P@1 0.571**;
-per-source **sightline 0.750/0.468** / jf 0.913/0.779 / swg 0.611/0.419 / cru 0.357/0.321. Curation
-resolved the living-set artifact (P@1 0.375→0.571). **Closed slice-#3's `jf-skeptic-intolerant` miss
-→ rank 1**; 8/10 new cases rank 1; `jf-believer-disciple-making` remains an honest vocab-gap miss.
-**minScore 0.37 held @ 4 sources.** **Honest finding:** cru/swg per-source coverage did not recover —
-Sightline's 1390 broad docs crowd small sources out of top-10 on shared topics (FOLLOW-UP I/J signal,
-not a regression). Commits 1a `5903b2a` · 1b `35dc82a` · 2a `b34ffa9` · 3a `c966bd6` · 4a (this).
-**Corpus is now 4 sources.**
+**Slice #5 (`thelife`) is IN-PROGRESS** on `slice/thelife` (started 2026-05-29).
+**This slice was initially picked as `power-to-change`**; Stage 1a recon found
+powertochange.com fully decommissioned (every content URL 301-redirects to
+thelife.com or issuesiface.com; sitemap is a 2014-2017 WP relic). The actual
+Cru Canada discipleship corpus lives at **thelife.com** now (Statamic, fresh
+sitemap with 7,834 locs / 6,478 lastmod 2026, open robots), so we pivoted the
+slice. Issues I Face stays its own backlog row.
 
-**Now unblocked (3 sources end-to-end): FOLLOW-UP E — consumer `excludedSourceKeys`
-filter** ([#6](https://github.com/JesusFilm/jesusfilm-rag/issues/6)); NextStep football2026
-was earmarked as its seasonal-exclusion fixture. **Candidate follow-up:** strip the AEM
-accordion-section TOC during Cru acquisition (citation quality, not recall).
+**Scope (operator-chosen):** articles **+** devotionals — `articleHints`
+allows `/articles/` (478) and `/devotionals/` (5,015), `block` filters out
+`/tags/`/`/author/`/`/series/`/etc. **Expected ~5,493 kept URLs.** Taken
+explicitly despite slice #4's small-source crowding signal — the expected
+consequence is per-source coverage for cru/swg likely drops further in the
+eval; that's a sharper signal for **FOLLOW-UP I (#15)**, not a regression.
 
-→ **Next: two operator decisions.** (1) **Merge** `slice/sightline-ministry` → `main` (carries the
-`sightline-ministry` source + the curated 42-case eval). Not done automatically. (2) **Pick the next
-slice** — the v1 short list is now exhausted of `Not started` sources (EveryStudent `Blocked`/Cloudflare,
-NextStep `Deferred`). Candidates: a backlog source (GotQuestions ~1500 / FamilyLife ~15000 / Power to
-Change ~1200 — all sitemap-driven, ride the discovery crawler), **or** take a now-ripe follow-up:
-**FOLLOW-UP I** (`maxPerSource`/MMR diversity — the small-source crowding this slice surfaced) or
-**FOLLOW-UP E** (`excludedSourceKeys`, unblocked since 2+ sources). `/slice <source>` starts the next
-slice; `/slice` alone resumes an in-progress one (none now). Merge is the operator's call.
+→ **At: Stage 1 — `1b. Register thelife SourceEntry`.** Sub-step 1a (recon +
+pivot) done in the unpack commit. Next concrete action: probe one `/articles/`
+and one `/devotionals/` page to confirm the content selector covers both
+shapes (open question — `.article-body` confirmed for articles, devotionals
+TBD), then write `src/registry/` entry + fakes-only registry test. Subsequent
+operator pause: **dry discovery → confirm crawl + embedding budget** for
+~5,500 docs before live fetch. See [docs/slices/thelife.md](./slices/thelife.md).
+
+**Still on the table (not picked):** FOLLOW-UP I (#15,
+`maxPerSource`/MMR — most evidence-backed engine work; this slice will sharpen
+its signal), FOLLOW-UP E (#6, `excludedSourceKeys` — unblocked, no real fixture),
+Cru accordion-TOC strip (citation quality), Issues I Face (own backlog row —
+sitemap 404, needs different discovery).
 
 ## How we're building (decided 2026-05-22)
 

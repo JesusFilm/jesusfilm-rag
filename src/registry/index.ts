@@ -8,6 +8,7 @@ import { startingWithGod } from "./starting-with-god.js";
 import { cru10BasicSteps } from "./cru-10-basic-steps.js";
 import { jesusFilmOrg } from "./jesusfilm-org.js";
 import { sightlineMinistry } from "./sightline-ministry.js";
+import { thelife } from "./thelife.js";
 
 export type { SourceEntry, CrawlPolicy } from "./types.js";
 
@@ -17,6 +18,7 @@ export const SOURCES: readonly SourceEntry[] = [
   cru10BasicSteps,
   jesusFilmOrg,
   sightlineMinistry,
+  thelife,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

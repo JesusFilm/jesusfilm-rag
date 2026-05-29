@@ -30,14 +30,16 @@ needs a different discovery path).
 ### 1. Acquire → raw_documents (reuse the discovery crawler)
 - [x] 1a. **Recon** — homepage + robots + sitemap probed under browser UA;
       decided the pivot from powertochange.com → thelife.com and the scope.
-      Findings recorded in "Decisions made" below.            <!-- sha: <this commit> -->
-- [ ] 1b. Register `thelife` SourceEntry in `src/registry/`:
-      `CrawlPolicy.sitemaps = ['/sitemap.xml']`, `articleHints` allowing
-      `/articles/` AND `/devotionals/` (operator-chosen broad scope), `block`
-      filtering out `/tags/`, `/author/`, `/series/`, `/about/`, `/chat/`,
-      `/partners/`. Candidate content selector `.article-body` (recon found
-      `class="article-body dropcap"` on a probed article). Fakes-only registry
-      test asserts the registration shape (mirrors `sightline-ministry`/`jesusfilm-org`).
+      Findings recorded in "Decisions made" below.            <!-- sha: 86a98c4 -->
+- [x] 1b. Register `thelife` SourceEntry in `src/registry/` with one flat
+      `/sitemap.xml`, `articleHints` admitting `/articles/<slug>` and
+      `/devotionals/<slug>` (operator-chosen broad scope), `.article-body`
+      content selector (confirmed on BOTH shapes — articles AND devotionals
+      probed). Wired into `SOURCES`. Fakes-only registry tests assert the
+      registration shape and the hint semantics (non-article paths drop by
+      failing hints, not by explicit block).            <!-- sha: 1b-commit -->
+      <!-- src/registry/thelife.ts + +2 tests in registry.test.ts (112 total, was 110). Devotional probe confirmed `<section class="article-body dropcap">` is the same wrapper as articles — open question closed. Trust = partner (Cru Canada brand, not directly owned by JF). maxPages 6000 covers 478+5015 + headroom. requestDelayMs 1500 → ~138 min crawl budget at this scope; revisited at 1c. Verify green: depcruise 0/75, typecheck clean, tests 112/112. -->
+
 - [ ] 1c. **Dry discovery** — run `discover.ts` against live `/sitemap.xml`,
       confirm the filter math produces ~5,493 kept URLs (478 `/articles/` +
       5,015 `/devotionals/`). **OPERATOR PAUSE — confirm crawl + embedding
@@ -90,14 +92,16 @@ needs a different discovery path).
   sample at sub-step 1b. Open robots (`Disallow:` empty).
 
 ## Open question / blocker
-- (1b) Does `.article-body` cover both `/articles/` and `/devotionals/` shapes,
-  or does `/devotionals/` use a different selector (e.g. `.spaces-content`)?
-  Resolve at sub-step 1b by probing one of each.
+- ~~(1b) Does `.article-body` cover both `/articles/` and `/devotionals/`
+  shapes?~~ **Resolved 2026-05-29 at 1b:** yes — probed
+  `/devotionals/a-higher-calling` → `<section class="article-body dropcap">`,
+  identical to articles.
+- none
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1b. Register `thelife` SourceEntry". Sub-step 1a (recon) done in
-this commit; the pivot is recorded above. Next concrete action: probe one
-`/articles/` and one `/devotionals/` page to confirm the content selector covers
-both shapes (open question above), then write the SourceEntry + registry test.
-Last verify: green (baseline). Last commit: <this docs(slice) commit>. Branch:
-slice/thelife.
+At: Stage 1 — "1c. Dry discovery". 1a (recon + pivot) and 1b (register source)
+done. Next concrete action: run `discover.ts` (or a small script that invokes
+it) against the live `/sitemap.xml` to confirm the filter math produces ~5,493
+kept URLs (478 `/articles/` + 5,015 `/devotionals/`); **pause for operator
+budget confirmation** before live crawl. Last verify: green (depcruise 0/75,
+tests 112/112). Last commit: 1b. Branch: slice/thelife.

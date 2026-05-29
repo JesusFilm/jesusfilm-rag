@@ -93,6 +93,46 @@ describe("SourceRegistry", () => {
     expect(kept("https://sightlineministry.org/daily-devotions/")).toBe(false);
   });
 
+  it("resolves thelife as a partner discovery source on a flat /sitemap.xml", () => {
+    const tl = getSource("thelife");
+    expect(tl).toBeDefined();
+    expect(tl?.domain).toBe("thelife.com");
+    expect(tl?.trust).toBe("partner");
+    expect(tl?.ingestionMode).toBe("html-scrape");
+    // Discovery source: one flat sitemap (no <sitemapindex>), no hand-listed seeds.
+    expect(tl?.crawl.sitemaps).toEqual(["/sitemap.xml"]);
+    expect(tl?.crawl.seedPaths).toBeUndefined();
+    // `.article-body` covers BOTH /articles/ and /devotionals/ shapes.
+    expect(tl?.crawl.contentSelectors[0]).toBe(".article-body");
+  });
+
+  it("thelife articleHints keep /articles/ + /devotionals/ slugs and drop the rest", () => {
+    const tl = getSource("thelife")!;
+    const hints = (tl.crawl.articleHints ?? []).map((p) => new RegExp(p));
+    const block = (tl.crawl.block ?? []).map((p) => new RegExp(p));
+    const kept = (u: string): boolean =>
+      hints.some((re) => re.test(u)) && !block.some((re) => re.test(u));
+    // articles + devotionals — slug forms with and without trailing slash
+    expect(kept("https://thelife.com/articles/10-spiritual-questions-and-their-answers")).toBe(true);
+    expect(kept("https://thelife.com/articles/10-spiritual-questions-and-their-answers/")).toBe(true);
+    expect(kept("https://thelife.com/devotionals/a-higher-calling")).toBe(true);
+    expect(kept("https://thelife.com/devotionals/a-higher-calling/")).toBe(true);
+    // non-article paths drop by failing the hints (no explicit block needed)
+    expect(kept("https://thelife.com/tags/last-words")).toBe(false);
+    expect(kept("https://thelife.com/author/staff")).toBe(false);
+    expect(kept("https://thelife.com/series/easter")).toBe(false);
+    expect(kept("https://thelife.com")).toBe(false);
+    expect(kept("https://thelife.com/")).toBe(false);
+    // and the bare section indexes
+    expect(kept("https://thelife.com/articles/")).toBe(false);
+    expect(kept("https://thelife.com/devotionals/")).toBe(false);
+    // multi-segment paths under /articles/ or /devotionals/ are also dropped
+    // (no such case observed in the live sitemap, but the hint shape rejects them)
+    expect(kept("https://thelife.com/articles/series/easter/intro")).toBe(false);
+    // off-host is dropped by the allow filter (tested elsewhere) — articleHints
+    // alone would let one through, so policy depends on allow ∧ hints ∧ ¬block.
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
   });

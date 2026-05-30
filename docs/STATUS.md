@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-29_
+_Last updated: 2026-05-30_
 
 ## You are here
 
@@ -61,13 +61,21 @@ explicitly despite slice #4's small-source crowding signal — the expected
 consequence is per-source coverage for cru/swg likely drops further in the
 eval; that's a sharper signal for **FOLLOW-UP I (#15)**, not a regression.
 
-→ **At: Stage 1 — `1b. Register thelife SourceEntry`.** Sub-step 1a (recon +
-pivot) done in the unpack commit. Next concrete action: probe one `/articles/`
-and one `/devotionals/` page to confirm the content selector covers both
-shapes (open question — `.article-body` confirmed for articles, devotionals
-TBD), then write `src/registry/` entry + fakes-only registry test. Subsequent
-operator pause: **dry discovery → confirm crawl + embedding budget** for
-~5,500 docs before live fetch. See [docs/slices/thelife.md](./slices/thelife.md).
+**Stage 1 (Acquire) is DONE — all four sub-steps green, source → `Acquired`** in
+`sources.md`. 1a recon found the actual URL structure (articles at **bare-root**
+`/<slug>`, not `/articles/`); 1b registered the source; 1c corrected the policy
+and dry-discovered 4,552 kept URLs; 1d ran a two-pass live crawl (Cloudflare
+forced delay 1000→2000 ms after pass 1's ~45% 429-rate). **`raw_documents.thelife`
+holds 4,485 distinct rows (98.5%): 616 articles + 3,869 devotionals**, all 200,
+chars avg 2,454. Stage 1 commits: 1a `86a98c4` · 1b `cb4281d` · 1c `c9695aa` ·
+1d `8026f14`.
+
+→ **At: Stage 2 — `2a. Ingest`.** Next concrete action: `pnpm index --source
+thelife` drains `raw_documents` → documents / chunks / embeddings; re-run the
+FULL gate after (data stages can break integration fixtures with zero code
+change — slice #3 / #4 lesson). Embed cost estimate ~$0.11 (4,485 × ~2.5 ×
+~500 tok × $0.02/M). Corpus grows from 4 → 5 sources. See
+[docs/slices/thelife.md](./slices/thelife.md).
 
 **Still on the table (not picked):** FOLLOW-UP I (#15,
 `maxPerSource`/MMR — most evidence-backed engine work; this slice will sharpen

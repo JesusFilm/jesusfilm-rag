@@ -66,9 +66,21 @@ needs a different discovery path).
       before live fetch. Numbers: crawl ~114 min at 1500ms delay; embed cost
       ~$0.11 at ~2.5 chunks/doc (Sightline's average) × ~500 tok/chunk × $0.02/M
       tokens for `text-embedding-3-small`.
-- [ ] 1d. Live `pnpm acquire --source thelife` stages rows in `raw_documents`;
-      spot-read content (real article / devotional prose, not nav/boilerplate);
-      counts match discovery (4,552 minus too-thin skips). Verify gate green.
+- [x] 1d. Live `pnpm acquire --source thelife` stages rows in `raw_documents`
+      across **two passes** (Cloudflare 429s drove a delay adjustment, see
+      below). Pass 1 @ 1000ms: 2,520 / 4,552 staged · skipped 2,025
+      fetch-failed (2,018 were HTTP 429, 1.7s sustained limit on this site).
+      Pass 2 @ 2000ms: 4,446 / 4,552 staged · skipped 96 fetch-failed (80
+      HTTP 429, 1.8% — proves 2,000 ms is comfortably under Cloudflare's rate
+      limit). **Union of both passes in `raw_documents` = 4,485 distinct rows
+      (98.5% of target)**: 616 bare-root articles + 3,869 devotionals; all
+      status 200, 0 null titles; chars min 252 / avg 2,454 / max 24,164.
+      Spot-read 5 random rows = real prose ("The Life ::" titles, devotionals
+      ~2 k chars, articles ~5 k chars). 67 URLs unaccounted (presumably stuck
+      429s + a handful of 404s); not worth a third pass for ~1.5% — the slice
+      corpus is set.            <!-- sha: 1d-commit -->
+      <!-- requestDelayMs change 1000→2000ms is the only registry change in this commit. Pass 1 log archived at /tmp/thelife-acquire-pass1.log. Verify green: depcruise 0/75, tests 112/112. -->
+
 
 ### 2. Ingest → corpus tables
 - [ ] 2a. `pnpm index --source thelife` drains `raw_documents` →
@@ -120,10 +132,11 @@ needs a different discovery path).
 - none
 
 ## Resume hint (for a cold start)
-At: Stage 1 — operator pause after 1c. 1a (recon + pivot), 1b (register source —
-articleHints initially wrong) and 1c (dry discovery + policy correction) done;
-the live `/sitemap.xml` produces **4,552 kept URLs** (3,929 devotionals + 623
-articles). **Waiting on operator confirmation of the crawl + embedding budget
-(~114 min crawl @ 1500ms, ~$0.11 embed)** before 1d (live `pnpm acquire`). Last
-verify: green (depcruise 0/75, tests 112/112). Last commit: 1c. Branch:
-slice/thelife.
+At: **Stage 1 complete; operator pause before Stage 2 (Ingest)**. 1a (recon +
+pivot), 1b (register), 1c (dry discovery + policy correction), 1d (live crawl,
+2 passes, 4,485 / 4,552 = 98.5% staged) all done and green. Next concrete
+action: `pnpm index --source thelife` drains `raw_documents` → docs / chunks /
+embeddings. Embed cost estimate ~$0.11 (4,485 docs × ~2.5 chunks/doc × ~500
+tok/chunk × $0.02/M). Re-run the FULL test gate after — data stages can break
+fixtures with zero code change (slice-#3 lesson). Last verify: green (depcruise
+0/75, tests 112/112). Last commit: 1d. Branch: slice/thelife.

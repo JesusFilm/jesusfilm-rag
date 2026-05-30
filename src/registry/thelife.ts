@@ -91,7 +91,7 @@ export const thelife: SourceEntry = {
       "footer",
       "form",
     ],
-    requestDelayMs: 1500, // polite; ~4,552 pages ≈ 114 min at this delay
+    requestDelayMs: 2000, // bumped from 1000 after Cloudflare 429'd ~45% of fetches at 1000ms; ~4,552 pages ≈ 152 min at this delay
     maxPages: 5000, // covers ~623 articles + 3,929 devotionals + headroom
     minContentLength: 250,
   },

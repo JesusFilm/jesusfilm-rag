@@ -80,12 +80,27 @@ tests) — the slice-#3/#4 integration-fixture risk did NOT bite despite the
 corpus growing ~3.2× to **5 sources / ~6.5 k docs / ~14.7 k chunks**. Stage 2
 commit: 2a `f50e2e7`.
 
-→ **At: Stage 3 — `3a. Retrieve`.** Next concrete action: run a handful of
-discipleship / devotional / life-issues queries via `pnpm query "<q>"`; confirm
-`thelife` hits surface ranked + cited in the 5-source space; cross-source health
-holds (swg/cru/jf/sightline still rank on their topics — predicted to widen the
-FOLLOW-UP I/J small-source crowding signal); **re-confirm `minScore 0.37` at 5
-sources** (off-scope nulls; faith-adjacent below the positive band). See
+**Stage 3 (Retrieve) is DONE.** Spot-retrieval against the 5-source space (6
+queries via `pnpm query`): thelife dominates its native topics (discipleship
+0.706 top; anxiety/sleep all 5 thelife 0.594–0.572); **cross-source health
+preserved** — sightline #1 / jf #2 on apologetics; swg flagship "How to Be Sure
+of Heaven" #2 on assurance (edged by 0.003 by thelife #1). The **anxiety/sleep
+result is the cleanest evidence yet for FOLLOW-UP I (#15) small-source crowding**
+— predicted at slice unpack, not a regression. 3-key dedup intact at 5 sources.
+**`minScore 0.37` holds at 5 sources** (secular = 0; Ramadan/fasting returns 5
+legitimate Christian-fasting hits 0.401–0.495, below the 0.55+ positive band —
+top edged above slice-#3's 0.389 Quran ref, flagged for Stage 4 re-check).
+Stage 3 commit: 3a `7aedbad`. **No code changes** — wiring unchanged from
+slice #1.
+
+→ **At: Stage 4 — `4a. Eval via /golden`.** Next concrete action: `/golden
+thelife` adds persona-diverse thelife cases (discipleship / devotional /
+life-issues) AND re-reviews the living `relevant` maps of the existing 42 cases
+(slice #3/#4 lesson: living set). Then whole-corpus eval @ top-10 (recall@3 /
+recall@10 / coverage / MRR / P@1) + per-source breakdown across 5 sources.
+**Expectation, not regression:** cru/swg per-source coverage likely drops
+further than slice #4's 0.32/0.42 — confirming-not-degrading; the crowding
+becomes hard evidence for FOLLOW-UP I (#15). See
 [docs/slices/thelife.md](./slices/thelife.md).
 
 **Still on the table (not picked):** FOLLOW-UP I (#15,

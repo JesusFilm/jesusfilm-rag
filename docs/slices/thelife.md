@@ -119,7 +119,7 @@ needs a different discovery path).
         "fasting", below the typical 0.55+ positive band. Note: top edged above
         the historical Quran/Ramadan 0.389 reference; flag for re-check during
         Stage 4 curation but not a noise breakthrough (results aren't off-topic
-        — they're on a different framing of the same word).            <!-- sha: ________ -->
+        — they're on a different framing of the same word).            <!-- sha: 7aedbad -->
 
 ### 4. Spot-check / eval (via `/golden`)
 - [ ] 4a. `/golden thelife` adds discipleship/devotional cases + re-reviews the

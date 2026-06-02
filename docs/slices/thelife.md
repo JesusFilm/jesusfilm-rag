@@ -91,7 +91,7 @@ needs a different discovery path).
       clean devotional prose, no nav/boilerplate. **Full gate green after ingest**:
       depcruise 0/75, lint 0/4 (pre-existing warnings), typecheck clean,
       **112/112 tests** — the slice-#3/#4 integration-fixture risk did NOT bite
-      despite ~3.2× corpus growth (4 → 5 sources, ~6.5 k docs total).            <!-- sha: ________ -->
+      despite ~3.2× corpus growth (4 → 5 sources, ~6.5 k docs total).            <!-- sha: f50e2e7 -->
 
 
 ### 3. Retrieve → ranked results

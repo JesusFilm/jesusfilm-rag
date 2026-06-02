@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-05-30_
+_Last updated: 2026-06-02_
 
 ## You are here
 
@@ -70,11 +70,22 @@ holds 4,485 distinct rows (98.5%): 616 articles + 3,869 devotionals**, all 200,
 chars avg 2,454. Stage 1 commits: 1a `86a98c4` · 1b `cb4281d` · 1c `c9695aa` ·
 1d `8026f14`.
 
-→ **At: Stage 2 — `2a. Ingest`.** Next concrete action: `pnpm index --source
-thelife` drains `raw_documents` → documents / chunks / embeddings; re-run the
-FULL gate after (data stages can break integration fixtures with zero code
-change — slice #3 / #4 lesson). Embed cost estimate ~$0.11 (4,485 × ~2.5 ×
-~500 tok × $0.02/M). Corpus grows from 4 → 5 sources. See
+**Stage 2 (Ingest) is DONE — source → `Ingested`** in `sources.md`. `pnpm index
+--source thelife` drained all 4,485 pending rows → **4,485 docs / 7,905 chunks /
+7,905 embeddings** (`openai/text-embedding-3-small`, 1:1, 0 nulls dropped, 0
+chunk_count mismatches; chunks/doc avg **1.76** — lower than Sightline's 2.5
+because short devotionals dominate). Idempotent re-run drained 0. **Full gate
+green at the new size** (depcruise 0/75, lint 0 errors, typecheck clean, 112/112
+tests) — the slice-#3/#4 integration-fixture risk did NOT bite despite the
+corpus growing ~3.2× to **5 sources / ~6.5 k docs / ~14.7 k chunks**. Stage 2
+commit: 2a `f50e2e7`.
+
+→ **At: Stage 3 — `3a. Retrieve`.** Next concrete action: run a handful of
+discipleship / devotional / life-issues queries via `pnpm query "<q>"`; confirm
+`thelife` hits surface ranked + cited in the 5-source space; cross-source health
+holds (swg/cru/jf/sightline still rank on their topics — predicted to widen the
+FOLLOW-UP I/J small-source crowding signal); **re-confirm `minScore 0.37` at 5
+sources** (off-scope nulls; faith-adjacent below the positive band). See
 [docs/slices/thelife.md](./slices/thelife.md).
 
 **Still on the table (not picked):** FOLLOW-UP I (#15,

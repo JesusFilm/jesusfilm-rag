@@ -95,11 +95,31 @@ needs a different discovery path).
 
 
 ### 3. Retrieve → ranked results
-- [ ] 3a. A handful of discipleship / devotional / life-issues queries return
-      ranked, cited `thelife` hits in the 5-source space; dedup intact;
-      cross-source health (swg/cru/jf/sightline still surface on their topics);
-      **re-confirm `minScore 0.37`** at 5 sources (off-scope nulls; faith-adjacent
-      below the positive band).
+- [x] 3a. Spot-retrieval against the 5-source space (~14.7 k chunks): 6 queries
+      via `pnpm query`. **thelife dominates its native topics with cross-source
+      health preserved:**
+      - "how do I grow as a disciple of Jesus?" → top 3 thelife (0.706/0.666/0.666),
+        #4–5 jesusfilm-org (0.643/0.632). jf surfaces alongside.
+      - "I'm anxious and can't sleep — what does the Bible say?" → **all 5 thelife**
+        (0.594→0.572). **FOLLOW-UP I/J small-source crowding signal manifesting
+        exactly as predicted** by the operator at slice-unpack; not a regression.
+      - "is Christianity intolerant?" → #1 sightline (0.686), #2 jf (0.673), #3–5
+        sightline. The slice-#3 `jf-skeptic-intolerant` gap that slice #4 closed
+        remains closed.
+      - "how can I be sure I will go to heaven?" → #1 thelife (0.551), **#2 swg
+        "How to Be Sure of Heaven" (0.548)** — the slice-#1 flagship doc still
+        surfaces (edged by 0.003); sightline #5. Cross-source health preserved.
+      **Dedup intact** — every query returned 5 distinct URLs / 5 distinct
+      documents; 3-key content-hash dedup holds at 5 sources.
+      **minScore 0.37 holds at 5 sources:**
+      - "best index fund to buy in 2026" → **0 hits** (secular floor unchanged).
+      - "what does Ramadan teach about fasting?" → 5 hits 0.401–**0.495**, all
+        legitimate Christian-fasting content (Jesus fasting, spiritual discipline)
+        — the corpus has no Islamic content, so this is honest topic overlap on
+        "fasting", below the typical 0.55+ positive band. Note: top edged above
+        the historical Quran/Ramadan 0.389 reference; flag for re-check during
+        Stage 4 curation but not a noise breakthrough (results aren't off-topic
+        — they're on a different framing of the same word).            <!-- sha: ________ -->
 
 ### 4. Spot-check / eval (via `/golden`)
 - [ ] 4a. `/golden thelife` adds discipleship/devotional cases + re-reviews the
@@ -136,14 +156,17 @@ needs a different discovery path).
 - none
 
 ## Resume hint (for a cold start)
-At: **Stage 2 (Ingest) complete; operator pause before Stage 3 (Retrieve)**.
-Stage 1 (1a–1d) + Stage 2 (2a) all green. Corpus = **5 sources** now: thelife
-contributes **4,485 docs / 7,905 chunks / 7,905 embeddings** (1:1, 0 mismatches,
-chunks/doc avg 1.76 — short devotionals dominate). Idempotent re-run drained 0;
-full gate green (112/112 tests). Next concrete action: **Stage 3** — run a
-handful of discipleship / devotional / life-issues queries via `pnpm query "<q>"`
-in the 5-source space, confirm ranked + cited `thelife` hits, dedup intact,
-cross-source health (swg/cru/jf/sightline still surface on their topics), and
-**re-confirm `minScore 0.37`** at 5 sources (off-scope nulls; faith-adjacent
-below the positive band). Last verify: green (depcruise 0/75, tests 112/112).
-Last commit: 2a (sha pending). Branch: slice/thelife.
+At: **Stage 3 (Retrieve) complete; operator pause before Stage 4 (eval via
+`/golden`)**. Stages 1, 2, 3 all green. 5-source corpus (~14.7 k chunks) is
+queryable end-to-end; thelife dominates devotional/life-issues queries,
+cross-source health preserved on apologetics (sightline #1, jf #2) and
+assurance (thelife #1 by 0.003 over swg #2); 3-key dedup intact; minScore 0.37
+holds (secular = 0; Ramadan/fasting cluster legitimately on-topic Christian
+fasting at 0.40–0.495, below the 0.55+ positive band). Next concrete action:
+**Stage 4** — `/golden thelife` adds discipleship/devotional cases + re-reviews
+the living `relevant` maps of existing 42 cases (the set is living — slice
+#3/#4 lesson). Run whole-corpus eval @ top-10 (recall@3 / recall@10 / coverage
+/ MRR / P@1) + per-source breakdown across 5 sources; honest log of the
+predicted small-source crowding regressions (sharper FOLLOW-UP I #15 data, not
+a retrieval regression). Last verify: green (depcruise 0/75, tests 112/112).
+Last commit: 3a (sha pending). Branch: slice/thelife.

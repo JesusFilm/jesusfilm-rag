@@ -83,12 +83,16 @@ needs a different discovery path).
 
 
 ### 2. Ingest → corpus tables
-- [ ] 2a. `pnpm index --source thelife` drains `raw_documents` →
-      documents/chunks/embeddings; 1:1 chunks:embeddings; 0 chunk_count
-      mismatches; chunks/doc sane; idempotent re-run drains 0. **Re-run the FULL
-      gate** (integration tests query live PG — the slice-#3 lesson: a data stage
-      can break a fixture with zero code changes; at ~4,552 docs the corpus
-      ~3× grows, the risk is real).
+- [x] 2a. `pnpm index --source thelife` drained all 4,485 pending raw rows →
+      **4,485 docs / 7,905 chunks / 7,905 embeddings** (`openai/text-embedding-3-small`,
+      1:1 chunks:embeddings, 0 nulls dropped). **0 chunk_count mismatches**;
+      chunks/doc **min 1 / avg 1.76 / max 17** (lower than Sightline's 2.5 — short
+      devotionals dominate). Idempotent re-run drained 0. Spot-read 3 random chunks =
+      clean devotional prose, no nav/boilerplate. **Full gate green after ingest**:
+      depcruise 0/75, lint 0/4 (pre-existing warnings), typecheck clean,
+      **112/112 tests** — the slice-#3/#4 integration-fixture risk did NOT bite
+      despite ~3.2× corpus growth (4 → 5 sources, ~6.5 k docs total).            <!-- sha: ________ -->
+
 
 ### 3. Retrieve → ranked results
 - [ ] 3a. A handful of discipleship / devotional / life-issues queries return
@@ -132,11 +136,14 @@ needs a different discovery path).
 - none
 
 ## Resume hint (for a cold start)
-At: **Stage 1 complete; operator pause before Stage 2 (Ingest)**. 1a (recon +
-pivot), 1b (register), 1c (dry discovery + policy correction), 1d (live crawl,
-2 passes, 4,485 / 4,552 = 98.5% staged) all done and green. Next concrete
-action: `pnpm index --source thelife` drains `raw_documents` → docs / chunks /
-embeddings. Embed cost estimate ~$0.11 (4,485 docs × ~2.5 chunks/doc × ~500
-tok/chunk × $0.02/M). Re-run the FULL test gate after — data stages can break
-fixtures with zero code change (slice-#3 lesson). Last verify: green (depcruise
-0/75, tests 112/112). Last commit: 1d. Branch: slice/thelife.
+At: **Stage 2 (Ingest) complete; operator pause before Stage 3 (Retrieve)**.
+Stage 1 (1a–1d) + Stage 2 (2a) all green. Corpus = **5 sources** now: thelife
+contributes **4,485 docs / 7,905 chunks / 7,905 embeddings** (1:1, 0 mismatches,
+chunks/doc avg 1.76 — short devotionals dominate). Idempotent re-run drained 0;
+full gate green (112/112 tests). Next concrete action: **Stage 3** — run a
+handful of discipleship / devotional / life-issues queries via `pnpm query "<q>"`
+in the 5-source space, confirm ranked + cited `thelife` hits, dedup intact,
+cross-source health (swg/cru/jf/sightline still surface on their topics), and
+**re-confirm `minScore 0.37`** at 5 sources (off-scope nulls; faith-adjacent
+below the positive band). Last verify: green (depcruise 0/75, tests 112/112).
+Last commit: 2a (sha pending). Branch: slice/thelife.

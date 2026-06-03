@@ -67,14 +67,15 @@ reviewer"), so we rebuilt Stage 4 around a surgical probe that returns chunk
 snippets for every candidate — the operator judges real text against real
 questions. This is worth folding back into `/golden` for future slices.
 
-→ **Operator's choice for the next concrete action:** (a) merge
-`slice/thelife` → `main` (Stage 1/2/3/4 commits ready: `86a98c4` `cb4281d`
-`c9695aa` `8026f14` `f50e2e7` `0b5fd81` `7aedbad` `4d520d3` `4a-pending`);
-(b) take the **next slice** — FOLLOW-UP I #15 (`maxPerSource`/MMR) now has its
-sharpest evidence yet from this slice's cru/swg crowding signal, or one of the
-remaining sources (GotQuestions, FamilyLife, KnowGod, Issues I Face); (c) lift
-the surgical content-grounded `/golden` flow into the skill itself (this slice
-ran it manually via disposable probe scripts; the workflow is worth promoting).
+→ **Operator's choice for the next concrete action:** (a) review and merge
+**[PR #31](https://github.com/JesusFilm/jesusfilm-rag/pull/31)** (`slice/thelife`
+→ `main`, 12 commits, head `e27766c`); (b) take the **next slice** — FOLLOW-UP
+I #15 (`maxPerSource`/MMR) now has its sharpest evidence yet from this slice's
+cru/swg crowding signal, or one of the remaining sources (GotQuestions,
+FamilyLife, KnowGod, Issues I Face). The surgical content-grounded `/golden`
+flow has already been folded into the skill itself (commit `e27766c` bumped
+`/golden` to v2 and `/slice` to v4); future slices' Stage 4 inherits it by
+default.
 
 See **[docs/slices/thelife.md](./slices/thelife.md)** for the slice-5 record.
 

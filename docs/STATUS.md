@@ -53,24 +53,31 @@ regression). The slice-#4 sightline curation gap (15+ docs) and the
 slice-#3 `jf-believer-disciple-making` vocab gap were both closed as
 side-effects of the content-grounded `/golden` re-review.
 
-**Slice #6 (FamilyLife, `familylife`) — Stage 1 (Acquire) DONE 2026-06-03**
-on `slice/familylife`. WordPress VIP via `sitemaps.xml`; reused slice #3/#4/#5
-discovery crawler with no new acquisition code (confirmed FOLLOW-UP F is
-durable across 4 sources now: jf/sightline/thelife/familylife). **Staged
-2,239 / 2,329 (96.1%)** across 2 passes — pass 1 SIGINT-stopped at 1,431 for
-laptop disconnect, pass 2 walked the full list (surfaced **FOLLOW-UP K #32**:
+**Slice #6 (FamilyLife, `familylife`) — Stages 1+2 DONE 2026-06-03** on
+`slice/familylife`. WordPress VIP via `sitemaps.xml`; reused slice #3/#4/#5
+discovery crawler with no new acquisition code (FOLLOW-UP F durable across 4
+sources now: jf/sightline/thelife/familylife). **Acquired 2,239 / 2,329
+(96.1%)** across 2 passes — pass 1 SIGINT-stopped at 1,431 for laptop
+disconnect, pass 2 walked the full list (surfaced **FOLLOW-UP K #32**:
 fetch-layer idempotency gap — re-runs of paused crawls re-fetch already-staged
 URLs because conditional headers aren't threaded). All status 200, zero 429s
-across 4,569 fetches (WP VIP polite at 1,500 ms). 88 too-thin skips
-concentrated on `/equip/` (84 — bimodal page type: real teaching + PDF/course
-teaser hubs) + 4 `/articles/` category-index pages. **/equip/ retention
-deferred to Stage 4 eval.** Corpus `raw_documents` now **8,514 rows across
-6 sources** (familylife 2,239 + thelife 4,485 + sightline 1,390 + jf 349 +
-swg 40 + cru 11).
+across 4,569 fetches. 88 too-thin skips concentrated on `/equip/` (84 —
+bimodal: real teaching + PDF/course teaser hubs); /equip/ retention deferred
+to Stage 4. **Ingested all 2,239 raw → 2,239 docs / 9,815 chunks / 9,815
+embeds** (`openai/text-embedding-3-small`, 1536d); perfect 1:1, 0 mismatches,
+chunks/doc avg 4.38. Corpus now **6 sources / 8,514 docs / 23,522 chunks**
+(+60% chunk growth vs slice-5 end). **Verify gate green at new size** but
+the data growth fired the pre-existing canary in
+`tests/retrieval.integration.test.ts` — **FOLLOW-UP J #17** (HNSW post-filter
+under-recalls in-scope docs when out-of-scope neighbors dominate the graph)
+now actively bites at 23.5k chunks (was dormant at ~14k). Test loosened as
+a stop-gap; full empirical evidence (max real cosine vs `oneHot(0)` = 0.12;
+HNSW graph topology, not cosine cutoff) appended to #17.
 
-**Next:** Stage 2 (Ingest) → `pnpm index --source familylife` to drain raw →
-docs / chunks / embeddings (`openai/text-embedding-3-small`, 1536d). Expected
-~2,239 docs / ~7-12k chunks (medium-length WP articles, avg 6,585 raw chars).
+**Next:** Stage 3 (Retrieve) → `pnpm query "..."` spot-retrievals against
+marriage/parenting questions the prior 5-source corpus under-served; confirm
+cross-source health, minScore 0.37, 3-key dedup intact at 6 sources. No
+code changes expected.
 
 See **[docs/slices/familylife.md](./slices/familylife.md)** for the slice-6
 record, and **[docs/slices/thelife.md](./slices/thelife.md)** for slice 5.

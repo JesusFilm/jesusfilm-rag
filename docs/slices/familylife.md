@@ -71,17 +71,20 @@ anything that doesn't live under `/articles/`).
       `block` defensives wp-admin / cart / podcast / .kml / .pdf. Content
       selector `.the-content` preferred, `.single-content` fallback.
       Fakes-only tests cover hint+block behavior on real sample URLs.
-      <!-- sha: ________ -->
-- [ ] 1b — **Dry discovery**: run discovery only (no fetches), surface kept-
-      URL count + a sample, **pause for operator scope/budget confirm**
-      before the live crawl (per skill Step 4 "Before a live discovery
-      crawl, confirm the budget"). Adjust hints if the count is wildly off
-      ~2,330. <!-- sha: ________ -->
+      <!-- sha: d5abfd4 -->
+- [x] 1b — **Dry discovery** (operator-confirmed 2026-06-03, budget approved):
+      ran the policy's allow/hint/block regexes against `<url><loc>` from the
+      three post-sitemaps. **2,330 seen → 2,329 kept**, 1 dropped (the `/`
+      homepage post-sitemap1 lists). Distribution: 2,174 `/articles/` +
+      155 `/equip/`. Zero unexpected drops, zero unexpected keeps. Crawl
+      time estimate: ~58 min at 1,500 ms polite delay. Embed cost <$0.10
+      at `text-embedding-3-small`. No policy change needed. <!-- sha: ________ -->
 - [ ] 1c — Live crawl `pnpm acquire --source familylife`. Stage rows to
-      `raw_documents`. Polite delay starts at 1,000 ms; bump to 2,000 ms if
-      we hit Cloudflare-style 429s (slice #5 pattern). Verify: row count
-      vs. discovered count; status 200 dominant; titles populated; spot-read
-      raw_content for clean article prose. <!-- sha: ________ -->
+      `raw_documents`. Polite delay 1,500 ms; bump to 2,000 ms only if
+      Cloudflare-style 429s appear (WP VIP / Automattic isn't expected to
+      throttle). Verify: row count vs. 2,329 kept; status 200 dominant;
+      titles populated; spot-read raw_content for clean article prose.
+      <!-- sha: ________ -->
 - [ ] 1d — Slice-file checkpoint: record acquire numbers + selector evidence.
       <!-- sha: ________ -->
 
@@ -134,9 +137,12 @@ anything that doesn't live under `/articles/`).
 - none (scope locked; re-confirm count at 1b dry discovery).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1a Register `familylife` SourceRegistry entry". Next concrete
-action: write `src/registry/familylife.ts` with the discovery-crawl policy
-above; export from `src/registry/index.ts`; add a fakes-only test case.
-Last verify: green @ start of slice (depcruise 75/0, lint 0 errors,
-typecheck clean, 112/112 tests on `dc8cfaf`). Last commit: n/a (slice not
-yet committed). Branch: `slice/familylife`.
+At: Stage 1 — "1c Live crawl". Next concrete action: `pnpm acquire --source
+familylife` (~58 min at 1,500 ms delay). 2,329 URLs expected per 1b dry
+discovery. Watch for 429s in the first ~50 fetches and bump delay to 2,000
+ms only if they appear (WP VIP / Automattic — slice #5's Cloudflare throttling
+not expected). On completion: verify rows in `raw_documents` against 2,329
+kept count, status 200 dominant, titles populated, spot-read raw_content for
+clean prose. Last verify: green @ 1a (depcruise 76/0, lint 0 errors,
+typecheck clean, 114/114 tests on `d5abfd4`). Last commit: `d5abfd4` (1a).
+Branch: `slice/familylife`.

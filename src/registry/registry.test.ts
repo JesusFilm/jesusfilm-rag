@@ -93,6 +93,55 @@ describe("SourceRegistry", () => {
     expect(kept("https://sightlineministry.org/daily-devotions/")).toBe(false);
   });
 
+  it("resolves thelife as a partner discovery source on a flat /sitemap.xml", () => {
+    const tl = getSource("thelife");
+    expect(tl).toBeDefined();
+    expect(tl?.domain).toBe("thelife.com");
+    expect(tl?.trust).toBe("partner");
+    expect(tl?.ingestionMode).toBe("html-scrape");
+    // Discovery source: one flat sitemap (no <sitemapindex>), no hand-listed seeds.
+    expect(tl?.crawl.sitemaps).toEqual(["/sitemap.xml"]);
+    expect(tl?.crawl.seedPaths).toBeUndefined();
+    // `.article-body` covers BOTH /articles/ and /devotionals/ shapes.
+    expect(tl?.crawl.contentSelectors[0]).toBe(".article-body");
+  });
+
+  it("thelife articleHints keep bare-root articles + /devotionals/<slug>, drop tag indexes + nav", () => {
+    const tl = getSource("thelife")!;
+    const hints = (tl.crawl.articleHints ?? []).map((p) => new RegExp(p));
+    const block = (tl.crawl.block ?? []).map((p) => new RegExp(p));
+    const kept = (u: string): boolean =>
+      hints.some((re) => re.test(u)) && !block.some((re) => re.test(u));
+    // ARTICLES live at bare-root single-segment slugs — /articles/<slug> does NOT exist.
+    expect(kept("https://thelife.com/10-spiritual-questions-and-their-answers")).toBe(true);
+    expect(kept("https://thelife.com/10-spiritual-questions-and-their-answers/")).toBe(true);
+    expect(kept("https://thelife.com/5-steps-to-staying-sober")).toBe(true);
+    // DEVOTIONALS at single-segment under /devotionals/.
+    expect(kept("https://thelife.com/devotionals/a-higher-calling")).toBe(true);
+    expect(kept("https://thelife.com/devotionals/a-higher-calling/")).toBe(true);
+    // /articles/tags/<tag> is a tag-index page, NOT an article — drop.
+    expect(kept("https://thelife.com/articles/tags/communication")).toBe(false);
+    // /devotionals/tags/<tag> likewise.
+    expect(kept("https://thelife.com/devotionals/tags/prayer")).toBe(false);
+    // Other tag/author/series 2-segment URLs fail the hints (single-segment only).
+    expect(kept("https://thelife.com/tags/last-words")).toBe(false);
+    expect(kept("https://thelife.com/author/staff")).toBe(false);
+    expect(kept("https://thelife.com/series/easter")).toBe(false);
+    // Nav/utility bare-root slugs match the hint but are blocked.
+    expect(kept("https://thelife.com/chat")).toBe(false);
+    expect(kept("https://thelife.com/give")).toBe(false);
+    expect(kept("https://thelife.com/partners")).toBe(false);
+    expect(kept("https://thelife.com/about")).toBe(false);
+    expect(kept("https://thelife.com/contact")).toBe(false);
+    // Section indexes — defensive blocks.
+    expect(kept("https://thelife.com/articles")).toBe(false);
+    expect(kept("https://thelife.com/devotionals")).toBe(false);
+    expect(kept("https://thelife.com/articles/")).toBe(false);
+    expect(kept("https://thelife.com/devotionals/")).toBe(false);
+    // Homepage itself (no slug) fails the hint regex.
+    expect(kept("https://thelife.com/")).toBe(false);
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
   });

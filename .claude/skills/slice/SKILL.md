@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 3 -->
+<!-- version: 4 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -131,7 +131,21 @@ Pause and hand back to the operator, in plain language, when:
   docs displace the old expected docs on _existing_ cases, so recall/coverage drops.
   Re-review the **living `relevant` maps** via `/golden` (it re-scans prior cases)
   _before_ suspecting retrieval/minScore. (slice #3: recall@10 0.85 → 0.938 after
-  re-review, no engine change.)
+  re-review, no engine change. slice #5: recall@3 0.71 → 1.00 after re-review.)
+- **Each slice's Stage 4 re-review improves PRIOR slices' eval too, not just the
+  new source's.** Re-reviewing a question for the new source's relevant docs
+  often surfaces top-10 hits from PRIOR sources that were already in the corpus
+  but never credited — leftover curation gaps in an earlier slice's Stage 4.
+  Don't skip those; crediting them is how the eval matures. When reading
+  per-source coverage after a Stage 4, expect _prior-source_ numbers to MOVE —
+  usually up. (slice #5: 15+ sightline docs were credited as a side-effect of
+  re-reviewing for thelife, closing a slice-#4 sightline curation gap; the
+  slice-#3 `jf-believer-disciple-making` vocab gap was also closed by
+  thelife `/discipleship-101`.)
+- **`/golden` ≥ v2 runs Stage 4 in content-grounded mode** — every candidate is
+  presented with the actual chunk snippet, not just title + score. Title-only
+  review is rubber-stamping, not curation. If `/golden` regresses to title
+  lists, push back; rebuild the surface around real text.
 
 ### Step 5 — Slice complete
 
@@ -146,7 +160,26 @@ When all four stages are green and the spot-check looks good:
    done end-to-end**, surface that **FOLLOW-UP E** (consumer source-exclude filter,
    `excludedSourceKeys`) is unblocked — it was deferred precisely until a second
    source exists to test exclusion against. See `docs/architecture.md` §11.
-5. Offer next steps — merge `slice/<source-key>` into `main`, and/or
+5. **Capture process learnings.** Before offering merge/next-slice, ask: "Anything
+   from this slice worth carrying forward?" Lessons land in their natural home —
+   no graveyard doc; embed them where they'll be READ on the next invocation:
+   - **Procedural lessons that change how the next slice runs** → edit this skill
+     (`.claude/skills/slice/SKILL.md`) and bump the `<!-- version: N -->` marker.
+     Cite the slice that taught it (`slice #N: <what we hit>`) — the citation
+     pattern is the provenance trail; future readers can trace a rule back to the
+     moment it bit someone.
+   - **`/golden`-handoff-surface lessons** → edit `.claude/skills/golden/SKILL.md`
+     (bump its version) AND drop a one-line pointer in this skill's Step-4
+     living-relevant-set bullet so the `/slice` driver knows about the
+     `/golden` shape it'll hand off to.
+   - **Engine / architecture lessons** → `docs/architecture.md` §11 FOLLOW-UPS
+     (the running list that captures "things a slice discovered we need to do
+     later"; this slice may sharpen an existing FOLLOW-UP rather than add one).
+   - **Eval-methodology lessons** → `docs/eval-approach.md`.
+   Commit as `docs(skill): capture slice-N learnings — <one-line summary>` on
+   the slice branch so lessons land alongside the work that produced them.
+   Skip silently if there's genuinely nothing — don't manufacture lessons.
+6. Offer next steps — merge `slice/<source-key>` into `main`, and/or
    `/slice <next-source>`. Do not merge or push without the operator's say-so.
 
 ## The verify gate
@@ -161,6 +194,15 @@ The bar for "this sub-step is real":
   stage can turn them red with **zero** code changes (slice #3: ingesting 349 docs
   broke `tests/retrieval.integration.test.ts`, whose fixture assumed a small DB).
   Never check off a data stage on the strength of "no code changed" — run it.
+- **Delete throwaway slice scripts BEFORE running the gate, not after.** Stage 4
+  curation (and sometimes other sub-steps) needs disposable scripts under
+  `scripts/` — ad-hoc probes, one-off appliers, etc. These are part of the work,
+  not part of the codebase. Keep them only while you're using them: `tsc` (in
+  `pnpm typecheck`) will fail on a stale unused-variable in a debug iteration
+  even though the script is going away, and the slice can't close on a red gate.
+  Delete-then-verify, never verify-then-delete. (slice #5: a Stage-4 probe's
+  unused `probe` const flunked typecheck the first time the post-curation gate
+  ran.)
 - **Plus the stage's evidence:**
   - *Acquire* — rows in `raw_documents` for the source; spot-read `raw_content`,
     confirm it's real article text, not nav/boilerplate.

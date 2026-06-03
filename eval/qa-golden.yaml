@@ -27,7 +27,7 @@
 # miscount them as misses), not here.
 
 cases:
-  - id: swg-seeker-anxiety
+  - id: "swg-seeker-anxiety"
     question: "My mind races with anxiety constantly and I can't switch it off — is there a way to actually find peace?"
     relevant:
       starting-with-god:
@@ -37,7 +37,14 @@ cases:
       jesusfilm-org:
         - "/blog/fear-bible-verses"
         - "/blog/peace-bible-verses"
-  - id: swg-seeker-failure
+      thelife:
+        - "/devotionals/dont-worry-be-happy"
+        - "/praying-through-worry"
+        - "/devotionals/when-panic-attacks"
+        - "/devotionals/the-anxiety-that-consumes"
+      sightline-ministry:
+        - "/can-we-escape-our-worry"
+  - id: "swg-seeker-failure"
     question: "I keep messing up and feel like God must be so disappointed in me. Is there any hope?"
     relevant:
       starting-with-god:
@@ -53,14 +60,21 @@ cases:
       sightline-ministry:
         - "/jesus-died-so-why-do-i-still-feel-guilt"
         - "/fully-forgiven-god-sees"
-  - id: swg-seeker-porn
+        - "/hope-not-wishful-thinking-for-christians"
+        - "/daily-devo/getting-back-on-track"
+        - "/daily-devo/how-can-anyone-love-a-mess-like-this-2"
+      thelife:
+        - "/devotionals/there-is-a-way-back"
+        - "/my-sins-are-too-great-for-god-to-forgive"
+        - "/devotionals/disappointments"
+  - id: "swg-seeker-porn"
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
       starting-with-god:
         - "/struggles/how-to-get-free-from-porn.html"
         - "/struggles/how-to-live-the-christian-life.html"
         - "/struggles/changes.html"
-  - id: swg-skeptic-faith-proof
+  - id: "swg-skeptic-faith-proof"
     question: "Isn't faith just believing something with no proof? Sounds like wishful thinking."
     relevant:
       starting-with-god:
@@ -70,7 +84,7 @@ cases:
         - "/doesnt-believing-in-god-require-faith"
         - "/faith-in-the-bible-not-thin-ice"
         - "/hope-not-wishful-thinking-for-christians"
-  - id: swg-skeptic-jesus-deity
+  - id: "swg-skeptic-jesus-deity"
     question: "Did Jesus ever actually claim to be God, or did the church invent that later?"
     relevant:
       starting-with-god:
@@ -85,14 +99,14 @@ cases:
         - "/jesus-say-he-is-god"
         - "/deity-of-christ-true-or-false"
         - "/jesus-liar-lunatic-lord"
-  - id: swg-skeptic-gods-love
+  - id: "swg-skeptic-gods-love"
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
     relevant:
       starting-with-god:
         - "/questions/does-god-really-love-me.html"
         - "/new-life/gods-love.html"
         - "/knowing-god/gods-grace.html"
-  - id: swg-believer-assurance
+  - id: "swg-believer-assurance"
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
     relevant:
       starting-with-god:
@@ -103,7 +117,7 @@ cases:
         - "/bible-study/lesson-2.html"
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/1-the-christian-adventure.html"
-  - id: swg-believer-holy-spirit
+  - id: "swg-believer-holy-spirit"
     question: "How do I actually live day to day in the power of the Holy Spirit?"
     relevant:
       starting-with-god:
@@ -114,7 +128,14 @@ cases:
         - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
       jesusfilm-org:
         - "/blog/walking-in-spirit"
-  - id: swg-newcomer-gospel
+      thelife:
+        - "/the-spirit-filled-life"
+        - "/devotionals/transform-me-by-your-spirit"
+        - "/live-by-faith"
+        - "/devotionals/the-fathers-promise"
+      sightline-ministry:
+        - "/daily-devo/the-only-way-to-go-2"
+  - id: "swg-newcomer-gospel"
     question: "What's the core message of Christianity — what's it actually all about?"
     relevant:
       starting-with-god:
@@ -127,12 +148,12 @@ cases:
       sightline-ministry:
         - "/three-foundational-truths-christianity"
         - "/why-need-jesus-as-savior"
-  - id: swg-newcomer-baptism
+  - id: "swg-newcomer-baptism"
     question: "Do I need to be baptized to become a Christian?"
     relevant:
       starting-with-god:
         - "/questions/baptism.html"
-  - id: cru-newcomer-new-testament
+  - id: "cru-newcomer-new-testament"
     question: "I want to start reading the New Testament but don't know how it's organized or where to begin — can you orient me?"
     relevant:
       cru-10-basic-steps:
@@ -140,13 +161,13 @@ cases:
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
       starting-with-god:
         - "/knowing-god/bible.html"
-  - id: cru-believer-old-testament
+  - id: "cru-believer-old-testament"
     question: "The Old Testament feels like a confusing jumble of names and events. How does the whole story actually hang together?"
     relevant:
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/9-the-old-testament.html"
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
-  - id: cru-stewardship
+  - id: "cru-stewardship"
     question: "As a Christian, does God have a claim on my money — how am I supposed to handle my finances and possessions?"
     relevant:
       cru-10-basic-steps:
@@ -154,7 +175,7 @@ cases:
       jesusfilm-org:
         - "/blog/jesus-talk-about-money"
         - "/blog/cheerful-giver"
-  - id: cru-believer-witnessing
+  - id: "cru-believer-witnessing"
     question: "I want to share my faith but I freeze up. How did Jesus himself approach people, and what does it take?"
     relevant:
       cru-10-basic-steps:
@@ -169,7 +190,7 @@ cases:
       sightline-ministry:
         - "/talking-to-people-like-jesus-did"
         - "/can-we-talk-about-jesus"
-  - id: cru-believer-guidance
+  - id: "cru-believer-guidance"
     question: "How do I actually figure out what God wants me to do when I'm facing a hard decision?"
     relevant:
       cru-10-basic-steps:
@@ -180,9 +201,17 @@ cases:
       jesusfilm-org:
         - "/blog/what-is-gods-will-how-can-know"
         - "/blog/gods-will-bible-verses"
+        - "/blog/tips-when-you-feel-directionless"
       sightline-ministry:
         - "/will-of-god"
-  - id: cru-believer-bible-study
+        - "/daily-devo/is-there-a-way-to-gods-will"
+        - "/daily-devo/gods-will-your-desires"
+        - "/daily-devo/getting-the-word-on-tough-choices"
+      thelife:
+        - "/devotionals/safety-in-counsel"
+        - "/devotionals/asking-god-for-wisdom"
+        - "/devotionals/guided-choices"
+  - id: "cru-believer-bible-study"
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
       cru-10-basic-steps:
@@ -192,7 +221,7 @@ cases:
         - "/knowing-god/how-god-speaks.html"
       jesusfilm-org:
         - "/blog/best-way-to-read-the-bible"
-  - id: cru-newcomer-prayer
+  - id: "cru-newcomer-prayer"
     question: "I never know what to actually say when I pray. Is there a simple way to build a daily prayer habit?"
     relevant:
       cru-10-basic-steps:
@@ -203,7 +232,15 @@ cases:
       jesusfilm-org:
         - "/blog/how-to-pray"
         - "/blog/prayer-tips"
-  - id: cru-newcomer-holy-spirit
+        - "/blog/why-do-we-pray"
+        - "/blog/how-can-get-closer-to-god"
+      thelife:
+        - "/god-loves-time-with-you"
+        - "/prayers-you-can-pray"
+        - "/devotionals/specific-prayer"
+      sightline-ministry:
+        - "/daily-devo/positive-daydreaming"
+  - id: "cru-newcomer-holy-spirit"
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
     relevant:
       cru-10-basic-steps:
@@ -211,7 +248,7 @@ cases:
       starting-with-god:
         - "/new-life/spirit-filled.html"
         - "/knowing-god/holy-spirit.html"
-  - id: cru-seeker-abundant-life
+  - id: "cru-seeker-abundant-life"
     question: "Being a Christian honestly feels flat and rule-bound to me. Is there supposed to be more life to it than this?"
     relevant:
       cru-10-basic-steps:
@@ -222,7 +259,15 @@ cases:
         - "/knowing-god/gods-grace.html"
       sightline-ministry:
         - "/bible-rule-book"
-  - id: cru-skeptic-jesus-uniqueness
+        - "/daily-devo/the-basics-of-avoiding-boredom"
+      thelife:
+        - "/the-spirit-filled-life"
+        - "/6-myths-about-the-abundant-life"
+        - "/are-you-all-in"
+        - "/know-your-resources-as-a-child-of-god"
+      jesusfilm-org:
+        - "/blog/how-can-get-closer-to-god"
+  - id: "cru-skeptic-jesus-uniqueness"
     question: "Every religion has its founder. What actually sets Jesus apart from all the others?"
     relevant:
       cru-10-basic-steps:
@@ -235,17 +280,14 @@ cases:
         - "/copycat-religion-christianity"
         - "/jesus-liar-lunatic-lord"
         - "/deity-of-christ-true-or-false"
-
-  # --- jesusfilm-org cases (slice #3, 2026-05-26) — persona-diverse, exercising
-  #     jf's distinctive strengths: parables, apologetics, missions, Jesus' life. ---
-  - id: jf-newcomer-who-is-jesus
+  - id: "jf-newcomer-who-is-jesus"
     question: "I don't really know anything about Jesus — who was he and what did he actually do?"
     relevant:
       jesusfilm-org:
         - "/blog/who-is-jesus"
         - "/blog/jesus-facts"
         - "/blog/story-of-jesus"
-  - id: jf-newcomer-why-jesus-died
+  - id: "jf-newcomer-why-jesus-died"
     question: "What was the point of Jesus dying on a cross — why did it have to happen?"
     relevant:
       jesusfilm-org:
@@ -254,13 +296,17 @@ cases:
       sightline-ministry:
         - "/why-need-jesus-as-savior"
         - "/god-became-man-incarnation"
-  - id: jf-newcomer-great-commission
+  - id: "jf-newcomer-great-commission"
     question: "Christians keep talking about being 'sent to make disciples of all nations' — where's that from and what does it mean?"
     relevant:
       jesusfilm-org:
         - "/blog/what-is-the-great-commission"
         - "/blog/the-importance-of-the-great-commission"
-  - id: jf-skeptic-resurrection
+        - "/blog/great-commission-for"
+        - "/blog/what-every-believer-can-do-great-commission"
+      thelife:
+        - "/devotionals/wherever-you-go"
+  - id: "jf-skeptic-resurrection"
     question: "Christians stake everything on the resurrection — why would an empty tomb 2,000 years ago even matter?"
     relevant:
       jesusfilm-org:
@@ -270,7 +316,7 @@ cases:
         - "/jesus-resurrection-importance"
         - "/resurrection-jesus-hoax-truth"
         - "/disillusioned-disciples-die-for-lie"
-  - id: jf-skeptic-bible-contradictions
+  - id: "jf-skeptic-bible-contradictions"
     question: "People say the Bible is riddled with contradictions and errors — how do you square that?"
     relevant:
       jesusfilm-org:
@@ -279,7 +325,7 @@ cases:
         - "/contradictions-skew-bible-truth"
         - "/disagreements-in-the-bible"
         - "/bible-human-error"
-  - id: jf-skeptic-intolerant
+  - id: "jf-skeptic-intolerant"
     question: "Isn't it arrogant for Christians to claim Jesus is the only way? That seems intolerant."
     relevant:
       jesusfilm-org:
@@ -288,36 +334,57 @@ cases:
         - "/is-christianity-intolerant"
         - "/christian-view-on-tolerance"
         - "/is-jesus-the-way-john-14-6"
-  - id: jf-believer-parable-sower
+  - id: "jf-believer-parable-sower"
     question: "What's Jesus really getting at in the story about a farmer scattering seed on different soils?"
     relevant:
       jesusfilm-org:
         - "/blog/parable-of-sower"
-  - id: jf-believer-good-samaritan
+  - id: "jf-believer-good-samaritan"
     question: "What's the deeper point of the story about the man beaten on the road and the foreigner who stopped to help?"
     relevant:
       jesusfilm-org:
         - "/blog/parable-good-samaritan"
-  - id: jf-believer-missional-everyday
+  - id: "jf-believer-missional-everyday"
     question: "I'm not a missionary, just someone with a normal job — how do I actually live 'on mission' in ordinary life?"
     relevant:
       jesusfilm-org:
         - "/blog/mission-field-between-your-feet"
         - "/blog/becoming-a-more-missional-christian"
-  - id: jf-believer-disciple-making
+        - "/blog/live-missionally-inspiration"
+      thelife:
+        - "/devotionals/our-mission-grounds-are-our-stomping-grounds"
+        - "/devotionals/we-each-have-a-role"
+        - "/devotionals/little-missionary"
+        - "/devotionals/what-we-can-do"
+      sightline-ministry:
+        - "/daily-devo/missionary-in-the-mirror"
+  - id: "jf-believer-disciple-making"
     question: "I want to help someone else grow in their faith, not just grow myself — where do I even start?"
     relevant:
       jesusfilm-org:
         - "/blog/how-to-make-disciples"
         - "/blog/disciple-making-101"
-  - id: jf-seeker-grief
+      thelife:
+        - "/discipleship-101"
+        - "/they-said-yes-now-what"
+        - "/devotionals/what-s-your-ambition"
+      sightline-ministry:
+        - "/daily-devo/helping-new-christians-get-a-good-start-3"
+  - id: "jf-seeker-grief"
     question: "I just lost someone I love and I'm drowning — does Jesus have anything for someone grieving?"
     relevant:
       jesusfilm-org:
         - "/blog/what-jesus-teaches-about-grief"
       sightline-ministry:
         - "/jesus-understands-your-pain"
-  - id: jf-seeker-distant-god
+        - "/daily-devo/when-friends-go-away-2"
+      thelife:
+        - "/finding-healing-in-the-face-of-overwhelming-grief"
+        - "/devotionals/a-man-like-us"
+        - "/on-the-death-of-a-child"
+        - "/devotionals/the-other-side-of-grief"
+        - "/how-do-i-say-goodbye"
+  - id: "jf-seeker-distant-god"
     question: "God feels distant and silent lately — how do I get close to him again?"
     relevant:
       jesusfilm-org:
@@ -326,11 +393,7 @@ cases:
       sightline-ministry:
         - "/why-does-god-seem-hidden-from-us"
         - "/discern-gods-voice"
-
-  # --- sightline-ministry cases (slice #4, 2026-05-27) — persona-diverse,
-  #     exercising Sightline's distinctive apologetics / skeptic / evidence axis
-  #     (arguments for God, gospel/Bible reliability, science, morality, doubt). ---
-  - id: sl-skeptic-god-exists
+  - id: "sl-skeptic-god-exists"
     question: "Is there any actual evidence that God exists, or is it just blind belief?"
     relevant:
       sightline-ministry:
@@ -339,27 +402,27 @@ cases:
         - "/what-is-the-design-argument-for-gods-existence"
         - "/what-is-the-moral-law-argument-for-gods-existence"
         - "/why-believe-in-god"
-  - id: sl-skeptic-suffering
+  - id: "sl-skeptic-suffering"
     question: "If God is real and good, why is there so much suffering and evil in the world?"
     relevant:
       sightline-ministry:
         - "/3-reasons-suffering-serves-a-purpose"
         - "/security-in-suffering"
-  - id: sl-skeptic-science
+  - id: "sl-skeptic-science"
     question: "Hasn't science basically disproved religion? How can a thinking person believe in miracles?"
     relevant:
       sightline-ministry:
         - "/christianity-science-bogus-feud"
         - "/science-disprove-miracles"
         - "/science-genesis-coexist"
-  - id: sl-skeptic-morality
+  - id: "sl-skeptic-morality"
     question: "I'm an atheist and a good person. Why would anyone need God to be moral?"
     relevant:
       sightline-ministry:
         - "/good-without-god"
         - "/absolute-right-wrong"
         - "/what-is-the-moral-law-argument-for-gods-existence"
-  - id: sl-skeptic-gospels-reliable
+  - id: "sl-skeptic-gospels-reliable"
     question: "How can anyone trust the Gospels when they were written decades later by biased followers?"
     relevant:
       sightline-ministry:
@@ -367,36 +430,149 @@ cases:
         - "/historical-reliability-new-testament"
         - "/gospels-proven-historically"
         - "/could-gospel-writers-know"
-  - id: sl-skeptic-hidden-god
+        - "/gospels-accurate-video-5"
+        - "/gospels-portray-jesus"
+        - "/gospel-writers-reliable-video-2"
+        - "/lost-gospels-dont-belong-bible"
+        - "/when-gospels-written-reliable-video-3"
+      thelife:
+        - "/are-the-gospels-anonymous"
+        - "/putting-the-bible-through-the-internal-evidence-test"
+  - id: "sl-skeptic-hidden-god"
     question: "If God wanted a relationship with me, why does he stay so hidden and silent?"
     relevant:
       sightline-ministry:
         - "/why-does-god-seem-hidden-from-us"
         - "/why-believe-in-god"
-  - id: sl-skeptic-copycat
+        - "/when-god-feels-distant"
+        - "/daily-devo/hide-and-seek-5"
+        - "/listening-for-god-to-speak"
+      thelife:
+        - "/god-why-cant-i-hear-you"
+        - "/devotionals/tell-him-he-wants-to-know"
+        - "/are-you-feeling-ignored"
+  - id: "sl-skeptic-copycat"
     question: "Isn't Jesus just a recycled myth — a copy of older dying-and-rising gods?"
     relevant:
       sightline-ministry:
         - "/copycat-religion-christianity"
         - "/pagan-influences-gospels-reliable-video-6"
-  - id: sl-seeker-meaning
+  - id: "sl-seeker-meaning"
     question: "Nothing in my life feels like it means anything. Is there actually a point to any of this?"
     relevant:
       sightline-ministry:
         - "/why-life-feels-so-meaningless"
         - "/feeling-purposeless-cause-cure"
         - "/jesus-christ-offers-meaning"
-  - id: sl-believer-doubt
+  - id: "sl-believer-doubt"
     question: "I'm a Christian but I'm wracked with doubts and it scares me. Is doubting a sin?"
     relevant:
       sightline-ministry:
         - "/is-it-wrong-to-have-doubts-about-god"
         - "/christian-doubt-okay-faith"
         - "/inspiration-doubting-thomas"
-  - id: sl-believer-apologetics
+  - id: "sl-believer-apologetics"
     question: "How do I have a productive conversation about faith with a skeptical friend without it turning into an argument?"
     relevant:
       sightline-ministry:
         - "/effectively-dialogue-skeptics"
         - "/more-effectively-talk-skeptic"
         - "/should-christians-practice-apologetics"
+  - id: "tl-seeker-grief-child"
+    question: "My child died and I don't know how to keep going — does God have anything for a parent like me?"
+    relevant:
+      thelife:
+        - "/on-the-death-of-a-child"
+        - "/my-son-died-of-sids"
+        - "/finding-healing-in-the-face-of-overwhelming-grief"
+        - "/faith-after-losing-my-son"
+      jesusfilm-org:
+        - "/blog/what-jesus-teaches-about-grief"
+      sightline-ministry:
+        - "/jesus-understands-your-pain"
+  - id: "tl-seeker-abortion"
+    question: "I had an abortion and I can't forgive myself — is there any healing for what I've done?"
+    relevant:
+      thelife:
+        - "/what-have-i-done-finding-healing-after-my-abortion"
+        - "/my-sins-are-too-great-for-god-to-forgive"
+        - "/finding-freedom-from-the-shame-of-my-abortions"
+      starting-with-god:
+        - "/knowing-god/gods-grace.html"
+      sightline-ministry:
+        - "/fully-forgiven-god-sees"
+        - "/jesus-died-so-why-do-i-still-feel-guilt"
+  - id: "tl-seeker-depression"
+    question: "I'm depressed and on antidepressants — can my faith and meds actually coexist?"
+    relevant:
+      thelife:
+        - "/depression-antidepressants-and-the-spiritual-dimension"
+        - "/fighting-for-joy"
+  - id: "tl-skeptic-cosmology"
+    question: "Couldn't the universe just have come from nothing without needing a creator?"
+    relevant:
+      thelife:
+        - "/why-the-universe-from-nothing-is-a-non-starter"
+      sightline-ministry:
+        - "/what-is-the-first-cause-argument-for-gods-existence"
+        - "/god-caused-everything-caused-god"
+  - id: "tl-skeptic-hell"
+    question: "If God is loving, why would he send anyone to hell?"
+    relevant:
+      thelife:
+        - "/why-is-hell-necessary"
+      sightline-ministry:
+        - "/daily-devo/love-and-hell-dont-mix-do-they-2"
+        - "/daily-devo/its-gods-way-or-the-highway"
+  - id: "tl-believer-marriage-drift"
+    question: "Our marriage feels stale and we keep arguing — how do we keep it alive?"
+    relevant:
+      thelife:
+        - "/save-your-marriage-from-drifting"
+        - "/preventing-marriage-meltdown"
+        - "/tools-for-building-an-intimate-marriage"
+        - "/keeping-your-marriage-vibrant"
+        - "/8-ways-to-protect-the-value-of-your-marriage"
+  - id: "tl-believer-obedience"
+    question: "Sometimes God seems to ask things I really don't want to do — how do I live in obedience when I'd rather not?"
+    relevant:
+      thelife:
+        - "/obedience-isnt-going-to-be-easy"
+        - "/obedience-discipline-and-trust-things-i-ve-learned-from-the-book-of-joshua"
+        - "/devotionals/invisible-obedience"
+        - "/devotionals/yes-god"
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
+      sightline-ministry:
+        - "/daily-devo/when-the-pressure-is-on-2"
+  - id: "tl-believer-disciple-new-christian"
+    question: "My friend just trusted Christ for the first time — what does she need to know first, and how do I help her without overwhelming her?"
+    relevant:
+      thelife:
+        - "/they-said-yes-now-what"
+        - "/discipleship-101"
+        - "/nurturing-new-believers"
+        - "/start-strong"
+        - "/how-will-i-know-when-theyre-ready"
+      jesusfilm-org:
+        - "/blog/evangelism-follow-up-strategies"
+  - id: "tl-newcomer-decision"
+    question: "I think I just decided to trust Jesus — what now? What's the very next step?"
+    relevant:
+      thelife:
+        - "/yes"
+        - "/they-said-yes-now-what"
+        - "/start-strong"
+        - "/the-meaning-of-christian-baptism"
+        - "/your-life-with-jesus"
+  - id: "tl-newcomer-find-church"
+    question: "I want to start going to church but I don't know how to pick one — what should I look for?"
+    relevant:
+      thelife:
+        - "/how-to-choose-a-church"
+        - "/why-is-church-so-important"
+        - "/why-bother-with-church"
+      jesusfilm-org:
+        - "/blog/signs-healthy-church"
+      starting-with-god:
+        - "/new-life/connect.html"

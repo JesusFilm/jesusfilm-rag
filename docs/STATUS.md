@@ -53,16 +53,24 @@ regression). The slice-#4 sightline curation gap (15+ docs) and the
 slice-#3 `jf-believer-disciple-making` vocab gap were both closed as
 side-effects of the content-grounded `/golden` re-review.
 
-**Slice #6 (FamilyLife, `familylife`) STARTED 2026-06-03** on `slice/familylife`.
-**Goal:** add the marriage/parenting axis the corpus currently lacks — five
-sources covering seeker Q&A, discipleship, apologetics, and devotionals leave
-family ministry under-served; FamilyLife fills that gap. WordPress VIP behind
-`sitemaps.xml` (30 child sitemaps); recommended scope is **posts only
-(`post-sitemap1`/`2`/`3` ≈ 2,330 articles)** — comparable to Sightline (1,390)
-and well below thelife (4,485); sub-brands can layer later as Cru-style
-sub-keys. **Reuses slice #3/#4/#5 discovery crawler — no new acquisition code
-expected.** Scope confirmed at Step 2.5 go-ahead AND re-confirmed at 1b dry
-discovery.
+**Slice #6 (FamilyLife, `familylife`) — Stage 1 (Acquire) DONE 2026-06-03**
+on `slice/familylife`. WordPress VIP via `sitemaps.xml`; reused slice #3/#4/#5
+discovery crawler with no new acquisition code (confirmed FOLLOW-UP F is
+durable across 4 sources now: jf/sightline/thelife/familylife). **Staged
+2,239 / 2,329 (96.1%)** across 2 passes — pass 1 SIGINT-stopped at 1,431 for
+laptop disconnect, pass 2 walked the full list (surfaced **FOLLOW-UP K #32**:
+fetch-layer idempotency gap — re-runs of paused crawls re-fetch already-staged
+URLs because conditional headers aren't threaded). All status 200, zero 429s
+across 4,569 fetches (WP VIP polite at 1,500 ms). 88 too-thin skips
+concentrated on `/equip/` (84 — bimodal page type: real teaching + PDF/course
+teaser hubs) + 4 `/articles/` category-index pages. **/equip/ retention
+deferred to Stage 4 eval.** Corpus `raw_documents` now **8,514 rows across
+6 sources** (familylife 2,239 + thelife 4,485 + sightline 1,390 + jf 349 +
+swg 40 + cru 11).
+
+**Next:** Stage 2 (Ingest) → `pnpm index --source familylife` to drain raw →
+docs / chunks / embeddings (`openai/text-embedding-3-small`, 1536d). Expected
+~2,239 docs / ~7-12k chunks (medium-length WP articles, avg 6,585 raw chars).
 
 See **[docs/slices/familylife.md](./slices/familylife.md)** for the slice-6
 record, and **[docs/slices/thelife.md](./slices/thelife.md)** for slice 5.

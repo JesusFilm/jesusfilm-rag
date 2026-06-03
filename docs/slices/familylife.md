@@ -22,11 +22,16 @@ ministry under-served. FamilyLife fills that gap.
 - **robots.txt:** `User-agent: * / Disallow: /wp-admin/` (open); sitemap
   pointer `https://www.familylife.com/sitemaps.xml`.
 - **Sitemap index:** **30 child sitemaps** — primary spiritual content is the
-  three post-sitemaps:
-  - `post-sitemap1.xml` — 939 locs (lastmod 2026)
-  - `post-sitemap2.xml` — 997 locs (lastmod 2018)
-  - `post-sitemap3.xml` — 394 locs (lastmod 2012)
-  - **= 2,330 article posts total** under `/articles/topics/...`
+  three post-sitemaps (WordPress "post" content type):
+  - `post-sitemap1.xml` — 939 locs (lastmod 2026): **783 `/articles/` + 155
+    `/equip/` + 1 homepage `/`**
+  - `post-sitemap2.xml` — 997 locs (lastmod 2018): all `/articles/`
+  - `post-sitemap3.xml` — 394 locs (lastmod 2012): all `/articles/`
+  - **= 2,330 posts total = 2,174 `/articles/` + 155 `/equip/` + 1 homepage.**
+    The `/equip/` URLs are FamilyLife Equip teaching content (mentoring,
+    discipleship-of-a-new-Christian, leaving-an-abusive-relationship) using the
+    same WP post template + the same `.the-content` selector as `/articles/` —
+    legitimate teaching, kept. Homepage dropped by `articleHints`.
 - Other significant sitemaps: `page-sitemap1` (254 hub/landing), `podcast-sitemap*`
   (~1k+ episodes), sub-brand sitemaps (art-of-marriage, blended, stepping-up,
   weekend-to-remember, missions, etc. — mixed teaching/marketing/conference).
@@ -59,12 +64,13 @@ anything that doesn't live under `/articles/`).
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents (reuse the discovery crawler)
-- [ ] 1a — Register `familylife` SourceRegistry entry: `kind: 'discovery'`,
-      `sitemaps: ['https://www.familylife.com/sitemaps.xml']`,
-      `articleHints: ['/articles/']`, `block: ['/wp-admin/', '/cart/',
-      '/podcast/']`, content selector confirmed from recon (`.the-content`
-      preferred; fall back to `.single-content`). Fakes-only test in
-      `src/registry/registry.test.ts` covers the new entry.
+- [x] 1a — Register `familylife` SourceRegistry entry: discovery source seeding
+      the three post-sitemaps directly (sightline pattern, bypassing the index
+      to avoid 27 unrelated sub-brand sitemaps). `articleHints` keep
+      `/articles/<...>` AND `/equip/<...>` (both WP-post + same selector);
+      `block` defensives wp-admin / cart / podcast / .kml / .pdf. Content
+      selector `.the-content` preferred, `.single-content` fallback.
+      Fakes-only tests cover hint+block behavior on real sample URLs.
       <!-- sha: ________ -->
 - [ ] 1b — **Dry discovery**: run discovery only (no fetches), surface kept-
       URL count + a sample, **pause for operator scope/budget confirm**

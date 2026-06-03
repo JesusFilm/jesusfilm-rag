@@ -142,6 +142,56 @@ describe("SourceRegistry", () => {
     expect(kept("https://thelife.com/")).toBe(false);
   });
 
+  it("resolves familylife as a partner discovery source seeding three post-sitemaps", () => {
+    const fl = getSource("familylife");
+    expect(fl).toBeDefined();
+    expect(fl?.domain).toBe("www.familylife.com");
+    expect(fl?.trust).toBe("partner");
+    expect(fl?.ingestionMode).toBe("html-scrape");
+    // Discovery source: three flat <urlset> child sitemaps (the WP "post" content
+    // type), not the sitemap index. No hand-listed seedPaths.
+    expect(fl?.crawl.sitemaps).toEqual([
+      "/post-sitemap1.xml",
+      "/post-sitemap2.xml",
+      "/post-sitemap3.xml",
+    ]);
+    expect(fl?.crawl.seedPaths).toBeUndefined();
+    // `.the-content` is the innermost prose container, same on /articles/ and /equip/.
+    expect(fl?.crawl.contentSelectors[0]).toBe(".the-content");
+  });
+
+  it("familylife articleHints keep /articles/ + /equip/ posts, drop homepage + non-post paths", () => {
+    const fl = getSource("familylife")!;
+    const hints = (fl.crawl.articleHints ?? []).map((p) => new RegExp(p));
+    const block = (fl.crawl.block ?? []).map((p) => new RegExp(p));
+    const kept = (u: string): boolean =>
+      hints.some((re) => re.test(u)) && !block.some((re) => re.test(u));
+    // /articles/<...> posts (the bulk of post-sitemap2/3 + 783 of post-sitemap1) — kept.
+    expect(
+      kept(
+        "https://www.familylife.com/articles/topics/parenting/essentials/fathers/7-essentials-to-help-you-be-the-spiritual-leader-of-your-family/",
+      ),
+    ).toBe(true);
+    // /equip/<...> teaching posts (155 in post-sitemap1, same WP template) — also kept.
+    expect(kept("https://www.familylife.com/equip/how-to-mentor/")).toBe(true);
+    expect(
+      kept(
+        "https://www.familylife.com/equip/discipleship-of-a-new-christian-start-here/",
+      ),
+    ).toBe(true);
+    // Homepage `/` that post-sitemap1 lists — fails the hints.
+    expect(kept("https://www.familylife.com/")).toBe(false);
+    // Defensive blocks — wp-admin, cart, podcast (deferred sub-scope), assets.
+    expect(kept("https://www.familylife.com/wp-admin/")).toBe(false);
+    expect(kept("https://www.familylife.com/cart/checkout/")).toBe(false);
+    expect(kept("https://www.familylife.com/podcast/some-episode/")).toBe(
+      false,
+    );
+    expect(kept("https://www.familylife.com/wp-content/foo.pdf")).toBe(false);
+    // Cross-host safety (handled by `allow`, but verify the hint regexes are origin-anchored).
+    expect(kept("https://evil.com/articles/whatever/")).toBe(false);
+  });
+
   it("returns undefined for an unknown key", () => {
     expect(getSource("does-not-exist")).toBeUndefined();
   });

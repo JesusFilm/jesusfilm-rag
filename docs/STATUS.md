@@ -74,10 +74,28 @@ now actively bites at 23.5k chunks (was dormant at ~14k). Test loosened as
 a stop-gap; full empirical evidence (max real cosine vs `oneHot(0)` = 0.12;
 HNSW graph topology, not cosine cutoff) appended to #17.
 
-**Next:** Stage 3 (Retrieve) → `pnpm query "..."` spot-retrievals against
-marriage/parenting questions the prior 5-source corpus under-served; confirm
-cross-source health, minScore 0.37, 3-key dedup intact at 6 sources. No
-code changes expected.
+**Stage 3 (Retrieve) DONE 2026-06-04** — spot-retrieval against the 6-source
+space via `pnpm query`, no code changes. Family-axis queries: familylife
+dominates (10/10 on spiritual leadership + teen discipling; 8-9/10 on character
++ affair recovery) while adjacent sources still surface where they should
+(thelife at ranks 2+9 on character question). **Cross-source health PRESERVED
+at 6 sources:** sightline #1 + jf #2 unchanged on "Christianity intolerant?"
+(slice #3→#4 closure intact); **swg flagship "How to Be Sure of Heaven" still
+ranks #2 at exactly 0.548 — the 0.003 edge from slice 5 held; slice-1's
+founding source was NOT buried by +9,815 familylife chunks.** Familylife
+meaningfully enters the anxiety domain (was thelife monopoly in slice 5;
+includes one /equip/ row that's real teaching, validating the Stage-1
+bimodal-/equip/ prediction). Negatives confirm **minScore 0.37 holds at 6
+sources** (secular 0 hits; faith-adjacent Quran/fasting 0.388-0.441 below the
+0.55+ positive band).
+
+**Next:** Stage 4 (Spot-check via `/golden` v2 content-grounded) → Part A
+re-review existing 52 cases' living `relevant` maps for familylife credits
+(expect prior-source numbers to move up — slice #5 pattern); Part B add ~10
+persona-diverse familylife-native cases (marriage/parenting axis); 4c final
+whole-corpus eval @ 6 sources / ~62 cases; document **FOLLOW-UP I #15** drift
+(crowding likely worsens with +9,815 chunks); decide **/equip/ retention**
+(delete teaser-shaped rows if eval shows they displace good content).
 
 See **[docs/slices/familylife.md](./slices/familylife.md)** for the slice-6
 record, and **[docs/slices/thelife.md](./slices/thelife.md)** for slice 5.

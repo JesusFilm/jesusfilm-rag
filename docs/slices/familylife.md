@@ -133,13 +133,33 @@ anything that doesn't live under `/articles/`).
       <!-- sha: ________ -->
 
 ### 3. Retrieve → ranked results
-- [ ] 3a — Spot-retrieval against the 6-source space via `pnpm query`. Probe
-      a handful of marriage/parenting/family queries that the current corpus
-      under-serves (e.g. "how do I lead my family spiritually?", "rebuilding
-      trust after an affair", "discipling teenagers"). Confirm cross-source
-      health (thelife/sightline/jf not catastrophically displaced),
-      minScore 0.37 holds, secular negatives stay at 0. No code changes
-      expected. <!-- sha: ________ -->
+- [x] 3a — Spot-retrieval against the 6-source space via `pnpm query`. No
+      code changes. Probed 9 queries (2026-06-04):
+      **Family axis (familylife should win):** "spiritual leadership"
+      10/10 familylife (top 0.673); "rebuilding trust after an affair" 9
+      familylife + 1 thelife rank 9 (0.554) — adjacent voice preserved;
+      "discipling my teenager" 10/10 familylife (top 0.700+); "raising
+      children with godly character" 8 familylife + **2 thelife (rank 2 +
+      9)** — strong family axis without monopolizing.
+      **Cross-source health (prior sources should hold):** "is Christianity
+      intolerant?" → #1 sightline 0.686 + #2 jf 0.673 (identical scores to
+      slice 5 — slice #3→#4 closure intact); "how can I be sure I will go
+      to heaven?" → #1 thelife 0.551 + **#2 swg 'How to Be Sure of Heaven'
+      0.548 (identical to slice 5 — the 0.003 edge held; slice-1 founding
+      source's flagship answer is NOT buried by +9,815 familylife chunks)**;
+      "I'm anxious and can't sleep" → 3 thelife + 2 familylife (was all 5
+      thelife in slice 5 — familylife meaningfully enters a former-thelife-
+      monopoly domain), including the /equip/anxiety-what-you-need-to-know
+      row at rank 4 (real teaching content, validates Stage-1 prediction
+      that bimodal /equip/ would split into useful + teaser in retrieval);
+      "what is the gospel?" → 6 jf + 4 thelife with clean 3-key dedup (no
+      doc over-represented).
+      **Negatives (minScore 0.37 holds at 6 sources):** "best index fund
+      2026" = 0 hits; "what does the Quran teach about fasting" = 8 hits
+      0.388–0.441 (below the 0.55+ positive band — semantically rides
+      'fasting' into Christian fasting content, honest signal-similarity,
+      not a false positive). **No regressions. Cross-source displacement is
+      bounded.** <!-- sha: ________ -->
 
 ### 4. Spot-check via `/golden` (content-grounded mode, skill v2)
 - [ ] 4a — **Part A (re-review):** `/golden` re-scans the existing 52 cases'
@@ -180,16 +200,21 @@ anything that doesn't live under `/articles/`).
   spot-retrieval uses unscoped queries.
 
 ## Resume hint (for a cold start)
-At: **Stage 3 — Retrieve**. Stage 2 done: 2,239 docs / 9,815 chunks /
-9,815 embeds for familylife; corpus = 6 sources / 8,514 docs / 23,522
-chunks. Next concrete action: `pnpm query "<question>"` spot-retrievals
-against marriage/parenting questions the prior 5-source corpus
-under-served (e.g. "how do I lead my family spiritually?", "rebuilding
-trust after an affair", "discipling teenagers", "post-divorce parenting").
-Confirm: (a) familylife shows up in top-10 on family-axis queries,
-(b) cross-source health holds (thelife/sightline/jf not catastrophically
-displaced on shared topics), (c) minScore 0.37 still holds across
-negatives + faith-adjacent cluster, (d) 3-key dedup intact at 6 sources.
-No code changes expected. Last verify: green @ 2a (depcruise 76/0, 0 lint
-errors, typecheck clean, 114/114 tests). Last commit: pending 2a + Stage 2
-docs commit. Branch: `slice/familylife`.
+At: **Stage 4 — Spot-check via `/golden` (content-grounded mode, skill v2)**.
+Stages 1-3 done: 2,239 docs / 9,815 chunks / 9,815 embeds for familylife
+(corpus = 6 sources / 8,514 docs / 23,522 chunks); cross-source health
+preserved (swg flagship survived at 6 sources, slice #3→#4 closure intact);
+minScore 0.37 holds; familylife dominates family-axis queries while
+adjacent sources still surface where they should. Next concrete action:
+invoke `/golden` (v2 content-grounded mode) for **Part A — re-review** the
+existing 52 cases' living `relevant` maps for familylife credits (expect
+prior-source numbers to move up, slice #5 pattern), then **Part B — add
+~10 persona-diverse familylife-native cases** on the marriage/parenting
+axis (seeker/skeptic/newcomer/believer). **Then 4c — final whole-corpus
+eval @ 6 sources / ~62 cases**, document FOLLOW-UP I #15 drift (likely
+worsens — that's signal), re-confirm minScore 0.37, decide **/equip/
+retention** (delete teaser-shaped rows if eval shows them displacing good
+content). **Delete throwaway probe scripts BEFORE the final gate** (slice
+#5 unused-const lesson). Last verify: green @ 2a (depcruise 76/0, 0 lint
+errors, typecheck clean, 114/114 tests). Last commit: pending 3a. Branch:
+`slice/familylife`.

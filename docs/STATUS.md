@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-06-03_
+_Last updated: 2026-06-03 — slice #6 (FamilyLife) started_
 
 ## You are here
 
@@ -43,47 +43,37 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Slice #4 (Sightline Ministry) was MERGED to `main`** (PR #22, `2c5c57f`) — the
-earlier "not yet merged" note above is stale.
+**Slice #5 (`thelife`) is DONE and MERGED to `main`** ([PR #31](https://github.com/JesusFilm/jesusfilm-rag/pull/31),
+`dc8cfaf`, 2026-06-03). 4,485 docs / 7,905 chunks / 7,905 embeddings; thelife
+corpus fully queryable + evaluated. **Final eval @ 52 cases / 5 sources:**
+recall@3/@10 **1.000** · coverage **0.624** · MRR **0.907** · P@1 **0.827**.
+Per-source highlights: thelife 0.955/0.851 (perfect where credited),
+cru 0.200/0.167 (unchanged — sharper FOLLOW-UP I #15 evidence, not a
+regression). The slice-#4 sightline curation gap (15+ docs) and the
+slice-#3 `jf-believer-disciple-making` vocab gap were both closed as
+side-effects of the content-grounded `/golden` re-review.
 
-**Slice #5 (`thelife`) is DONE — all 4 stages green, Evaluated** on
-`slice/thelife` (completed 2026-06-03, **not yet merged**). 4,485 docs / 7,905
-chunks / 7,905 embeddings; thelife corpus is fully queryable + evaluated in the
-5-source space. **Final eval @ 52 cases / 5 sources:** recall@3 **1.000** ·
-recall@10 **1.000** · coverage **0.624** · MRR **0.907** · P@1 **0.827**.
-Per-source: thelife n=22 recall 0.955 / coverage 0.851 (perfect where
-credited) · sightline n=34 0.853/0.603 · jf n=27 0.815/0.664 · swg n=20
-0.500/0.335 · cru n=15 0.200/0.167 (unchanged — confirms slice-#4 honest
-finding; sharper FOLLOW-UP I #15 data, not a regression). minScore 0.37
-holds at 5 sources. Notable wins: (a) the surgical re-review closed a
-substantial slice-#4 **sightline curation gap** (15+ docs in corpus but never
-credited); (b) thelife `/discipleship-101` closed the long-standing slice-#3
-**`jf-believer-disciple-making` vocab gap**.
+**Slice #6 (FamilyLife, `familylife`) STARTED 2026-06-03** on `slice/familylife`.
+**Goal:** add the marriage/parenting axis the corpus currently lacks — five
+sources covering seeker Q&A, discipleship, apologetics, and devotionals leave
+family ministry under-served; FamilyLife fills that gap. WordPress VIP behind
+`sitemaps.xml` (30 child sitemaps); recommended scope is **posts only
+(`post-sitemap1`/`2`/`3` ≈ 2,330 articles)** — comparable to Sightline (1,390)
+and well below thelife (4,485); sub-brands can layer later as Cru-style
+sub-keys. **Reuses slice #3/#4/#5 discovery crawler — no new acquisition code
+expected.** Scope confirmed at Step 2.5 go-ahead AND re-confirmed at 1b dry
+discovery.
 
-**Slice #5 process note:** the `/golden` skill ran in **content-grounded
-mode** for the first time. Operator pushed back on title-only review ("seeing
-a question followed by a list of sources doesn't really mean anything to the
-reviewer"), so we rebuilt Stage 4 around a surgical probe that returns chunk
-snippets for every candidate — the operator judges real text against real
-questions. This is worth folding back into `/golden` for future slices.
+See **[docs/slices/familylife.md](./slices/familylife.md)** for the slice-6
+record, and **[docs/slices/thelife.md](./slices/thelife.md)** for slice 5.
 
-→ **Operator's choice for the next concrete action:** (a) review and merge
-**[PR #31](https://github.com/JesusFilm/jesusfilm-rag/pull/31)** (`slice/thelife`
-→ `main`, 12 commits, head `e27766c`); (b) take the **next slice** — FOLLOW-UP
-I #15 (`maxPerSource`/MMR) now has its sharpest evidence yet from this slice's
-cru/swg crowding signal, or one of the remaining sources (GotQuestions,
-FamilyLife, KnowGod, Issues I Face). The surgical content-grounded `/golden`
-flow has already been folded into the skill itself (commit `e27766c` bumped
-`/golden` to v2 and `/slice` to v4); future slices' Stage 4 inherits it by
-default.
-
-See **[docs/slices/thelife.md](./slices/thelife.md)** for the slice-5 record.
-
-**Still on the table (not picked):** FOLLOW-UP I (#15,
-`maxPerSource`/MMR — most evidence-backed engine work; this slice will sharpen
-its signal), FOLLOW-UP E (#6, `excludedSourceKeys` — unblocked, no real fixture),
-Cru accordion-TOC strip (citation quality), Issues I Face (own backlog row —
-sitemap 404, needs different discovery).
+**Still on the table (not picked):** **FOLLOW-UP I (#15, `maxPerSource`/MMR)** —
+sharpest evidence yet from slice #5 cru/swg crowding; engine work, not a
+`/slice` flow. **FOLLOW-UP E (#6, `excludedSourceKeys`)** — unblocked since
+slice #2, no real fixture. **Cru accordion-TOC strip** (citation quality).
+**GotQuestions / KnowGod / Issues I Face** as backlog source slices
+(GotQuestions would amplify FOLLOW-UP I; Issues I Face needs different
+discovery — sitemap 404).
 
 ## How we're building (decided 2026-05-22)
 

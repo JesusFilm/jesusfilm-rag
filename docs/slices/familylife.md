@@ -1,0 +1,136 @@
+# Slice: FamilyLife (familylife)
+
+_Branch: `slice/familylife` · Started: 2026-06-03 · Status: in-progress_
+<!-- Status: in-progress | blocked | done -->
+
+## Goal (architecture altitude)
+Get **FamilyLife.com** (Cru's marriage & family ministry, WordPress VIP)
+queryable end-to-end: acquire → ingest → retrieve → spot-check. This is
+**slice #6** and the **fourth source to reuse the discovery-crawl machinery
+(FOLLOW-UP F) without new acquisition code** — FamilyLife is sitemap-driven
+(`/sitemaps.xml` → 30 child sitemaps, WordPress/Yoast-style) so the
+slice-#3/#4/#5 `src/acquisition/discover.ts` handles it via
+`CrawlPolicy.sitemaps` + `articleHints`/`block` filtering. **Topical purpose:**
+the corpus currently lacks a strong marriage/parenting axis — five sources
+covering seeker Q&A, discipleship, apologetics, and devotionals leave family
+ministry under-served. FamilyLife fills that gap.
+
+## Recon (2026-06-03)
+
+- **Homepage:** `https://www.familylife.com/` → 200, 480 KB, browser UA, no
+  challenge wall.
+- **robots.txt:** `User-agent: * / Disallow: /wp-admin/` (open); sitemap
+  pointer `https://www.familylife.com/sitemaps.xml`.
+- **Sitemap index:** **30 child sitemaps** — primary spiritual content is the
+  three post-sitemaps:
+  - `post-sitemap1.xml` — 939 locs (lastmod 2026)
+  - `post-sitemap2.xml` — 997 locs (lastmod 2018)
+  - `post-sitemap3.xml` — 394 locs (lastmod 2012)
+  - **= 2,330 article posts total** under `/articles/topics/...`
+- Other significant sitemaps: `page-sitemap1` (254 hub/landing), `podcast-sitemap*`
+  (~1k+ episodes), sub-brand sitemaps (art-of-marriage, blended, stepping-up,
+  weekend-to-remember, missions, etc. — mixed teaching/marketing/conference).
+- **Sample article shape:** `/articles/topics/parenting/essentials/fathers/
+  7-essentials-to-help-you-be-the-spiritual-leader-of-your-family/` — 300 KB
+  page; visible content selectors include `.the-content` and
+  `.single-content.single-post-content`. WordPress.
+- **jfa estimate:** ~15,000 pages total across all sub-brands. Posts-only scope
+  is what makes this slice tractable.
+
+## Scope (locked 2026-06-03 at Step 2.5)
+
+**Scope A — posts only, ~2,330 URLs** from `post-sitemap1` (939) +
+`post-sitemap2` (997) + `post-sitemap3` (394). Operator-confirmed this is the
+primary teaching content; sub-brands can layer later as Cru-style scoped
+sub-keys (`familylife-blended` etc.) only if the eval shows real gaps —
+that's the proven pattern.
+
+Policy intent: `sitemaps: ['/sitemaps.xml']`, `articleHints: ['/articles/']`,
+`block: ['/wp-admin/', '/cart/', '/podcast/']`, sub-brand sitemaps not
+seeded (they're listed by the sitemap index but `articleHints` filters out
+anything that doesn't live under `/articles/`).
+
+**Estimated embed cost:** ~2,330 docs × ~3 chunks/doc avg ≈ ~7k chunks
+(slightly above Sightline's 3,470; well below thelife's 7,905). At
+`text-embedding-3-small` rates this is negligible (<$0.10). Re-confirmed at
+1b dry discovery before the live crawl per skill Step 4.
+
+## Stages & sub-steps
+`[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
+
+### 1. Acquire → raw_documents (reuse the discovery crawler)
+- [ ] 1a — Register `familylife` SourceRegistry entry: `kind: 'discovery'`,
+      `sitemaps: ['https://www.familylife.com/sitemaps.xml']`,
+      `articleHints: ['/articles/']`, `block: ['/wp-admin/', '/cart/',
+      '/podcast/']`, content selector confirmed from recon (`.the-content`
+      preferred; fall back to `.single-content`). Fakes-only test in
+      `src/registry/registry.test.ts` covers the new entry.
+      <!-- sha: ________ -->
+- [ ] 1b — **Dry discovery**: run discovery only (no fetches), surface kept-
+      URL count + a sample, **pause for operator scope/budget confirm**
+      before the live crawl (per skill Step 4 "Before a live discovery
+      crawl, confirm the budget"). Adjust hints if the count is wildly off
+      ~2,330. <!-- sha: ________ -->
+- [ ] 1c — Live crawl `pnpm acquire --source familylife`. Stage rows to
+      `raw_documents`. Polite delay starts at 1,000 ms; bump to 2,000 ms if
+      we hit Cloudflare-style 429s (slice #5 pattern). Verify: row count
+      vs. discovered count; status 200 dominant; titles populated; spot-read
+      raw_content for clean article prose. <!-- sha: ________ -->
+- [ ] 1d — Slice-file checkpoint: record acquire numbers + selector evidence.
+      <!-- sha: ________ -->
+
+### 2. Ingest → corpus tables
+- [ ] 2a — `pnpm index --source familylife` drains raw → docs / chunks /
+      embeddings (`openai/text-embedding-3-small`, 1536d). Idempotent re-run
+      drains 0. **Re-run the full verify gate at new corpus size** — slice #3
+      taught us live-Postgres integration tests can flip red on data growth
+      even with zero code changes. Verify: 1:1 chunks:embeddings, 0 null
+      dropped, 0 chunk_count mismatches, chunks/doc within sane band.
+      <!-- sha: ________ -->
+
+### 3. Retrieve → ranked results
+- [ ] 3a — Spot-retrieval against the 6-source space via `pnpm query`. Probe
+      a handful of marriage/parenting/family queries that the current corpus
+      under-serves (e.g. "how do I lead my family spiritually?", "rebuilding
+      trust after an affair", "discipling teenagers"). Confirm cross-source
+      health (thelife/sightline/jf not catastrophically displaced),
+      minScore 0.37 holds, secular negatives stay at 0. No code changes
+      expected. <!-- sha: ________ -->
+
+### 4. Spot-check via `/golden` (content-grounded mode, skill v2)
+- [ ] 4a — **Part A (re-review):** `/golden` re-scans the existing 52 cases'
+      living `relevant` maps for FamilyLife-credible docs (content-grounded —
+      real chunk snippets, not titles). Expect prior-source numbers to MOVE
+      (slice #5 pattern: slice-#4 sightline curation gap closed as a
+      side-effect). <!-- sha: ________ -->
+- [ ] 4b — **Part B (new cases):** `/golden` adds persona-diverse
+      FamilyLife-native cases on the marriage/parenting axis the corpus
+      currently lacks (target ~10 cases: seeker/skeptic/newcomer/believer).
+      <!-- sha: ________ -->
+- [ ] 4c — Final whole-corpus eval @ 6 sources / ~62 cases. Record recall@3,
+      recall@10, coverage, MRR, P@1, per-source breakdown. Re-confirm
+      minScore 0.37 across negatives + faith-adjacent cluster. Document the
+      FOLLOW-UP I #15 cru/swg drift (will likely worsen — that's signal, not
+      regression). **Delete any throwaway probe scripts BEFORE the gate**
+      (slice #5 unused-const lesson). <!-- sha: ________ -->
+
+## Decisions made (this slice)
+- 2026-06-03 — Picked **FamilyLife** as slice #6 over GotQuestions/KnowGod/
+  Issues I Face — fresh marriage/parenting axis without amplifying the
+  FOLLOW-UP I #15 crowding signal (GotQuestions would have); avoided the
+  API/Angular complexity of KnowGod and the sitemap-404 blocker of Issues I
+  Face.
+- 2026-06-03 — Registry key = `familylife` (matches `everystudent` / `thelife`
+  one-word style; reserves `familylife-<sub>` for future sub-brand scopes per
+  the Cru pattern).
+
+## Open question / blocker
+- none (scope locked; re-confirm count at 1b dry discovery).
+
+## Resume hint (for a cold start)
+At: Stage 1 — "1a Register `familylife` SourceRegistry entry". Next concrete
+action: write `src/registry/familylife.ts` with the discovery-crawl policy
+above; export from `src/registry/index.ts`; add a fakes-only test case.
+Last verify: green @ start of slice (depcruise 75/0, lint 0 errors,
+typecheck clean, 112/112 tests on `dc8cfaf`). Last commit: n/a (slice not
+yet committed). Branch: `slice/familylife`.

@@ -216,5 +216,5 @@ worsens — that's signal), re-confirm minScore 0.37, decide **/equip/
 retention** (delete teaser-shaped rows if eval shows them displacing good
 content). **Delete throwaway probe scripts BEFORE the final gate** (slice
 #5 unused-const lesson). Last verify: green @ 2a (depcruise 76/0, 0 lint
-errors, typecheck clean, 114/114 tests). Last commit: pending 3a. Branch:
-`slice/familylife`.
+errors, typecheck clean, 114/114 tests). Last commit: `fde736a` (Stage 3
+docs; 3a is `c74b98b`). Branch: `slice/familylife`.

@@ -178,7 +178,7 @@ needs a different discovery path).
       but well below the 0.55+ positive band; Buddhism/meditation returns 0.
 
       Full gate green throughout (depcruise 0/75, lint 0 errors, typecheck
-      clean, 112/112 tests).            <!-- sha: ________ -->
+      clean, 112/112 tests).            <!-- sha: a88acba -->
 
 ## Negatives (cutoff calibration — NOT in qa-golden.yaml)
 For `pnpm query` eyeball at 5 sources; should return 0 hits at `minScore 0.37`:

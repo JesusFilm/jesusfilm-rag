@@ -84,7 +84,14 @@ anything that doesn't live under `/articles/`).
       Cloudflare-style 429s appear (WP VIP / Automattic isn't expected to
       throttle). Verify: row count vs. 2,329 kept; status 200 dominant;
       titles populated; spot-read raw_content for clean article prose.
-      <!-- sha: ________ -->
+      **Pass 1 (2026-06-03 15:21 → 16:29 NZST):** SIGINT-stopped at
+      **1,431 / 2,329 rows (61.4%)** before operator laptop disconnect —
+      all status 200, zero 429s, zero other errors, raw_content avg 6,575
+      chars (min 251, max 61,469). Crawl rate ~22 rows/min observed (per-
+      fetch ~2.7 sec, not the 1.5 sec the delay-only estimate suggested).
+      **Pass 2 (next session):** re-run `pnpm acquire --source familylife`;
+      acquire is idempotent (slice #5 ran two passes), should pick up only
+      the remaining ~898 URLs in ~41 min. <!-- sha: ________ -->
 - [ ] 1d — Slice-file checkpoint: record acquire numbers + selector evidence.
       <!-- sha: ________ -->
 
@@ -137,12 +144,14 @@ anything that doesn't live under `/articles/`).
 - none (scope locked; re-confirm count at 1b dry discovery).
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "1c Live crawl". Next concrete action: `pnpm acquire --source
-familylife` (~58 min at 1,500 ms delay). 2,329 URLs expected per 1b dry
-discovery. Watch for 429s in the first ~50 fetches and bump delay to 2,000
-ms only if they appear (WP VIP / Automattic — slice #5's Cloudflare throttling
-not expected). On completion: verify rows in `raw_documents` against 2,329
-kept count, status 200 dominant, titles populated, spot-read raw_content for
-clean prose. Last verify: green @ 1a (depcruise 76/0, lint 0 errors,
-typecheck clean, 114/114 tests on `d5abfd4`). Last commit: `d5abfd4` (1a).
-Branch: `slice/familylife`.
+At: Stage 1 — "1c Live crawl, pass 2". Pass 1 was SIGINT-stopped at
+**1,431 / 2,329 rows** before operator disconnect (clean: all status 200,
+zero 429s, no in-flight write damage — acquire writes one row per fetch
+transactionally). Next concrete action: re-run `pnpm acquire --source
+familylife` to pick up the remaining ~898 URLs (acquire is idempotent;
+slice #5 ran two passes). Expected ~41 min at the observed ~22 rows/min
+rate. On full completion: verify rows in `raw_documents` against 2,329
+kept count, status 200 dominant, titles populated, spot-read raw_content
+for clean prose, then commit 1c. Last verify: green @ 1a (depcruise 76/0,
+lint 0 errors, typecheck clean, 114/114 tests on `d5abfd4`). Last commit:
+`ef062f8` (1b — dry discovery checkpoint). Branch: `slice/familylife`.

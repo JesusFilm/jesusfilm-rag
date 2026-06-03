@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-06-02_
+_Last updated: 2026-06-03_
 
 ## You are here
 
@@ -46,62 +46,37 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 **Slice #4 (Sightline Ministry) was MERGED to `main`** (PR #22, `2c5c57f`) — the
 earlier "not yet merged" note above is stale.
 
-**Slice #5 (`thelife`) is IN-PROGRESS** on `slice/thelife` (started 2026-05-29).
-**This slice was initially picked as `power-to-change`**; Stage 1a recon found
-powertochange.com fully decommissioned (every content URL 301-redirects to
-thelife.com or issuesiface.com; sitemap is a 2014-2017 WP relic). The actual
-Cru Canada discipleship corpus lives at **thelife.com** now (Statamic, fresh
-sitemap with 7,834 locs / 6,478 lastmod 2026, open robots), so we pivoted the
-slice. Issues I Face stays its own backlog row.
+**Slice #5 (`thelife`) is DONE — all 4 stages green, Evaluated** on
+`slice/thelife` (completed 2026-06-03, **not yet merged**). 4,485 docs / 7,905
+chunks / 7,905 embeddings; thelife corpus is fully queryable + evaluated in the
+5-source space. **Final eval @ 52 cases / 5 sources:** recall@3 **1.000** ·
+recall@10 **1.000** · coverage **0.624** · MRR **0.907** · P@1 **0.827**.
+Per-source: thelife n=22 recall 0.955 / coverage 0.851 (perfect where
+credited) · sightline n=34 0.853/0.603 · jf n=27 0.815/0.664 · swg n=20
+0.500/0.335 · cru n=15 0.200/0.167 (unchanged — confirms slice-#4 honest
+finding; sharper FOLLOW-UP I #15 data, not a regression). minScore 0.37
+holds at 5 sources. Notable wins: (a) the surgical re-review closed a
+substantial slice-#4 **sightline curation gap** (15+ docs in corpus but never
+credited); (b) thelife `/discipleship-101` closed the long-standing slice-#3
+**`jf-believer-disciple-making` vocab gap**.
 
-**Scope (operator-chosen):** articles **+** devotionals — `articleHints`
-allows `/articles/` (478) and `/devotionals/` (5,015), `block` filters out
-`/tags/`/`/author/`/`/series/`/etc. **Expected ~5,493 kept URLs.** Taken
-explicitly despite slice #4's small-source crowding signal — the expected
-consequence is per-source coverage for cru/swg likely drops further in the
-eval; that's a sharper signal for **FOLLOW-UP I (#15)**, not a regression.
+**Slice #5 process note:** the `/golden` skill ran in **content-grounded
+mode** for the first time. Operator pushed back on title-only review ("seeing
+a question followed by a list of sources doesn't really mean anything to the
+reviewer"), so we rebuilt Stage 4 around a surgical probe that returns chunk
+snippets for every candidate — the operator judges real text against real
+questions. This is worth folding back into `/golden` for future slices.
 
-**Stage 1 (Acquire) is DONE — all four sub-steps green, source → `Acquired`** in
-`sources.md`. 1a recon found the actual URL structure (articles at **bare-root**
-`/<slug>`, not `/articles/`); 1b registered the source; 1c corrected the policy
-and dry-discovered 4,552 kept URLs; 1d ran a two-pass live crawl (Cloudflare
-forced delay 1000→2000 ms after pass 1's ~45% 429-rate). **`raw_documents.thelife`
-holds 4,485 distinct rows (98.5%): 616 articles + 3,869 devotionals**, all 200,
-chars avg 2,454. Stage 1 commits: 1a `86a98c4` · 1b `cb4281d` · 1c `c9695aa` ·
-1d `8026f14`.
+→ **Operator's choice for the next concrete action:** (a) merge
+`slice/thelife` → `main` (Stage 1/2/3/4 commits ready: `86a98c4` `cb4281d`
+`c9695aa` `8026f14` `f50e2e7` `0b5fd81` `7aedbad` `4d520d3` `4a-pending`);
+(b) take the **next slice** — FOLLOW-UP I #15 (`maxPerSource`/MMR) now has its
+sharpest evidence yet from this slice's cru/swg crowding signal, or one of the
+remaining sources (GotQuestions, FamilyLife, KnowGod, Issues I Face); (c) lift
+the surgical content-grounded `/golden` flow into the skill itself (this slice
+ran it manually via disposable probe scripts; the workflow is worth promoting).
 
-**Stage 2 (Ingest) is DONE — source → `Ingested`** in `sources.md`. `pnpm index
---source thelife` drained all 4,485 pending rows → **4,485 docs / 7,905 chunks /
-7,905 embeddings** (`openai/text-embedding-3-small`, 1:1, 0 nulls dropped, 0
-chunk_count mismatches; chunks/doc avg **1.76** — lower than Sightline's 2.5
-because short devotionals dominate). Idempotent re-run drained 0. **Full gate
-green at the new size** (depcruise 0/75, lint 0 errors, typecheck clean, 112/112
-tests) — the slice-#3/#4 integration-fixture risk did NOT bite despite the
-corpus growing ~3.2× to **5 sources / ~6.5 k docs / ~14.7 k chunks**. Stage 2
-commit: 2a `f50e2e7`.
-
-**Stage 3 (Retrieve) is DONE.** Spot-retrieval against the 5-source space (6
-queries via `pnpm query`): thelife dominates its native topics (discipleship
-0.706 top; anxiety/sleep all 5 thelife 0.594–0.572); **cross-source health
-preserved** — sightline #1 / jf #2 on apologetics; swg flagship "How to Be Sure
-of Heaven" #2 on assurance (edged by 0.003 by thelife #1). The **anxiety/sleep
-result is the cleanest evidence yet for FOLLOW-UP I (#15) small-source crowding**
-— predicted at slice unpack, not a regression. 3-key dedup intact at 5 sources.
-**`minScore 0.37` holds at 5 sources** (secular = 0; Ramadan/fasting returns 5
-legitimate Christian-fasting hits 0.401–0.495, below the 0.55+ positive band —
-top edged above slice-#3's 0.389 Quran ref, flagged for Stage 4 re-check).
-Stage 3 commit: 3a `7aedbad`. **No code changes** — wiring unchanged from
-slice #1.
-
-→ **At: Stage 4 — `4a. Eval via /golden`.** Next concrete action: `/golden
-thelife` adds persona-diverse thelife cases (discipleship / devotional /
-life-issues) AND re-reviews the living `relevant` maps of the existing 42 cases
-(slice #3/#4 lesson: living set). Then whole-corpus eval @ top-10 (recall@3 /
-recall@10 / coverage / MRR / P@1) + per-source breakdown across 5 sources.
-**Expectation, not regression:** cru/swg per-source coverage likely drops
-further than slice #4's 0.32/0.42 — confirming-not-degrading; the crowding
-becomes hard evidence for FOLLOW-UP I (#15). See
-[docs/slices/thelife.md](./slices/thelife.md).
+See **[docs/slices/thelife.md](./slices/thelife.md)** for the slice-5 record.
 
 **Still on the table (not picked):** FOLLOW-UP I (#15,
 `maxPerSource`/MMR — most evidence-backed engine work; this slice will sharpen
@@ -187,3 +162,4 @@ high word counts confirm real content, not an anti-bot page.)
 - **Slice #1, Stage 3 (Retrieve)** — Retrieval context (`src/retrieval/`): `createRetriever` runs invariant 5 (embedQuery → vectorSearch candidate fan-out → minScore 0.3 cutoff → soft preferSourceKey tiebreak → 3-key dedup → citation). Wired into `main.wire()`; `pnpm query "<q>"` entry point; `scripts/eval.ts` step-5 TODO closed (drives the real Retriever). 12 fakes-only tests (59 total). Live query returns 5 distinct cited docs. **Decision:** 3-key dedup ⇒ at most one chunk per document (content-hash is doc-level). On `slice/starting-with-god`.
 - **Slice #2 (Cru "10 Basic Steps", `cru-10-basic-steps`)** — full acquire → ingest → retrieve → eval on `slice/cru-10-basic-steps` (not yet merged). 11 docs / 35 chunks / 35 embeddings (AEM `.article-long-form` extraction). **Stage 4 built the per-source eval mechanism:** required `source` tag on golden cases, `pnpm eval --source <key>`, and a per-source breakdown (pure logic in `scripts/eval-metrics.ts`, unit-tested from `tests/`; +15 tests, 80 total). 10 persona-diverse cru golden cases authored. Whole-corpus eval (20 cases / 2 sources): recall@3 0.80 / recall@8 0.90 / MRR 0.62 / P@1 0.45; minScore **0.37 (FOLLOW-UP A re-confirmed, held)**. **Stage 4 also reframed the eval** (`8fbee09`) to source-agnostic questions + multi-source `relevant` maps scored on recall + coverage — v2 whole-corpus recall@10 1.00 / coverage 0.896 / P@1 0.80, per-source coverage cru 0.929 / swg 0.906 (resolved the v1 cru P@1 0.20 artifact). Remaining: accordion-TOC chunk hurts cru citation quality (extraction-side follow-up). See `docs/eval-approach.md`; Cru → Evaluated in `sources.md`.
 - **Serving (step 6) — DONE** (`feat/serving-v1`, PR #19; closes #9 + #12). Versioned `/v1` HTTP adapter (`src/serving/http/`, Hono) over the injected `Retriever`: `POST /v1/search` + `GET /v1/health`, bearer auth + `allowedSourceKeys` scope intersection (narrow-only). Single-source **Zod** contract (`src/contracts/retrieval.schema.ts`) → generated `contracts/openapi.v1.json` (`pnpm gen:contract`) + drift test; versioning policy in architecture §3.1. Runs in `docker compose` alongside Postgres (`:8080`, no manual env); `pnpm smoke` is the consumer/CD probe. 108 tests green. **MCP adapter deferred** (a later variant over the same `Retriever`).
+- **Slice #5 (thelife, `thelife`)** — pivoted from `power-to-change` (decommissioned) on 2026-05-29 to thelife.com (Cru Canada's live successor). Statamic source, **first time the discovery crawler ran against a non-WordPress site**; two-pass crawl (Cloudflare forced 1000→2000 ms delay) staged **4,485 of 4,552 distinct rows (98.5%)**. Ingest drained all 4,485 → **4,485 docs / 7,905 chunks / 7,905 embeddings** (chunks/doc avg 1.76 — devotional-dominant; corpus now 5 sources / ~6.5 k docs / ~14.7 k chunks). Stage 3 spot-retrieval: thelife dominates devotional/life-issues; cross-source health preserved; minScore 0.37 holds. **Stage 4 ran `/golden` in content-grounded mode for the first time** — operator pushed back on title-only review; we rebuilt curation around a surgical probe returning chunk snippets per candidate. Part A added 67 paths across 12 regressed cases (incidentally closing a slice-#4 sightline curation gap AND the slice-#3 `jf-believer-disciple-making` vocab gap); Part B added 10 new persona-diverse thelife-native cases (52 total now). **Final eval @ 52 cases / 5 sources:** recall@3/@10 1.000 · coverage 0.624 · MRR 0.907 · P@1 0.827. cru/swg per-source coverage unchanged from pre-curation (0.17/0.34) — confirms slice-#4 mechanism: thelife/sightline crowd small sources out of top-10 even when both legitimately answer. **Sharpest FOLLOW-UP I #15 evidence yet.** On `slice/thelife` (not yet merged).

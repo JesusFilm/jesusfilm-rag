@@ -1,6 +1,6 @@
 # Slice: thelife (thelife)
 
-_Branch: `slice/thelife` · Started: 2026-05-29 · Status: in-progress_
+_Branch: `slice/thelife` · Started: 2026-05-29 · Completed: 2026-06-03 · Status: done_
 <!-- Status: in-progress | blocked | done -->
 
 ## Goal (architecture altitude)
@@ -122,13 +122,75 @@ needs a different discovery path).
         — they're on a different framing of the same word).            <!-- sha: 7aedbad -->
 
 ### 4. Spot-check / eval (via `/golden`)
-- [ ] 4a. `/golden thelife` adds discipleship/devotional cases + re-reviews the
-      living `relevant` maps of existing 42 cases (the set is living — slice
-      #3/#4 lesson). Whole-corpus eval @ top-10 (recall@3 / recall@10 / coverage /
-      MRR / P@1); per-source breakdown across 5 sources. Honest log of any
-      regressions (likely **stronger** small-source crowding given 4,552 docs ≈
-      3.3× Sightline's 1,390 — feeds FOLLOW-UP I #15 with sharper data).
-      Update `sources.md` → `Evaluated` with concrete `Results`.
+- [x] 4a. `/golden thelife` ran in operator-led, content-grounded mode (operator
+      pushed back on title-only curation; we re-grounded every decision in
+      actual chunk snippets via a surgical probe). **Pre-curation baseline @
+      5 sources / 42 cases** confirmed the expected living-relevant-set
+      artifact: recall@3 0.714, recall@10 0.833, coverage 0.464, MRR 0.619,
+      P@1 0.500 — every metric down from slice #4 (recall@3 0.810 / recall@10
+      0.976 / cov 0.583), exactly as slice #3/#4 lesson predicted. 7 hard
+      misses + 5 degraded-rank cases isolated as the curation surface.
+
+      **Part A — re-review of existing 42 cases.** Surgical probe per case
+      returned top-10 with chunk snippets; operator approved 67 path additions
+      across 12 cases (mix: 25 thelife · 28 sightline · 9 jesusfilm-org · 5
+      starting-with-god). **Bonus:** the re-review fixed a substantial slice-#4
+      sightline curation gap (15+ sightline docs that were already in the
+      corpus but never credited surfaced as legitimate answers); closed the
+      long-standing slice-#3 `jf-believer-disciple-making` vocab gap via
+      thelife `/discipleship-101` ("Seven Steps to Helping a New Christian").
+
+      **Part B — 10 new persona-diverse thelife-native cases.** Authored
+      (3 seeker / 2 skeptic / 3 believer / 2 newcomer) covering gaps the
+      existing 42 didn't reach (grief over a lost child, post-abortion
+      healing, depression+meds, cosmology, the "loving God + hell" tension,
+      marriage drift, hard obedience, discipling a brand-new Christian,
+      next-step-after-decision, finding a church). **Engine sanity-check
+      revised 3 of the 10 cases** (`tl-skeptic-hell`, `tl-believer-marriage-
+      drift`, `tl-believer-obedience`) by surfacing better matches than my
+      initial draft — exactly the kind of content-grounded correction the
+      surgical workflow enables.
+
+      **Part C — 4 negatives** for cutoff calibration (not written to
+      `qa-golden.yaml`; eval.ts would miscount them as misses): see
+      "Negatives" section below.
+
+      **Post-curation final eval @ 52 cases / 5 sources:** recall@3 **1.000**,
+      recall@10 **1.000**, coverage **0.624**, MRR **0.907**, P@1 **0.827**.
+      Per-source: **thelife n=22 recall 0.955 coverage 0.851** · sightline
+      n=34 0.853/0.603 · jesusfilm-org n=27 0.815/0.664 · starting-with-god
+      n=20 0.500/0.335 · **cru-10-basic-steps n=15 recall 0.200 coverage
+      0.167 (unchanged — see honest finding)**.
+
+      **Honest finding: cru/swg per-source coverage did not recover** —
+      confirming the slice-#4 observation. The thelife re-review credits
+      newly-relevant thelife docs (perfect coverage where credited), but
+      cru/swg docs that COULD be credited for shared questions still get
+      crowded out of top-10 by the broader thelife/sightline content. This
+      is exactly the **FOLLOW-UP I #15 (consumer-specified retrieval
+      diversity: `maxPerSource` / MMR)** signal — mechanism-not-policy at
+      the retrieval engine; the right fix is at the consumer layer where
+      the application's source-balance preference lives.
+
+      **`minScore 0.37` holds at 5 sources** — 4/4 secular negatives return
+      0 hits (running shoes / leaking faucet / vacation spot / small-business
+      LLC); Quran/Jesus faith-adjacent cluster at 0.436–0.448, above floor
+      but well below the 0.55+ positive band; Buddhism/meditation returns 0.
+
+      Full gate green throughout (depcruise 0/75, lint 0 errors, typecheck
+      clean, 112/112 tests).            <!-- sha: ________ -->
+
+## Negatives (cutoff calibration — NOT in qa-golden.yaml)
+For `pnpm query` eyeball at 5 sources; should return 0 hits at `minScore 0.37`:
+- "best running shoes for marathon training" — 0 hits ✓
+- "how to fix a leaking faucet at home" — 0 hits ✓
+- "what's the best vacation spot for summer 2026" — 0 hits ✓
+- "how to set up a small business LLC" — 0 hits ✓
+
+Faith-adjacent (above floor, below positive band):
+- "what does the Quran say about Jesus" — 5 hits 0.436–0.448 (about Jesus's
+  deity / identity, no Islamic content in corpus; below 0.55+ positive band)
+- "best meditation techniques from Buddhism" — 0 hits
 
 ## Decisions made (this slice)
 - 2026-05-29 — **Pivoted target from powertochange.com → thelife.com.** Recon
@@ -156,17 +218,13 @@ needs a different discovery path).
 - none
 
 ## Resume hint (for a cold start)
-At: **Stage 3 (Retrieve) complete; operator pause before Stage 4 (eval via
-`/golden`)**. Stages 1, 2, 3 all green. 5-source corpus (~14.7 k chunks) is
-queryable end-to-end; thelife dominates devotional/life-issues queries,
-cross-source health preserved on apologetics (sightline #1, jf #2) and
-assurance (thelife #1 by 0.003 over swg #2); 3-key dedup intact; minScore 0.37
-holds (secular = 0; Ramadan/fasting cluster legitimately on-topic Christian
-fasting at 0.40–0.495, below the 0.55+ positive band). Next concrete action:
-**Stage 4** — `/golden thelife` adds discipleship/devotional cases + re-reviews
-the living `relevant` maps of existing 42 cases (the set is living — slice
-#3/#4 lesson). Run whole-corpus eval @ top-10 (recall@3 / recall@10 / coverage
-/ MRR / P@1) + per-source breakdown across 5 sources; honest log of the
-predicted small-source crowding regressions (sharper FOLLOW-UP I #15 data, not
-a retrieval regression). Last verify: green (depcruise 0/75, tests 112/112).
-Last commit: 3a (sha pending). Branch: slice/thelife.
+**Slice complete.** All four stages green; thelife is queryable and evaluated
+in the 5-source space (52 cases · recall@3/@10 = 1.000 · coverage 0.624 · MRR
+0.907 · P@1 0.827). Next concrete action is at the operator's discretion:
+merge `slice/thelife` → `main`, and/or `/slice <next-source>`. The
+**FOLLOW-UP E** unblock condition (≥2 sources done end-to-end) has been
+satisfied since slice #2 — this slice does not change that. **FOLLOW-UP I #15**
+gets its sharpest data yet here (cru/swg per-source coverage stayed at 0.17 /
+0.34 after curation: thelife/sightline crowd them out of top-10 on shared
+questions even when both legitimately answer — engine-level mechanism, not a
+policy regression).

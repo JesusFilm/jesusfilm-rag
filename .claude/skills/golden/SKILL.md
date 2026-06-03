@@ -5,7 +5,7 @@ allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *
 disable-model-invocation: true
 ---
 
-<!-- version: 1 -->
+<!-- version: 2 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -76,6 +76,45 @@ The personas are the default balanced set; the operator may swap or add one.
 3. **Negatives must be plausibly-asked but genuinely off-topic for THIS source.**
 4. **The operator is the gate.** This skill *proposes*; the operator approves,
    edits, or rejects. Never write a case the operator hasn't confirmed.
+5. **Curate on content, never on titles.** Every candidate the operator judges
+   MUST be presented with the actual chunk-text snippet (≥200 chars) and not
+   just a title + score. A reviewer cannot judge whether `/devotionals/transform-
+   me-by-your-spirit` legitimately answers a question without reading the text;
+   forcing a yes/no on a title alone is rubber-stamping, not curation. (slice
+   #5: title-only review was rejected by the operator; the surface was rebuilt
+   around a surgical chunk-snippet probe. The mechanism is the wired
+   `Retriever.search(question, { allowedSourceKeys, topK }).then(hits => …)`
+   — every result carries `.text` which is the chunk excerpt to display.)
+
+## Two operating modes
+
+The skill runs in one of two modes depending on the corpus state — pick the
+mode at Step 0:
+
+- **Bootstrap mode** — when this source is the only one (or the first to be
+  evaluated): draft fresh cases from scratch. Goes Step 0 → 1 → 2 → 3 → 4 → 5
+  → 6 → 7.
+- **Re-review mode** — when the corpus already has prior slices' eval cases:
+  the `relevant` maps are LIVING, and adding this source likely shifts which
+  docs the engine returns for existing questions. Two parts:
+  - **Part A — re-review existing cases.** Run `pnpm eval` FIRST. Cases that
+    regressed (recall@10 = 0, or recall@3 = 0 with rank > 3) are the
+    curation surface — usually a small fraction of all cases. For each
+    regressed case, fetch the engine's actual top-10 with chunk snippets,
+    let the operator credit which are legitimate answers, write the
+    additions to `qa-golden.yaml`. Skips Steps 1–4 (those are bootstrap-
+    only) and jumps to a per-case surgical loop; see "Re-review mode
+    procedure" below.
+  - **Part B — author new cases for the new source's distinctive content.**
+    Standard bootstrap-style drafting (Steps 1–7), but with one extra:
+    after drafting each new case, run the question through the wired
+    retriever and show the top-5 hits to the operator. The engine often
+    surfaces docs the drafter missed (slice #5: 3 of the 10 new cases were
+    revised this way).
+
+A re-review-mode run usually does Part A before Part B so the operator gets
+the regression-fix headline numbers up-front and the new cases are added on a
+known-good baseline.
 
 ## Procedure
 
@@ -131,9 +170,18 @@ Draft 3–5 off-topic questions this source should *not* answer, derived from it
 topic scope as revealed by the survey.
 
 ### 4. Present for curation (pause)
-Show all candidates in a readable table (persona · question · expected doc, then
-the negatives). Get the operator's approve / edit / reject. Do **not** proceed on
-unconfirmed cases.
+Show all candidates in a readable form — **with the actual chunk-text snippet
+of each expected doc**, not just title + score (guardrail #5). For each draft
+case, present: persona · question · expected doc pathname · first chunk text
+(≥200 chars). For each draft negative: question + a 1-line reason it's
+plausibly-asked-but-off-topic. Get the operator's approve / edit / reject. Do
+**not** proceed on unconfirmed cases.
+
+Bootstrap-mode addition: after drafting each new case, run its question
+through the wired retriever (`Retriever.search(question, { topK: 5 })`) and
+show the top-5 hits before pausing. If the engine surfaces a doc the drafter
+missed, offer to add it; if the engine ranks an unrelated doc highest, that's
+a useful signal about phrasing or about gaps in the source's coverage.
 
 ### 5. Write approved cases
 - **Positives** → append to `eval/qa-golden.yaml` (preserve existing cases). Use
@@ -153,6 +201,53 @@ unconfirmed cases.
 ### 7. Record
 Note the baseline numbers + the cutoff finding in `docs/sources.md` (→ Evaluated)
 and the slice file's Stage 4 evidence.
+
+## Re-review mode procedure (when prior slices exist)
+
+When the corpus already has eval cases from prior slices, the `relevant` maps
+are LIVING and a new source likely makes some old cases miss not because
+retrieval got worse but because the new source's docs displaced the old
+expected docs on shared questions (slice #3/#4 lesson). Two passes:
+
+### R1. Run `pnpm eval` FIRST to identify the curation surface
+- Report headline metrics + per-case table. Compare against prior slice's
+  baseline if you have it.
+- The curation surface = regressed cases:
+  - **Hard misses** (`recall@10 = 0`) — engine returned NOTHING the case
+    credits. Highest-value targets; usually the existing relevant set is now
+    stale.
+  - **Degraded rank** (`recall@3 = 0` with rank > 3 in top-10) — old expected
+    docs still surface but ranked below new content.
+- Non-regressed cases need no work (the eval already confirms them).
+
+### R2. For each regressed case, surgical content-grounded curation
+For each regressed-case id, run the wired retriever (whole corpus, top-10)
+and present the operator with:
+- the question (verbatim)
+- the existing `relevant` map (with rank-or-✗ for each path)
+- the top-10 hits the engine actually returned, each with: source key, score,
+  pathname, **and the chunk-text snippet** (`hit.text`, ≥200 chars)
+- a flag on each hit: `[credited]` if it's already in the relevant set,
+  `[<src>←new]` if it's from the new source, otherwise plain
+
+The operator decides per hit whether to credit. Write approved additions to
+`qa-golden.yaml` (additive: never remove a credited path; just extend the
+arrays). Re-run `pnpm eval` to confirm the regression closed.
+
+### R3. Watch for prior-slice curation gaps surfacing
+The re-review often surfaces top-10 hits from PRIOR sources that were already
+in the corpus but never credited — leftover gaps in an earlier slice's
+Stage 4. Credit them; the eval matures incrementally. Surface these as
+"slice-#N gap-fix" in the slice's Stage 4 evidence so the lesson is visible
+in the record. (slice #5: 15+ sightline docs were credited this way,
+fixing a slice-#4 sightline curation gap.)
+
+### R4. Then Part B — author new cases for the new source's distinctive content
+Run the bootstrap procedure (Steps 1–7) to draft new persona-diverse cases
+for content the existing 42-ish questions don't cover. The engine sanity-
+check in Step 4 catches when your draft misses a better existing match —
+take it seriously (slice #5: 3 of 10 new cases were revised after engine
+surfaced better-aligned docs).
 
 ## Negatives — current limitation (honest note)
 `scripts/eval.ts` scores positives only; a case with no expected match is counted

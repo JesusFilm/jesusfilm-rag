@@ -9,6 +9,7 @@ import { cru10BasicSteps } from "./cru-10-basic-steps.js";
 import { jesusFilmOrg } from "./jesusfilm-org.js";
 import { sightlineMinistry } from "./sightline-ministry.js";
 import { thelife } from "./thelife.js";
+import { familylife } from "./familylife.js";
 
 export type { SourceEntry, CrawlPolicy } from "./types.js";
 
@@ -19,6 +20,7 @@ export const SOURCES: readonly SourceEntry[] = [
   jesusFilmOrg,
   sightlineMinistry,
   thelife,
+  familylife,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

@@ -104,3 +104,82 @@ cru questions listed only the cru doc, so an equally-correct SwG answer at rank 
 as a non-P@1 "miss." The multi-relevant reframe removed the artifact — under v2, **cru's per-source
 recall is 0.929** (its content surfaces reliably when relevant). Retrieval was behaving correctly
 all along; the v1 metric was measuring the wrong thing.
+
+## Known engine ranking quirks (interpret MRR / P@1 with care)
+
+Dense embeddings (`openai/text-embedding-3-small`) sometimes rank **abstract /
+spiritual-foundation pieces above direct topic answers** for evaluatively-framed
+questions. Slice #6 example: case `fl-skeptic-sex-marriage` ("Why does
+Christianity insist on waiting until marriage for sex? It seems outdated.")
+ranks thelife `/wise-intimacy` (0.649 — a foolishness-of-the-cross meditation,
+not a why-wait answer) and sightline `/is-it-good-for-you-2` (0.588 —
+carrying-past-relationships angle) above the directly-on-topic thelife
+`/why-should-i-wait-for-sex` and sightline `/good-reasons-to-wait`. The case
+sits at rank=4 with full coverage in top-10. **This is a model property, not
+a curation error:** abstract framing scores high on cosine even when the
+specific question would be better answered downstream. Implications:
+
+- **Recall@10 is the integrity metric**; recall@3 / MRR / P@1 will dip on
+  skeptic / evaluative questions where the engine prefers foundation pieces.
+  A rank=4 case with full coverage is fine — recall@10 = 1.000 still proves
+  the system found everything that legitimately answers.
+- **Don't conclude "curate harder" from a rank=4 case** unless you'd genuinely
+  credit the higher-ranked abstract pieces. The skill #5 guardrail (credit on
+  content, not titles) cuts both ways: if the higher-ranked doc doesn't really
+  answer the question, _leave it uncredited_ and accept the rank dip.
+- **The right fix is downstream**, not in the eval: a re-ranking or prompt
+  layer that biases toward direct-topic answers for evaluative questions.
+  Mechanism-not-policy, again.
+
+## Consumer-layer policies and the eval (FOLLOW-UPs E / I / L)
+
+Three consumer-layer follow-ups are in flight: `excludedSourceKeys` (#6), the
+diversity knobs `maxPerSource` / `perSourceCaps` / MMR (#15), and the source
+discovery endpoint `GET /v1/sources` (L). **None of them change the golden-case
+eval.** This is a deliberate consequence of the engine-stays-ranking-pure
+decision (architecture §1) and worth making explicit so it doesn't get
+re-argued every slice.
+
+**Why the whole-corpus eval is unaffected:** `pnpm eval` runs every case
+against the *unfiltered* engine — no `allowedSourceKeys`, no `excludedSourceKeys`,
+no `maxPerSource`, no `perSourceCaps`. It asks the integrity question: *given
+the whole corpus and no consumer filter, does the most-similar search find the
+docs that should answer this question?* The consumer-layer knobs are policies
+applied **after** the engine has done its job; they don't change what the
+engine could return, only what a specific consumer chose to receive. Adding
+the knobs doesn't invalidate any existing golden case.
+
+**What we add instead: mechanism tests.** Each consumer-layer knob gets a small
+set of integration tests in `src/retrieval/` and (where the knob is HTTP-exposed)
+`src/serving/http/`, asserting the *mechanism* works as advertised:
+
+- *Exclusion* — "consumer A asks to exclude source X; verify zero source-X
+  results; verify other authorized sources still surface; verify excluding a
+  source the consumer wasn't authorized for is a no-op (not an error)."
+- *Per-source caps* — "with `maxPerSource: 2` and a query that returns 10
+  same-source hits unfiltered, verify the top-10 has at most 2 from that
+  source. With `perSourceCaps: { cru: 1 }` and `maxPerSource: 3` both set,
+  verify cru is capped at 1 and others at 3. With caps higher than the
+  unfiltered hit count, verify caps cap, they don't pad."
+- *Discovery* — "consumer with `allowedSourceKeys = [a, b]` calls
+  `GET /v1/sources`; verify only a and b are listed; verify the response
+  shape; verify the doc-count and last-indexed-at fields."
+
+These are *unit/integration tests* in the codebase, not golden cases. A few
+dozen lines per follow-up. They prove the knob does what the API claims.
+
+**What we do NOT do: re-author golden cases to favour diversity.** It's
+tempting to say "now that we have `perSourceCaps`, our golden cases should
+prefer balanced top-10s." That would silently pick a side — making the engine
+eval favour one consumer's policy over another's. A devotional chatbot might
+want diversity; a deep-research tool might want depth from one source. Neither
+preference belongs in the integrity eval. If a *specific consumer* wants to
+measure their policy's behaviour, they author their own cases against
+`POST /v1/search` with their policy bound — that's the consumer's eval, not
+ours.
+
+**Practical implication for picking up E / I / L:** they're shippable
+independently of any eval re-authoring. The 62-case suite stays the integrity
+baseline; the new follow-ups add focused mechanism tests sitting next to the
+code they exercise. Slice work and engine/consumer follow-up work don't
+interleave or compete.

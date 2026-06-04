@@ -104,3 +104,29 @@ cru questions listed only the cru doc, so an equally-correct SwG answer at rank 
 as a non-P@1 "miss." The multi-relevant reframe removed the artifact — under v2, **cru's per-source
 recall is 0.929** (its content surfaces reliably when relevant). Retrieval was behaving correctly
 all along; the v1 metric was measuring the wrong thing.
+
+## Known engine ranking quirks (interpret MRR / P@1 with care)
+
+Dense embeddings (`openai/text-embedding-3-small`) sometimes rank **abstract /
+spiritual-foundation pieces above direct topic answers** for evaluatively-framed
+questions. Slice #6 example: case `fl-skeptic-sex-marriage` ("Why does
+Christianity insist on waiting until marriage for sex? It seems outdated.")
+ranks thelife `/wise-intimacy` (0.649 — a foolishness-of-the-cross meditation,
+not a why-wait answer) and sightline `/is-it-good-for-you-2` (0.588 —
+carrying-past-relationships angle) above the directly-on-topic thelife
+`/why-should-i-wait-for-sex` and sightline `/good-reasons-to-wait`. The case
+sits at rank=4 with full coverage in top-10. **This is a model property, not
+a curation error:** abstract framing scores high on cosine even when the
+specific question would be better answered downstream. Implications:
+
+- **Recall@10 is the integrity metric**; recall@3 / MRR / P@1 will dip on
+  skeptic / evaluative questions where the engine prefers foundation pieces.
+  A rank=4 case with full coverage is fine — recall@10 = 1.000 still proves
+  the system found everything that legitimately answers.
+- **Don't conclude "curate harder" from a rank=4 case** unless you'd genuinely
+  credit the higher-ranked abstract pieces. The skill #5 guardrail (credit on
+  content, not titles) cuts both ways: if the higher-ranked doc doesn't really
+  answer the question, _leave it uncredited_ and accept the rank dip.
+- **The right fix is downstream**, not in the eval: a re-ranking or prompt
+  layer that biases toward direct-topic answers for evaluative questions.
+  Mechanism-not-policy, again.

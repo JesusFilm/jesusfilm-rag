@@ -1,6 +1,6 @@
 # Slice: FamilyLife (familylife)
 
-_Branch: `slice/familylife` · Started: 2026-06-03 · Status: in-progress_
+_Branch: `slice/familylife` · Started: 2026-06-03 · Status: done_
 <!-- Status: in-progress | blocked | done -->
 
 ## Goal (architecture altitude)
@@ -162,21 +162,73 @@ anything that doesn't live under `/articles/`).
       bounded.** <!-- sha: ________ -->
 
 ### 4. Spot-check via `/golden` (content-grounded mode, skill v2)
-- [ ] 4a — **Part A (re-review):** `/golden` re-scans the existing 52 cases'
-      living `relevant` maps for FamilyLife-credible docs (content-grounded —
-      real chunk snippets, not titles). Expect prior-source numbers to MOVE
-      (slice #5 pattern: slice-#4 sightline curation gap closed as a
-      side-effect). <!-- sha: ________ -->
-- [ ] 4b — **Part B (new cases):** `/golden` adds persona-diverse
-      FamilyLife-native cases on the marriage/parenting axis the corpus
-      currently lacks (target ~10 cases: seeker/skeptic/newcomer/believer).
+- [x] 4a — **Part A (re-review):** `/golden` re-scanned the existing 52 cases
+      via wired Retriever + chunk-snippet probe (`pnpm query --top-k 10`).
+      Curation surface = 2 explicit regressions (`tl-believer-marriage-drift`
+      cov 0/5 hard-miss; `swg-believer-assurance` rank=4 degraded) + ~6 cases
+      where familylife and prior sources had clear uncredited top-10 hits.
+      **31 path adds across 8 cases** (12 familylife · 11 thelife · 3
+      sightline · 2 swg · 1 jf). Both regressions closed: marriage-drift
+      rank=miss → 1 (cov 9/14), assurance rank=4 → 3 (cov 4/9, back in
+      recall@3). **Slice #5 pattern re-confirmed:** 19 of the 31 adds were
+      *prior-slice* curation gaps surfaced by re-review (slice-#1 swg
+      `/new-life/new.html`, slice-#3 jf `/blog/mental-health-and-the-church`,
+      slice-#4 sightline trio, slice-#5 thelife 8+ devotionals incl.
+      `/devotionals/full-confidence`, `/how-to-know-im-really-saved`,
+      `/should-we-talk-about-it`, `/should-christians-go-to-therapy`,
+      `/devotionals/kept-in-perfect-peace`, `/devotionals/the-prayer-of-anguish`,
+      `/my-story-of-miscarriage`, `/devotionals/the-new-deal`). swg per-source
+      coverage moved UP from 0.335 → 0.367 (prior-source-up pattern at 6
+      sources). Post-Part-A metrics: recall@3 0.962 → **1.000**, MRR 0.838
+      → 0.869, coverage +0.020. <!-- sha: e5d46c4 -->
+- [x] 4b — **Part B (new cases):** Drafted, engine-sanity-checked, and
+      added **10 persona-diverse familylife-native cases** on the
+      marriage/parenting axis (the corpus's pre-slice-6 gap). Personas: 4
+      seeker (affair-trust, teen-prodigal, single-parent, blended-family) ·
+      3 believer (spiritual-leader, teen-own-faith, prodigal-adult) · 2
+      newcomer (premarital, discipline-child) · 1 skeptic (sex-marriage).
+      Every case was drafted from the wired Retriever's top-8 + chunk
+      snippets (content-grounded), then operator-curated case-by-case
+      (10/10 approved with 7 operator-edits adding more paths). **61 path
+      credits** (47 familylife · 14 prior-source). Part B surfaced 6
+      *additional* prior-slice gaps: thelife `/why-should-i-wait-for-sex`
+      + sightline `/good-reasons-to-wait`, `/puritans-viewed-sex-correctly`,
+      `/sex-sacred-forgotten-that` for sex-marriage skeptic; thelife
+      `/devotionals/going-it-alone` for single-parent; thelife
+      `/kids-divorce-and-remarriage` for blended-family; thelife
+      `/devotionals/our-greatest-burden` for prodigal-adult. qa-golden.yaml
+      now **62 cases**. All 10 new cases pass; 6 of 10 rank=1 with full
+      coverage of their relevant set. <!-- sha: e5d46c4 -->
+- [x] 4c — **Final whole-corpus eval @ 6 sources / 62 cases / top-10:**
+      recall@3 **0.984** · recall@10 **1.000** · coverage **0.648** · MRR
+      **0.870** · P@1 **0.758**. **Per-source: familylife n=16 recall=1.000
+      / coverage=0.958** (perfect where credited; the 1 case under 1.000
+      coverage is `fl-skeptic-sex-marriage` where prior sources legitimately
+      enter) · thelife n=28 0.929/0.777 · jf n=28 0.750/0.604 · sightline
+      n=37 0.784/0.582 · **swg n=21 0.524/0.367 — UP from 0.335** (slice-#5
+      prior-source-up at 6 sources re-re-confirmed) · **cru-10 n=15
+      recall=0.133 / coverage=0.067 — DOWN from 0.167** (sharpest
+      FOLLOW-UP I #15 evidence yet: same denominator, smaller numerator;
+      cru content still indexed, retrieval still works, but 5 competing
+      sources crowd cru pieces out of top-10 on shared topics —
+      mechanism-not-policy, consumer-layer `maxPerSource`/MMR fix).
+      **Only rank > 3 case:** `fl-skeptic-sex-marriage` at rank=4 — engine
+      ranks abstract intimacy pieces (thelife `/wise-intimacy` 0.649,
+      sightline `/is-it-good-for-you-2` 0.588) above direct "why wait" docs;
+      honest ranking quirk, recall@10=1.000 still. **`minScore 0.37` holds
+      at 6 sources:** 3/3 familylife-domain negatives (mortgage refinancing
+      / python crawler / World Cup 2014) = 0 hits; positive band 0.55–0.71
+      cleanly separated. **`/equip/` retention DECIDED — KEEP all 70 rows:**
+      4 `/equip/` paths credited as legitimate relevant docs and surface in
+      top-10 (`/anxiety-what-you-need-to-know`, `/when-someone-you-love-is-losing-faith`,
+      `/a-month-of-prayers-for-prodigals-and-their-parents`,
+      `/parenting-during-deployment`); teaser-shaped half didn't displace
+      good content in any of the 12 Part-B probes. Stage-1 bimodal
+      prediction validated; no re-ingest. No throwaway probe scripts
+      created this slice (all probing via `pnpm query`) — slice-#5
+      delete-before-gate hazard avoided by construction. Verify gate at
+      end: depcruise 76/0, 0 lint errors, typecheck clean, 114/114 tests.
       <!-- sha: ________ -->
-- [ ] 4c — Final whole-corpus eval @ 6 sources / ~62 cases. Record recall@3,
-      recall@10, coverage, MRR, P@1, per-source breakdown. Re-confirm
-      minScore 0.37 across negatives + faith-adjacent cluster. Document the
-      FOLLOW-UP I #15 cru/swg drift (will likely worsen — that's signal, not
-      regression). **Delete any throwaway probe scripts BEFORE the gate**
-      (slice #5 unused-const lesson). <!-- sha: ________ -->
 
 ## Decisions made (this slice)
 - 2026-06-03 — Picked **FamilyLife** as slice #6 over GotQuestions/KnowGod/
@@ -188,33 +240,43 @@ anything that doesn't live under `/articles/`).
   one-word style; reserves `familylife-<sub>` for future sub-brand scopes per
   the Cru pattern).
 
+## Negatives (Stage 4 — minScore 0.37 cutoff confirmation)
+Per skill convention, off-topic negatives live here (not in `qa-golden.yaml`
+— eval.ts would miscount them as misses). All return **0 hits** at
+`minScore=0.37` against the 6-source corpus, cleanly separated from the
+0.55–0.71 positive band:
+- "What's the best mortgage refinancing strategy for 2026?" → 0 hits
+- "How do I optimize my python web crawler?" → 0 hits
+- "Who won the World Cup in 2014?" → 0 hits
+
 ## Open question / blocker
-- **`/equip/` retention** (Stage 1 → Stage 4 follow-through): 70 staged
-  `/equip/` rows are bimodal (real teaching + teaser hubs). Stage 4 eval
-  decides — if teaser-shaped rows displace good content in top-10 results,
-  delete the noisy ones before re-ingest.
-- **FOLLOW-UP J #17 now actively biting** at 23.5k chunks (was dormant at
-  ~14k). Loosened integration test 2 as a stop-gap; the real fix
-  (raise `ef_search` / iterative scan / pre-filter for selective scopes)
-  is engine work tracked on #17. Doesn't block this slice's eval — Stage 3
-  spot-retrieval uses unscoped queries.
+- **`/equip/` retention** — **RESOLVED at 4c (KEEP all 70).** 4 `/equip/`
+  paths credited as relevant docs; teaser half didn't displace good content
+  in 12 probes. Stage-1 bimodal prediction validated.
+- **FOLLOW-UP J #17 still bites** at 23.5k chunks (loosened integration
+  test 2 stop-gap held through Stage 4 — `pnpm test` 114/114 green at
+  slice end). Real fix (raise `ef_search` / iterative scan / pre-filter
+  for selective scopes) is engine work tracked on #17. Doesn't block this
+  slice.
+- **FOLLOW-UP I #15 sharpened** — cru-10 per-source coverage 0.167 → 0.067
+  at 6 sources (slice-#5 said 0.167; slice-#4 said 0.321). Each new source
+  monotonically crowds cru/swg-small further out of top-10 on shared
+  topics. The follow-up's case keeps strengthening; mechanism-not-policy,
+  consumer-layer fix (`maxPerSource` / MMR) is the right surface.
+- **FOLLOW-UP E #6 unblocked at slice #2 — STILL not picked.** As of slice
+  6 close, ≥4 sources are done end-to-end, fixture availability is
+  abundant. Surface this in the merge offer per skill Step 5.4.
 
 ## Resume hint (for a cold start)
-At: **Stage 4 — Spot-check via `/golden` (content-grounded mode, skill v2)**.
-Stages 1-3 done: 2,239 docs / 9,815 chunks / 9,815 embeds for familylife
-(corpus = 6 sources / 8,514 docs / 23,522 chunks); cross-source health
-preserved (swg flagship survived at 6 sources, slice #3→#4 closure intact);
-minScore 0.37 holds; familylife dominates family-axis queries while
-adjacent sources still surface where they should. Next concrete action:
-invoke `/golden` (v2 content-grounded mode) for **Part A — re-review** the
-existing 52 cases' living `relevant` maps for familylife credits (expect
-prior-source numbers to move up, slice #5 pattern), then **Part B — add
-~10 persona-diverse familylife-native cases** on the marriage/parenting
-axis (seeker/skeptic/newcomer/believer). **Then 4c — final whole-corpus
-eval @ 6 sources / ~62 cases**, document FOLLOW-UP I #15 drift (likely
-worsens — that's signal), re-confirm minScore 0.37, decide **/equip/
-retention** (delete teaser-shaped rows if eval shows them displacing good
-content). **Delete throwaway probe scripts BEFORE the final gate** (slice
-#5 unused-const lesson). Last verify: green @ 2a (depcruise 76/0, 0 lint
-errors, typecheck clean, 114/114 tests). Last commit: `fde736a` (Stage 3
-docs; 3a is `c74b98b`). Branch: `slice/familylife`.
+**DONE 2026-06-04.** All 4 stages green: familylife queryable end-to-end
+in the 6-source space (8,514 docs / 23,522 chunks). Final eval @ 62 cases:
+recall@3 **0.984** · recall@10 **1.000** · coverage **0.648** · MRR
+**0.870** · P@1 **0.758**. familylife per-source 1.000/0.958, swg moved
+UP (0.335→0.367), cru moved DOWN (0.167→0.067 — sharpest FOLLOW-UP I #15
+evidence). minScore 0.37 holds at 6 sources. `/equip/` decision: KEEP all
+70. Slice-#1/#3/#4/#5 prior-slice curation gaps incidentally fixed by
+Part A re-review. Last verify gate: green (depcruise 76/0, 0 lint errors,
+typecheck clean, 114/114 tests). Last code/data commit: `e5d46c4` (Stage
+4a+4b). Branch: `slice/familylife` — **not yet merged**. Next action:
+nothing further on this slice — `/slice` will close it out (commit 4c
+docs + lessons capture + offer merge / next slice).

@@ -5,7 +5,7 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-06-03 — slice #6 (FamilyLife) started_
+_Last updated: 2026-06-04 — slice #6 (FamilyLife) DONE, all 4 stages green_
 
 ## You are here
 
@@ -43,6 +43,56 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
+**Slice #6 (FamilyLife, `familylife`) is DONE 2026-06-04** on
+`slice/familylife` (not yet merged). All 4 stages green; familylife
+queryable end-to-end in the 6-source space (8,514 docs / 23,522 chunks).
+**Final eval @ 6 sources / 62 cases / top-10:** recall@3 **0.984** ·
+recall@10 **1.000** · coverage **0.648** · MRR **0.870** · P@1 **0.758**.
+**Per-source: familylife n=16 recall=1.000 / coverage=0.958** (perfect
+where credited) · thelife n=28 0.929/0.777 · jf n=28 0.750/0.604 ·
+sightline n=37 0.784/0.582 · **swg n=21 0.524/0.367 — UP from 0.335**
+(slice-#5 prior-source-up pattern re-confirmed at 6 sources) ·
+**cru-10 n=15 0.133/0.067 — DOWN from 0.167** (sharpest FOLLOW-UP I #15
+evidence yet: cru content/retrieval still work, but with 5 competing
+sources cru pieces get displaced from top-10 on shared topics —
+mechanism-not-policy, consumer-layer `maxPerSource`/MMR fix).
+**Stage 4 via `/golden` v2 content-grounded:** **Part A** added 31 paths
+across 8 cases — closed both regressions (`tl-believer-marriage-drift`
+cov 0/5 hard-miss → rank 1 cov 9/14; `swg-believer-assurance` rank 4 → 3)
+AND **19 prior-slice curation gaps** surfaced as side-effects (slice-#1
+swg `/new-life/new.html`, slice-#3 jf `/blog/mental-health-and-the-church`,
+slice-#4 sightline trio, slice-#5 thelife 8+ devotionals incl.
+`/full-confidence`, `/how-to-know-im-really-saved`,
+`/should-we-talk-about-it`, `/should-christians-go-to-therapy`,
+`/the-new-deal`, `/the-prayer-of-anguish`, `/my-story-of-miscarriage`).
+**Part B** added 10 persona-diverse familylife-native cases on the
+marriage/parenting axis (4 seeker / 3 believer / 2 newcomer / 1 skeptic),
+61 path credits + 6 *additional* prior-slice gaps surfaced (thelife
+`/why-should-i-wait-for-sex` + 3 sightline sex-marriage devotionals;
+thelife `/going-it-alone`, `/kids-divorce-and-remarriage`,
+`/devotionals/our-greatest-burden`). qa-golden.yaml now **62 cases**.
+**Only rank > 3 case:** `fl-skeptic-sex-marriage` at rank=4 — engine
+ranks abstract intimacy pieces above direct "why wait" docs; honest
+ranking quirk. **`minScore 0.37` holds at 6 sources** (3/3 negatives = 0
+hits). **`/equip/` retention DECIDED — KEEP all 70 rows:** 4 paths
+credited as legitimate relevant docs and surface in top-10; teaser half
+didn't displace good content in 12 probes; Stage-1 bimodal prediction
+validated, no re-ingest. 114/114 tests green, depcruise 76/0, 0 lint
+errors. **Stage 4a+4b commit:** `e5d46c4`. **≥4 sources now done end-to-end
+→ FOLLOW-UP E #6 (consumer source-exclude filter) fully unblocked** —
+abundant fixtures across familylife/thelife/sightline/jf for testing
+narrow-only exclusion.
+
+**Next pick — operator decides:** (1) **Merge slice #6** to `main` (open
+PR from `slice/familylife`); (2) **FOLLOW-UP I #15** (`maxPerSource` / MMR
+consumer-layer) — evidence is now devastating, cru drops 0.321→0.167→0.067
+across slices #4/#5/#6 with monotonic sharpening; this is engine work, not
+`/slice`; (3) **FOLLOW-UP E #6** (`excludedSourceKeys`) — now fully
+unblocked; consumer-layer too; (4) **GotQuestions / KnowGod / Issues I Face**
+as next backlog source slice (GotQuestions would amplify #15 further;
+Issues I Face needs different discovery — sitemap 404); (5) **Cru
+accordion-TOC strip** (citation quality follow-up from slice #2).
+
 **Slice #5 (`thelife`) is DONE and MERGED to `main`** ([PR #31](https://github.com/JesusFilm/jesusfilm-rag/pull/31),
 `dc8cfaf`, 2026-06-03). 4,485 docs / 7,905 chunks / 7,905 embeddings; thelife
 corpus fully queryable + evaluated. **Final eval @ 52 cases / 5 sources:**
@@ -53,7 +103,7 @@ regression). The slice-#4 sightline curation gap (15+ docs) and the
 slice-#3 `jf-believer-disciple-making` vocab gap were both closed as
 side-effects of the content-grounded `/golden` re-review.
 
-**Slice #6 (FamilyLife, `familylife`) — Stages 1+2 DONE 2026-06-03** on
+**Slice #6 historical record (Stages 1+2 DONE 2026-06-03)** on
 `slice/familylife`. WordPress VIP via `sitemaps.xml`; reused slice #3/#4/#5
 discovery crawler with no new acquisition code (FOLLOW-UP F durable across 4
 sources now: jf/sightline/thelife/familylife). **Acquired 2,239 / 2,329
@@ -89,24 +139,12 @@ bimodal-/equip/ prediction). Negatives confirm **minScore 0.37 holds at 6
 sources** (secular 0 hits; faith-adjacent Quran/fasting 0.388-0.441 below the
 0.55+ positive band).
 
-**Next:** Stage 4 (Spot-check via `/golden` v2 content-grounded) → Part A
-re-review existing 52 cases' living `relevant` maps for familylife credits
-(expect prior-source numbers to move up — slice #5 pattern); Part B add ~10
-persona-diverse familylife-native cases (marriage/parenting axis); 4c final
-whole-corpus eval @ 6 sources / ~62 cases; document **FOLLOW-UP I #15** drift
-(crowding likely worsens with +9,815 chunks); decide **/equip/ retention**
-(delete teaser-shaped rows if eval shows they displace good content).
-
 See **[docs/slices/familylife.md](./slices/familylife.md)** for the slice-6
 record, and **[docs/slices/thelife.md](./slices/thelife.md)** for slice 5.
-
-**Still on the table (not picked):** **FOLLOW-UP I (#15, `maxPerSource`/MMR)** —
-sharpest evidence yet from slice #5 cru/swg crowding; engine work, not a
-`/slice` flow. **FOLLOW-UP E (#6, `excludedSourceKeys`)** — unblocked since
-slice #2, no real fixture. **Cru accordion-TOC strip** (citation quality).
-**GotQuestions / KnowGod / Issues I Face** as backlog source slices
-(GotQuestions would amplify FOLLOW-UP I; Issues I Face needs different
-discovery — sitemap 404).
+The "Next pick" candidates above subsume the prior "Still on the table"
+list — FOLLOW-UP E is now fully unblocked (≥4 done sources), FOLLOW-UP I
+is at devastating-evidence sharpness, and FamilyLife's marriage/parenting
+axis closes the corpus gap that started slice #6.
 
 ## How we're building (decided 2026-05-22)
 

@@ -43,4 +43,15 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Test files: a single `describe(...)` legitimately groups many `it(...)`
+    // cases, so the 80-line cap fires on dense suites (slice #6: 4 test files
+    // tripped it as warnings, 0 errors). The rule's intent — short focused
+    // functions — is for production code; tests opt out. `max-lines` (file size)
+    // still applies; only the per-function cap is disabled.
+    files: ["**/*.test.ts"],
+    rules: {
+      "max-lines-per-function": "off",
+    },
+  },
 );

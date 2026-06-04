@@ -42,8 +42,12 @@ cases:
         - "/praying-through-worry"
         - "/devotionals/when-panic-attacks"
         - "/devotionals/the-anxiety-that-consumes"
+        - "/devotionals/kept-in-perfect-peace"
       sightline-ministry:
         - "/can-we-escape-our-worry"
+      familylife:
+        - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/anxiety-how-can-i-cope"
+        - "/equip/anxiety-what-you-need-to-know"
   - id: "swg-seeker-failure"
     question: "I keep messing up and feel like God must be so disappointed in me. Is there any hope?"
     relevant:
@@ -67,6 +71,10 @@ cases:
         - "/devotionals/there-is-a-way-back"
         - "/my-sins-are-too-great-for-god-to-forgive"
         - "/devotionals/disappointments"
+        - "/devotionals/the-new-deal"
+      familylife:
+        - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/help-for-the-suicidal"
+        - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/feeling-lost-in-the-middle-of-your-life"
   - id: "swg-seeker-porn"
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
@@ -117,6 +125,10 @@ cases:
         - "/bible-study/lesson-2.html"
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/1-the-christian-adventure.html"
+      thelife:
+        - "/devotionals/full-confidence"
+        - "/how-to-know-im-really-saved"
+        - "/understanding-your-relationship-with-jesus-christ"
   - id: "swg-believer-holy-spirit"
     question: "How do I actually live day to day in the power of the Holy Spirit?"
     relevant:
@@ -384,6 +396,9 @@ cases:
         - "/on-the-death-of-a-child"
         - "/devotionals/the-other-side-of-grief"
         - "/how-do-i-say-goodbye"
+        - "/devotionals/the-prayer-of-anguish"
+      familylife:
+        - "/articles/topics/holidays/featured-holidays/christmas/grief-at-christmas-where-god-meets-us"
   - id: "jf-seeker-distant-god"
     question: "God feels distant and silent lately — how do I get close to him again?"
     relevant:
@@ -486,10 +501,15 @@ cases:
         - "/my-son-died-of-sids"
         - "/finding-healing-in-the-face-of-overwhelming-grief"
         - "/faith-after-losing-my-son"
+        - "/my-story-of-miscarriage"
       jesusfilm-org:
         - "/blog/what-jesus-teaches-about-grief"
       sightline-ministry:
         - "/jesus-understands-your-pain"
+      familylife:
+        - "/articles/topics/parenting/parenting-challenges/how-to-help-your-grieving-child-through-loss"
+        - "/articles/topics/marriage/marriage-challenges/hardship-and-suffering/after-a-failed-pregnancy-our-road-to-better-days"
+        - "/articles/topics/faith/essentials-faith/reaching-out/what-do-i-say-to-a-friend-who-had-a-miscarriage"
   - id: "tl-seeker-abortion"
     question: "I had an abortion and I can't forgive myself — is there any healing for what I've done?"
     relevant:
@@ -508,6 +528,15 @@ cases:
       thelife:
         - "/depression-antidepressants-and-the-spiritual-dimension"
         - "/fighting-for-joy"
+        - "/devotionals/should-we-talk-about-it"
+        - "/should-christians-go-to-therapy"
+        - "/how-therapy-changed-my-life-as-a-christian"
+      jesusfilm-org:
+        - "/blog/mental-health-and-the-church"
+      sightline-ministry:
+        - "/three-things-depression-may-be-telling-you"
+      familylife:
+        - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/depression-god-is-not-silent-when-we-suffer"
   - id: "tl-skeptic-cosmology"
     question: "Couldn't the universe just have come from nothing without needing a creator?"
     relevant:
@@ -533,6 +562,16 @@ cases:
         - "/tools-for-building-an-intimate-marriage"
         - "/keeping-your-marriage-vibrant"
         - "/8-ways-to-protect-the-value-of-your-marriage"
+      familylife:
+        - "/articles/topics/marriage/staying-married/romance-and-sex/5-keys-to-a-truly-romantic-marriage"
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/think-your-marriage-is-dying-7-signs-to-consider"
+        - "/articles/topics/marriage/marriage-challenges/drifting-apart/5-reasons-your-marriage-isnt-as-bad-as-it-seems-right-now"
+        - "/articles/topics/marriage/staying-married/gods-plan-for-marriage/are-you-settling-for-artificial-intimacy"
+        - "/articles/topics/marriage/staying-married/romance-and-sex/have-you-lost-that-lovin-feeling"
+        - "/articles/topics/marriage/troubled-marriage/infidelity/avoid-the-greener-grass-syndrome"
+        - "/articles/topics/marriage/staying-married/romance-and-sex/strategic-romance"
+        - "/articles/topics/marriage/staying-married/why-intentional-quality-time-matters"
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/does-your-marriage-need-help"
   - id: "tl-believer-obedience"
     question: "Sometimes God seems to ask things I really don't want to do — how do I live in obedience when I'd rather not?"
     relevant:
@@ -556,6 +595,10 @@ cases:
         - "/how-will-i-know-when-theyre-ready"
       jesusfilm-org:
         - "/blog/evangelism-follow-up-strategies"
+      starting-with-god:
+        - "/new-life/new.html"
+      sightline-ministry:
+        - "/daily-devo/helping-new-christians-get-a-good-start-3"
   - id: "tl-newcomer-decision"
     question: "I think I just decided to trust Jesus — what now? What's the very next step?"
     relevant:
@@ -576,3 +619,110 @@ cases:
         - "/blog/signs-healthy-church"
       starting-with-god:
         - "/new-life/connect.html"
+  - id: "fl-seeker-affair-trust"
+    question: "My spouse had an affair and I don't know if I can ever trust them again — should I even try to save this?"
+    relevant:
+      familylife:
+        - "/articles/topics/marriage/troubled-marriage/infidelity/affair-repair-for-your-marriage"
+        - "/articles/topics/marriage/staying-married/romance-and-sex/recovering-intimacy-after-an-affair"
+        - "/articles/topics/marriage/troubled-marriage/infidelity/forgiving-your-spouse-after-adultery"
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/reunited-rebuilding-a-marriage-after-separation"
+        - "/articles/topics/marriage/troubled-marriage/infidelity/after-the-affair-rebuilding-our-marriage"
+        - "/articles/topics/marriage/troubled-marriage/infidelity/my-wifes-affair-shattered-and-saved-our-marriage"
+  - id: "fl-believer-spiritual-leader"
+    question: "I want to be the spiritual leader of my family but I feel inadequate — where do I even start?"
+    relevant:
+      familylife:
+        - "/articles/topics/parenting/essentials/fathers/7-essentials-to-help-you-be-the-spiritual-leader-of-your-family"
+        - "/articles/topics/parenting/essentials/fathers/25-ways-to-spiritually-lead-your-family"
+        - "/articles/topics/marriage/staying-married/husbands/do-you-have-the-courage-to-take-your-spiritual-temperature"
+        - "/articles/topics/marriage/staying-married/husbands/3-practical-steps-to-biblical-leadership-in-your-home"
+        - "/articles/topics/marriage/staying-married/wives/how-can-i-motivate-my-husband-to-get-right-with-god-and-become-the-spiritual-leader-of-our-family"
+        - "/articles/topics/marriage/staying-married/wives/q-a-encouraging-husbands-to-lead-spiritually"
+        - "/articles/topics/faith/mom-why-isnt-dad-coming-to-church"
+  - id: "fl-seeker-teen-prodigal"
+    question: "My teenager has walked away from God and I'm scared of losing them for good — what do I do?"
+    relevant:
+      familylife:
+        - "/articles/topics/parenting/foundations/spiritual-development/10-ideas-to-challenge-your-teenage-son-to-make-his-faith-his-own"
+        - "/articles/topics/parenting/ages-and-stages/teens/lessons-from-the-rainey-game-preserve"
+        - "/equip/when-someone-you-love-is-losing-faith"
+        - "/articles/topics/parenting/foundations/spiritual-development/how-can-i-help-my-kids-avoid-a-crisis-of-faith"
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/5-prayers-for-prodigals"
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/inside-the-mind-of-a-prodigal"
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/when-prodigals-come-home"
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/a-story-of-two-prodigals"
+  - id: "fl-believer-teen-own-faith"
+    question: "How do I help my teenager actually own their faith instead of just inheriting mine?"
+    relevant:
+      familylife:
+        - "/articles/topics/parenting/foundations/spiritual-development/10-ideas-to-challenge-your-teenage-son-to-make-his-faith-his-own"
+        - "/articles/topics/parenting/ages-and-stages/teens/protecting-your-teen-from-the-busyness-trap"
+        - "/articles/topics/parenting/foundations/spiritual-development/pointing-your-children-to-god-when-they-fall"
+        - "/articles/topics/parenting/foundations/spiritual-development/how-can-i-help-my-kids-avoid-a-crisis-of-faith"
+        - "/articles/topics/parenting/foundations/spiritual-development/parenting-advice-in-a-pleasure-seeking-world"
+        - "/articles/topics/parenting/ages-and-stages/teens/how-to-ruin-your-teens-for-life"
+  - id: "fl-seeker-single-parent"
+    question: "I'm a single parent and I'm exhausted — does God have anything for someone doing this alone?"
+    relevant:
+      familylife:
+        - "/articles/topics/parenting/essentials/mothers/to-the-single-mom-on-mothers-day"
+        - "/articles/topics/parenting/parenting-challenges/single-parenting/to-the-single-mom-you-dont-have-to-do-it-all"
+        - "/equip/parenting-during-deployment"
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/no-cinderella-story"
+      thelife:
+        - "/devotionals/going-it-alone"
+  - id: "fl-newcomer-premarital"
+    question: "What does the Bible say about preparing for marriage before the wedding?"
+    relevant:
+      familylife:
+        - "/articles/topics/marriage/getting-married/engagements-and-weddings/are-you-preparing-for-a-wedding-or-for-a-marriage"
+        - "/articles/topics/marriage/getting-married/choosing-a-spouse/evaluating-your-spiritual-relationship-before-marriage"
+        - "/articles/topics/marriage/getting-married/before-marriage-5-things-you-dont-have-to-know"
+        - "/articles/topics/marriage/getting-married/choosing-a-spouse/single-men-its-time-to-step-up"
+      thelife:
+        - "/devotionals/the-betrothed"
+        - "/preparing-for-marriage-not-just-the-wedding"
+  - id: "fl-skeptic-sex-marriage"
+    question: "Why does Christianity insist on waiting until marriage for sex? It seems outdated."
+    relevant:
+      familylife:
+        - "/articles/topics/marriage/getting-married/engagements-and-weddings/save-sex-for-the-honeymoon"
+      thelife:
+        - "/why-should-i-wait-for-sex"
+      sightline-ministry:
+        - "/daily-devo/good-reasons-to-wait"
+        - "/puritans-viewed-sex-correctly"
+        - "/sex-sacred-forgotten-that"
+  - id: "fl-seeker-blended-family"
+    question: "Our blended family is full of conflict and the kids resent us — is there any hope?"
+    relevant:
+      familylife:
+        - "/articles/topics/blended-family/stepparents/stepfamily-living/survival-tips-for-the-first-year-of-stepfamily-life"
+        - "/articles/topics/blended-family/stepparents/stepfamily-living/stepfamily-dynamics-when-youre-not-blending"
+        - "/articles/topics/blended-family/stepparents/stepparenting-skills/how-to-build-a-united-front-as-a-stepcouple"
+        - "/articles/topics/blended-family/in-this-home-we-embrace-our-differences-as-a-stepfamily"
+      thelife:
+        - "/kids-divorce-and-remarriage"
+  - id: "fl-believer-prodigal-adult"
+    question: "My adult child has walked away from the faith — how do I keep praying without giving up?"
+    relevant:
+      familylife:
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/5-prayers-for-prodigals"
+        - "/articles/topics/parenting/essentials/praying-for-your-children/the-power-of-praying-for-your-children"
+        - "/articles/topics/parenting/essentials/praying-for-your-children/what-does-your-child-really-need"
+        - "/equip/when-someone-you-love-is-losing-faith"
+        - "/equip/a-month-of-prayers-for-prodigals-and-their-parents"
+        - "/articles/topics/parenting/ages-and-stages/adult-children/how-not-to-be-a-toxic-parent-to-your-adult-child"
+      thelife:
+        - "/devotionals/our-greatest-burden"
+  - id: "fl-newcomer-discipline-child"
+    question: "What's the biblical way to discipline a young child without crushing their spirit?"
+    relevant:
+      familylife:
+        - "/articles/topics/parenting/parenting-challenges/discipline/the-forgotten-part-of-discipline"
+        - "/articles/topics/parenting/parenting-challenges/discipline/christian-discipline-in-parenting-what-do-i-need-to-know"
+        - "/articles/topics/parenting/parenting-challenges/discipline/disciplining-your-children-without-losing-your-cool"
+        - "/articles/topics/parenting/parenting-challenges/discipline/disciplining-your-children-is-challenging-but-vital"
+        - "/articles/topics/parenting/gospel-centered-discipline"
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/qa-what-to-do-about-children-expressing-anger-through-hitting"

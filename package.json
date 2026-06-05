@@ -20,6 +20,7 @@
     "smoke": "tsx scripts/smoke.ts",
     "gen:contract": "tsx scripts/gen-contract.ts",
     "eval": "tsx scripts/eval.ts",
+    "eval:production": "tsx scripts/eval-production.ts",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "prepare": "husky"
   },

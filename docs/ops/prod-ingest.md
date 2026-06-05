@@ -13,7 +13,8 @@ Issue: [#29](https://github.com/JesusFilm/jesusfilm-rag/issues/29).
 ```sh
 pnpm acquire:production  --source <key>
 pnpm index:production    --source <key>
-pnpm retrieve:production --source <key> "<a representative query>"
+pnpm retrieve:production --source <key> "<a representative query>"   # vibe-check
+pnpm eval:production     --source <key>                              # certify
 ```
 
 Each script:
@@ -38,10 +39,12 @@ The production scripts install prompted values into `process.env` and then
 
 ## Finding the next source
 
-Scan `docs/sources.md` for rows whose `Status` is `Evaluated` and whose slice
-PR is merged to `main` (`git log --oneline main | grep <key>`). The slice's own
-`docs/slices/<key>.md` will have `Status: done` if all four stages closed
-cleanly.
+Open **`docs/source-status.yaml`**. Find a row whose `status` is `done` and
+all four `stages` are `green`. Copy its key.
+
+That YAML is auto-maintained by `/slice` at stage boundaries — it's the
+intentional lookup surface for these scripts. Don't dig through
+`docs/sources.md` (verbose prose tracker, different purpose).
 
 ## Getting the credentials
 
@@ -60,7 +63,8 @@ prevent.
 |---|---|---|
 | `pnpm acquire:production --source <key>` | Crawls + stages rows into the prod `raw_documents` table. No LLM. | Once per new source. |
 | `pnpm index:production --source <key>` | Drains pending raws → normalize → chunk → **embed** → write to prod corpus tables. Idempotent (re-run drains what's pending). `--force` for a full re-index. | Once per new source. |
-| `pnpm retrieve:production --source <key> "<question>"` | Embeds the query and searches the prod corpus, scoped to the given source. Read-only. | Immediately after the index, as a smoke test that the source is queryable in prod. |
+| `pnpm retrieve:production --source <key> "<question>"` | Embeds the query and searches the prod corpus, scoped to the given source. Read-only vibe-check. | Immediately after the index, as a quick smoke test that the source is queryable in prod. |
+| `pnpm eval:production --source <key>` | Runs the golden case suite (`eval/qa-golden.yaml`) against the prod retriever, scoped to one source. Prints recall/MRR/coverage; writes `eval/results-YYYY-MM-DD-<key>.md`. | Right after retrieve, as the **certification step** — does the slice's local eval still hold against prod data? |
 
 `retrieve:production` accepts the same filter shape as `pnpm query`:
 `--top-k N`, `--min-score S`, `--source <key>`, `--prefer <key>`. For testing
@@ -68,11 +72,24 @@ a freshly-ingested source, `--source <key>` is the obvious filter — it scopes
 results to the source you just added so you can see what landed without other
 sources crowding the top-K.
 
+`eval:production` is the load-bearing step for trust. The slice's local eval
+ran against your dev corpus; `eval:production` re-runs the same golden cases
+against prod, so "the slice's quality claim holds in prod" is a measurement,
+not a vibe. Cost is one query embedding per case (cents).
+
 ## Recording the result
 
-After the three steps run clean, update `docs/sources.md` for that source —
-note the date the prod ingest completed in the row's `Notes`. Commit + push
-the docs edit on a short branch.
+After the four steps run clean:
+
+1. Commit the `eval/results-YYYY-MM-DD-<key>.md` file produced by
+   `eval:production` if you want a prod-eval record (recommended for the first
+   ingest of a source).
+2. Optionally note the date in `docs/sources.md`'s row for that source.
+
+`docs/source-status.yaml` deliberately does **not** carry a "prod-ingested"
+field — its purpose is slice lifecycle only, and updating it from a script
+would mean opening a PR per ingest run. Prod ingest state lives in git history
++ (optionally) a `sources.md` note.
 
 ## Hazards
 
@@ -102,9 +119,11 @@ Considered and rejected:
 
 Kept:
 
-- **Three interactive scripts** whose names contain `production`, with a Y/N
-  before any credential is entered and a second Y/N after the (redacted)
-  target is shown.
+- **Four interactive scripts** whose names contain `production`
+  (acquire / index / retrieve / eval), with a Y/N before any credential is
+  entered and a second Y/N after the (redacted) target is shown.
+- **A flat YAML lookup** (`docs/source-status.yaml`) maintained by `/slice` —
+  the engineer doesn't grep through prose to find a key.
 - **Audit trail = the engineer's terminal.** They saw what they ran.
 
 ## Related

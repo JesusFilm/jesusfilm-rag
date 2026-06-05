@@ -22,6 +22,16 @@ interface Args {
   source: string | null;
 }
 
+/**
+ * Source keys are stable, lowercase, alphanumeric+hyphen slugs (`starting-with-
+ * god`, `cru-10-basic-steps`, …). Validate at the script boundary so the value
+ * cannot carry path separators or any other character we'd later interpolate
+ * into a filename. The output path is constructed as
+ * `eval/results-<date>-<source>.md`; without this check, `--source ../foo`
+ * would resolve outside the eval directory.
+ */
+const SOURCE_KEY_RE = /^[a-z0-9-]+$/;
+
 function parseArgs(argv: string[]): Args {
   let source: string | null = null;
   for (let i = 0; i < argv.length; i++) {
@@ -29,6 +39,13 @@ function parseArgs(argv: string[]): Args {
       const v = argv[++i];
       if (v === undefined) {
         console.error("error: --source needs a value");
+        process.exit(2);
+      }
+      if (!SOURCE_KEY_RE.test(v)) {
+        console.error(
+          `error: --source must be a slug matching ${SOURCE_KEY_RE} (lowercase, ` +
+            `alphanumeric, hyphens; no path separators), got "${v}"`,
+        );
         process.exit(2);
       }
       source = v;

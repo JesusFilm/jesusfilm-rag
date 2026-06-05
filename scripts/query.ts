@@ -39,15 +39,26 @@ function parseArgs(argv: string[]): Args {
     if (v === undefined) die(`${flag} needs a value`);
     return v;
   };
-  const num = (flag: string, raw: string): number => {
+  // --top-k is a result limit: only a positive integer makes sense. Reject 0,
+  // negatives, and fractions at the boundary rather than relying on the engine
+  // to silently coerce them.
+  const positiveInt = (flag: string, raw: string): number => {
+    const n = Number(raw);
+    if (!Number.isInteger(n) || n <= 0) {
+      die(`${flag} must be a positive integer, got "${raw}"`);
+    }
+    return n;
+  };
+  // --min-score is a cosine cutoff: any finite number (typically 0..1).
+  const finiteNum = (flag: string, raw: string): number => {
     const n = Number(raw);
     if (!Number.isFinite(n)) die(`${flag} must be a number, got "${raw}"`);
     return n;
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--top-k") policy.topK = num(a, val(a, ++i));
-    else if (a === "--min-score") policy.minScore = num(a, val(a, ++i));
+    if (a === "--top-k") policy.topK = positiveInt(a, val(a, ++i));
+    else if (a === "--min-score") policy.minScore = finiteNum(a, val(a, ++i));
     else if (a === "--source") policy.allowedSourceKeys = [val(a, ++i)];
     else if (a === "--prefer") policy.preferSourceKey = val(a, ++i);
     else if (a === "--language") policy.language = val(a, ++i);

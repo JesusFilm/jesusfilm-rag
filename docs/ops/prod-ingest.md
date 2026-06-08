@@ -70,19 +70,18 @@ present in the environment, the prompt offers them as a redacted default — pre
 second Y/N gate still run, so a reused value is always shown and re-confirmed,
 never silent.
 
-Seed the session **once**, keeping the secrets out of your shell history (the
-typed value goes to the variable, not to `~/.zsh_history`):
+Seed the session **once** with the helper — it prompts for the three values and
+exports them into your current shell. You must `source` it (a child process
+can't export into your shell):
 
 ```sh
-# zsh: `read "name?prompt"`; -s silences the echo so the secret isn't shown.
-read -rs "DATABASE_URL?prod DATABASE_URL: "        && export DATABASE_URL;        echo
-read -rs "OPENROUTER_API_KEY?OPENROUTER_API_KEY: " && export OPENROUTER_API_KEY;  echo
-export EMBED_MODEL_ID=openai/text-embedding-3-small
+source scripts/seed-prod.sh
 ```
 
-From then on every script in that terminal is just **Enter → y → y** — no secret
-typing. Close the terminal (or `unset DATABASE_URL OPENROUTER_API_KEY`) to
-discard them.
+It reads the secrets straight into exported env vars — nothing touches disk or
+your shell history. From then on every `:production` script in that terminal is
+just **Enter → y → y** — no secret typing. Close the terminal (or `unset
+DATABASE_URL OPENROUTER_API_KEY`) to discard them.
 
 **Why this stays safe.** The reuse default is read *before* any `@/` import, so
 `.env` / `.env.local` haven't been loaded — the only values offered are ones you

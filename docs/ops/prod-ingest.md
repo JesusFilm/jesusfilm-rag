@@ -23,14 +23,16 @@ Each script:
    what it will do (scope, side effects, cost).
 2. Asks **Y/N before** prompting for any credentials. "N" exits without
    touching anything.
-3. Prompts interactively for `DATABASE_URL`, `OPENROUTER_API_KEY`, and
-   `EMBED_MODEL_ID` (Enter accepts the default model).
+3. Prompts for `DATABASE_URL`, `OPENROUTER_API_KEY`, and `EMBED_MODEL_ID` —
+   pressing **Enter reuses** a value already exported in the shell (or the
+   default model). See *Running several in a row* for seeding a session once.
 4. Shows the **redacted** target — DB host/port/db + the scope — and asks
    **Y/N again**.
 5. Runs.
 
-Credentials live **only in the script process's memory**. They are never read
-from or written to `.env` / `.env.local`, and disappear when the script exits.
+Credentials live **only in memory** — the script process's, or the shell
+session you exported them into for reuse (see *Running several in a row*). They
+are never read from or written to `.env` / `.env.local`.
 
 The mechanism that makes this safe: `src/env.ts`'s loader is first-write-wins.
 The production scripts install prompted values into `process.env` and then
@@ -56,6 +58,37 @@ you use for prod secrets). When prompted, paste each value at the prompt.
 ignore those files; the unsuffixed `pnpm acquire` / `index` / `query` will
 silently use them, and a stale value is the exact hazard this flow exists to
 prevent.
+
+## Running several in a row (reuse creds for a session)
+
+Promoting one source is four scripts; promoting the whole backlog is four × N.
+Re-typing a long `DATABASE_URL` and an API key for every run is the friction —
+so each `:production` script will **reuse a value already exported in your
+shell**: when `DATABASE_URL` / `OPENROUTER_API_KEY` / `EMBED_MODEL_ID` are
+present in the environment, the prompt offers them as a redacted default — press
+**Enter to keep**, or type a new value to override. The redacted preview and the
+second Y/N gate still run, so a reused value is always shown and re-confirmed,
+never silent.
+
+Seed the session **once**, keeping the secrets out of your shell history (the
+typed value goes to the variable, not to `~/.zsh_history`):
+
+```sh
+# zsh: `read "name?prompt"`; -s silences the echo so the secret isn't shown.
+read -rs "DATABASE_URL?prod DATABASE_URL: "        && export DATABASE_URL;        echo
+read -rs "OPENROUTER_API_KEY?OPENROUTER_API_KEY: " && export OPENROUTER_API_KEY;  echo
+export EMBED_MODEL_ID=openai/text-embedding-3-small
+```
+
+From then on every script in that terminal is just **Enter → y → y** — no secret
+typing. Close the terminal (or `unset DATABASE_URL OPENROUTER_API_KEY`) to
+discard them.
+
+**Why this stays safe.** The reuse default is read *before* any `@/` import, so
+`.env` / `.env.local` haven't been loaded — the only values offered are ones you
+genuinely `export`ed this session, never file values. The stale-`.env` hazard
+this flow exists to prevent is untouched. Mechanism + tests:
+`scripts/lib/prompt-prod-creds.ts`, `tests/prompt-prod-creds.test.ts`.
 
 ## What each script does
 

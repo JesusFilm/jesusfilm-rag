@@ -54,6 +54,13 @@ export function wire(): Wiring {
   const embedder = new OpenRouterEmbedder({
     apiKey: env.OPENROUTER_API_KEY,
     model: env.EMBED_MODEL_ID,
+    maxAttempts: env.EMBED_MAX_ATTEMPTS,
+    onRetry: ({ attempt, maxAttempts, delayMs, error }) => {
+      const reason = error instanceof Error ? error.name : "error";
+      console.warn(
+        `  ⟳ embed attempt ${attempt}/${maxAttempts} failed (${reason}); retrying in ${delayMs}ms`,
+      );
+    },
   });
   return {
     corpusWriteStore: new PostgresCorpusWriteStore(db),

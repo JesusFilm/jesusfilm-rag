@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 4 -->
+<!-- version: 5 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -41,13 +41,20 @@ retros, phase specs, circuit breakers, locks).
 
 ## The cold-start contract: where state lives
 
-Two durable artifacts, both git-tracked — never chat memory:
+Three durable artifacts, all git-tracked — never chat memory:
 
 - **Slice file** — `docs/slices/<source-key>.md`. The unpacked sub-step
   checklist with a "resume hint", decisions, and per-step commit shas. Template
   at the bottom of this file.
 - **Slice branch** — `slice/<source-key>`, branched off `main`. Each verified
   sub-step is a commit on it; the git log is the checkpoint trail.
+- **Source status YAML** — `docs/source-status.yaml`. The flat, scannable
+  lookup the `*:production` scripts depend on: one row per source with
+  `status` (in-progress | blocked | done | deferred) and the four `stages`
+  (acquire/ingest/retrieve/evaluate, each `pending | green | red`). This skill
+  maintains it at stage boundaries (Step 2 row-create, Step 4 stage-flip,
+  Step 5 status: done) — keep it consistent with git. See
+  `docs/ops/prod-ingest.md`.
 
 A fresh session resumes by: read `STATUS.md` → open the active slice file → read
 its "Resume hint" + the first unchecked `[ ]` → confirm the slice branch is
@@ -85,6 +92,10 @@ broken foundation.
    remote is configured; skip if not) `&& git checkout -b slice/<source-key>`.
 4. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
    "Next action" at it and set the source's row in `sources.md` to `Acquiring`.
+   Add/update the source's row in `docs/source-status.yaml` —
+   `status: in-progress`, all four `stages: pending`, today's date in
+   `last_updated`. The YAML is what the `*:production` scripts read; if it
+   drifts from git, engineers pick wrong keys (see `docs/ops/prod-ingest.md`).
 5. **Present the plan in plain language and get a go-ahead** (this is the first
    stage-boundary pause). Show the stages + sub-steps as a short narrative, not a
    wall of detail. Then proceed to Step 3.
@@ -112,15 +123,20 @@ Pause and hand back to the operator, in plain language, when:
 - **A stage's sub-steps are all green.** Summarize: what this stage now does, the
   verify evidence (e.g. "37 rows in `raw_documents`, text looks clean — sample
   below"), and what the next stage will do. Update `STATUS.md` (you-are-here +
-  next action) and `sources.md` (e.g. → `Acquired`). Ask to proceed to the next
-  stage.
+  next action), `sources.md` (e.g. → `Acquired`), and flip this stage from
+  `pending` to `green` (or `red` if blocked) in `docs/source-status.yaml`,
+  bumping `last_updated`. Include the YAML write in the same checkpoint commit
+  as the stage close so git history and the YAML never diverge. Ask to proceed
+  to the next stage.
 - **A genuine fork appears** (a design choice the architecture doesn't settle, or
   the "generic crawler vs. per-source" kind of call). Frame it at architecture
   altitude with 2–3 options and a recommendation. Record the chosen answer under
   "Decisions made" in the slice file.
 - **A blocker appears** (site anti-bot, JS-rendered content, missing API key,
   flaky verify). Set the slice status to `blocked`, write the blocker plainly in
-  the slice file + `sources.md` Notes, and surface it. Don't paper over it.
+  the slice file + `sources.md` Notes, set the source's `status: blocked` and
+  fill the `blocker:` field in `docs/source-status.yaml`, and surface it. Don't
+  paper over it.
 - **Before a live _discovery_ crawl, confirm the budget.** Unlike a hand-listed
   seed set, a discovery crawl's scale is unknown until you parse the sitemap, and
   it drives both fetch politeness and embedding cost. Do a dry discovery (count
@@ -155,7 +171,11 @@ When all four stages are green and the spot-check looks good:
    results, anything learned.
 2. Update `sources.md` → `Evaluated` with concrete `Results`; update `STATUS.md`
    (move source to Done; set the next slice as "Next action").
-3. Set the slice file status to `done`.
+3. Set the slice file status to `done`. In `docs/source-status.yaml`, set the
+   source's `status: done`, confirm all four `stages` are `green`, and bump
+   `last_updated`. This is the signal the `*:production` scripts watch for —
+   without it, the engineer can't tell from a glance that the source is ready
+   to promote to prod.
 4. **Check unblocked follow-ups.** If this completion means **≥2 sources are now
    done end-to-end**, surface that **FOLLOW-UP E** (consumer source-exclude filter,
    `excludedSourceKeys`) is unblocked — it was deferred precisely until a second

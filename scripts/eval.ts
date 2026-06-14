@@ -45,6 +45,13 @@ interface Args {
   source: string | null;
 }
 
+/**
+ * Source keys are stable, lowercase, alphanumeric+hyphen slugs. Validate at the
+ * script boundary so the value cannot carry path separators that would later
+ * interpolate into the output filename (`eval/results-<date>-<source>.md`).
+ */
+const SOURCE_KEY_RE = /^[a-z0-9-]+$/;
+
 function parseArgs(argv: string[]): Args {
   let source: string | null = null;
   for (let i = 0; i < argv.length; i++) {
@@ -52,6 +59,13 @@ function parseArgs(argv: string[]): Args {
       const v = argv[++i];
       if (v === undefined) {
         console.error("error: --source needs a value");
+        process.exit(2);
+      }
+      if (!SOURCE_KEY_RE.test(v)) {
+        console.error(
+          `error: --source must be a slug matching ${SOURCE_KEY_RE} (lowercase, ` +
+            `alphanumeric, hyphens; no path separators), got "${v}"`,
+        );
         process.exit(2);
       }
       source = v;

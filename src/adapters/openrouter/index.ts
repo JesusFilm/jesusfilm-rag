@@ -5,5 +5,7 @@
  */
 export {
   OpenRouterEmbedder,
+  isRetryableEmbedError,
   type OpenRouterEmbedderOptions,
+  type EmbedRetryInfo,
 } from "./openrouter-embedder.js";

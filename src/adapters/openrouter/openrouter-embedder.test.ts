@@ -6,7 +6,36 @@
  * results stay aligned to input order even when the provider reorders `data`.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { OpenRouterEmbedder } from "./index.js";
+import { OpenRouterEmbedder, isRetryableEmbedError } from "./index.js";
+
+/**
+ * Stub fetch with a scripted sequence of responders (one per call; the last is
+ * reused if there are more calls than steps). Each responder gets the request
+ * init so a success step can echo one vector per input.
+ */
+function stubFetchSequence(
+  steps: Array<(init: RequestInit) => Promise<Response>>,
+): ReturnType<typeof vi.fn> {
+  let call = 0;
+  const spy = vi.fn(async (_url: string, init?: RequestInit): Promise<Response> => {
+    const step = steps[Math.min(call, steps.length - 1)];
+    call++;
+    return step(init!);
+  });
+  vi.stubGlobal("fetch", spy);
+  return spy;
+}
+
+const okWith = (dim: number) => async (init: RequestInit): Promise<Response> => {
+  const { input } = JSON.parse(init.body as string) as { input: string[] };
+  const data = input.map((_t, index) => ({ embedding: new Array(dim).fill(1), index }));
+  return new Response(JSON.stringify({ data }), { status: 200 });
+};
+const fail = (status: number, statusText = "x") => async (): Promise<Response> =>
+  new Response("body", { status, statusText });
+const abort = async (): Promise<never> => {
+  throw new DOMException("This operation was aborted", "AbortError");
+};
 
 /** Stub fetch with an embeddings endpoint that echoes one vector per input. */
 function stubEmbeddings(
@@ -92,5 +121,96 @@ describe("OpenRouterEmbedder", () => {
     const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 3 });
 
     await expect(embedder.embed(["x"])).rejects.toThrow(/402/);
+  });
+});
+
+describe("OpenRouterEmbedder — retry/backoff", () => {
+  it("retries a transient 5xx and then succeeds", async () => {
+    const onRetry = vi.fn();
+    const spy = stubFetchSequence([fail(503), fail(503), okWith(3)]);
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      retryBaseDelayMs: 0,
+      onRetry,
+    });
+
+    expect(await embedder.embed(["x"])).toEqual([[1, 1, 1]]);
+    expect(spy).toHaveBeenCalledTimes(3); // 2 failures + 1 success
+    expect(onRetry).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries a timeout (AbortError) then succeeds", async () => {
+    const spy = stubFetchSequence([abort, okWith(2)]);
+    const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 2, retryBaseDelayMs: 0 });
+
+    expect(await embedder.embed(["x"])).toEqual([[1, 1]]);
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  it("gives up after maxAttempts, surfacing the last error, with doubling backoff", async () => {
+    const onRetry = vi.fn();
+    const spy = stubFetchSequence([fail(503, "Service Unavailable")]);
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      maxAttempts: 4,
+      retryBaseDelayMs: 1,
+      onRetry,
+    });
+
+    await expect(embedder.embed(["x"])).rejects.toThrow(/503/);
+    expect(spy).toHaveBeenCalledTimes(4); // initial + 3 retries
+    expect(onRetry.mock.calls.map((c) => c[0].delayMs)).toEqual([1, 2, 4]);
+  });
+
+  it("does NOT retry a non-retryable 4xx", async () => {
+    const onRetry = vi.fn();
+    const spy = stubFetchSequence([fail(402, "Payment Required")]);
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      retryBaseDelayMs: 0,
+      onRetry,
+    });
+
+    await expect(embedder.embed(["x"])).rejects.toThrow(/402/);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(onRetry).not.toHaveBeenCalled();
+  });
+
+  it("does NOT retry a data-integrity error (width mismatch)", async () => {
+    const spy = stubFetchSequence([async () => new Response(
+      JSON.stringify({ data: [{ embedding: [1, 2], index: 0 }] }), // width 2, expect 3
+      { status: 200 },
+    )]);
+    const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 3, retryBaseDelayMs: 0 });
+
+    await expect(embedder.embed(["x"])).rejects.toThrow(/width 2 ≠ expected 3/);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("maxAttempts is floored at 1 (a single try, no retries)", async () => {
+    const spy = stubFetchSequence([fail(503)]);
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      maxAttempts: 0,
+      retryBaseDelayMs: 0,
+    });
+
+    await expect(embedder.embed(["x"])).rejects.toThrow(/503/);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("isRetryableEmbedError", () => {
+  it("retries timeouts, network drops, 429 and 5xx; not 4xx or data errors", () => {
+    expect(isRetryableEmbedError(Object.assign(new Error("t"), { name: "AbortError" }))).toBe(true);
+    expect(isRetryableEmbedError(Object.assign(new Error("n"), { name: "TypeError" }))).toBe(true);
+    expect(isRetryableEmbedError({ retryable: true })).toBe(true); // 429 / 5xx
+    expect(isRetryableEmbedError({ retryable: false })).toBe(false); // other 4xx
+    expect(isRetryableEmbedError(new Error("width mismatch"))).toBe(false);
+    expect(isRetryableEmbedError(null)).toBe(false);
   });
 });

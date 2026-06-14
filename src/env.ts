@@ -48,6 +48,9 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   OPENROUTER_API_KEY: z.string().min(1),
   EMBED_MODEL_ID: z.string().min(1).default(DEFAULT_EMBED_MODEL_ID),
+  // Per-batch embed attempts (initial try + retries) before an index run fails;
+  // raise it for a flaky provider. Consumed by the OpenRouter Embedder (main.ts).
+  EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(4),
   PORT: z.coerce.number().int().positive().default(8080), // Railway injects PORT
   // JSON map of bearer token → allowed source keys (["*"] = all). Parsed by the
   // serving adapter (src/serving/http/auth.ts); required only by `pnpm serve`.

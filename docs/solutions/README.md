@@ -33,10 +33,12 @@ direction, it's an ADR.
 > parse-safety risks, or is **not linked below**. `/ce-compound` adds the entry
 > for you; if you write one by hand, add its row here too.
 
-_No learnings captured yet. The first `/ce-compound` run will add a row here._
-
 <!-- INDEX:START — one row per docs/solutions/**/*.md (excluding this README). Format: -->
 <!-- - [title](relative/path.md) — one-line summary · `component` · `YYYY-MM-DD` -->
+
+- [A new source's eval drop is usually a measurement gap, not a retrieval regression](workflow-issues/eval-drop-on-new-source-is-a-measurement-gap.md) — re-curate the golden set before chasing a "regression" after a source add · `eval` · `2026-06-03`
+- [Slices live in the /slice system; non-slice work lives in GitHub Issues](conventions/slices-tracked-in-slice-system-not-issues.md) — split tracking by work type; never duplicate slices into Issues · `process` · `2026-05-25`
+- [Per-source crowding is a consumer policy problem, not an engine bug](architecture-patterns/per-source-crowding-is-a-consumer-policy-problem.md) — de-crowding belongs in the consumer's RetrievalPolicy (maxPerSource/MMR), not retrieve-time bias · `retrieval` · `2026-06-10`
 <!-- INDEX:END -->
 
 ## Categories

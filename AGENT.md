@@ -67,11 +67,16 @@ left to memory.
 
 | Skill | Role |
 |---|---|
-| `/ce-brainstorm` · `/ce-plan` | explore the WHAT → plan the HOW (`docs/brainstorms/`, `docs/plans/`) |
-| `/slice` | build — the per-source vertical pipeline (acquire→ingest→retrieve→eval) |
-| `/ce-work` | build — everything else (infra · tooling · refactor · eval-harness · process) |
-| `/golden` · `/walkthrough` | author eval cases · explain a flow (read-only) |
-| `/ce-compound` | capture the learning into `docs/solutions/` after a verified fix |
+| [`/ce-brainstorm`](./.claude/skills/ce-brainstorm/SKILL.md) · [`/ce-plan`](./.claude/skills/ce-plan/SKILL.md) | explore the WHAT → plan the HOW (`docs/brainstorms/`, `docs/plans/`) |
+| [`/slice`](./.claude/skills/slice/SKILL.md) | build — the per-source vertical pipeline (acquire→ingest→retrieve→eval) |
+| [`/ce-work`](./.claude/skills/ce-work/SKILL.md) | build — everything else (infra · tooling · refactor · eval-harness · process) |
+| [`/golden`](./.claude/skills/golden/SKILL.md) · [`/walkthrough`](./.claude/skills/walkthrough/SKILL.md) | author eval cases · explain a flow (read-only) |
+| [`/ce-compound`](./.claude/skills/ce-compound/SKILL.md) | capture the learning into `docs/solutions/` after a verified fix |
+
+Every skill in this table is linked to its `SKILL.md` and the links are gated by
+`pnpm check:skills` (CI) — a skill on disk that isn't linked here, or a link that
+no longer resolves, fails the build. Reach for these by default; that is how the
+loop stays the path of least resistance.
 
 These CE skills are **agent-suggested** (model-invocable) — reach for them by
 default; they are not gated behind a slash command. `/slice` and `/ce-work` do
@@ -79,8 +84,10 @@ not overlap: `/slice` owns per-source pipeline work, `/ce-work` owns the rest.
 
 **Verify gate (mechanical — must pass before a PR opens, re-run in CI):**
 `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm test`, plus
-`pnpm check:solutions` (learning-doc frontmatter + Lessons-Index consistency),
-plus `pnpm eval` when acquisition / ingestion / retrieval or the corpus changed.
+`pnpm check:solutions` (learning-doc frontmatter + Lessons-Index consistency) and
+`pnpm check:skills` (every skill linked from this index, every skill link
+resolves), plus `pnpm eval` when acquisition / ingestion / retrieval or the
+corpus changed.
 
 **Ship-confirmation routine (binding):** nothing is reported as *shipped* without
 stating **both** flags — **Reviewed ✅** (CI green + diff cleared review) and

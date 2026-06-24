@@ -20,7 +20,7 @@ the binding summary is in [`AGENT.md`](./AGENT.md).
 | Plans (HOW, technical) | `docs/plans/<slug>.md` |
 | Learnings (compounded) | `docs/solutions/` — index + gate in its `README.md` |
 | Decisions (locked, hard-to-reverse) | `docs/decisions/` (ADRs) — index in `architecture.md` |
-| Per-source slice records | `docs/slices/`, live state in `STATUS.md` |
+| Per-source slice records | `docs/slices/`, live state in `docs/STATUS.md` |
 | Issues (the work surface) | GitHub `JesusFilm/jesusfilm-rag` (`project_tracker: github`) |
 
 ## Component vocabulary (use these, not Rails/web/api)

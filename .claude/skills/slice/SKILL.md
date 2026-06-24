@@ -1,6 +1,6 @@
 ---
 name: slice
-description: "Drive one vertical slice of jesusfilm-rag end-to-end (acquire → ingest → retrieve → spot-check for a single source) with resumable checkpoint state for cold starts. Reads STATUS.md, resumes in-progress work or unpacks the next slice, commits per verified checkpoint, and narrates in plain language. Invoke /slice (resume or start next) or /slice <source>."
+description: "Drive one vertical slice of jesusfilm-rag end-to-end (acquire → ingest → retrieve → spot-check for a single source) with resumable checkpoint state for cold starts. Reads docs/STATUS.md, resumes in-progress work or unpacks the next slice, commits per verified checkpoint, and narrates in plain language. Invoke /slice (resume or start next) or /slice <source>."
 allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Bash(docker *) Bash(psql *) Bash(curl *) Bash(date *) Bash(mkdir *) Bash(cat *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 disable-model-invocation: true
 ---
@@ -35,7 +35,7 @@ retros, phase specs, circuit breakers, locks).
 ## Invocation
 
 - `/slice` — resume the in-progress slice if one exists; otherwise unpack the
-  next slice from `STATUS.md`'s "Next action".
+  next slice from `docs/STATUS.md`'s "Next action".
 - `/slice <source>` — target a specific source (e.g. `/slice starting-with-god`).
   Resumes that source's slice if present, else starts it.
 
@@ -56,7 +56,7 @@ Three durable artifacts, all git-tracked — never chat memory:
   Step 5 status: done) — keep it consistent with git. See
   `docs/ops/prod-ingest.md`.
 
-A fresh session resumes by: read `STATUS.md` → open the active slice file → read
+A fresh session resumes by: read `docs/STATUS.md` → open the active slice file → read
 its "Resume hint" + the first unchecked `[ ]` → confirm the slice branch is
 checked out → continue. No other context required.
 
@@ -82,7 +82,7 @@ broken foundation.
 
 ### Step 2 — Start a slice (unpack)
 
-1. Determine the source from the arg or `STATUS.md`'s "Next action". Derive a
+1. Determine the source from the arg or `docs/STATUS.md`'s "Next action". Derive a
    `<source-key>` slug (e.g. "Starting With God" → `starting-with-god`).
 2. **Unpack** the slice into the four stages and their concrete sub-steps —
    translate STATUS's high-level "Next action" into the low-level steps yourself
@@ -90,7 +90,7 @@ broken foundation.
    small enough to verify and commit on its own.
 3. Create the slice branch: `git checkout main && git pull --ff-only` (if a
    remote is configured; skip if not) `&& git checkout -b slice/<source-key>`.
-4. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
+4. Write `docs/slices/<source-key>.md` from the template. Point docs/STATUS.md's
    "Next action" at it and set the source's row in `sources.md` to `Acquiring`.
    Add/update the source's row in `docs/source-status.yaml` —
    `status: in-progress`, all four `stages: pending`, today's date in
@@ -122,7 +122,7 @@ Pause and hand back to the operator, in plain language, when:
 
 - **A stage's sub-steps are all green.** Summarize: what this stage now does, the
   verify evidence (e.g. "37 rows in `raw_documents`, text looks clean — sample
-  below"), and what the next stage will do. Update `STATUS.md` (you-are-here +
+  below"), and what the next stage will do. Update `docs/STATUS.md` (you-are-here +
   next action), `sources.md` (e.g. → `Acquired`), and flip this stage from
   `pending` to `green` (or `red` if blocked) in `docs/source-status.yaml`,
   bumping `last_updated`. Include the YAML write in the same checkpoint commit
@@ -169,7 +169,7 @@ When all four stages are green and the spot-check looks good:
 
 1. Final plain-language summary: what's now queryable, the spot-check queries +
    results, anything learned.
-2. Update `sources.md` → `Evaluated` with concrete `Results`; update `STATUS.md`
+2. Update `sources.md` → `Evaluated` with concrete `Results`; update `docs/STATUS.md`
    (move source to Done; set the next slice as "Next action").
 3. Set the slice file status to `done`. In `docs/source-status.yaml`, set the
    source's `status: done`, confirm all four `stages` are `green`, and bump

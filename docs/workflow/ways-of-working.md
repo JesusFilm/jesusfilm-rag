@@ -115,7 +115,7 @@ so this flag is the human/agent routine that backstops them.
 |---|---|---|
 | `/ce-brainstorm` | explore the WHAT | `docs/brainstorms/` |
 | `/ce-plan` | plan the HOW (+ ADR) | `docs/plans/` |
-| `/slice` | build — per-source pipeline | `docs/slices/`, `STATUS.md` |
+| `/slice` | build — per-source pipeline | `docs/slices/`, `docs/STATUS.md` |
 | `/ce-work` | build — everything else | — |
 | `/golden` | author eval cases for a source | `eval/qa-golden.yaml` |
 | `/walkthrough` | explain a flow (read-only) | — |

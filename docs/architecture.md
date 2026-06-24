@@ -33,6 +33,7 @@ ADR are recorded inline here until they earn extraction — see
 | 7 | Architecture boundary | **Three bounded contexts behind ports + the import law** — everything depends on `contracts` interfaces; only `main.ts` builds adapters; mechanically enforced by dependency-cruiser (§5). | [ADR-0001](./decisions/0001-ports-and-adapters-boundary.md) |
 | 8 | Data-access mechanism *(added 2026-05-27)* | **Drizzle's query builder for adapter CRUD**, behind the ports; Drizzle stays the single schema + migration tool; pgvector/FTS hot paths remain raw `sql` fragments. Prisma / full ORM rejected. Implementation tracked by [#20](https://github.com/JesusFilm/jesusfilm-rag/issues/20). | [ADR-0003](./decisions/0003-data-access-drizzle-query-builder.md) |
 | 9 | RAG access path *(added 2026-06-15)* | **Access the RAG over the `/v1` HTTP API against production** — consumers via scoped, read-only, revocable bearer tokens; RAG Engine Devs likewise for dev/integration (the read-only/public boundary makes hitting prod safe). Local DB snapshots rejected; a staging mirror from a prod backup deferred until load demands it. Consumer-token process tracked by [#36](https://github.com/JesusFilm/jesusfilm-rag/issues/36). | [ADR-0004](./decisions/0004-rag-access-http-prod.md) |
+| 10 | Ways of working *(added 2026-06-24)* | **The compound-engineering loop** — vendored, locally-tuned CE skills (`ce-brainstorm`/`ce-plan`/`ce-work`/`ce-compound`) over the existing `/slice`+`/golden` skills; learnings compound into `docs/solutions/` (indexed, CI-checked via `pnpm check:solutions`, §5.9); the ship routine binds *Reviewed ✅ + Compounded ✅*. See [`docs/workflow/ways-of-working.md`](./workflow/ways-of-working.md). | [ADR-0005](./decisions/0005-compound-engineering-loop.md) |
 
 ---
 
@@ -282,6 +283,8 @@ All I/O goes through injected ports (Fetcher, FetchStateStore) — never constru
 ```
 
 **5.8 CI gate.** Every change runs `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm test`. A boundary violation, an oversized file, or an adapter-touching test fails the build. That failure — not this document — is what keeps the architecture honest.
+
+**5.9 Compounding-knowledge gate** (process, not import-boundary — see [ADR-0005](./decisions/0005-compound-engineering-loop.md)). `pnpm check:solutions` (in the CI `static` job) applies the same "fails the build" discipline to the learnings store: a doc under `docs/solutions/` with malformed/missing frontmatter (`title`/`date`/`problem_type`/`component`), a YAML parse-safety trap (unquoted ` #` or `: ` in a scalar), or one **not linked** in the Lessons Index (`docs/solutions/README.md`) fails the build. `/ce-compound` writes both the doc and its index row; this gate stops the store silently rotting. It does **not** force a learning per PR — whether a PR *should* compound a lesson is the ship routine's judgment (`AGENT.md`), not a mechanical check.
 
 ---
 

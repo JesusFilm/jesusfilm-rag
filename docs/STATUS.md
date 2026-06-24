@@ -5,7 +5,13 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-06-04 — slice #6 (FamilyLife) DONE, all 4 stages green_
+_Last updated: 2026-06-24 — adopted the compound-engineering loop (ADR-0005); slice #6 (FamilyLife) DONE, all 4 stages green_
+
+> **Process (2026-06-24):** the **compound-engineering loop** landed (ADR-0005) —
+> vendored `ce-brainstorm`/`ce-plan`/`ce-work`/`ce-compound` skills, the
+> `docs/brainstorms/` · `docs/plans/` · `docs/solutions/` homes, `pnpm
+> check:solutions` as a CI gate, and the *Reviewed ✅ + Compounded ✅* ship
+> routine. How-to: [`docs/workflow/ways-of-working.md`](./workflow/ways-of-working.md).
 
 ## You are here
 

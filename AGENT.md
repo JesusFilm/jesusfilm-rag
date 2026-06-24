@@ -46,4 +46,46 @@ Adapters may import **`src/db/schema.ts`** — the one relaxation of the law (AD
 - **Confirm before destructive ops** (dropping tables, deleting sources, force-pushing).
 - **Commits follow Conventional Commits** (`feat: …`, `fix(retrieve): …`, `docs: …`; scope optional), enforced by a commitlint `commit-msg` hook (husky) — see `commitlint.config.mjs`. Squash-merge note: the commit that lands on `main` takes its subject from the **PR title**, which the hook can't see — so the PR title is linted separately by a CI check (`.github/workflows/pr-title.yml`).
 - **Golden eval cases are authored with `/golden <source-key>`, not by hand.** After a source is ingested, the skill surveys the *real* corpus and drafts persona-diverse candidate questions — **seeker · skeptic · believer · newcomer**, each tied to a real document — plus off-topic negatives for cutoff calibration, for you to curate into `eval/qa-golden.yaml`. `pnpm eval` then scores recall@k / MRR. Retrieval-only — no intent/tone/answer judgment (that's a consumer concern). See [`.claude/skills/golden/SKILL.md`](./.claude/skills/golden/SKILL.md).
+- **Compounded learnings live in [`docs/solutions/`](./docs/solutions/)** — solved problems, gotchas, patterns, and conventions, organized by category with YAML frontmatter (`title`, `date`, `problem_type`, `component`, `tags`) and indexed in its `README.md`. Relevant to read when implementing or debugging in a documented area; written by `/ce-compound`. Distinct from `docs/decisions/` (ADRs — locked decisions) and `docs/slices/` (per-source slice records).
 - Defer to `~/Jaxs/CLAUDE.md` for workspace-wide conventions (gh account, tone, decision hierarchy).
+
+## Ways of working — the compound-engineering loop
+
+Work runs through a vendored, locally-tuned **compound-engineering (CE)** loop —
+the full gated flow is [`docs/workflow/ways-of-working.md`](./docs/workflow/ways-of-working.md);
+per-skill config and the graceful-degradation map are in
+[`compound-engineering.local.md`](./compound-engineering.local.md). The principle:
+**each unit of work should make the next one easier** — captured mechanically, not
+left to memory.
+
+```
+/ce-brainstorm → /ce-plan (+ ADR if it locks a direction) → build → verify → PR → review → merge → /ce-compound
+   (WHAT)          (HOW, docs/plans/)                         │                                      (docs/solutions/)
+                                                              ├─ per-source pipeline → /slice
+                                                              └─ everything else     → /ce-work
+```
+
+| Skill | Role |
+|---|---|
+| `/ce-brainstorm` · `/ce-plan` | explore the WHAT → plan the HOW (`docs/brainstorms/`, `docs/plans/`) |
+| `/slice` | build — the per-source vertical pipeline (acquire→ingest→retrieve→eval) |
+| `/ce-work` | build — everything else (infra · tooling · refactor · eval-harness · process) |
+| `/golden` · `/walkthrough` | author eval cases · explain a flow (read-only) |
+| `/ce-compound` | capture the learning into `docs/solutions/` after a verified fix |
+
+These CE skills are **agent-suggested** (model-invocable) — reach for them by
+default; they are not gated behind a slash command. `/slice` and `/ce-work` do
+not overlap: `/slice` owns per-source pipeline work, `/ce-work` owns the rest.
+
+**Verify gate (mechanical — must pass before a PR opens, re-run in CI):**
+`pnpm depcruise && pnpm lint && pnpm typecheck && pnpm test`, plus
+`pnpm check:solutions` (learning-doc frontmatter + Lessons-Index consistency),
+plus `pnpm eval` when acquisition / ingestion / retrieval or the corpus changed.
+
+**Ship-confirmation routine (binding):** nothing is reported as *shipped* without
+stating **both** flags — **Reviewed ✅** (CI green + diff cleared review) and
+**Compounded ✅** (which `docs/solutions/` doc captured the learning — a fresh
+lesson, an honest extension, or an explicit "covered by `<doc>`"; `/ce-compound`
+was considered, not skipped). The mechanical gates can't judge "did you learn
+anything" — this routine backstops them. See
+[ADR-0005](./docs/decisions/0005-compound-engineering-loop.md).

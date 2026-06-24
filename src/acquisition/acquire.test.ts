@@ -255,4 +255,59 @@ describe("acquireSource", () => {
       "https://d.example/learn/two",
     ]);
   });
+
+  it("dryRun resolves the URL list without fetching or staging anything", async () => {
+    const fetcher = new FakeFetcher({
+      "https://t.example/a.html": ok(PAGE),
+      "https://t.example/b.html": ok(PAGE),
+    });
+    const store = new FakeRawDocumentStore();
+
+    const summary = await acquireSource({ fetcher, store }, multi, { dryRun: true });
+
+    expect(summary.resolved).toBe(3); // a.html, b.html, missing.html resolved from seeds
+    expect(summary.attempted).toBe(0); // nothing fetched
+    expect(summary.written).toBe(0);
+    expect(store.count()).toBe(0); // nothing staged
+  });
+
+  it("with resume, skips canonical URLs already staged and fetches only the remainder", async () => {
+    const fetcher = new FakeFetcher({
+      "https://t.example/a.html": ok(PAGE),
+      "https://t.example/b.html": ok(PAGE),
+    });
+    const store = new FakeRawDocumentStore();
+    // Simulate a prior (interrupted) run that already staged a.html.
+    await store.putRawDocument({
+      sourceKey: "test-src",
+      url: "https://t.example/a.html",
+      canonicalUrl: "https://t.example/a.html",
+      title: "prior",
+      rawContent: "prior content",
+      fetch: {
+        status: 200,
+        bodyHash: "deadbeef",
+        etag: null,
+        lastModified: null,
+        fetchedAt: new Date(0).toISOString(),
+        notModified: false,
+      },
+    });
+
+    const resumable: SourceEntry = {
+      ...multi,
+      crawl: { ...multi.crawl, seedPaths: ["/a.html", "/b.html"] },
+    };
+    const summary = await acquireSource({ fetcher, store }, resumable, { resume: true });
+
+    expect(summary.resolved).toBe(1); // a.html dropped as already-staged
+    expect(summary.attempted).toBe(1); // only b.html fetched
+    expect(summary.written).toBe(1);
+    // Both rows present (a.html from the prior run, b.html from this run) — a
+    // restart re-fetched nothing it already had.
+    expect(store.bySourceKey("test-src").map((d) => d.canonicalUrl).sort()).toEqual([
+      "https://t.example/a.html",
+      "https://t.example/b.html",
+    ]);
+  });
 });

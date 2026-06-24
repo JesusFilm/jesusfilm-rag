@@ -9,17 +9,27 @@ import { cru10BasicSteps } from "./cru-10-basic-steps.js";
 import { jesusFilmOrg } from "./jesusfilm-org.js";
 import { sightlineMinistry } from "./sightline-ministry.js";
 import { thelife } from "./thelife.js";
+import { thelifeFr } from "./thelife-fr.js";
+import { thelifeZh } from "./thelife-zh.js";
 import { familylife } from "./familylife.js";
 
 export type { SourceEntry, CrawlPolicy } from "./types.js";
 
-/** Every registered source, in registry order. */
+/** Every registered source, in registry order (language variants follow their
+ *  parent English source). Two non-English variants were investigated but NOT
+ *  registered: thelife's Persian site (shagerdan.com) serves a Cloudflare 403
+ *  wall to non-JS fetchers (see FOLLOW-UP G / #8), and cru.org's Spanish
+ *  "10 Pasos Básicos" path serves UNTRANSLATED English lesson bodies under
+ *  Spanish chrome (no real Spanish content to acquire). Both documented in
+ *  docs/sources.md. */
 export const SOURCES: readonly SourceEntry[] = [
   startingWithGod,
   cru10BasicSteps,
   jesusFilmOrg,
   sightlineMinistry,
   thelife,
+  thelifeFr,
+  thelifeZh,
   familylife,
 ];
 

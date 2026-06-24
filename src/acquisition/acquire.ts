@@ -64,6 +64,8 @@ const sleep = (ms: number): Promise<void> =>
 
 export interface AcquireSummary {
   sourceKey: string;
+  /** URLs to fetch after discovery/seed resolution + resume-skip + maxPages cap. */
+  resolved: number;
   attempted: number;
   written: number;
   skipped: Record<SkipReason, number>;
@@ -74,29 +76,56 @@ export interface AcquireDeps {
   store: RawDocumentStore;
 }
 
+export interface AcquireOptions {
+  onProgress?: (line: string) => void;
+  /**
+   * Resume mode: drop URLs already staged for this source (ingested or pending)
+   * before fetching, so a paused-and-restarted — or English-already-acquired —
+   * crawl re-fetches nothing it already has. A kill costs at most one in-flight
+   * URL. Default off (a deliberate re-crawl/refresh still fetches everything).
+   */
+  resume?: boolean;
+  /** Resolve the URL list (discovery + filters + resume-skip), report the count, fetch nothing. */
+  dryRun?: boolean;
+}
+
 /**
  * Resolve the URL list to acquire for a source. A discovery source (one with
  * `sitemaps`) is walked via discoverUrls; its result is unioned with any
  * hand-listed seedPaths (so a discovery source can still pin extra pages). A
- * pure hand-listed source just uses its seeds. Capped at maxPages either way.
+ * pure hand-listed source just uses its seeds. In `resume` mode, URLs already
+ * staged for the source are dropped (compared on the normalized canonical URL —
+ * the staging identity) BEFORE the maxPages cap, so the cap bounds the work that
+ * actually remains. Capped at maxPages either way.
  */
 async function resolveAcquireUrls(
   deps: AcquireDeps,
   entry: SourceEntry,
-  opts: { onProgress?: (line: string) => void },
+  opts: AcquireOptions,
 ): Promise<string[]> {
   const seeds = seedUrls(entry);
+  let urls: string[];
   if (!entry.crawl.sitemaps?.length) {
-    return seeds.slice(0, entry.crawl.maxPages);
+    urls = seeds;
+  } else {
+    opts.onProgress?.(
+      `  ↪ discovering from ${entry.crawl.sitemaps.length} sitemap(s)…`,
+    );
+    const disc = await discoverUrls({ fetcher: deps.fetcher }, entry.crawl, opts);
+    opts.onProgress?.(
+      `  ↪ discovered ${disc.urls.length} URL(s) (${disc.totalSeen} seen across ${disc.sitemapsFetched} sitemap(s))`,
+    );
+    urls = [...new Set([...seeds, ...disc.urls])];
   }
-  opts.onProgress?.(
-    `  ↪ discovering from ${entry.crawl.sitemaps.length} sitemap(s)…`,
-  );
-  const disc = await discoverUrls({ fetcher: deps.fetcher }, entry.crawl, opts);
-  opts.onProgress?.(
-    `  ↪ discovered ${disc.urls.length} URL(s) (${disc.totalSeen} seen across ${disc.sitemapsFetched} sitemap(s))`,
-  );
-  return [...new Set([...seeds, ...disc.urls])].slice(0, entry.crawl.maxPages);
+  if (opts.resume) {
+    const staged = new Set(await deps.store.listStagedCanonicalUrls(entry.key));
+    const before = urls.length;
+    urls = urls.filter((u) => !staged.has(normalizeUrl(u)));
+    opts.onProgress?.(
+      `  ↪ resume: ${before - urls.length} already-staged skipped, ${urls.length} to fetch`,
+    );
+  }
+  return urls.slice(0, entry.crawl.maxPages);
 }
 
 /**
@@ -109,15 +138,21 @@ async function resolveAcquireUrls(
 export async function acquireSource(
   deps: AcquireDeps,
   entry: SourceEntry,
-  opts: { onProgress?: (line: string) => void } = {},
+  opts: AcquireOptions = {},
 ): Promise<AcquireSummary> {
   const urls = await resolveAcquireUrls(deps, entry, opts);
   const summary: AcquireSummary = {
     sourceKey: entry.key,
+    resolved: urls.length,
     attempted: 0,
     written: 0,
     skipped: { "fetch-failed": 0, "not-modified": 0, "too-thin": 0 },
   };
+
+  if (opts.dryRun) {
+    opts.onProgress?.(`  ↪ DRY RUN — ${urls.length} URL(s) resolved; fetching nothing`);
+    return summary;
+  }
 
   for (let i = 0; i < urls.length; i++) {
     if (i > 0 && entry.crawl.requestDelayMs > 0) await sleep(entry.crawl.requestDelayMs);

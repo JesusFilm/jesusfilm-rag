@@ -28,8 +28,13 @@ as sources are registered:
 | `jesusfilm-org` | Jesus Film Project |
 | `sightline-ministry` | Sightline Ministry |
 | `thelife` | thelife (Cru Canada — successor to Power to Change) |
+| `thelife-fr` | thelife — French (laviejenparle.com) — language variant |
+| `thelife-zh` | thelife — Chinese (uwota.com) — language variant |
 
-(Only registered sources appear; the rest get a key when their slice begins.)
+(Only registered sources appear; the rest get a key when their slice begins.
+`familylife` is also registered — see the backlog table — and is now bilingual
+`en`+`es`. See the **Multilingual acquisition** section below for the 2026-06-24
+non-English pass.)
 
 ## How to use this tracker
 
@@ -112,3 +117,36 @@ sub-scope separately once we hit it, split it into its own row at that point.
 per-source rights/hazard notes for ~20 of these sources — including which ones
 block bots and which are JS-rendered. Reuse that curation when starting a source:
 see **[docs/jfa-registry-findings.md](./jfa-registry-findings.md)**.
+
+---
+
+## Multilingual acquisition (2026-06-24)
+
+The first 6 sources were acquired **English-only by accident** — the scrape
+policies only ever looked at English pages. This pass made acquisition
+multilingual + resumable and acquired the **non-English** content. **Ingestion
+is deliberately deferred** (blocked on a pending embedder-model swap): these rows
+land as pending `raw_documents` (`ingested_at IS NULL`) to be drained later.
+
+A per-source live-sitemap recon (+ adversarial verify + content spot-read) found
+the non-English content is **concentrated, not uniform** — and that two
+candidates that *looked* multilingual were not real and were rejected.
+
+| Source | Lang | Where | Acquired (local) | Notes |
+|--------|------|-------|------------------|-------|
+| `thelife-fr` | fr | `laviejenparle.com` (sibling domain) | **156** | New source. Same Statamic template + `.article-body` as thelife; 2000 ms. Articles = bare-root single-segment slugs (`/articles/*` + `/devotionals/*` are 100% tag-index pages). Verified genuine French. |
+| `thelife-zh` | zh | `uwota.com` (sibling domain) | **332** | New source. Same shape; verified genuine Simplified Chinese. |
+| `familylife` (es) | es | `www.familylife.com/us-latinos/` (path prefix, own `us-latinos-sitemap1.xml`) | **1** | Folded into `familylife` (`languages: ["en","es"]`); only one real Spanish content page exists today. |
+| `thelife` (fa) | fa | `shagerdan.com` (sibling domain) | **0 — BLOCKED** | Cloudflare **403** wall on all content pages to a non-JS fetcher (homepage + articles), exactly like EveryStudent. Sitemap (~2,946 URLs) is fetchable but bodies are not. NOT registered. Needs a headless fetcher — **FOLLOW-UP G / [#8](https://github.com/JesusFilm/jesusfilm-rag/issues/8)**. |
+| `cru-10-basic-steps` (es) | — | `cru.org/mx/es/.../10-pasos-basicos/` | **0 — NOT REAL** | The Spanish-locale path serves **untranslated English lesson bodies** under Spanish chrome (the extracted `.article-long-form` is English; only nav/region-picker is Spanish). Caught by spot-reading `raw_content`. NOT registered — would have duplicated the English source under a fake `lang:es` key. |
+| `starting-with-god` (20+ langs) | many | separate sibling **org domains** (empezandocondios.com es, demarreravecdieu.com fr, …) | **deferred** | Primary domain is English-only. 20+ sibling sites, each a different CMS needing its own selector recon (~2–3k URLs total) — **[#43](https://github.com/JesusFilm/jesusfilm-rag/issues/43)**. |
+| `jesusfilm-org`, `sightline-ministry` | — | — | english-only | Verified: no `hreflang`, no language paths, `/es/` falls back to English. |
+
+**Mechanism added (both serve resumability and the multilingual delta):**
+- **`--resume`** (FOLLOW-UP K / [#32](https://github.com/JesusFilm/jesusfilm-rag/issues/32)) — `acquireSource` drops canonical URLs already staged for the source (`RawDocumentStore.listStagedCanonicalUrls`, ingested **and** pending) before fetching. A kill costs ≤1 in-flight URL; a restart re-fetches nothing; a multilingual run skips the already-acquired English automatically. Used live to recover thelife-zh's 19 transient Cloudflare fails (re-ran, fetched only those 19).
+- **`--dry-run`** — resolve discovery + filters + resume-skip and print the URL count, fetch nothing. Used to validate every new policy before crawling.
+- No `discover.ts` change: each sibling domain publishes its own sitemap listing its own-language URLs under `<loc>`, so direct sitemap crawl suffices (no `hreflang`/`xhtml:link` traversal).
+
+**Lesson:** trust the **extracted body**, not the site chrome — a Spanish URL +
+Spanish nav (cru.org `/mx/es/`) can still serve English content. The content
+spot-read is the gate, not the URL/locale.

@@ -6,6 +6,8 @@
  *
  *   pnpm acquire:production --source <key>
  *   pnpm acquire:production --all
+ *   pnpm acquire:production --source thelife-fr --resume    # skip already-staged (resumable)
+ *   pnpm acquire:production --source thelife-fr --dry-run   # resolve + count only, no writes
  *
  * Mirrors scripts/acquire.ts's body, but defers all @/* imports until AFTER
  * the credential prompt + installCreds() so the env loader in src/env.ts (which
@@ -16,17 +18,28 @@ import {
   installCreds,
 } from "./lib/prompt-prod-creds.js";
 
-function parseArgs(argv: string[]): { all: boolean; source?: string } {
-  const all = argv.includes("--all");
+interface Args {
+  all: boolean;
+  source?: string;
+  dryRun: boolean;
+  resume: boolean;
+}
+
+function parseArgs(argv: string[]): Args {
   const i = argv.indexOf("--source");
-  return { all, source: i >= 0 ? argv[i + 1] : undefined };
+  return {
+    all: argv.includes("--all"),
+    source: i >= 0 ? argv[i + 1] : undefined,
+    dryRun: argv.includes("--dry-run"),
+    resume: argv.includes("--resume"),
+  };
 }
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   if (!args.all && !args.source) {
     console.error(
-      "usage: pnpm acquire:production --source <key> | --all",
+      "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume]",
     );
     process.exit(2);
   }
@@ -38,10 +51,16 @@ async function main(): Promise<void> {
     operation: "acquire",
     intent: [
       "",
-      "This will crawl + stage rows into the PRODUCTION raw_documents table.",
-      `Scope: ${scope}`,
+      args.dryRun
+        ? "DRY RUN — resolves the URL list against PRODUCTION (reads only); stages nothing."
+        : "This will crawl + stage rows into the PRODUCTION raw_documents table.",
+      `Scope: ${scope}${args.resume ? " (resume: skip already-staged)" : ""}`,
     ],
-    summary: () => [`  scope:           ${scope}`],
+    summary: () => [
+      `  scope:           ${scope}`,
+      `  dry-run:         ${args.dryRun}`,
+      `  resume:          ${args.resume}`,
+    ],
   });
   if (!creds) process.exit(0);
 
@@ -84,8 +103,14 @@ async function main(): Promise<void> {
       const summary = await acquireSource(
         { fetcher: wiring.fetcher, store: wiring.rawDocumentStore },
         entry,
-        { onProgress: (line) => console.log(line) },
+        { onProgress: (line) => console.log(line), dryRun: args.dryRun, resume: args.resume },
       );
+      if (args.dryRun) {
+        console.log(
+          `✔ ${summary.sourceKey}: DRY RUN — ${summary.resolved} URL(s) resolved (nothing fetched)`,
+        );
+        continue;
+      }
       const skips =
         Object.entries(summary.skipped)
           .filter(([, n]) => n > 0)

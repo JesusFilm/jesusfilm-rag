@@ -62,6 +62,14 @@ export interface RawDocumentStore {
    * un-ingested rows. Already-ingested rows are left intact as the raw snapshot.
    */
   putRawDocument(doc: RawDocument): Promise<void>;
+  /**
+   * Every `canonical_url` already staged for a source — ingested OR pending.
+   * The resume skip-set: a `--resume` crawl drops these from its fetch list so a
+   * paused-and-restarted (or English-already-acquired) crawl re-fetches nothing
+   * it already has. Acquisition's read-back view of its own staging progress
+   * (the write side is putRawDocument); not the Ingestion drain (RawDocumentReader).
+   */
+  listStagedCanonicalUrls(sourceKey: string): Promise<string[]>;
 }
 
 // ---- Ingestion ports -------------------------------------------------------

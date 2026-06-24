@@ -40,6 +40,8 @@ jobs:
         run: pnpm typecheck
       - name: Dependency boundaries (three-context architecture)
         run: pnpm depcruise
+      - name: Compounding knowledge store (docs/solutions frontmatter + index)
+        run: pnpm check:solutions
 
   test:
     name: test (postgres + vitest)

@@ -22,6 +22,7 @@
     "eval": "tsx scripts/eval.ts",
     "eval:production": "tsx scripts/eval-production.ts",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs",
+    "check:solutions": "tsx scripts/check-solutions.ts",
     "prepare": "husky"
   },
   "dependencies": {

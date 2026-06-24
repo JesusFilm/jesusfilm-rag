@@ -84,7 +84,7 @@ sources:
     name: thelife — French (La Vie J'en Parle, laviejenparle.com)
     status: in-progress
     stages:
-      acquire: green   # 156 rows staged (pending ingest)
+      acquire: green   # 156/156 staged in PROD 2026-06-24 (pending ingest)
       ingest: pending  # deferred — embedder-model swap
       retrieve: pending
       evaluate: pending
@@ -95,7 +95,7 @@ sources:
     name: thelife — Chinese (UWOTA, uwota.com)
     status: in-progress
     stages:
-      acquire: green   # 332 rows staged (pending ingest)
+      acquire: green   # 332/332 staged in PROD 2026-06-24 (pending ingest)
       ingest: pending  # deferred — embedder-model swap
       retrieve: pending
       evaluate: pending
@@ -104,7 +104,7 @@ sources:
 
   familylife:
     name: FamilyLife
-    status: done   # en done; es (us-latinos, 1 page) acquired 2026-06-24, ingest deferred
+    status: done   # en done; es (us-latinos, 1 page) staged in PROD 2026-06-24, ingest deferred
     stages:
       acquire: green
       ingest: green

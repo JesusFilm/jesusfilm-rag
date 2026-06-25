@@ -34,7 +34,7 @@ Adapters may import **`src/db/schema.ts`** — the one relaxation of the law (AD
 
 ## Conventions
 
-- **Postgres + `pgvector` only.** No alternative vector DBs. Schema in `src/db/schema.ts` (Drizzle); changes go through a migration.
+- **Postgres + `pgvector` only.** No alternative vector DBs. Schema in `src/db/schema.ts` (Drizzle); changes go through a migration — schema-ahead-of-migrations drift fails CI (`pnpm db:check`, the migration analogue of the contract-drift test).
 - **Dependency injection, one composition root.** No module-level singletons, no top-level `new Adapter()`. Contexts receive ports as arguments.
 - **Fakes-only unit tests.** Each port has an in-memory fake; context tests run with no Postgres and no network. A test that needs a real adapter is a coupling bug.
 - **File-size cap** (eslint `max-lines` ≈ 300). When a file mixes responsibilities, split it.

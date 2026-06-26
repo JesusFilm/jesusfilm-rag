@@ -66,7 +66,7 @@ checked out → continue. No other context required.
 
 Read, in order: `docs/STATUS.md`, `docs/sources.md`, and `docs/architecture.md`
 §5 (the import law — the boundaries you must not cross). Confirm the green
-baseline is intact: `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm test`.
+baseline is intact: `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm db:check && pnpm test`.
 If the baseline is red before any work, stop and report — we never build on a
 broken foundation.
 
@@ -206,9 +206,10 @@ When all four stages are green and the spot-check looks good:
 
 The bar for "this sub-step is real":
 
-- **Always:** `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm test` — green.
+- **Always:** `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm db:check && pnpm test` — green.
   `depcruise` red usually means a boundary was crossed (architecture §5) — fix the
-  placement, don't loosen the rule.
+  placement, don't loosen the rule. `db:check` red means `src/db/schema.ts` changed
+  without a migration — run `pnpm db:generate` and commit the new file, don't skip it.
 - **Re-run the full gate after Acquire/Ingest, not only after code changes.**
   `pnpm test` includes integration tests that query the live Postgres, so a *data*
   stage can turn them red with **zero** code changes (slice #3: ingesting 349 docs

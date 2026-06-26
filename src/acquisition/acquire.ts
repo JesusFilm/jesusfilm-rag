@@ -111,7 +111,13 @@ async function resolveAcquireUrls(
     opts.onProgress?.(
       `  ↪ discovering from ${entry.crawl.sitemaps.length} sitemap(s)…`,
     );
-    const disc = await discoverUrls({ fetcher: deps.fetcher }, entry.crawl, opts);
+    // In resume mode, discover uncapped so the resume-skip runs against the full
+    // candidate set and the final urls.slice(maxPages) is the single cap bounding
+    // the work that REMAINS (discover.ts still guards fan-out via MAX_SITEMAP_FETCHES).
+    const discoveryPolicy = opts.resume
+      ? { ...entry.crawl, maxPages: Number.MAX_SAFE_INTEGER }
+      : entry.crawl;
+    const disc = await discoverUrls({ fetcher: deps.fetcher }, discoveryPolicy, opts);
     opts.onProgress?.(
       `  ↪ discovered ${disc.urls.length} URL(s) (${disc.totalSeen} seen across ${disc.sitemapsFetched} sitemap(s))`,
     );

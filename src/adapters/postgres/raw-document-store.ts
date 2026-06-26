@@ -54,6 +54,6 @@ export class PostgresRawDocumentStore implements RawDocumentStore {
       .select({ canonicalUrl: rawDocuments.canonicalUrl })
       .from(rawDocuments)
       .where(eq(rawDocuments.sourceKey, sourceKey));
-    return rows.map((r) => r.canonicalUrl);
+    return [...new Set(rows.map((r) => r.canonicalUrl))];
   }
 }

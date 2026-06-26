@@ -310,4 +310,38 @@ describe("acquireSource", () => {
       "https://t.example/b.html",
     ]);
   });
+
+  it("with resume, backfills past already-staged URLs so the cap bounds remaining work", async () => {
+    // Pure-discovery source: 3 sitemap URLs, maxPages=2, /learn/one already
+    // staged by a prior interrupted run. The cap must bound the work that
+    // REMAINS, so /learn/two AND /learn/three resolve (2). Capping discovery
+    // before the resume-skip would yield only 1 (the bug).
+    const discovery: SourceEntry = {
+      ...entry,
+      crawl: {
+        ...entry.crawl, baseUrl: "https://cap.example", seedPaths: undefined,
+        sitemaps: ["/sitemap.xml"], allow: ["^https://cap\\.example/"],
+        articleHints: ["/learn/"], maxPages: 2,
+      },
+    };
+    const fetcher = new FakeFetcher({
+      "https://cap.example/sitemap.xml": ok(
+        `<?xml version="1.0"?><urlset>
+          <url><loc>https://cap.example/learn/one</loc></url>
+          <url><loc>https://cap.example/learn/two</loc></url>
+          <url><loc>https://cap.example/learn/three</loc></url>
+        </urlset>`,
+      ),
+    });
+    const store = new FakeRawDocumentStore();
+    const u1 = "https://cap.example/learn/one"; // staged by a prior interrupted run
+    await store.putRawDocument({
+      sourceKey: "test-src", url: u1, canonicalUrl: u1, title: "prior",
+      rawContent: "prior content",
+      fetch: { status: 200, bodyHash: "x", etag: null, lastModified: null, fetchedAt: new Date(0).toISOString(), notModified: false },
+    });
+
+    const summary = await acquireSource({ fetcher, store }, discovery, { resume: true, dryRun: true });
+    expect(summary.resolved).toBe(2); // two + three; one already staged, cap bounds remainder
+  });
 });

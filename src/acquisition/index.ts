@@ -15,6 +15,7 @@ export {
   acquireSource,
   type AcquireOutcome,
   type AcquireDeps,
+  type AcquireOptions,
   type AcquireSummary,
   type SkipReason,
 } from "./acquire.js";

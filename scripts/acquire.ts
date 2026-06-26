@@ -3,6 +3,8 @@
  *
  *   pnpm acquire --source starting-with-god
  *   pnpm acquire --all
+ *   pnpm acquire --source thelife-fr --dry-run   # resolve + count URLs, fetch nothing
+ *   pnpm acquire --source thelife-fr --resume    # skip already-staged URLs (resumable crawl)
  *
  * Thin entry point: parse args, wire the adapters (main.wire()), look the
  * source(s) up in the registry, run acquireSource (fetch + extract → stage
@@ -20,13 +22,28 @@ function knownKeys(): string {
     .join(", ");
 }
 
-function parseArgs(argv: string[]): { all: boolean; source?: string } {
-  const all = argv.includes("--all");
-  const i = argv.indexOf("--source");
-  return { all, source: i >= 0 ? argv[i + 1] : undefined };
+interface Args {
+  all: boolean;
+  source?: string;
+  dryRun: boolean;
+  resume: boolean;
 }
 
-function report(s: AcquireSummary): void {
+function parseArgs(argv: string[]): Args {
+  const i = argv.indexOf("--source");
+  return {
+    all: argv.includes("--all"),
+    source: i >= 0 ? argv[i + 1] : undefined,
+    dryRun: argv.includes("--dry-run"),
+    resume: argv.includes("--resume"),
+  };
+}
+
+function report(s: AcquireSummary, dryRun: boolean): void {
+  if (dryRun) {
+    console.log(`✔ ${s.sourceKey}: DRY RUN — ${s.resolved} URL(s) resolved (nothing fetched)`);
+    return;
+  }
   const skips =
     Object.entries(s.skipped)
       .filter(([, n]) => n > 0)
@@ -36,7 +53,7 @@ function report(s: AcquireSummary): void {
 }
 
 async function main(): Promise<void> {
-  const { all, source } = parseArgs(process.argv.slice(2));
+  const { all, source, dryRun, resume } = parseArgs(process.argv.slice(2));
 
   let entries: readonly SourceEntry[];
   if (all) {
@@ -49,7 +66,9 @@ async function main(): Promise<void> {
     }
     entries = [entry];
   } else {
-    console.error(`usage: pnpm acquire --source <key> | --all\nknown sources: ${knownKeys()}`);
+    console.error(
+      `usage: pnpm acquire --source <key> | --all [--dry-run] [--resume]\nknown sources: ${knownKeys()}`,
+    );
     process.exit(1);
   }
 
@@ -59,15 +78,18 @@ async function main(): Promise<void> {
       const plan = entry.crawl.sitemaps?.length
         ? `discovery via ${entry.crawl.sitemaps.length} sitemap(s)`
         : `${(entry.crawl.seedPaths ?? []).length} seed pages`;
+      const mode = [dryRun ? "DRY RUN" : null, resume ? "resume" : null]
+        .filter(Boolean)
+        .join(" + ");
       console.log(
-        `\n▶ acquiring ${entry.name} (${entry.key}) — ${plan}, ${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}`,
+        `\n▶ acquiring ${entry.name} (${entry.key}) — ${plan}, ${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}${mode ? ` [${mode}]` : ""}`,
       );
       const summary = await acquireSource(
         { fetcher: wiring.fetcher, store: wiring.rawDocumentStore },
         entry,
-        { onProgress: (line) => console.log(line) },
+        { onProgress: (line) => console.log(line), dryRun, resume },
       );
-      report(summary);
+      report(summary, dryRun);
     }
   } finally {
     await wiring.shutdown();

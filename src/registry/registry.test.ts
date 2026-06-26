@@ -148,14 +148,17 @@ describe("SourceRegistry", () => {
     expect(fl?.domain).toBe("www.familylife.com");
     expect(fl?.trust).toBe("partner");
     expect(fl?.ingestionMode).toBe("html-scrape");
-    // Discovery source: three flat <urlset> child sitemaps (the WP "post" content
-    // type), not the sitemap index. No hand-listed seedPaths.
+    // Discovery source: the three WP "post" content-type sitemaps + the Spanish
+    // us-latinos child sitemap (added 2026-06-24), not the sitemap index. No
+    // hand-listed seedPaths.
     expect(fl?.crawl.sitemaps).toEqual([
       "/post-sitemap1.xml",
       "/post-sitemap2.xml",
       "/post-sitemap3.xml",
+      "/us-latinos-sitemap1.xml",
     ]);
     expect(fl?.crawl.seedPaths).toBeUndefined();
+    expect(fl?.languages).toEqual(["en", "es"]);
     // `.the-content` is the innermost prose container, same on /articles/ and /equip/.
     expect(fl?.crawl.contentSelectors[0]).toBe(".the-content");
   });
@@ -179,6 +182,14 @@ describe("SourceRegistry", () => {
         "https://www.familylife.com/equip/discipleship-of-a-new-christian-start-here/",
       ),
     ).toBe(true);
+    // Spanish /us-latinos/<sub-path> content — kept; bare /us-latinos/ landing
+    // (no sub-path) — dropped (the hint requires at least one trailing segment).
+    expect(
+      kept(
+        "https://www.familylife.com/us-latinos/acerca-de-nosotros/principios-fundamentales/",
+      ),
+    ).toBe(true);
+    expect(kept("https://www.familylife.com/us-latinos/")).toBe(false);
     // Homepage `/` that post-sitemap1 lists — fails the hints.
     expect(kept("https://www.familylife.com/")).toBe(false);
     // Defensive blocks — wp-admin, cart, podcast (deferred sub-scope), assets.
@@ -246,5 +257,62 @@ describe("SourceRegistry", () => {
       },
     };
     expect(seedUrls(discovery)).toEqual([]);
+  });
+
+  it("resolves thelife-fr (laviejenparle.com) — French sibling-domain variant", () => {
+    const fr = getSource("thelife-fr");
+    expect(fr).toBeDefined();
+    expect(fr?.domain).toBe("laviejenparle.com");
+    expect(fr?.trust).toBe("partner");
+    expect(fr?.languages).toEqual(["fr"]);
+    expect(fr?.crawl.sitemaps).toEqual(["/sitemap.xml"]);
+    expect(fr?.crawl.seedPaths).toBeUndefined();
+    expect(fr?.crawl.contentSelectors[0]).toBe(".article-body");
+    expect(fr?.crawl.requestDelayMs).toBe(2000); // same Cloudflare stack as thelife
+    const hints = (fr!.crawl.articleHints ?? []).map((p) => new RegExp(p));
+    const block = (fr!.crawl.block ?? []).map((p) => new RegExp(p));
+    const kept = (u: string): boolean =>
+      hints.some((re) => re.test(u)) && !block.some((re) => re.test(u));
+    // bare-root single-segment slug = a French article — kept
+    expect(kept("https://laviejenparle.com/10-questions-spirituelles-avec-reponses")).toBe(true);
+    // /articles/tags/* and /devotionals/tags/* are tag indexes — dropped
+    expect(kept("https://laviejenparle.com/articles/tags/sexe")).toBe(false);
+    expect(kept("https://laviejenparle.com/devotionals/tags/divorce")).toBe(false);
+    // nav slugs blocked; homepage fails the hint
+    expect(kept("https://laviejenparle.com/about")).toBe(false);
+    expect(kept("https://laviejenparle.com/chat")).toBe(false);
+    expect(kept("https://laviejenparle.com/")).toBe(false);
+    // cross-host safety
+    expect(kept("https://thelife.com/10-spiritual-questions-and-their-answers")).toBe(false);
+  });
+
+  it("resolves thelife-zh (uwota.com) — Chinese sibling-domain variant", () => {
+    const zh = getSource("thelife-zh");
+    expect(zh).toBeDefined();
+    expect(zh?.domain).toBe("uwota.com");
+    expect(zh?.trust).toBe("partner");
+    expect(zh?.languages).toEqual(["zh"]);
+    expect(zh?.crawl.sitemaps).toEqual(["/sitemap.xml"]);
+    expect(zh?.crawl.seedPaths).toBeUndefined();
+    expect(zh?.crawl.contentSelectors[0]).toBe(".article-body");
+    const hints = (zh!.crawl.articleHints ?? []).map((p) => new RegExp(p));
+    const block = (zh!.crawl.block ?? []).map((p) => new RegExp(p));
+    const kept = (u: string): boolean =>
+      hints.some((re) => re.test(u)) && !block.some((re) => re.test(u));
+    expect(kept("https://uwota.com/a-happy-life")).toBe(true);
+    expect(kept("https://uwota.com/articles/tags/ren-sheng")).toBe(false);
+    expect(kept("https://uwota.com/about")).toBe(false);
+    expect(kept("https://uwota.com/")).toBe(false);
+  });
+
+  it("registers the crawlable non-English variants and omits the un-acquirable ones", () => {
+    // Crawlable, genuine-target-language sibling sources.
+    expect(getSource("thelife-fr")).toBeDefined();
+    expect(getSource("thelife-zh")).toBeDefined();
+    // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall, and
+    // cru.org's Spanish "10 Pasos" path serves untranslated English bodies — no
+    // real non-English content to acquire (see docs/sources.md).
+    expect(getSource("thelife-fa")).toBeUndefined();
+    expect(getSource("cru-10-basic-steps-es")).toBeUndefined();
   });
 });

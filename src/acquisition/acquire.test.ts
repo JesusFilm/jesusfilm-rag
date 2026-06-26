@@ -255,4 +255,93 @@ describe("acquireSource", () => {
       "https://d.example/learn/two",
     ]);
   });
+
+  it("dryRun resolves the URL list without fetching or staging anything", async () => {
+    const fetcher = new FakeFetcher({
+      "https://t.example/a.html": ok(PAGE),
+      "https://t.example/b.html": ok(PAGE),
+    });
+    const store = new FakeRawDocumentStore();
+
+    const summary = await acquireSource({ fetcher, store }, multi, { dryRun: true });
+
+    expect(summary.resolved).toBe(3); // a.html, b.html, missing.html resolved from seeds
+    expect(summary.attempted).toBe(0); // nothing fetched
+    expect(summary.written).toBe(0);
+    expect(store.count()).toBe(0); // nothing staged
+  });
+
+  it("with resume, skips canonical URLs already staged and fetches only the remainder", async () => {
+    const fetcher = new FakeFetcher({
+      "https://t.example/a.html": ok(PAGE),
+      "https://t.example/b.html": ok(PAGE),
+    });
+    const store = new FakeRawDocumentStore();
+    // Simulate a prior (interrupted) run that already staged a.html.
+    await store.putRawDocument({
+      sourceKey: "test-src",
+      url: "https://t.example/a.html",
+      canonicalUrl: "https://t.example/a.html",
+      title: "prior",
+      rawContent: "prior content",
+      fetch: {
+        status: 200,
+        bodyHash: "deadbeef",
+        etag: null,
+        lastModified: null,
+        fetchedAt: new Date(0).toISOString(),
+        notModified: false,
+      },
+    });
+
+    const resumable: SourceEntry = {
+      ...multi,
+      crawl: { ...multi.crawl, seedPaths: ["/a.html", "/b.html"] },
+    };
+    const summary = await acquireSource({ fetcher, store }, resumable, { resume: true });
+
+    expect(summary.resolved).toBe(1); // a.html dropped as already-staged
+    expect(summary.attempted).toBe(1); // only b.html fetched
+    expect(summary.written).toBe(1);
+    // Both rows present (a.html from the prior run, b.html from this run) — a
+    // restart re-fetched nothing it already had.
+    expect(store.bySourceKey("test-src").map((d) => d.canonicalUrl).sort()).toEqual([
+      "https://t.example/a.html",
+      "https://t.example/b.html",
+    ]);
+  });
+
+  it("with resume, backfills past already-staged URLs so the cap bounds remaining work", async () => {
+    // Pure-discovery source: 3 sitemap URLs, maxPages=2, /learn/one already
+    // staged by a prior interrupted run. The cap must bound the work that
+    // REMAINS, so /learn/two AND /learn/three resolve (2). Capping discovery
+    // before the resume-skip would yield only 1 (the bug).
+    const discovery: SourceEntry = {
+      ...entry,
+      crawl: {
+        ...entry.crawl, baseUrl: "https://cap.example", seedPaths: undefined,
+        sitemaps: ["/sitemap.xml"], allow: ["^https://cap\\.example/"],
+        articleHints: ["/learn/"], maxPages: 2,
+      },
+    };
+    const fetcher = new FakeFetcher({
+      "https://cap.example/sitemap.xml": ok(
+        `<?xml version="1.0"?><urlset>
+          <url><loc>https://cap.example/learn/one</loc></url>
+          <url><loc>https://cap.example/learn/two</loc></url>
+          <url><loc>https://cap.example/learn/three</loc></url>
+        </urlset>`,
+      ),
+    });
+    const store = new FakeRawDocumentStore();
+    const u1 = "https://cap.example/learn/one"; // staged by a prior interrupted run
+    await store.putRawDocument({
+      sourceKey: "test-src", url: u1, canonicalUrl: u1, title: "prior",
+      rawContent: "prior content",
+      fetch: { status: 200, bodyHash: "x", etag: null, lastModified: null, fetchedAt: new Date(0).toISOString(), notModified: false },
+    });
+
+    const summary = await acquireSource({ fetcher, store }, discovery, { resume: true, dryRun: true });
+    expect(summary.resolved).toBe(2); // two + three; one already staged, cap bounds remainder
+  });
 });

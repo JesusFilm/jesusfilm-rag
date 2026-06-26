@@ -18,6 +18,10 @@ export class FakeRawDocumentStore implements RawDocumentStore {
     this.rows.set(key(doc.sourceKey, doc.canonicalUrl), { ...doc });
   }
 
+  async listStagedCanonicalUrls(sourceKey: string): Promise<string[]> {
+    return this.bySourceKey(sourceKey).map((d) => d.canonicalUrl);
+  }
+
   // --- inspection (test helpers) -------------------------------------------
 
   all(): RawDocument[] {

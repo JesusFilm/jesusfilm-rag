@@ -45,4 +45,15 @@ export class PostgresRawDocumentStore implements RawDocumentStore {
       });
     });
   }
+
+  async listStagedCanonicalUrls(sourceKey: string): Promise<string[]> {
+    // Every staged row for the source — ingested AND pending (no ingestedAt
+    // filter): a resume must skip already-ingested pages too, not just pending
+    // ones, so an English-already-acquired source isn't re-fetched.
+    const rows = await this.db
+      .select({ canonicalUrl: rawDocuments.canonicalUrl })
+      .from(rawDocuments)
+      .where(eq(rawDocuments.sourceKey, sourceKey));
+    return [...new Set(rows.map((r) => r.canonicalUrl))];
+  }
 }

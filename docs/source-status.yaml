@@ -77,16 +77,41 @@ sources:
     slice_file: docs/slices/thelife.md
     last_updated: 2026-06-03
 
+  # Language variants of thelife (sibling domains). Multilingual acquisition pass
+  # 2026-06-24 — acquired only; ingest/retrieve/evaluate deferred pending the
+  # embedder-model swap. Record: docs/sources.md "Multilingual acquisition".
+  thelife-fr:
+    name: thelife — French (La Vie J'en Parle, laviejenparle.com)
+    status: in-progress
+    stages:
+      acquire: green   # 156/156 staged in PROD 2026-06-24 (pending ingest)
+      ingest: pending  # deferred — embedder-model swap
+      retrieve: pending
+      evaluate: pending
+    slice_file: docs/sources.md
+    last_updated: 2026-06-24
+
+  thelife-zh:
+    name: thelife — Chinese (UWOTA, uwota.com)
+    status: in-progress
+    stages:
+      acquire: green   # 332/332 staged in PROD 2026-06-24 (pending ingest)
+      ingest: pending  # deferred — embedder-model swap
+      retrieve: pending
+      evaluate: pending
+    slice_file: docs/sources.md
+    last_updated: 2026-06-24
+
   familylife:
     name: FamilyLife
-    status: done
+    status: done   # en done; es (us-latinos, 1 page) staged in PROD 2026-06-24, ingest deferred
     stages:
       acquire: green
       ingest: green
       retrieve: green
       evaluate: green
     slice_file: docs/slices/familylife.md
-    last_updated: 2026-06-04
+    last_updated: 2026-06-24
 
   everystudent:
     name: EveryStudent

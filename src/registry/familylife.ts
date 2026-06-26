@@ -41,7 +41,9 @@ export const familylife: SourceEntry = {
   domain: "www.familylife.com",
   trust: "partner",
   ingestionMode: "html-scrape",
-  languages: ["en"],
+  // Spanish content lives on the same domain under the `/us-latinos/` path
+  // prefix (its own `us-latinos-sitemap1.xml`); added 2026-06-24. No hreflang.
+  languages: ["en", "es"],
   defaultTags: ["familylife", "cru", "topic:marriage", "topic:parenting"],
   defaultCategory: "article",
   rights:
@@ -55,16 +57,20 @@ export const familylife: SourceEntry = {
       "/post-sitemap1.xml",
       "/post-sitemap2.xml",
       "/post-sitemap3.xml",
+      // Spanish (US Latino) content — its own isolated child sitemap.
+      "/us-latinos-sitemap1.xml",
     ],
     // Same-host only.
     allow: ["^https://www\\.familylife\\.com/"],
     // Keep /articles/<...> OR /equip/<...> — both are WP posts using the same
-    // template (verified 2026-06-03). Drops the single homepage `/` that
-    // post-sitemap1 lists, plus any defensive odd paths a future sitemap
-    // refresh might add to the post-sitemaps.
+    // template (verified 2026-06-03) — OR /us-latinos/<...> Spanish content.
+    // Drops the single homepage `/` that post-sitemap1 lists, plus the bare
+    // `/us-latinos/` landing (the `[^?#]+` requires a sub-path), plus any
+    // defensive odd paths a future sitemap refresh might add.
     articleHints: [
       "^https://www\\.familylife\\.com/articles/[^?#]+",
       "^https://www\\.familylife\\.com/equip/[^?#]+",
+      "^https://www\\.familylife\\.com/us-latinos/[^?#]+",
     ],
     // Defensive: block wp-admin (robots disallow), cart, podcast (deferred
     // to a future scope), and non-HTML assets that might leak from a

@@ -309,6 +309,31 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
     expect(all[0].n).toBe(2);
   });
 
+  it("RawDocumentStore.listStagedCanonicalUrls returns ingested + pending URLs (resume skip-set, deduplicated)", async () => {
+    const uIng = `${URL_PREFIX}staged-ingested`;
+    const uPend = `${URL_PREFIX}staged-pending`;
+    await rawStore.putRawDocument(rawDoc(uIng, "ingested body", "sh1"));
+    await sql`UPDATE raw_documents SET ingested_at = now()
+                WHERE source_key = ${TEST_KEY} AND canonical_url = ${uIng}`;
+    await rawStore.putRawDocument(rawDoc(uPend, "pending body", "sh2"));
+    // Re-acquire uIng: putRawDocument leaves the ingested snapshot row and stages
+    // a fresh pending row beside it, so uIng now has TWO rows with the same
+    // canonical_url — the dedup case this test guards.
+    await rawStore.putRawDocument(rawDoc(uIng, "re-acquired body", "sh1b"));
+
+    const staged = await rawStore.listStagedCanonicalUrls(TEST_KEY);
+    // Resume must skip BOTH already-ingested and pending rows (re-fetch neither).
+    expect(staged).toContain(uIng);
+    expect(staged).toContain(uPend);
+    // Set semantics: no canonical_url repeats even though uIng has an ingested +
+    // a pending row. Exact set-equality can't be used here — the suite shares
+    // TEST_KEY with no per-test cleanup, so earlier rows (e.g. raw-1) are also
+    // staged — hence we assert dedup via size invariant, not membership.
+    expect(new Set(staged).size).toBe(staged.length);
+    // Scoping is covered below: a different source key yields an empty set.
+    expect(await rawStore.listStagedCanonicalUrls("__it__/never-staged")).toEqual([]);
+  });
+
   it("RawDocumentReader: lists pending rows (ISO fetchedAt) and markIngested drains them", async () => {
     const u1 = `${URL_PREFIX}reader-1`;
     const u2 = `${URL_PREFIX}reader-2`;

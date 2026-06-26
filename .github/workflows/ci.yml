@@ -40,6 +40,8 @@ jobs:
         run: pnpm typecheck
       - name: Dependency boundaries (three-context architecture)
         run: pnpm depcruise
+      - name: Migration drift (schema ↔ migrations)
+        run: pnpm db:check
 
   test:
     name: test (postgres + vitest)

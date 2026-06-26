@@ -60,6 +60,18 @@ describe("migration-drift guard", () => {
       ]);
     });
 
+    it("flags a tracked file already deleted before generation runs", () => {
+      // A deletion (` D`) carries the same masking risk as a modification: if
+      // `db:generate` recreates the file, the before/after delta sees no new
+      // entry and the deletion is silently lost. The preflight keys on "tracked"
+      // (not "modified"), so narrowing it to M-only would regress this — hence
+      // pinning ` D` explicitly here.
+      const before = status({ "migrations/0000_garia.sql": " D" });
+      expect(preexistingDirty(before)).toEqual([
+        { path: "migrations/0000_garia.sql", code: " D" },
+      ]);
+    });
+
     it("does not flag untracked files — generate's own output is untracked", () => {
       const before = status({ "migrations/0001_new.sql": "??" });
       expect(preexistingDirty(before)).toEqual([]);
@@ -75,9 +87,10 @@ describe("migration-drift guard", () => {
       expect(restoreAction("??")).toBe("clean");
     });
 
-    it("reverts tracked files (M) via checkout", () => {
+    it("reverts tracked files (M/D) via checkout", () => {
       expect(restoreAction(" M")).toBe("checkout");
       expect(restoreAction("MM")).toBe("checkout");
+      expect(restoreAction(" D")).toBe("checkout");
     });
   });
 });

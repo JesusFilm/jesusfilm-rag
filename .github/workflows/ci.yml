@@ -42,6 +42,8 @@ jobs:
         run: pnpm depcruise
       - name: Migration drift (schema ↔ migrations)
         run: pnpm db:check
+      - name: Source-status contract (docs/source-status.yaml)
+        run: pnpm status:check
 
   test:
     name: test (postgres + vitest)

@@ -9,3 +9,4 @@ export type * from "./retrieval.js";
 export type * from "./sources.js";
 export type * from "./ports.js";
 export * from "./retrieval.schema.js";
+export * from "./source-status.schema.js";

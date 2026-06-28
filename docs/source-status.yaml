@@ -1,6 +1,7 @@
 # Source status — the at-a-glance lookup for the *:production scripts.
 #
-# Open this file, find a row whose `status` is `done`, copy its key, run:
+# Open this file, find a language whose four `stages` are green, copy the row
+# key, run:
 #   pnpm acquire:production  --source <key>
 #   pnpm index:production    --source <key>
 #   pnpm retrieve:production --source <key> "<a representative query>"
@@ -8,119 +9,126 @@
 #
 # See docs/ops/prod-ingest.md for the full runbook.
 #
-# This file is **auto-maintained by /slice** at stage boundaries — it mirrors
-# what /slice already tracks in `docs/slices/<key>.md`. Do not hand-edit during
-# a slice; let the skill keep it consistent with git. The verbose narrative
-# tracker lives at `docs/sources.md` and serves a different purpose (it
-# captures findings, learnings, eval results, blockers in prose).
+# This file is **auto-maintained by /slice** at stage boundaries (it mirrors
+# what /slice tracks in `docs/slices/<key>.md`). Do NOT hand-edit it — mutate it
+# only through the deterministic writer (the sole sanctioned mutator), which
+# validates every write against src/contracts/source-status.schema.ts and
+# derives the top-level `status` so it can't disagree with the per-language
+# state. The verbose narrative tracker lives at `docs/sources.md`.
 #
-# Field reference:
-#   status:      in-progress | blocked | done | deferred
-#   stages:      pending | green | red   (mirrors /slice's 4 stages)
-#   slice_file:  path to the slice file (the durable per-source record)
-#   blocker:     short reason, only when status: blocked
-#   last_updated: YYYY-MM-DD
+# Field reference (the contract: src/contracts/source-status.schema.ts):
+#   status:       in-progress | blocked | done | deferred
+#                 DERIVED from the languages below — never hand-set.
+#                 Rollup precedence: blocked > in-progress > deferred > done;
+#                 a row is `done` only when EVERY language is `done`.
+#   languages:    one entry per language code (en, es, fr, zh, …). Single-
+#                 language sources carry a lone entry. Each entry has:
+#     status:     in-progress | blocked | done | deferred  (this language)
+#     stages:     acquire/ingest/retrieve/evaluate, each pending | green | red
+#     scope:      optional — e.g. "us-latinos (1 page)"
+#     blocker:    required only when this language's status is blocked
+#     note:       optional — e.g. "pending embedder-model swap"
+#   slice_file:   path to the slice file (the durable per-source record)
+#   last_updated: YYYY-MM-DD  (bumped by the tool on every write)
 
 sources:
   starting-with-god:
     name: Starting With God
     status: done
-    stages:
-      acquire: green
-      ingest: green
-      retrieve: green
-      evaluate: green
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/starting-with-god.md
     last_updated: 2026-05-25
 
   cru-10-basic-steps:
     name: Cru — 10 Basic Steps
     status: done
-    stages:
-      acquire: green
-      ingest: green
-      retrieve: green
-      evaluate: green
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/cru-10-basic-steps.md
     last_updated: 2026-05-25
 
   jesusfilm-org:
     name: Jesus Film Project
     status: done
-    stages:
-      acquire: green
-      ingest: green
-      retrieve: green
-      evaluate: green
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/jesusfilm-org.md
     last_updated: 2026-05-26
 
   sightline-ministry:
     name: Sightline Ministry
     status: done
-    stages:
-      acquire: green
-      ingest: green
-      retrieve: green
-      evaluate: green
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/sightline-ministry.md
     last_updated: 2026-05-27
 
   thelife:
     name: thelife (Cru Canada)
     status: done
-    stages:
-      acquire: green
-      ingest: green
-      retrieve: green
-      evaluate: green
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/thelife.md
     last_updated: 2026-06-03
 
   # Language variants of thelife (sibling domains). Multilingual acquisition pass
-  # 2026-06-24 — acquired only; ingest/retrieve/evaluate deferred pending the
-  # embedder-model swap. Record: docs/sources.md "Multilingual acquisition".
+  # 2026-06-24 — acquired only; ingest/retrieve/evaluate pending the embedder-
+  # model swap. Record: docs/sources.md "Multilingual acquisition".
   thelife-fr:
     name: thelife — French (La Vie J'en Parle, laviejenparle.com)
     status: in-progress
-    stages:
-      acquire: green   # 156/156 staged in PROD 2026-06-24 (pending ingest)
-      ingest: pending  # deferred — embedder-model swap
-      retrieve: pending
-      evaluate: pending
+    languages:
+      fr:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        note: pending embedder-model swap
     slice_file: docs/sources.md
     last_updated: 2026-06-24
 
   thelife-zh:
     name: thelife — Chinese (UWOTA, uwota.com)
     status: in-progress
-    stages:
-      acquire: green   # 332/332 staged in PROD 2026-06-24 (pending ingest)
-      ingest: pending  # deferred — embedder-model swap
-      retrieve: pending
-      evaluate: pending
+    languages:
+      zh:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        note: pending embedder-model swap
     slice_file: docs/sources.md
     last_updated: 2026-06-24
 
   familylife:
     name: FamilyLife
-    status: done   # en done; es (us-latinos, 1 page) staged in PROD 2026-06-24, ingest deferred
-    stages:
-      acquire: green
-      ingest: green
-      retrieve: green
-      evaluate: green
+    status: in-progress
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+      es:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        scope: us-latinos (1 page)
+        note: pending embedder-model swap
     slice_file: docs/slices/familylife.md
     last_updated: 2026-06-24
 
   everystudent:
     name: EveryStudent
     status: blocked
-    stages:
-      acquire: red
-      ingest: pending
-      retrieve: pending
-      evaluate: pending
-    blocker: "Cloudflare JS managed challenge on all content pages — needs a JS-capable fetcher (see FOLLOW-UP G / #8)."
+    languages:
+      en:
+        status: blocked
+        stages: { acquire: red, ingest: pending, retrieve: pending, evaluate: pending }
+        blocker: "Cloudflare JS managed challenge on all content pages — needs a JS-capable fetcher (see FOLLOW-UP G / #8)."
     slice_file: docs/slices/everystudent.md
     last_updated: 2026-05-25

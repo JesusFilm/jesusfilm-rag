@@ -16,6 +16,13 @@
 # derives the top-level `status` so it can't disagree with the per-language
 # state. The verbose narrative tracker lives at `docs/sources.md`.
 #
+# NOT a production mirror: the `*:production` scripts neither read nor write this
+# file — they stage into the prod database and print counts to the terminal. It
+# records the *asserted* per-language stage state (a slice/operator claim), not a
+# verified snapshot of prod. Live inventory/counts live in the prod DB (SQL) and
+# the prose record in `docs/sources.md`; `status:check` validates this file's
+# shape + invariants, never that production actually matches it.
+#
 # Field reference (the contract: src/contracts/source-status.schema.ts):
 #   status:       in-progress | blocked | done | deferred
 #                 DERIVED from the languages below — never hand-set.

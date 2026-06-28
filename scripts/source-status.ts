@@ -19,6 +19,12 @@
  *   - every write is validated against src/contracts/source-status.schema.ts —
  *     an invariant violation aborts with a non-zero exit BEFORE the file is touched.
  *
+ * Scope: this file is the ASSERTED per-language stage state, decoupled from
+ * production — nothing here reads or reconciles the prod DB, and the
+ * `*:production` scripts never write back. `status:check` validates shape +
+ * invariants only, not whether prod matches. Inventory/counts belong in SQL +
+ * docs/sources.md (issue #48 "out of scope"), never in this file.
+ *
  * Pure core (loadDoc/applyMutation/validateDoc/parseArgv) is exported and unit-
  * tested from tests/source-status-cli.test.ts; main() holds the fs + argv I/O.
  */

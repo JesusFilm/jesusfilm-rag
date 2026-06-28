@@ -57,8 +57,10 @@ Three durable artifacts, all git-tracked — never chat memory:
   mutate it only through `pnpm status:*` (the deterministic writer, the sole
   sanctioned mutator: it validates against the contract, derives the top-level
   `status`, and bumps `last_updated`). This skill calls the tool at stage
-  boundaries (Step 2 add-source, Step 4 stage-set, Step 5 done). See
-  `docs/ops/prod-ingest.md`.
+  boundaries (Step 2 add-source, Step 4 stage-set, Step 5 done). It is **not a
+  production mirror** — the `*:production` scripts don't read or write it; it
+  records *asserted* stage state, not verified prod inventory (live counts live
+  in SQL + `docs/sources.md`). See `docs/ops/prod-ingest.md`.
 
 A fresh session resumes by: read `STATUS.md` → open the active slice file → read
 its "Resume hint" + the first unchecked `[ ]` → confirm the slice branch is

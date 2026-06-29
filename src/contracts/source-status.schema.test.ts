@@ -90,6 +90,16 @@ describe("languageEntrySchema cross-field invariants", () => {
   it("rejects unknown fields (strict)", () => {
     expect(languageEntrySchema.safeParse({ status: "done", stages: allGreen, audience: "seeker" }).success).toBe(false);
   });
+
+  // CodeRabbit #3: stages move in pipeline order — a later stage can't be non-pending
+  // while an earlier one isn't green (else deriveLifecycleLabel under-reports).
+  it("rejects out-of-order stages (a later stage advanced past an earlier one)", () => {
+    expect(languageEntrySchema.safeParse({ status: "in-progress", stages: { acquire: "pending", ingest: "green", retrieve: "pending", evaluate: "pending" } }).success).toBe(false);
+    expect(languageEntrySchema.safeParse({ status: "in-progress", stages: { acquire: "green", ingest: "pending", retrieve: "green", evaluate: "pending" } }).success).toBe(false);
+  });
+  it("allows a red stage once earlier stages are green (a stage may fail after progress)", () => {
+    expect(languageEntrySchema.safeParse({ status: "in-progress", stages: { acquire: "green", ingest: "green", retrieve: "red", evaluate: "pending" } }).success).toBe(true);
+  });
 });
 
 describe("sourceRowSchema — stored status must equal the derived rollup", () => {

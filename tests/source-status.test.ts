@@ -41,14 +41,22 @@ describe("the other trackers use only contract-defined vocabulary", () => {
     }
   });
 
-  it("every docs/sources.md lifecycle label is a valid LifecycleLabel", () => {
-    const legend = read("docs/sources.md")
-      .split("\n")
-      .map((l) => l.match(/^\|\s*`([A-Za-z ]+)`\s*\|/))
-      .filter((m): m is RegExpMatchArray => m !== null && /started|Acquired|Ingested|Evaluated|Blocked|Deferred/.test(m[1]))
-      .map((m) => m[1]);
-    expect(legend.length).toBeGreaterThan(0);
-    for (const label of legend) {
+  it("every docs/sources.md status-legend label is a valid LifecycleLabel", () => {
+    // CodeRabbit #4: don't pre-filter labels with the vocabulary we're validating
+    // against (that hides a rogue label). Collect EVERY label in the Status-legend
+    // table, then assert each against the schema. Scoped to the legend so other
+    // tables (registry keys, Type values) aren't swept in.
+    const md = read("docs/sources.md");
+    const start = md.indexOf("**Status legend**");
+    expect(start, "no Status legend in docs/sources.md").toBeGreaterThan(-1);
+    const labels: string[] = [];
+    for (const line of md.slice(start).split("\n").slice(1)) {
+      const m = line.match(/^\|\s*`([^`]+)`\s*\|/);
+      if (m) labels.push(m[1]);
+      else if (labels.length > 0 && line.trim() === "") break; // table ended
+    }
+    expect(labels.length).toBeGreaterThan(0);
+    for (const label of labels) {
       expect(lifecycleLabelSchema.options as readonly string[]).toContain(label);
     }
   });

@@ -52,10 +52,13 @@ export const ROW_STATUS_DESCRIPTIONS: Record<RowStatus, string> = {
 
 /**
  * docs/sources.md lifecycle label — the furthest-progress view of a language.
- * `retrieve` has no distinct label: it collapses into `Ingested`.
+ * `retrieve` has no distinct label: it collapses into `Ingested`. `Acquiring` is
+ * a transient mid-crawl state sources.md sets by hand; `deriveLifecycleLabel`
+ * never emits it (there is no "in progress" stage value to derive it from).
  */
 export const lifecycleLabelSchema = z.enum([
   "Not started",
+  "Acquiring",
   "Acquired",
   "Ingested",
   "Evaluated",
@@ -65,6 +68,8 @@ export const lifecycleLabelSchema = z.enum([
 export type LifecycleLabel = z.infer<typeof lifecycleLabelSchema>;
 export const LIFECYCLE_LABEL_DESCRIPTIONS: Record<LifecycleLabel, string> = {
   "Not started": "No acquisition attempted yet (every stage pending).",
+  Acquiring:
+    "Crawl/extraction in progress (writing to raw_documents). A transient sources.md state — not emitted by deriveLifecycleLabel, which reads committed stage states only.",
   Acquired: "Raw documents captured; not yet ingested.",
   Ingested: "Normalized, chunked, embedded into the corpus; not yet evaluated.",
   Evaluated: "Run through the eval harness — fully live.",
@@ -94,6 +99,20 @@ export const languageEntrySchema = z
   })
   .strict()
   .superRefine((val, ctx) => {
+    // Stages advance in pipeline order: a stage may only leave `pending` once the
+    // preceding stage is `green` (CodeRabbit #3 — otherwise an impossible shape like
+    // ingest:pending + retrieve:green slips through and deriveLifecycleLabel under-reports).
+    for (let i = 1; i < STAGES.length; i++) {
+      const prev = STAGES[i - 1];
+      const cur = STAGES[i];
+      if (val.stages[cur] !== "pending" && val.stages[prev] !== "green") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["stages", cur],
+          message: `stage \`${cur}\` cannot be \`${val.stages[cur]}\` until \`${prev}\` is \`green\`.`,
+        });
+      }
+    }
     if (val.status === "done") {
       for (const s of STAGES) {
         if (val.stages[s] !== "green") {

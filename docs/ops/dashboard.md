@@ -36,23 +36,37 @@ prod-status-data.json + docs/source-status.yaml + src/registry
         --(pnpm dashboard:build)--> dashboard/compiled-data.json + dashboard/index.html   (committed)
 ```
 
-- `scripts/dashboard-data.ts` — reads **only** `DATABASE_URL` (directly, not via
-  `@/env`, to keep the credential surface to one variable), runs two read-only
-  `SELECT`s (`scripts/lib/dashboard/query.ts`), writes the raw export. Prints a
-  **redacted** DB URL only.
+- `scripts/dashboard-data.ts` — resolves the DB URL (namespaced
+  `JFRAG_POSTGRESQL_DB_URL` → `DATABASE_URL` → local `.env`, see
+  `scripts/lib/dashboard/credentials.ts`), reads it directly (not via `@/env`, so
+  it never demands `OPENROUTER_API_KEY`), runs two read-only `SELECT`s
+  (`scripts/lib/dashboard/query.ts`), and writes the raw export — stamped with
+  `fetched_at` (the prod-read date). Prints a **redacted** DB URL only.
 - `scripts/dashboard-compile.ts` — pure merge (`scripts/lib/dashboard/compile.ts`)
-  → `compiled-data.json`, then fills `dashboard/template.html` → `index.html`.
+  → `compiled-data.json`, then fills `dashboard/template.html` → `index.html`. The
+  published "Updated" date is `prod-status-data.json`'s `fetched_at`, NOT the build
+  clock, so rebuilding the same export reproduces byte-identical artifacts.
 - `scripts/dashboard-verify.ts` (`pnpm dashboard:verify`) — the **merge gate**:
-  fails unless every row in `compiled-data.json` is present in `index.html`.
+  fails unless every `compiled-data.json` row appears in `index.html`, matched per
+  (`data-key`, `data-language`) within that row's own `<tr>` (so a dropped
+  shared-key row can't slip through).
 
 ## Credentials (doppler, local-only)
 
 Prod access is fetched **locally via doppler and never leaves the machine**. The
-only safe path is `doppler run -- pnpm dashboard:data`, which injects secrets into
-the subprocess environment — they never pass through the model/transcript, a file,
-the issue, the PR, or a log. Never run a command that prints a secret value
-(`doppler secrets get`, `printenv`, `echo $DATABASE_URL`, `cat .env`, …). See the
-secret-safety contract in `.claude/skills/status-dashboard/SKILL.md`.
+only safe path is `doppler run -- pnpm dashboard:data`, which injects the secret
+into the subprocess environment — it never passes through the model/transcript, a
+file, the issue, the PR, or a log. Never run a command that prints a secret value
+(`doppler secrets get`, `printenv`, `echo $JFRAG_POSTGRESQL_DB_URL`, `cat .env`, …).
+
+The dashboard's prod credential is the **namespaced** secret
+`JFRAG_POSTGRESQL_DB_URL`, deliberately distinct from `DATABASE_URL`: the source
+tooling (acquire/index/eval) reads `DATABASE_URL` for the **local dev DB**, so the
+prod URL — living under a different name — cannot bleed into a source run, even one
+accidentally wrapped in `doppler run`. ⚠️ Interim home: the `resources` Doppler
+project, env `prd` (pinned by the repo's `doppler.yaml`) until a `jesusfilm-rag`
+project exists. Rationale + migration: `docs/ops/dashboard-secret-access.md`. See
+also the secret-safety contract in `.claude/skills/status-dashboard/SKILL.md`.
 
 ## Design
 

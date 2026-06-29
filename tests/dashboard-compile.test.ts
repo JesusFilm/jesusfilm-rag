@@ -59,6 +59,7 @@ const yaml: YamlSources = {
 };
 
 const prod: ProdStatusData = {
+  fetched_at: "2026-06-29",
   ingested: [
     { key: "jesusfilm-org", name: "Jesus Film Project", host: "www.jesusfilm.org", language: "en", embedded_doc_count: 349 },
     { key: "thelife", name: "thelife", host: "thelife.com", language: "en", embedded_doc_count: 4485 },
@@ -85,12 +86,27 @@ describe("buildCompiledData — evaluate rule", () => {
   });
 
   it("ingested-but-yaml-not-green stays evaluate:false even with content in prod", () => {
-    // hypothetical: thelife ingested, but suppose yaml evaluate were pending →
-    // here thelife IS green, so flip via familylife/en which is green, and use a
-    // source ingested with yaml-green elsewhere. Direct check: a row acquired+
-    // ingested but NOT yaml-green must be evaluate:false.
-    const fl = rowFor("familylife", "en");
-    expect(fl.evaluate).toBe(true); // green in yaml
+    // familylife/en is prod-acquired AND prod-ingested; flip ONLY its yaml
+    // evaluate flag to not-green and assert evaluate collapses to false. This
+    // genuinely exercises the false branch — a regression that ignored
+    // evaluateGreen would keep it true and fail here.
+    const compiled = buildCompiledData({
+      prod,
+      yaml: {
+        ...yaml,
+        familylife: {
+          ...yaml.familylife,
+          languages: {
+            ...yaml.familylife.languages,
+            en: { ...yaml.familylife.languages.en, evaluateGreen: false },
+          },
+        },
+      },
+      registry,
+      generatedAt: "2026-06-29",
+    });
+    const fl = compiled.sources.find((r) => r.key === "familylife" && r.language === "en");
+    expect([fl?.acquire, fl?.ingest, fl?.evaluate]).toEqual([true, true, false]);
   });
 
   it("acquired-only row (no ingest) is acquire:true, ingest:false, evaluate:false", () => {

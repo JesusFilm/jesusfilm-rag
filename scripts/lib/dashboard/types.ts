@@ -27,14 +27,30 @@ export const prodIngestedRowSchema = z
   .strict();
 export type ProdIngestedRow = z.infer<typeof prodIngestedRowSchema>;
 
-/** The raw prod export written by `pnpm dashboard:data`. */
-export const prodStatusDataSchema = z
+/** The raw DB read result — exactly what `fetchProdStatus`/`shapeProdStatus`
+ *  produce, with no timestamp (those are pure data-shaping). */
+export const prodReadSchema = z
   .object({
     ingested: z.array(prodIngestedRowSchema),
     // Every source key present in raw_documents (the acquisition signal). A key
     // here means "raw documents captured" — acquire is true for every canonical
     // (source × language) row whose key appears in this set.
     acquired_keys: z.array(z.string().min(1)),
+  })
+  .strict();
+export type ProdRead = z.infer<typeof prodReadSchema>;
+
+/**
+ * The raw prod export written by `pnpm dashboard:data`: the DB read plus
+ * `fetched_at`, the date the prod read actually happened. `fetched_at` is the
+ * SINGLE source of the published "Updated" label and of compiled-data.json's
+ * `generated_at`, so `dashboard:build` is a pure function of its committed/local
+ * inputs — rebuilding the same export reproduces byte-identical artifacts (no
+ * hidden build-time clock). See docs/ops/dashboard.md.
+ */
+export const prodStatusDataSchema = prodReadSchema
+  .extend({
+    fetched_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD"),
   })
   .strict();
 export type ProdStatusData = z.infer<typeof prodStatusDataSchema>;

@@ -31,15 +31,23 @@ leak is *structurally* hard. You MUST keep it that way:
   subprocess's environment — it never passes through your (the model's) context.
 - **NEVER run a command that prints a secret value to stdout** — it would land in
   the transcript. Forbidden here: `doppler secrets`, `doppler secrets get`,
-  `doppler secrets download`, `printenv`, `env`, `echo $DATABASE_URL`, `set`,
-  `cat .env`, or piping any of these anywhere. The data script only ever prints a
-  **redacted** DB URL (`postgres://user:***@host:port/db`) — keep it that way.
+  `doppler secrets download`, `printenv`, `env`, `echo $JFRAG_POSTGRESQL_DB_URL`,
+  `echo $DATABASE_URL`, `set`, `cat .env`, or piping any of these anywhere. The
+  data script only ever prints a **redacted** DB URL (`postgres://user:***@host:port/db`)
+  — keep it that way.
 - **NEVER write a credential** to a file, commit, branch, the GitHub issue, the PR
   body, a comment, or a log. `dashboard/prod-status-data.json` is data-only (it is
   also git-ignored) and contains **no** credentials — confirm that before commit.
-- **If doppler is not configured, STOP and ask the operator** to run `doppler
-  setup` for the prod config. Do **not** work around it by accepting a pasted
-  connection string in the chat — that defeats the entire control.
+- **If doppler is not configured, STOP and ask the operator** to set it up. Do
+  **not** work around it by accepting a pasted connection string in the chat —
+  that defeats the entire control.
+
+The dashboard's prod credential is the namespaced secret **`JFRAG_POSTGRESQL_DB_URL`**,
+deliberately distinct from `DATABASE_URL` so the prod URL can never bleed into the
+source tooling (acquire/index/eval read `DATABASE_URL` for the local dev DB). ⚠️
+Interim: it currently lives in the `resources` Doppler project, env `prd` (pinned by
+the repo's `doppler.yaml`) until a `jesusfilm-rag` project exists — see
+`docs/ops/dashboard-secret-access.md`.
 
 If you cannot satisfy the above, do not proceed — surface the blocker instead.
 
@@ -47,10 +55,10 @@ If you cannot satisfy the above, do not proceed — surface the blocker instead.
 
 ## Prerequisites (operator, once)
 
-- **doppler** installed and authenticated, with a config holding the prod
-  `DATABASE_URL`. Select it once per checkout: `doppler setup` (pick the
-  jesusfilm-rag project + the production config). Verify wiring **without
-  revealing a value**: `doppler run -- node -e "process.exit(process.env.DATABASE_URL?0:1)"`
+- **doppler** installed and authenticated. The repo's committed `doppler.yaml`
+  already targets the project + config (interim: `resources` / `prd`), so no
+  per-machine `doppler setup` is needed. Verify wiring **without revealing a
+  value**: `doppler run -- node -e "process.exit(process.env.JFRAG_POSTGRESQL_DB_URL?0:1)"`
   (exit 0 = present). Never print the value to check it.
 - **gh** authenticated as `jaco-brink` (JesusFilm org) for the issue + PR.
 - Production is **read-only** here — the dashboard query runs `SELECT`s only.
@@ -95,9 +103,14 @@ prod eval script is a non-gating sanity check and is deliberately not consulted.
    ```bash
    doppler run -- pnpm dashboard:data
    ```
-   This writes `dashboard/prod-status-data.json`. Confirm the printed DB URL is
-   **redacted**. If doppler errors, STOP (see the contract above) — do not paste a
-   connection string, and do not paste any error text that contains a URL.
+   This writes `dashboard/prod-status-data.json`. **Verify the printed source +
+   host before trusting the data:** it must say `(via JFRAG_POSTGRESQL_DB_URL)`
+   and a **prod** host — NOT `(via DATABASE_URL)` / `(via .env)` or a
+   `localhost`/dev host. If the script prints the `⚠️ DEV/fallback read` warning,
+   `doppler run` didn't inject the namespaced secret (misconfigured project/config
+   or missing key): **STOP and fix doppler — do not publish**, or you'd ship dev
+   data labelled as production. If doppler errors, STOP (see the contract above) —
+   do not paste a connection string, and do not paste any error text containing a URL.
 
 3. **Compile the page (no secrets, no DB).**
    ```bash
@@ -108,14 +121,14 @@ prod eval script is a non-gating sanity check and is deliberately not consulted.
 4. **Browser-verify the rendered page.** Serve it in the **background** (so the
    skill doesn't block), load it in Playwright, assert, then stop the server:
    ```bash
-   python3 -m http.server 8137 --directory dashboard &   # background; note the PID
+   python3 -m http.server 8137 --directory dashboard & SERVER_PID=$!   # capture the PID
    ```
    Navigate to `http://localhost:8137/index.html` with the Playwright browser
    tools and assert via `browser_evaluate`: the `<h1>` reads "JesusFilm RAG";
    `document.querySelectorAll('tbody tr').length` equals `compiled-data.json`'s
    `sources.length`; and a spot-check of a couple of source names + a doc count
    from the JSON appear in `document.body.innerText`. Then `browser_close` and
-   `kill <pid>` the server. Also run the headless gate as belt-and-suspenders:
+   stop the server with `kill "$SERVER_PID"`. Also run the headless gate as belt-and-suspenders:
    ```bash
    pnpm dashboard:verify   # must print "contains all N compiled row(s)"
    ```

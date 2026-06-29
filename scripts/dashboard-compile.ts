@@ -25,11 +25,6 @@ const TEMPLATE = path.join(ROOT, "dashboard", "template.html");
 const COMPILED_JSON = path.join(ROOT, "dashboard", "compiled-data.json");
 const INDEX_HTML = path.join(ROOT, "dashboard", "index.html");
 
-/** UTC calendar date — see scripts/source-status.ts isoDate() for why UTC. */
-function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 /** Project the rich source-status.yaml into the minimal shape compile needs. */
 function projectYaml(raw: string): YamlSources {
   const doc = parse(raw) as {
@@ -77,7 +72,9 @@ async function main(): Promise<void> {
   const registry = projectRegistry();
   const template = await readFile(TEMPLATE, "utf8");
 
-  const compiled = buildCompiledData({ prod, yaml, registry, generatedAt: todayUtc() });
+  // generated_at comes from the prod read (prod.fetched_at), NOT the build clock,
+  // so rebuilding the same export reproduces identical output (CodeRabbit #1).
+  const compiled = buildCompiledData({ prod, yaml, registry, generatedAt: prod.fetched_at });
   const html = renderHtml(template, compiled);
 
   await writeFile(COMPILED_JSON, JSON.stringify(compiled, null, 2) + "\n", "utf8");

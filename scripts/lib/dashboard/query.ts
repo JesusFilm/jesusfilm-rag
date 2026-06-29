@@ -12,7 +12,7 @@
  * tested without a database; `fetchProdStatus` is the thin DB-touching wrapper.
  */
 import type postgres from "postgres";
-import { prodStatusDataSchema, type ProdStatusData } from "./types.js";
+import { prodReadSchema, type ProdRead } from "./types.js";
 
 /** Ingested (source × language) inventory with embedded-document counts. */
 export const INGESTED_SQL = `
@@ -56,7 +56,7 @@ export interface RawAcquiredRow {
 export function shapeProdStatus(
   ingestedRows: RawIngestedRow[],
   acquiredRows: RawAcquiredRow[],
-): ProdStatusData {
+): ProdRead {
   const ingested = ingestedRows
     .filter((r) => r.language != null && r.language !== "")
     .map((r) => ({
@@ -67,11 +67,11 @@ export function shapeProdStatus(
       embedded_doc_count: Number(r.embedded_doc_count),
     }));
   const acquired_keys = [...new Set(acquiredRows.map((r) => r.key))].sort();
-  return prodStatusDataSchema.parse({ ingested, acquired_keys });
+  return prodReadSchema.parse({ ingested, acquired_keys });
 }
 
 /** Run both reads against an open postgres client and shape the result. */
-export async function fetchProdStatus(sql: postgres.Sql): Promise<ProdStatusData> {
+export async function fetchProdStatus(sql: postgres.Sql): Promise<ProdRead> {
   const [ingestedRows, acquiredRows] = await Promise.all([
     sql.unsafe(INGESTED_SQL) as unknown as Promise<RawIngestedRow[]>,
     sql.unsafe(ACQUIRED_SQL) as unknown as Promise<RawAcquiredRow[]>,

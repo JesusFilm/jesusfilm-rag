@@ -1,13 +1,12 @@
 /**
- * Tests for the dashboard prod read.
- *  - shapeProdStatus: pure, no DB — coercion + dedup + validation.
- *  - fetchProdStatus: a guarded integration test against the docker-compose DB
- *    (skips loudly when unreachable, mirroring tests/retrieval.integration.test.ts).
+ * Unit tests for the dashboard prod read — FAKES ONLY (no Postgres, no network,
+ * no DATABASE_URL), per the repo's unit-test guideline. The real-adapter
+ * coverage lives in tests/dashboard-query.integration.test.ts.
  */
-import { describe, it, expect } from "vitest";
-import postgres from "postgres";
+import { describe, it, expect, vi } from "vitest";
+import type postgres from "postgres";
 import { shapeProdStatus, fetchProdStatus } from "../scripts/lib/dashboard/query.js";
-import { prodStatusDataSchema } from "../scripts/lib/dashboard/types.js";
+import { prodReadSchema } from "../scripts/lib/dashboard/types.js";
 
 describe("shapeProdStatus (pure)", () => {
   it("coerces bigint-string counts, drops null-language rows, dedupes acquired keys", () => {
@@ -25,47 +24,28 @@ describe("shapeProdStatus (pure)", () => {
     expect(out.acquired_keys).toEqual(["thelife", "thelife-fr"]);
   });
 
-  it("produces a schema-valid ProdStatusData", () => {
-    const out = shapeProdStatus([], []);
-    expect(() => prodStatusDataSchema.parse(out)).not.toThrow();
+  it("produces a schema-valid ProdRead", () => {
+    expect(() => prodReadSchema.parse(shapeProdStatus([], []))).not.toThrow();
   });
 });
 
-const DATABASE_URL =
-  process.env.DATABASE_URL ??
-  "postgresql://jesusfilm_rag:jesusfilm_rag_dev@localhost:5434/jesusfilm_rag";
+describe("fetchProdStatus (fake postgres client — no DB, no network)", () => {
+  it("runs both reads and shapes them, with no real adapter", async () => {
+    // Two `sql.unsafe(...)` calls: ingested rows, then acquired keys.
+    const unsafe = vi
+      .fn()
+      .mockResolvedValueOnce([
+        { key: "thelife", name: "thelife", host: "thelife.com", language: "en", embedded_doc_count: "2" },
+      ])
+      .mockResolvedValueOnce([{ key: "thelife" }, { key: "thelife-fr" }]);
+    const sql = { unsafe } as unknown as postgres.Sql;
 
-async function reachable(): Promise<boolean> {
-  const probe = postgres(DATABASE_URL, { max: 1, connect_timeout: 2, onnotice: () => {} });
-  try {
-    await probe`select 1`;
-    return true;
-  } catch {
-    return false;
-  } finally {
-    await probe.end({ timeout: 1 });
-  }
-}
-
-const dbUp = await reachable();
-if (!dbUp) {
-  console.warn(`[dashboard-query] DB unreachable at ${DATABASE_URL} — skipping integration. Run \`docker compose up -d\`.`);
-}
-
-describe.skipIf(!dbUp)("fetchProdStatus (integration, real Postgres)", () => {
-  it("returns schema-valid data; acquired ⊇ ingested keys", async () => {
-    const sql = postgres(DATABASE_URL, { max: 2, onnotice: () => {} });
-    try {
-      const data = await fetchProdStatus(sql);
-      expect(() => prodStatusDataSchema.parse(data)).not.toThrow();
-      // Every ingested key must also be an acquired key (you can't embed what you
-      // never staged) — a structural invariant of the pipeline.
-      const acquired = new Set(data.acquired_keys);
-      for (const row of data.ingested) expect(acquired.has(row.key)).toBe(true);
-      // Counts are non-negative integers.
-      for (const row of data.ingested) expect(Number.isInteger(row.embedded_doc_count)).toBe(true);
-    } finally {
-      await sql.end({ timeout: 2 });
-    }
+    await expect(fetchProdStatus(sql)).resolves.toEqual({
+      ingested: [
+        { key: "thelife", name: "thelife", host: "thelife.com", language: "en", embedded_doc_count: 2 },
+      ],
+      acquired_keys: ["thelife", "thelife-fr"],
+    });
+    expect(unsafe).toHaveBeenCalledTimes(2);
   });
 });

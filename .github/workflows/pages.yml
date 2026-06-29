@@ -1,0 +1,50 @@
+name: pages
+
+# Deploy the compiled public status dashboard (dashboard/index.html) to GitHub
+# Pages. Runs on push to main — i.e. when a dashboard-refresh PR is merged. The
+# HTML is already compiled + committed (and the `ci` merge gate proves it is in
+# sync with dashboard/compiled-data.json), so this job only publishes; it does
+# not rebuild from the database.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "dashboard/**"
+      - ".github/workflows/pages.yml"
+  # Allow a manual redeploy from the Actions tab.
+  workflow_dispatch:
+
+# Least privilege: only what Pages deployment needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One in-flight deployment at a time; don't cancel a running publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy dashboard to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload dashboard as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Publishes dashboard/index.html at the site root. compiled-data.json
+          # ships alongside it (transparent, machine-readable source of truth).
+          path: ./dashboard
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

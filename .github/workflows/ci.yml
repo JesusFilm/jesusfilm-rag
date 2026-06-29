@@ -44,6 +44,10 @@ jobs:
         run: pnpm db:check
       - name: Source-status contract (docs/source-status.yaml)
         run: pnpm status:check
+      - name: Dashboard data ↔ HTML in sync (merge gate)
+        # Fails if dashboard/index.html does not contain every row in
+        # dashboard/compiled-data.json — a stale/hand-edited page can't merge.
+        run: pnpm dashboard:verify
 
   test:
     name: test (postgres + vitest)

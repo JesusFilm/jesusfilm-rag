@@ -11,3 +11,7 @@ coverage/
 .vitest-cache/
 eval/results-*.md
 !eval/results-*-keep.md
+
+# Dashboard: the raw prod read is a regenerable intermediate (run dashboard:data).
+# The curated dashboard/compiled-data.json + dashboard/index.html ARE committed.
+dashboard/prod-status-data.json

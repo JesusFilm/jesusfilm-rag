@@ -41,12 +41,19 @@ The production scripts install prompted values into `process.env` and then
 
 ## Finding the next source
 
-Open **`docs/source-status.yaml`**. Find a row whose `status` is `done` and
-all four `stages` are `green`. Copy its key.
+Open **`docs/source-status.yaml`**. Each row nests its stages under
+`languages:`. A source is runnable **for a given language** when that
+language's four `stages` are all `green` — so find a `languages.<code>` whose
+stages are green and copy the row key (the language is the row key's variant,
+e.g. `thelife-fr`). The row's top-level `status` is a derived rollup: `done`
+only when *every* language is done, so a multi-language row can read
+`in-progress` while one language is already fully green and runnable — look at
+the per-language stages, not just the rollup.
 
-That YAML is auto-maintained by `/slice` at stage boundaries — it's the
-intentional lookup surface for these scripts. Don't dig through
-`docs/sources.md` (verbose prose tracker, different purpose).
+That YAML is auto-maintained by `/slice` through `pnpm status:*` (never
+hand-edited) — it's the intentional lookup surface for these scripts. Validate
+it any time with `pnpm status:check`. Don't dig through `docs/sources.md`
+(verbose prose tracker, different purpose).
 
 ## Getting the credentials
 
@@ -154,8 +161,9 @@ Kept:
 - **Four interactive scripts** whose names contain `production`
   (acquire / index / retrieve / eval), with a Y/N before any credential is
   entered and a second Y/N after the (redacted) target is shown.
-- **A flat YAML lookup** (`docs/source-status.yaml`) maintained by `/slice` —
-  the engineer doesn't grep through prose to find a key.
+- **A per-language YAML lookup** (`docs/source-status.yaml`) maintained by
+  `/slice` through `pnpm status:*` — the engineer doesn't grep through prose to
+  find a key.
 - **Audit trail = the engineer's terminal.** They saw what they ran.
 
 ## Related

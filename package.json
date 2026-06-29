@@ -22,6 +22,10 @@
     "gen:contract": "tsx scripts/gen-contract.ts",
     "eval": "tsx scripts/eval.ts",
     "eval:production": "tsx scripts/eval-production.ts",
+    "status:set": "tsx scripts/source-status.ts set",
+    "status:add-source": "tsx scripts/source-status.ts add-source",
+    "status:add-lang": "tsx scripts/source-status.ts add-lang",
+    "status:check": "tsx scripts/source-status.ts check",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "prepare": "husky"
   },

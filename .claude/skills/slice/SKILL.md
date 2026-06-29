@@ -48,13 +48,19 @@ Three durable artifacts, all git-tracked — never chat memory:
   at the bottom of this file.
 - **Slice branch** — `slice/<source-key>`, branched off `main`. Each verified
   sub-step is a commit on it; the git log is the checkpoint trail.
-- **Source status YAML** — `docs/source-status.yaml`. The flat, scannable
-  lookup the `*:production` scripts depend on: one row per source with
-  `status` (in-progress | blocked | done | deferred) and the four `stages`
-  (acquire/ingest/retrieve/evaluate, each `pending | green | red`). This skill
-  maintains it at stage boundaries (Step 2 row-create, Step 4 stage-flip,
-  Step 5 status: done) — keep it consistent with git. See
-  `docs/ops/prod-ingest.md`.
+- **Source status YAML** — `docs/source-status.yaml`. The scannable lookup the
+  `*:production` scripts depend on: one row per source, each nesting its stages
+  under `languages:` (per-language `status` + the four `stages`
+  acquire/ingest/retrieve/evaluate). The status vocabulary, the cross-field
+  invariants, and the rollup rule are defined once in the contract
+  `src/contracts/source-status.schema.ts`. **Never hand-edit this file** —
+  mutate it only through `pnpm status:*` (the deterministic writer, the sole
+  sanctioned mutator: it validates against the contract, derives the top-level
+  `status`, and bumps `last_updated`). This skill calls the tool at stage
+  boundaries (Step 2 add-source, Step 4 stage-set, Step 5 done). It is **not a
+  production mirror** — the `*:production` scripts don't read or write it; it
+  records *asserted* stage state, not verified prod inventory (live counts live
+  in SQL + `docs/sources.md`). See `docs/ops/prod-ingest.md`.
 
 A fresh session resumes by: read `STATUS.md` → open the active slice file → read
 its "Resume hint" + the first unchecked `[ ]` → confirm the slice branch is
@@ -92,10 +98,12 @@ broken foundation.
    remote is configured; skip if not) `&& git checkout -b slice/<source-key>`.
 4. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
    "Next action" at it and set the source's row in `sources.md` to `Acquiring`.
-   Add/update the source's row in `docs/source-status.yaml` —
-   `status: in-progress`, all four `stages: pending`, today's date in
-   `last_updated`. The YAML is what the `*:production` scripts read; if it
-   drifts from git, engineers pick wrong keys (see `docs/ops/prod-ingest.md`).
+   Register the source in `docs/source-status.yaml` via the tool:
+   `pnpm status:add-source --key <source-key> --name "<name>" --lang <code> --slice-file docs/slices/<source-key>.md`
+   (creates the row with one language at all four `stages: pending`; the tool
+   derives `status` and stamps `last_updated`). Never hand-edit the YAML — the
+   `*:production` scripts read it, and a stray edit makes engineers pick wrong
+   keys (see `docs/ops/prod-ingest.md`).
 5. **Present the plan in plain language and get a go-ahead** (this is the first
    stage-boundary pause). Show the stages + sub-steps as a short narrative, not a
    wall of detail. Then proceed to Step 3.
@@ -123,20 +131,22 @@ Pause and hand back to the operator, in plain language, when:
 - **A stage's sub-steps are all green.** Summarize: what this stage now does, the
   verify evidence (e.g. "37 rows in `raw_documents`, text looks clean — sample
   below"), and what the next stage will do. Update `STATUS.md` (you-are-here +
-  next action), `sources.md` (e.g. → `Acquired`), and flip this stage from
-  `pending` to `green` (or `red` if blocked) in `docs/source-status.yaml`,
-  bumping `last_updated`. Include the YAML write in the same checkpoint commit
-  as the stage close so git history and the YAML never diverge. Ask to proceed
-  to the next stage.
+  next action), `sources.md` (e.g. → `Acquired`), and flip this stage to `green`
+  (or `red` if blocked) with the tool:
+  `pnpm status:set --source <key> --lang <code> --stage <stage>=<green|red>`
+  (it re-derives `status` and bumps `last_updated` — never hand-edit the YAML).
+  Include the YAML write in the same checkpoint commit as the stage close so git
+  history and the YAML never diverge. Ask to proceed to the next stage.
 - **A genuine fork appears** (a design choice the architecture doesn't settle, or
   the "generic crawler vs. per-source" kind of call). Frame it at architecture
   altitude with 2–3 options and a recommendation. Record the chosen answer under
   "Decisions made" in the slice file.
 - **A blocker appears** (site anti-bot, JS-rendered content, missing API key,
   flaky verify). Set the slice status to `blocked`, write the blocker plainly in
-  the slice file + `sources.md` Notes, set the source's `status: blocked` and
-  fill the `blocker:` field in `docs/source-status.yaml`, and surface it. Don't
-  paper over it.
+  the slice file + `sources.md` Notes, and record it in the YAML via the tool:
+  `pnpm status:set --source <key> --lang <code> --stage <stage>=red --status blocked --blocker "<reason>"`
+  (the tool requires both a `red` stage and a blocker for `blocked`). Surface it;
+  don't paper over it.
 - **Before a live _discovery_ crawl, confirm the budget.** Unlike a hand-listed
   seed set, a discovery crawl's scale is unknown until you parse the sitemap, and
   it drives both fetch politeness and embedding cost. Do a dry discovery (count
@@ -171,11 +181,14 @@ When all four stages are green and the spot-check looks good:
    results, anything learned.
 2. Update `sources.md` → `Evaluated` with concrete `Results`; update `STATUS.md`
    (move source to Done; set the next slice as "Next action").
-3. Set the slice file status to `done`. In `docs/source-status.yaml`, set the
-   source's `status: done`, confirm all four `stages` are `green`, and bump
-   `last_updated`. This is the signal the `*:production` scripts watch for —
-   without it, the engineer can't tell from a glance that the source is ready
-   to promote to prod.
+3. Set the slice file status to `done`. In `docs/source-status.yaml`, mark the
+   language done via the tool:
+   `pnpm status:set --source <key> --lang <code> --stage evaluate=green --status done`
+   (the tool refuses `done` unless all four `stages` are `green`, then derives
+   the row `status` — which reads `done` only once every language is done).
+   Confirm with `pnpm status:check`. This rollup is the signal the `*:production`
+   scripts watch for — without it, the engineer can't tell at a glance that the
+   source is ready to promote to prod.
 4. **Check unblocked follow-ups.** If this completion means **≥2 sources are now
    done end-to-end**, surface that **FOLLOW-UP E** (consumer source-exclude filter,
    `excludedSourceKeys`) is unblocked — it was deferred precisely until a second
@@ -274,7 +287,7 @@ stop and raise it (Step 4) rather than weakening `.dependency-cruiser.cjs`.
 # Slice: <Source name> (<source-key>)
 
 _Branch: `slice/<source-key>` · Started: <YYYY-MM-DD> · Status: in-progress_
-<!-- Status: in-progress | blocked | done -->
+<!-- Status: in-progress | blocked | done | deferred (mirrors the RowStatus contract) -->
 
 ## Goal (architecture altitude)
 Get <Source name> queryable end-to-end: acquire → ingest → retrieve → spot-check.

@@ -136,4 +136,22 @@ describe("parseArgv", () => {
     expect(() => parseArgv(["set", "--source", "foo", "--lang", "en", "--stage", "acquire=blue"])).toThrow();
     expect(() => parseArgv(["set", "--source", "foo", "--lang", "en", "--status", "almost"])).toThrow();
   });
+
+  // CodeRabbit #1 + #2: the "invalid input exits non-zero" contract must hold for
+  // malformed add-source/add-lang flags and a no-op set, not just bad enums.
+  it("rejects a flag with no value (add-lang --scope with nothing)", () => {
+    expect(() => parseArgv(["add-lang", "--source", "foo", "--lang", "es", "--scope"])).toThrow();
+  });
+
+  it("rejects an unknown / misspelled flag (add-lang --scpoe)", () => {
+    expect(() => parseArgv(["add-lang", "--source", "foo", "--lang", "es", "--scpoe", "pilot"])).toThrow();
+  });
+
+  it("rejects a stray positional token (add-source)", () => {
+    expect(() => parseArgv(["add-source", "--key", "k", "--name", "n", "--lang", "en", "--slice-file", "f", "oops"])).toThrow();
+  });
+
+  it("rejects an empty set — no mutation flags would be a timestamp-only write", () => {
+    expect(() => parseArgv(["set", "--source", "foo", "--lang", "en"])).toThrow();
+  });
 });

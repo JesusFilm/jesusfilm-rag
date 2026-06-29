@@ -194,7 +194,7 @@ export function parseArgv(argv: string[]): Command {
     case "set":
       return parseSet(rest);
     case "add-source": {
-      const f = collectFlags(rest);
+      const f = collectFlags(rest, ["key", "name", "lang", "slice-file"]);
       return {
         kind: "add-source",
         key: req(f, "key"),
@@ -204,7 +204,7 @@ export function parseArgv(argv: string[]): Command {
       };
     }
     case "add-lang": {
-      const f = collectFlags(rest);
+      const f = collectFlags(rest, ["source", "lang", "scope"]);
       const cmd: Extract<Mutation, { kind: "add-lang" }> = {
         kind: "add-lang",
         source: req(f, "source"),
@@ -249,6 +249,11 @@ function parseSet(rest: string[]): Command {
   }
   if (!source) throw new Error("set requires --source");
   if (!lang) throw new Error("set requires --lang");
+  if (ops.length === 0) {
+    throw new Error(
+      "set requires at least one mutation flag (--stage/--status/--blocker/--note/--scope or a --clear-*); a bare set would only bump last_updated",
+    );
+  }
   return { kind: "set", source, lang, ops };
 }
 
@@ -257,25 +262,30 @@ function asStage(stage: string | undefined): Stage {
   throw new Error(`invalid stage '${stage ?? ""}' — expected one of ${STAGES.join(", ")}`);
 }
 
-function collectFlags(rest: string[]): Record<string, string | true> {
-  const out: Record<string, string | true> = {};
+// Strict flag parse for the value-only commands (add-source / add-lang): every
+// token must be a known `--flag value` pair. Stray positionals, unknown/misspelled
+// flags, and valueless flags all fail fast — the "invalid input exits non-zero"
+// contract (CodeRabbit #1).
+function collectFlags(rest: string[], allowed: readonly string[]): Record<string, string> {
+  const out: Record<string, string> = {};
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
-    if (!a.startsWith("--")) continue;
-    const next = rest[i + 1];
-    if (next === undefined || next.startsWith("--")) {
-      out[a.slice(2)] = true;
-    } else {
-      out[a.slice(2)] = next;
-      i++;
+    if (!a.startsWith("--")) throw new Error(`unexpected argument '${a}'`);
+    const key = a.slice(2);
+    if (!allowed.includes(key)) {
+      throw new Error(`unknown flag '${a}' — expected one of ${allowed.map((f) => `--${f}`).join(", ")}`);
     }
+    const next = rest[i + 1];
+    if (next === undefined || next.startsWith("--")) throw new Error(`missing value for ${a}`);
+    out[key] = next;
+    i++;
   }
   return out;
 }
 
-function req(flags: Record<string, string | true>, key: string): string {
+function req(flags: Record<string, string>, key: string): string {
   const v = flags[key];
-  if (typeof v !== "string") throw new Error(`missing --${key}`);
+  if (v === undefined) throw new Error(`missing --${key}`);
   return v;
 }
 

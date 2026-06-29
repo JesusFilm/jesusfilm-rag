@@ -1,7 +1,7 @@
 ---
 name: status-dashboard
 description: "Refresh the public JesusFilm RAG status dashboard (sources × languages, acquire/ingest/evaluate, embedded doc counts) from the production database and open a PR. Reads prod via doppler-injected credentials that never leave the machine, regenerates dashboard/compiled-data.json + dashboard/index.html, asserts the page shows the data in a real browser, opens a PR, and stops without merging. Invoke /status-dashboard."
-allowed-tools: "Bash(doppler run*) Bash(doppler setup*) Bash(pnpm *) Bash(git *) Bash(gh *) Bash(python3 -m http.server*) Bash(kill *) Bash(curl *) Bash(date *) Bash(mkdir *) Read(*) Write(*) Edit(*) Grep(*) Glob(*) mcp__playwright__browser_navigate mcp__playwright__browser_snapshot mcp__playwright__browser_evaluate mcp__playwright__browser_take_screenshot mcp__playwright__browser_close"
+allowed-tools: "Bash(doppler run*) Bash(doppler setup*) Bash(doppler configure get*) Bash(pnpm *) Bash(git *) Bash(gh *) Bash(python3 -m http.server*) Bash(kill *) Bash(curl *) Bash(date *) Bash(mkdir *) Read(*) Write(*) Edit(*) Grep(*) Glob(*) mcp__playwright__browser_navigate mcp__playwright__browser_snapshot mcp__playwright__browser_evaluate mcp__playwright__browser_take_screenshot mcp__playwright__browser_close"
 disable-model-invocation: true
 ---
 
@@ -55,10 +55,20 @@ If you cannot satisfy the above, do not proceed — surface the blocker instead.
 
 ## Prerequisites (operator, once)
 
-- **doppler** installed and authenticated. The repo's committed `doppler.yaml`
-  already targets the project + config (interim: `resources` / `prd`), so no
-  per-machine `doppler setup` is needed. Verify wiring **without revealing a
-  value**: `doppler run -- node -e "process.exit(process.env.JFRAG_POSTGRESQL_DB_URL?0:1)"`
+- **doppler** installed and authenticated (`doppler login`), with access to the
+  project holding the prod secret.
+- **Activate the doppler scope — required, one-time per checkout.** The repo ships
+  a `doppler.yaml` pinning the interim target (`resources` / `prd`), but doppler
+  does **NOT** auto-apply `doppler.yaml` to `doppler run` — you must run it once
+  **from this directory** (the worktree where `doppler.yaml` lives):
+  ```bash
+  doppler setup --no-interactive   # reads doppler.yaml → pins resources/prd for this dir
+  ```
+  (Alternative, no setup: pass `--project resources --config prd` on every
+  `doppler run`.) Confirm the scope took: `doppler configure get project config`
+  should show `resources` / `prd` — **names only, never a secret value**.
+- **Verify the secret is injected — without revealing it:**
+  `doppler run -- node -e "process.exit(process.env.JFRAG_POSTGRESQL_DB_URL?0:1)"`
   (exit 0 = present). Never print the value to check it.
 - **gh** authenticated as `jaco-brink` (JesusFilm org) for the issue + PR.
 - Production is **read-only** here — the dashboard query runs `SELECT`s only.
@@ -99,7 +109,10 @@ prod eval script is a non-gating sanity check and is deliberately not consulted.
    ```
    Keep the issue body free of any credential or connection detail.
 
-2. **Refresh prod data — the one credentialed step.** Run exactly:
+2. **Refresh prod data — the one credentialed step.** Assumes the one-time
+   `doppler setup` from Prerequisites has pinned the scope (else `doppler run`
+   errors with no project/config, or use the explicit `--project/--config` form).
+   Run exactly:
    ```bash
    doppler run -- pnpm dashboard:data
    ```

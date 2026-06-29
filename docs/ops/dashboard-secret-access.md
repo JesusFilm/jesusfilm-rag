@@ -18,8 +18,11 @@ dedicated `jesusfilm-rag` project can't be created yet:
   only (see #53). Precedence is unit-tested in `tests/dashboard-hardening.test.ts`
   (`resolveDatabaseUrl`), which also reports the resolved *source* so a dev/fallback
   read is flagged loudly rather than silently published as prod.
-- `doppler.yaml` (committed; **names only, no secret**) pins `project: resources` /
-  `config: prd`, so `doppler run -- pnpm dashboard:data` just works.
+- `doppler.yaml` (committed; **names only, no secret**) declares `project: resources` /
+  `config: prd`. Doppler does NOT auto-apply it to `doppler run`, so activate it
+  once per checkout with `doppler setup --no-interactive` (or pass
+  `--project resources --config prd` on each run); then `doppler run -- pnpm
+  dashboard:data` uses it. See the skill Prerequisites.
 - **Tech debt:** migrate the secret to a real `jesusfilm-rag` Doppler project and
   drop the namespacing workaround once project-creation access exists (tracked: #53).
 

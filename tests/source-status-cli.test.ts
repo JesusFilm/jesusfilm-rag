@@ -11,6 +11,7 @@ import {
   applyMutation,
   validateDoc,
   parseArgv,
+  isoDate,
 } from "../scripts/source-status.js";
 import type { Mutation } from "../scripts/source-status.js";
 
@@ -153,5 +154,13 @@ describe("parseArgv", () => {
 
   it("rejects an empty set — no mutation flags would be a timestamp-only write", () => {
     expect(() => parseArgv(["set", "--source", "foo", "--lang", "en"])).toThrow();
+  });
+});
+
+describe("isoDate — UTC, not local (PR #49 review: cross-timezone operators)", () => {
+  it("formats the UTC calendar date regardless of the input's offset", () => {
+    // 2026-06-29 09:00 +13:00 (NZ) is 2026-06-28 20:00 UTC — the date must be the UTC one
+    expect(isoDate(new Date("2026-06-29T09:00:00+13:00"))).toBe("2026-06-28");
+    expect(isoDate(new Date("2026-01-15T12:00:00Z"))).toBe("2026-01-15");
   });
 });

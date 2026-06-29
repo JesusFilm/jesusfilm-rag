@@ -298,12 +298,18 @@ function fail(e: unknown): never {
   process.exit(1);
 }
 
+/**
+ * UTC calendar date (YYYY-MM-DD) for `last_updated`. UTC, not local: the tool
+ * may be run by operators in any timezone (e.g. US product owners), and a
+ * local-time stamp would make the same write land on different dates depending
+ * on who ran it. UTC is one canonical value (PR #49 review).
+ */
+export function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
 function todayISO(): string {
-  // Local date (not UTC) so last_updated matches the operator's calendar day —
-  // a UTC toISOString reads off-by-one for a NZ/early-day write.
-  const d = new Date();
-  const pad = (n: number): string => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return isoDate(new Date());
 }
 
 async function main(argv: string[]): Promise<void> {

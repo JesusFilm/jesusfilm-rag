@@ -147,8 +147,9 @@ prod eval script is a non-gating sanity check and is deliberately not consulted.
    pnpm dashboard:verify   # must print "contains all N compiled row(s)"
    ```
 
-5. **Confirm no secret leaked before committing.** `git diff --staged` (and the
-   issue/PR text) must contain **no** connection string or password. The only data
+5. **Confirm no secret leaked before committing.** `git diff` (the build just wrote
+   the files **unstaged**, so use unstaged `git diff`, not `--staged`) and the
+   issue/PR text must contain **no** connection string or password. The only data
    files changed are `dashboard/compiled-data.json` and `dashboard/index.html`
    (`prod-status-data.json` is git-ignored).
 

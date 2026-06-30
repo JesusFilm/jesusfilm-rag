@@ -46,6 +46,16 @@ A second, **independent** finding from the review: the committed sample page's f
 
 ---
 
+> # ⚠️ EVERYTHING BELOW IS HISTORICAL — SUPERSEDED, DO NOT FOLLOW
+> The options and recommendation below were the decision-time analysis. They are
+> **NOT the shipped approach** and several **contradict the current runtime
+> contract**: `dashboard:data` now **fails closed** and reads **only**
+> `JFRAG_POSTGRESQL_DB_URL` via `doppler run` (see `scripts/lib/dashboard/credentials.ts`,
+> `scripts/dashboard-data.ts`, `.claude/skills/status-dashboard/SKILL.md`). In
+> particular, the local-`.env` (Option 1) and out-of-band / `op run` / pasted-string
+> (Option 3) paths are **retired and forbidden**. For what to actually do, follow
+> **"Decision taken (interim)"** at the top of this doc and the SKILL — not the text below.
+
 ## Option 1 — Put prod creds in a local `.env`, let the script read it
 
 Paste the prod `DATABASE_URL` into a git-ignored env file; the agent runs `pnpm dashboard:data` (no doppler); the script reads the file itself.

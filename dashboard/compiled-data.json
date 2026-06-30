@@ -1,0 +1,125 @@
+{
+  "generated_at": "2026-06-29",
+  "sources": [
+    {
+      "source": "Cru — 10 Basic Steps Toward Christian Maturity",
+      "key": "cru-10-basic-steps",
+      "host": "www.cru.org",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 11,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "EveryStudent",
+      "key": "everystudent",
+      "host": null,
+      "language": "en",
+      "acquire": false,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "blocked",
+      "note": "Cloudflare JS managed challenge on all content pages — needs a JS-capable fetcher (see FOLLOW-UP G / #8)."
+    },
+    {
+      "source": "FamilyLife",
+      "key": "familylife",
+      "host": "www.familylife.com",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 2239,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "FamilyLife",
+      "key": "familylife",
+      "host": "www.familylife.com",
+      "language": "es",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "in-progress",
+      "note": "pending embedder-model swap"
+    },
+    {
+      "source": "Jesus Film Project",
+      "key": "jesusfilm-org",
+      "host": "www.jesusfilm.org",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 350,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "Sightline Ministry",
+      "key": "sightline-ministry",
+      "host": "sightlineministry.org",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 1399,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "Starting With God",
+      "key": "starting-with-god",
+      "host": "www.startingwithgod.com",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 40,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "thelife",
+      "key": "thelife",
+      "host": "thelife.com",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 4515,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "thelife — Chinese (UWOTA)",
+      "key": "thelife-zh",
+      "host": "uwota.com",
+      "language": "zh",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "in-progress",
+      "note": "pending embedder-model swap"
+    },
+    {
+      "source": "thelife — French (La Vie J'en Parle)",
+      "key": "thelife-fr",
+      "host": "laviejenparle.com",
+      "language": "fr",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "in-progress",
+      "note": "pending embedder-model swap"
+    }
+  ]
+}

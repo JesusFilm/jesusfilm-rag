@@ -1,0 +1,15 @@
+# Doppler project/config targeting for `doppler run` in this repo. Contains
+# NO secrets — only the project + config NAMES. The dashboard refresh
+# (`doppler run -- pnpm dashboard:data`) reads JFRAG_POSTGRESQL_DB_URL from the
+# injected env.
+#
+# ⚠️ TEMPORARY: the dashboard's prod DB URL is parked in the low-usage
+# `resources` project (env `prd`) under the namespaced key
+# JFRAG_POSTGRESQL_DB_URL, because a dedicated `jesusfilm-rag` Doppler project
+# cannot be created yet. Migrate to a `jesusfilm-rag` project + revert the skill
+# to the structurally-enforced default once access exists.
+# Tech debt: migrate to a jesusfilm-rag project — see #53 and
+# docs/ops/dashboard-secret-access.md.
+setup:
+  project: resources
+  config: prd

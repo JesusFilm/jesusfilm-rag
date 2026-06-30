@@ -13,13 +13,17 @@
  * OPENROUTER_API_KEY). The injected value reaches this process's env and nothing
  * else: it is never written to a file, echoed, or put in the JSON output — only a
  * REDACTED host is ever logged. Read-only against the DB.
+ *
+ * FAILS CLOSED: unless the resolved source is the namespaced prod var (or
+ * `--allow-dev` is passed for a deliberate local preview), it throws and writes
+ * nothing — a missing `doppler run` cannot silently publish dev data as prod.
  */
 import { writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import postgres from "postgres";
 import { fetchProdStatus } from "./lib/dashboard/query.js";
-import { resolveDatabaseUrl } from "./lib/dashboard/credentials.js";
+import { resolveDatabaseUrl, requireProdSource } from "./lib/dashboard/credentials.js";
 import { prodStatusDataSchema } from "./lib/dashboard/types.js";
 import { redactDbUrl } from "./lib/prompt-prod-creds.js";
 
@@ -41,19 +45,22 @@ function readEnvFile(): string | undefined {
 }
 
 async function main(): Promise<void> {
-  const { url: databaseUrl, source } = resolveDatabaseUrl(process.env, readEnvFile());
+  const allowDev = process.argv.slice(2).includes("--allow-dev");
+  const resolved = resolveDatabaseUrl(process.env, readEnvFile());
+  const { url: databaseUrl, source } = resolved;
   if (!/^postgres(ql)?:\/\//.test(databaseUrl)) {
     throw new Error("database URL must start with postgres:// or postgresql://");
   }
-  // Redacted only — the raw URL (with password) is never printed. Naming the
-  // SOURCE makes a dev/fallback read impossible to miss: a PROD refresh must read
-  // the namespaced var, so anything else is loudly flagged (a misconfigured
-  // `doppler run` that injects nothing would otherwise publish dev data as prod).
+  // Redacted only — the raw URL (with password) is never printed.
   console.log(`▶ reading dashboard status from ${redactDbUrl(databaseUrl)} (via ${source})`);
+  // FAIL CLOSED: refuse to overwrite the public prod snapshot from a dev/fallback
+  // read unless --allow-dev is explicitly passed. A warning alone could be missed
+  // by a scripted/inattentive run and silently publish dev data as prod.
+  requireProdSource(resolved, { allowDev });
   if (source !== "JFRAG_POSTGRESQL_DB_URL") {
     console.warn(
-      `⚠️  NOT the namespaced prod credential — this is a DEV/fallback read (${source}). ` +
-        "For a PRODUCTION refresh, run `doppler run -- pnpm dashboard:data` so JFRAG_POSTGRESQL_DB_URL is injected.",
+      `⚠️  --allow-dev: writing a NON-production snapshot from a DEV/fallback read (${source}). ` +
+        "Do NOT publish this as production.",
     );
   }
 

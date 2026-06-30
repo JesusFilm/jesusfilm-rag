@@ -116,14 +116,15 @@ prod eval script is a non-gating sanity check and is deliberately not consulted.
    ```bash
    doppler run -- pnpm dashboard:data
    ```
-   This writes `dashboard/prod-status-data.json`. **Verify the printed source +
-   host before trusting the data:** it must say `(via JFRAG_POSTGRESQL_DB_URL)`
-   and a **prod** host — NOT `(via DATABASE_URL)` / `(via .env)` or a
-   `localhost`/dev host. If the script prints the `⚠️ DEV/fallback read` warning,
-   `doppler run` didn't inject the namespaced secret (misconfigured project/config
-   or missing key): **STOP and fix doppler — do not publish**, or you'd ship dev
-   data labelled as production. If doppler errors, STOP (see the contract above) —
-   do not paste a connection string, and do not paste any error text containing a URL.
+   This writes `dashboard/prod-status-data.json`. It must print
+   `(via JFRAG_POSTGRESQL_DB_URL)` and a **prod** host. The script **fails closed**:
+   if `doppler run` didn't inject the namespaced secret, it **errors and writes
+   nothing** (rather than producing a dev snapshot) — so publishing dev-as-prod is
+   structurally impossible, not just discouraged. If it errors with "Refusing to
+   write a production snapshot…", fix doppler (wrong scope or missing key) and
+   re-run; do **not** reach for `--allow-dev` (that flag is for a deliberate local
+   dev preview only, never a publish). If doppler itself errors, STOP (see the
+   contract) — don't paste a connection string or any error text containing a URL.
 
 3. **Compile the page (no secrets, no DB).**
    ```bash

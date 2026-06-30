@@ -41,7 +41,11 @@ prod-status-data.json + docs/source-status.yaml + src/registry
   `scripts/lib/dashboard/credentials.ts`), reads it directly (not via `@/env`, so
   it never demands `OPENROUTER_API_KEY`), runs two read-only `SELECT`s
   (`scripts/lib/dashboard/query.ts`), and writes the raw export — stamped with
-  `fetched_at` (the prod-read date). Prints a **redacted** DB URL only.
+  `fetched_at` (the prod-read date). Prints a **redacted** DB URL only. **Fails
+  closed:** if the resolved source is not `JFRAG_POSTGRESQL_DB_URL` it throws and
+  writes nothing (a missing `doppler run` cannot silently overwrite the public
+  snapshot with dev data) — pass `--allow-dev` to deliberately read a dev/fallback
+  DB for a local preview (never for a publish).
 - `scripts/dashboard-compile.ts` — pure merge (`scripts/lib/dashboard/compile.ts`)
   → `compiled-data.json`, then fills `dashboard/template.html` → `index.html`. The
   published "Updated" date is `prod-status-data.json`'s `fetched_at`, NOT the build

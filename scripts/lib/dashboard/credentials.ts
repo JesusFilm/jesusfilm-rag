@@ -64,3 +64,23 @@ export function resolveDatabaseUrl(env: DbEnv, envFileText?: string): ResolvedDb
       "or DATABASE_URL, or provide a local .env with DATABASE_URL for dev.",
   );
 }
+
+/**
+ * Fail CLOSED before writing a production snapshot. `dashboard/prod-status-data.json`
+ * feeds the public dashboard, so a read that did NOT come from the namespaced prod
+ * credential must NOT silently overwrite it — a missing `doppler run` would
+ * otherwise publish dev/`.env` data as production. Throws unless the source is the
+ * namespaced prod var, or the caller has explicitly opted into a dev read
+ * (`--allow-dev`). A warning is not enough here: scripted/inattentive runs miss it.
+ */
+export function requireProdSource(
+  resolved: ResolvedDbUrl,
+  opts: { allowDev: boolean },
+): void {
+  if (resolved.source === "JFRAG_POSTGRESQL_DB_URL" || opts.allowDev) return;
+  throw new Error(
+    `Refusing to write a production snapshot from a ${resolved.source} read — this would ` +
+      "publish dev data as production. Run `doppler run -- pnpm dashboard:data` so " +
+      "JFRAG_POSTGRESQL_DB_URL is injected, or pass --allow-dev to deliberately read a dev/fallback DB.",
+  );
+}

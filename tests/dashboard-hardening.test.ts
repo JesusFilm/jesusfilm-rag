@@ -9,7 +9,7 @@
  *    row's own cells, so a dropped shared-key row is caught (CodeRabbit #2).
  */
 import { describe, it, expect } from "vitest";
-import { resolveDatabaseUrl } from "../scripts/lib/dashboard/credentials.js";
+import { resolveDatabaseUrl, requireProdSource } from "../scripts/lib/dashboard/credentials.js";
 import {
   prodReadSchema,
   prodStatusDataSchema,
@@ -51,6 +51,26 @@ describe("resolveDatabaseUrl — credential precedence (namespaced var decouples
 
   it("throws (does not silently pick a wrong DB) when nothing provides a URL", () => {
     expect(() => resolveDatabaseUrl({}, "FOO=bar\n")).toThrow();
+  });
+});
+
+describe("requireProdSource — fail closed before writing a prod snapshot (CodeRabbit r3494342631)", () => {
+  const prod = { url: PROD, source: "JFRAG_POSTGRESQL_DB_URL" as const };
+  const fromEnv = { url: DEV, source: "DATABASE_URL" as const };
+  const fromFile = { url: DEV, source: ".env" as const };
+
+  it("allows a real namespaced-prod read", () => {
+    expect(() => requireProdSource(prod, { allowDev: false })).not.toThrow();
+  });
+
+  it("THROWS on a DATABASE_URL/.env fallback read by default (no silent dev-as-prod snapshot)", () => {
+    expect(() => requireProdSource(fromEnv, { allowDev: false })).toThrow(/--allow-dev|production/i);
+    expect(() => requireProdSource(fromFile, { allowDev: false })).toThrow();
+  });
+
+  it("allows a fallback read ONLY when --allow-dev is explicitly opted in", () => {
+    expect(() => requireProdSource(fromEnv, { allowDev: true })).not.toThrow();
+    expect(() => requireProdSource(fromFile, { allowDev: true })).not.toThrow();
   });
 });
 

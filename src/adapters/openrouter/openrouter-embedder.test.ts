@@ -113,6 +113,61 @@ describe("OpenRouterEmbedder", () => {
     await expect(embedder.embedQuery("   ")).rejects.toThrow(/empty/);
   });
 
+  it("embedQuery wraps the query in the instruction template when queryInstruction is set", async () => {
+    const spy = stubEmbeddings(ones(3));
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      queryInstruction: "Retrieve passages that answer the query",
+    });
+
+    await embedder.embedQuery("how do I know God?");
+
+    const sent = JSON.parse(spy.mock.calls[0][1]!.body as string) as { input: string[] };
+    expect(sent.input).toEqual([
+      "Instruct: Retrieve passages that answer the query\nQuery: how do I know God?",
+    ]);
+  });
+
+  it("documents via embed() stay raw even when queryInstruction is set (asymmetric)", async () => {
+    const spy = stubEmbeddings(ones(3));
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      queryInstruction: "Retrieve passages that answer the query",
+    });
+
+    await embedder.embed(["a plain document chunk"]);
+
+    const sent = JSON.parse(spy.mock.calls[0][1]!.body as string) as { input: string[] };
+    expect(sent.input).toEqual(["a plain document chunk"]);
+  });
+
+  it("truncateToDimensions truncates a wider vector to `dimensions` and L2-renormalizes", async () => {
+    // Provider returns width 4 (native); we want 2. Truncate → [3,4], renormalize → unit norm.
+    stubEmbeddings(() => [3, 4, 99, 99]);
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 2,
+      truncateToDimensions: true,
+    });
+
+    const [vec] = await embedder.embed(["x"]);
+    expect(vec).not.toBeNull();
+    expect(vec).toHaveLength(2);
+    // [3,4] / 5 = [0.6, 0.8]; unit norm.
+    expect(vec![0]).toBeCloseTo(0.6, 6);
+    expect(vec![1]).toBeCloseTo(0.8, 6);
+    expect(Math.hypot(vec![0], vec![1])).toBeCloseTo(1, 6);
+  });
+
+  it("without truncateToDimensions, a wider-than-expected vector still fails loudly", async () => {
+    stubEmbeddings(() => [1, 2, 3, 4]); // width 4, expected 2
+    const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 2 });
+
+    await expect(embedder.embed(["x"])).rejects.toThrow(/width 4 ≠ expected 2/);
+  });
+
   it("throws with the status on a non-OK response", async () => {
     vi.stubGlobal(
       "fetch",

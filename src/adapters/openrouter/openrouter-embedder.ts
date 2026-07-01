@@ -1,10 +1,23 @@
 /**
- * OpenRouter Embedder adapter — the concrete `Embedder` port over OpenRouter's
- * OpenAI-compatible embeddings endpoint (POST `{baseUrl}/embeddings`). Model
- * `openai/text-embedding-3-small`, 1536 dims (docs/architecture.md decision 1).
- * Batches ≤100 inputs per request and asserts every returned vector's width, so
- * a provider-side dimension drift fails loudly instead of poisoning the corpus.
+ * OpenRouter Embedder adapter — the concrete `Embedder` port over an
+ * OpenAI-compatible embeddings endpoint (POST `{baseUrl}/embeddings`). Despite
+ * the name it is provider-agnostic: `baseUrl` points at OpenRouter by default,
+ * or at a self-hosted vLLM `/v1/embeddings` for on-prem serving. Batches ≤100
+ * inputs per request and asserts every returned vector's width, so a
+ * provider-side dimension drift fails loudly instead of poisoning the corpus.
  * Constructed only by main.ts. See architecture §4.
+ *
+ * Two behaviours support instruction-aware models (e.g. Qwen3-Embedding), off by
+ * default so `openai/text-embedding-3-small` is unchanged:
+ *   - `queryInstruction` — when set, `embedQuery` wraps the query as
+ *     `Instruct: {task}\nQuery: {text}` (asymmetric encoding: documents via
+ *     `embed()` stay raw). Qwen's recommended query format; measurably improves
+ *     query↔doc separation.
+ *   - `truncateToDimensions` — when set, a returned vector WIDER than
+ *     `dimensions` is truncated to the leading `dimensions` and L2-renormalized
+ *     (Matryoshka/MRL). OpenRouter honours the `dimensions` request param so this
+ *     stays off there; it's the fallback for a self-hosted endpoint that ignores
+ *     it and returns the model's native width (Qwen3-8B = 4096 → 1536).
  *
  * The null-per-empty-input contract is load-bearing — the ingest skip path
  * relies on it: blank/whitespace inputs never hit the API and map to null in the
@@ -43,6 +56,19 @@ export interface OpenRouterEmbedderOptions {
   retryBaseDelayMs?: number;
   /** Observe a transient failure about to be retried (logging / metrics). */
   onRetry?: (info: EmbedRetryInfo) => void;
+  /**
+   * Instruction-aware query task (Qwen3-Embedding). When set, `embedQuery`
+   * encodes the query as `Instruct: {queryInstruction}\nQuery: {text}`; documents
+   * embedded via `embed()` are left raw. Unset ⇒ symmetric encoding (3-small).
+   */
+  queryInstruction?: string;
+  /**
+   * MRL fallback: truncate a returned vector wider than `dimensions` to the
+   * leading `dimensions` and L2-renormalize. Off by default (OpenRouter honours
+   * the `dimensions` request param); enable for a self-hosted endpoint that
+   * returns the model's native width.
+   */
+  truncateToDimensions?: boolean;
 }
 
 export interface EmbedRetryInfo {
@@ -93,6 +119,20 @@ export function isRetryableEmbedError(err: unknown): boolean {
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Take the leading `dim` components and L2-renormalize (Matryoshka truncation).
+ * A well-trained MRL model keeps a truncated+renormalized prefix ≈ the natively
+ * lower-dim vector, so cosine similarity is preserved. A zero-norm prefix is
+ * returned untouched (the downstream width check still runs).
+ */
+function truncateAndRenormalize(vec: number[], dim: number): number[] {
+  const head = vec.slice(0, dim);
+  let sumSq = 0;
+  for (const x of head) sumSq += x * x;
+  const norm = Math.sqrt(sumSq);
+  return norm === 0 ? head : head.map((x) => x / norm);
+}
+
 export class OpenRouterEmbedder implements Embedder {
   readonly model: string;
   readonly dimensions: number;
@@ -104,6 +144,8 @@ export class OpenRouterEmbedder implements Embedder {
   private readonly maxAttempts: number;
   private readonly retryBaseDelayMs: number;
   private readonly onRetry?: (info: EmbedRetryInfo) => void;
+  private readonly queryInstruction?: string;
+  private readonly truncateToDimensions: boolean;
 
   constructor(opts: OpenRouterEmbedderOptions) {
     if (!opts.apiKey) throw new Error("OpenRouterEmbedder: apiKey is required");
@@ -118,6 +160,8 @@ export class OpenRouterEmbedder implements Embedder {
     this.maxAttempts = Math.max(1, opts.maxAttempts ?? DEFAULT_MAX_ATTEMPTS);
     this.retryBaseDelayMs = opts.retryBaseDelayMs ?? DEFAULT_RETRY_BASE_DELAY_MS;
     this.onRetry = opts.onRetry;
+    this.queryInstruction = opts.queryInstruction?.trim() || undefined;
+    this.truncateToDimensions = opts.truncateToDimensions ?? false;
   }
 
   /** Batch-embed; blank/whitespace inputs stay null and never reach the API. */
@@ -142,11 +186,19 @@ export class OpenRouterEmbedder implements Embedder {
     return results;
   }
 
-  /** Embed a single query (same model/dims). Throws on empty input — a query must be real. */
+  /**
+   * Embed a single query (same model/dims). Throws on empty input — a query must
+   * be real. With `queryInstruction` set, the query is wrapped in the
+   * instruction template (asymmetric encoding) before embedding; the `\n` in the
+   * template is intentional and preserved (only the user's text is collapsed).
+   */
   async embedQuery(text: string): Promise<number[]> {
     const cleaned = text.replace(/\n+/g, " ").trim();
     if (!cleaned) throw new Error("embedQuery: query text is empty");
-    const [vec] = await this.post([cleaned]);
+    const input = this.queryInstruction
+      ? `Instruct: ${this.queryInstruction}\nQuery: ${cleaned}`
+      : cleaned;
+    const [vec] = await this.post([input]);
     return vec;
   }
 
@@ -197,17 +249,26 @@ export class OpenRouterEmbedder implements Embedder {
             `${Array.isArray(data) ? data.length : "none"}`,
         );
       }
-      // Sort by the provider's index defensively, then assert each width.
+      // Sort by the provider's index defensively, optionally MRL-truncate a
+      // wider-than-expected vector, then assert each width.
       return [...data]
         .sort((a, b) => a.index - b.index)
         .map((d) => {
-          if (!Array.isArray(d.embedding) || d.embedding.length !== this.dimensions) {
+          let embedding = d.embedding;
+          if (
+            this.truncateToDimensions &&
+            Array.isArray(embedding) &&
+            embedding.length > this.dimensions
+          ) {
+            embedding = truncateAndRenormalize(embedding, this.dimensions);
+          }
+          if (!Array.isArray(embedding) || embedding.length !== this.dimensions) {
             throw new Error(
-              `OpenRouter embeddings: vector width ${d.embedding?.length} ` +
+              `OpenRouter embeddings: vector width ${embedding?.length} ` +
                 `≠ expected ${this.dimensions}`,
             );
           }
-          return d.embedding;
+          return embedding;
         });
     } finally {
       clearTimeout(timer);

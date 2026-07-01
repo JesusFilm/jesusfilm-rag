@@ -40,6 +40,14 @@ The code **default stays `openai/text-embedding-3-small` on purpose**: Railway r
 push to `main`, so flipping the default before the corpus is re-embedded would break prod
 retrieval on the merge. The model is switched by **env at cutover**, never by the code default.
 
+**A retrieval-time guard now enforces this (`src/retrieval/retrieve.ts`):** if the query
+embedder's model is in *none* of the corpus's `embedding_model` values, `search` throws
+`retrieval model mismatch: …` instead of returning silent garbage. Practical consequence you
+must expect during the cutover: once step 3 finishes (corpus fully on qwen) but *before*
+step 4 (Railway still on 3-small), the live server will **error every query** — retrieval is
+briefly *down*, not wrong. So do steps 3 → 4 back-to-back. During a partial re-embed the
+guard stays quiet as long as the query model matches *some* rows (mixed models are allowed).
+
 ## Preconditions
 
 1. Embedder PR merged to `main`; this VM has `git pull`ed `main`.

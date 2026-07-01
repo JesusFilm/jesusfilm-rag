@@ -46,7 +46,7 @@ mechanism), so the swap is a re-embed, not a silent rewrite.
 - (+) Purpose-built for 100+ languages; futureproofs the corpus against added languages
   without a forced re-embed; open-weight (self-hostable, no per-token fee at scale, no
   vendor deprecation); parity with Forge; keeps 1536 (no migration).
-- (−) It's an 8B model — self-hosting needs a GPU (on-prem, [#41](https://github.com/JesusFilm/jesusfilm-rag/issues/41)); until then, hosted via OpenRouter. Query and document embeddings must use the **same model** everywhere (serving, eval, retrieve) or retrieval silently breaks — see `docs/ops/prod-reembed.md`.
+- (−) It's an 8B model — self-hosting needs a GPU (on-prem, [#41](https://github.com/JesusFilm/jesusfilm-rag/issues/41)); until then, hosted via OpenRouter. Query and document embeddings must use the **same model** everywhere (serving, eval, retrieve). A retrieval-time guard (`src/retrieval/retrieve.ts`) now fails loudly on a full mismatch instead of returning silent garbage — see `docs/ops/prod-reembed.md`.
 - (−) One-time cost: re-embed the whole corpus (local + prod). Cheap on OpenRouter (~$0.01/M
   input tokens; full corpus ≈ pennies), but coordinated with a serving-env cutover.
 - The 1536 width is still restated in `src/adapters/postgres/vector.ts` (ADR-0001); it is

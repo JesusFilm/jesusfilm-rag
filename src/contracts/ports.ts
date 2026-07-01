@@ -135,4 +135,13 @@ export interface CorpusSearchStore {
     k: number,
   ): Promise<ScoredRow[]>;
   fetchById(chunkId: string): Promise<ScoredRow | null>;
+  /**
+   * Distinct `embedding_model` values currently in the corpus. Retrieval uses
+   * this to guard against a query/corpus model mismatch — querying a corpus
+   * embedded with one model using an embedder configured for another produces
+   * silent garbage (different vector spaces). Optional like `keywordSearch`; when
+   * a store can't report it, the guard is skipped. During a partial re-embed the
+   * set can hold >1 model — the guard only fails if the query model is in NONE.
+   */
+  embeddingModels?(): Promise<string[]>;
 }

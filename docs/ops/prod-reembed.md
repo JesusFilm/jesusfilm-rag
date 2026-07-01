@@ -6,8 +6,8 @@ human-run, watched** operation — **never** an agent/automated job. Run it on a
 box **inside `tmux`** so a dropped connection can't interrupt a long run.
 
 > **This runbook is for PRODUCTION only** and is gated on the embedder PR being **merged to
-> `main`** first. The local (dev laptop) re-embed + eval is a separate, earlier phase — see
-> the master plan at `~/Ops/docs/jesusfilm-rag-reembed-plan.md`.
+> `main`** first. The local (dev-laptop) re-embed + eval is a separate, earlier phase, driven
+> from the operator's out-of-repo execution tracker (kept on the laptop, not in this repo).
 
 ## Exact model + config (do not paraphrase)
 
@@ -76,6 +76,15 @@ export EMBED_QUERY_INSTRUCTION="Given a web search query, retrieve relevant pass
 
 # 2. Sanity: confirm the model the session will use.
 echo "model=$EMBED_MODEL_ID  instr=${EMBED_QUERY_INSTRUCTION:0:24}..."
+
+# 2.5 FREEZE /v1 TRAFFIC before any --force. In-place reindex has no uptime guarantee
+#     (architecture.md locked-decision 6; blue-green is deferred, #5). While step 3
+#     runs, the corpus is a shrinking mix of old+new vectors: a still-3-small server returns
+#     PARTIAL results, and the moment the corpus is fully qwen the model-match guard makes it
+#     ERROR every query. So put the service in maintenance mode (or drain traffic / take the
+#     Railway service offline) BEFORE step 3, and lift it only after step 4. If a consumer
+#     can tolerate a brief window, at minimum announce it. Blue-green (build candidate → atomic
+#     swap, #5) is the future fix that removes this freeze.
 
 # 3. Re-embed every source. --force re-drains ALREADY-ingested English rows AND drains the
 #    pending fr/zh rows, re-embedding everything with qwen. Documents embed raw (instruction

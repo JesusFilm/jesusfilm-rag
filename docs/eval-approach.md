@@ -190,7 +190,9 @@ interleave or compete.
 
 Adopting `qwen/qwen3-embedding-8b` ([ADR-0005](./decisions/0005-embedding-model-qwen3-8b-multilingual.md))
 re-embeds the whole corpus, so eval covers two distinct concerns with two
-different bars. See the execution split in `~/Ops/docs/jesusfilm-rag-reembed-plan.md`.
+different bars. The prod half is the repo runbook
+[docs/ops/prod-reembed.md](./ops/prod-reembed.md); the local (dev-laptop) phase is driven
+from the operator's out-of-repo execution tracker (kept on the laptop, not in this repo).
 
 ### English — a **drift gate** (existing 6 sources only), not an improvement target
 **Scope: this no-human shortcut applies ONLY to re-embedding the existing 6 English

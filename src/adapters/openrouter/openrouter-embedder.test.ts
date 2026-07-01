@@ -98,6 +98,28 @@ describe("OpenRouterEmbedder", () => {
     expect(out).toEqual([[1], [2], [3]]);
   });
 
+  it("rejects a non-contiguous provider index (guards against misaligned vectors)", async () => {
+    // Two inputs, but the provider returns index 0 twice (1 missing) — the count
+    // check still passes, so without the position check a vector would misalign.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            data: [
+              { embedding: [1, 1, 1], index: 0 },
+              { embedding: [2, 2, 2], index: 0 },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+    const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 3, retryBaseDelayMs: 0 });
+
+    await expect(embedder.embed(["a", "b"])).rejects.toThrow(/non-contiguous provider index/);
+  });
+
   it("asserts the returned vector width (provider dimension drift fails loudly)", async () => {
     stubEmbeddings(() => [1, 2]); // width 2, expected 3
     const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 3 });

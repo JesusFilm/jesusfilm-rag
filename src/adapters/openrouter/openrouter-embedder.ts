@@ -249,11 +249,21 @@ export class OpenRouterEmbedder implements Embedder {
             `${Array.isArray(data) ? data.length : "none"}`,
         );
       }
-      // Sort by the provider's index defensively, optionally MRL-truncate a
+      // Sort by the provider's index, then assert it is a dense 0..n-1
+      // permutation: the count check above still passes on duplicate/missing
+      // indexes (e.g. [0,0,2]), which would misalign an embedding to the wrong
+      // input and poison the corpus. Fail fast instead. Optionally MRL-truncate a
       // wider-than-expected vector, then assert each width.
       return [...data]
         .sort((a, b) => a.index - b.index)
-        .map((d) => {
+        .map((d, position) => {
+          if (d.index !== position) {
+            throw new Error(
+              `OpenRouter embeddings: non-contiguous provider index — expected ` +
+                `${position} at sorted position ${position}, got ${d.index} ` +
+                `(duplicate or missing index would misalign vectors to inputs)`,
+            );
+          }
           let embedding = d.embedding;
           if (
             this.truncateToDimensions &&

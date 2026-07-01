@@ -136,7 +136,11 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
   safe. Re-running continues, **but** see FOLLOW-UP K
   ([#32](https://github.com/JesusFilm/jesusfilm-rag/issues/32)): a resumed
   crawl re-fetches already-staged URLs because conditional headers aren't
-  threaded yet. Bounded by the registry entry's `maxPages`.
+  threaded yet. Bounded by the registry entry's `maxPages`. Because these runs
+  can span an hour or more, prefer running them on an always-on server inside a
+  persistent session (e.g. `tmux`/`mosh`) rather than a laptop — a closed lid or
+  a dropped connection mid-commute shouldn't be able to interrupt a live prod
+  ingest.
 - **Partial index.** `pnpm index:production` is idempotent on a per-document
   basis (delete-then-insert in one tx). A killed run leaves the corpus in a
   partial state for that source; re-running drains the rest.

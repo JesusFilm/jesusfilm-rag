@@ -21,6 +21,8 @@ export interface FakeIndexedChunk extends Omit<ScoredRow, "score"> {
   domain: string | null;
   language: string | null;
   category: string | null;
+  /** Model that produced `embedding`; feeds `embeddingModels()` (guard). Optional. */
+  embeddingModel?: string;
 }
 
 function matchesFilter(chunk: FakeIndexedChunk, filter: SearchFilter): boolean {
@@ -98,5 +100,15 @@ export class FakeCorpusSearchStore implements CorpusSearchStore {
   async fetchById(chunkId: string): Promise<ScoredRow | null> {
     const chunk = this.chunks.find((c) => c.chunkId === chunkId);
     return chunk ? toScoredRow(chunk, 1) : null;
+  }
+
+  async embeddingModels(): Promise<string[]> {
+    return [
+      ...new Set(
+        this.chunks
+          .map((c) => c.embeddingModel)
+          .filter((m): m is string => Boolean(m)),
+      ),
+    ];
   }
 }

@@ -54,6 +54,9 @@ export function wire(): Wiring {
   const embedder = new OpenRouterEmbedder({
     apiKey: env.OPENROUTER_API_KEY,
     model: env.EMBED_MODEL_ID,
+    baseUrl: env.EMBED_BASE_URL,
+    queryInstruction: env.EMBED_QUERY_INSTRUCTION,
+    truncateToDimensions: env.EMBED_TRUNCATE_DIMENSIONS,
     maxAttempts: env.EMBED_MAX_ATTEMPTS,
     onRetry: ({ attempt, maxAttempts, delayMs, error }) => {
       const reason = error instanceof Error ? error.name : "error";

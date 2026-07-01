@@ -51,6 +51,20 @@ const envSchema = z.object({
   // Per-batch embed attempts (initial try + retries) before an index run fails;
   // raise it for a flaky provider. Consumed by the OpenRouter Embedder (main.ts).
   EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(4),
+  // Embeddings endpoint base URL. Defaults to OpenRouter; point at a self-hosted
+  // vLLM `/v1` for on-prem serving. Consumed by the Embedder adapter (main.ts).
+  EMBED_BASE_URL: z.string().url().optional(),
+  // Instruction-aware query task for Qwen3-Embedding-class models. When set,
+  // embedQuery encodes `Instruct: {…}\nQuery: {text}` (documents stay raw).
+  // Unset ⇒ symmetric encoding (openai/text-embedding-3-small).
+  EMBED_QUERY_INSTRUCTION: z.string().min(1).optional(),
+  // MRL fallback: truncate+renormalize a wider-than-1536 vector client-side, for
+  // a self-hosted endpoint that ignores the `dimensions` request param. Off by
+  // default (OpenRouter honours `dimensions`). Accepts "true"/"1".
+  EMBED_TRUNCATE_DIMENSIONS: z
+    .string()
+    .optional()
+    .transform((v) => v === "true" || v === "1"),
   PORT: z.coerce.number().int().positive().default(8080), // Railway injects PORT
   // JSON map of bearer token → allowed source keys (["*"] = all). Parsed by the
   // serving adapter (src/serving/http/auth.ts); required only by `pnpm serve`.

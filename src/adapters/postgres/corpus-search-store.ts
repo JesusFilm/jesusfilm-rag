@@ -112,4 +112,16 @@ export class PostgresCorpusSearchStore implements CorpusSearchStore {
       .where(eq(chunks.id, chunkId));
     return row ?? null;
   }
+
+  /**
+   * Distinct embedding models in the corpus (uses the `chunk_embeddings_model_idx`
+   * index). Retrieval's query/corpus model-match guard reads this; see
+   * docs/ops/prod-reembed.md.
+   */
+  async embeddingModels(): Promise<string[]> {
+    const rows = await this.db
+      .selectDistinct({ model: chunkEmbeddings.embeddingModel })
+      .from(chunkEmbeddings);
+    return rows.map((r) => r.model);
+  }
 }

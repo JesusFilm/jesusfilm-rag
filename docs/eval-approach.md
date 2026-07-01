@@ -183,3 +183,56 @@ independently of any eval re-authoring. The 62-case suite stays the integrity
 baseline; the new follow-ups add focused mechanism tests sitting next to the
 code they exercise. Slice work and engine/consumer follow-up work don't
 interleave or compete.
+
+---
+
+## Multilingual eval (embedder swap → qwen3-8b, #39 P4)
+
+Adopting `qwen/qwen3-embedding-8b` ([ADR-0005](./decisions/0005-embedding-model-qwen3-8b-multilingual.md))
+re-embeds the whole corpus, so eval covers two distinct concerns with two
+different bars. The prod half is the repo runbook
+[docs/ops/prod-reembed.md](./ops/prod-reembed.md); the local (dev-laptop) phase is driven
+from the operator's out-of-repo execution tracker (kept on the laptop, not in this repo).
+
+### English — a **drift gate** (existing 6 sources only), not an improvement target
+**Scope: this no-human shortcut applies ONLY to re-embedding the existing 6 English
+sources**, which already carry curated golden cases — the model swap re-scores an
+*already-authored* suite, it does not create cases.
+English is the well-characterised baseline. After the re-embed, run `pnpm eval`
+(whole corpus, 62 cases) and compare the primary metrics — **recall@10** and
+**coverage** (per this doc's mechanism-not-ranking stance) — against the last
+recorded baseline in `docs/sources.md` / the newest `eval/results-*.md`. English
+is expected to **hold**, not necessarily improve. **Only a major regression
+blocks**: proposed gate = recall@10 or coverage down **> 2% relative** vs
+baseline. An agent may judge this autonomously by reading `sources.md` + the
+prior results file for the historical numbers and the living-relevant-set /
+minScore history (a small dip from a living-set artifact is not a regression —
+see the `/slice` Stage-4 note). **No human-in-the-loop is needed for this gate** — it
+re-scores already-curated cases, it does not author new ones.
+
+> **A NEW English source (future work) is NOT covered by this shortcut.** It has no golden
+> cases yet, so it needs the same human-in-the-loop `/golden` authoring as the non-English
+> flow below — just without the translation step. The no-human path is exclusively the
+> model-swap drift re-score of the *existing* curated suite; authoring cases for any new
+> source, in any language, is always human-gated.
+
+### Non-English — **human-in-the-loop**, one suite per language
+No non-English golden cases exist yet. For each non-English source key
+(`thelife-fr`, `thelife-zh`, …), author a suite with `/golden`
+(`.claude/skills/golden/SKILL.md`) against the **qwen-embedded** corpus:
+
+1. Survey what landed for the source; draft persona-diverse questions grounded
+   in real docs, `relevant` scoped to that source key (isolates the cross-lingual
+   signal). Because each language is its own source key, `pnpm eval --source
+   thelife-fr` **is** the per-language breakdown — no new `--language` flag.
+2. **Human-in-the-loop is mandatory for taste + accuracy**, and the reviewer may
+   not read the language. So the agent presents every candidate case **with an
+   English translation** of the question *and* the expected-doc chunk snippet
+   (extending golden guardrail #5 across languages) — the human approves/edits/
+   rejects on the translated content, never on a title.
+3. Write approved cases to `eval/qa-golden.yaml`; run `pnpm eval --source <key>`.
+   Primary read is **recall@10 + coverage**, with recall@3 + MRR reported as
+   ranking-quality secondaries (recall@10 can saturate on a small per-language set).
+4. **minScore** (0.37, English-derived) may shift under qwen and across languages —
+   re-derive from the new score distribution using a few non-English off-topic
+   negatives per language before changing the default; report before changing.

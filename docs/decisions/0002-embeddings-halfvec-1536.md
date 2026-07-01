@@ -1,9 +1,9 @@
 # ADR-0002 — Embeddings stored as halfvec(1536); model openai/text-embedding-3-small
 
-- Status: Accepted
+- Status: Accepted — **model choice superseded by [ADR-0005](./0005-embedding-model-qwen3-8b-multilingual.md)** (2026-07-02); the `halfvec(1536)` storage + per-row `embedding_model` decisions below still stand.
 - Date: 2026-05-21
 - Issue/PR: — (foundational; "decision 1" in architecture.md)
-- Related: ADR-0001, ADR-0003
+- Related: ADR-0001, ADR-0003, ADR-0005
 
 ## Context
 

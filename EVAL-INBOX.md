@@ -6,7 +6,53 @@ recommendation pre-filled.** You answer inline under **Your call:** and confirm 
 terminal when a batch is ready. I do not start the expensive re-embed until the
 **bar (D2/D3), serving (D1), and matrix (D4/D5)** are ratified.
 
-_Status: awaiting first ratification batch. Nothing has touched code or the DB yet._
+_Status: **APPROACH PIVOTED (2026-07-02).** The manual local A/B below (D2–D6, D8) is
+**superseded** — a hand-rolled single-language eval is the wrong instrument for a
+strategic, futureproofing, parity-with-Forge decision. Decision is now made on external
+benchmark evidence (see **DECISION** block). The embedder-adapter code (commit `e4876ca`)
+stands — it's the model-agnostic mechanism to run Qwen either way._
+
+---
+
+## DECISION (2026-07-02) — Adopt Qwen3-Embedding-8B @1536. Evidence conclusive.
+
+**Answer to "is Qwen needed for multilingual RAG?": YES** — not because 3-small is broken on
+any one language, but because it is measurably and substantially weaker across the
+multilingual / cross-lingual / low-resource space the RAG is expanding into, and the
+embedding choice is a one-way door that must be made futureproof now.
+
+**Head-to-head (cited):**
+| Benchmark (higher = better) | text-embedding-3-small | text-embedding-3-large | Qwen3-Embedding-8B |
+|---|---|---|---|
+| MTEB Multilingual — retrieval | not listed (~10 pts below 3-large) | 59.27 | **70.88** (+11.6 vs 3-large) |
+| MTEB Multilingual — task mean | not listed | 58.93 | **70.58** (#1, Jun 2025) |
+| MIRACL (18-lang, OpenAI's own multilingual test) | **44.0** | 54.9 | not published (wins broader MMTEB) |
+| Cross-lingual matching (Bitext) | not listed | 62.17 | **80.89** (+18.7 vs 3-large) |
+
+Qwen beats OpenAI's *larger, pricier* 3-large by ~+11.6 (retrieval) / +18.7 (cross-lingual);
+vs the 3-**small** we run, the gap is bigger. Sources: Qwen3 tech report
+(arxiv.org/pdf/2506.05176), model card (huggingface.co/Qwen/Qwen3-Embedding-8B), OpenAI
+MIRACL via pinecone.io/learn/openai-embeddings-v3.
+
+**Strategic:** 100+ languages (vs OpenAI's uncommitted English-lineage model); embedding =
+one-way door → commit to a broad multilingual space once (Weaviate/industry consensus);
+Forge parity; Apache-2.0 open-weight (self-hostable, no per-token fee, no vendor
+deprecation); Matryoshka native-4096 truncates to 1536 → **keeps the halfvec(1536) column,
+no migration**, with headroom later.
+
+**Caveats (honest):** vendors never benchmark the same model/suite/dim, so the exact vs-3-small
+magnitude is inferred not lab-measured; Qwen scores are at 4096 (1536 a few pts lower, still
+ahead); "100+ languages" ≠ uniform per-language quality; it's an 8B model → needs a GPU to
+self-host (on-prem #41) or a hosted endpoint. My 2026-07-01 local probe (3-small handles
+Chinese fine) does NOT contradict this — Chinese is high-resource, the one place 3-small is
+least bad; the case is won on the low-resource / cross-lingual long tail benchmarks capture.
+
+**Next:** (1) record as ADR-0005 superseding 0002's model pin; (2) prod re-embed becomes the
+main event (needs the serving call: on-prem vLLM vs hosted).
+
+---
+
+## (Superseded) original manual-A/B plan below — kept for the record
 
 ---
 
@@ -196,6 +242,45 @@ result as the go/no-go evidence. I'll draft and show you before filing.
 **Your call:**
 - [ ] Create the sub-issue after I draft it (recommended)
 - [ ] You'll track it elsewhere: ____________________
+- Notes: ____________________
+
+---
+
+## D8 — ⚠️ ESCALATION: 3-small is better at Chinese than #39 assumed → win may be subtle
+
+**What I found (live OpenRouter probes, 3-small vs qwen3-8b, before spending on eval).**
+#39 P1's premise is *"the embedding model handles multilingual content poorly."* The
+probes only partly support that:
+- **Chinese query → true Chinese answer, vs unrelated Chinese distractors:** BOTH models
+  rank the true answer #1 with clean separation (3-small 0.50 vs 0.10–0.16; qwen 0.61 vs
+  0.09–0.14). 3-small is *not* broken on Chinese.
+- **Cross-lingual (Chinese query, mixed EN+ZH docs):** 3-small still ranks the true
+  Chinese answer #1 (0.50) above a same-topic English doc (0.31). qwen's real edge is
+  **much stronger cross-lingual alignment** (rates the EN same-topic doc 0.53 vs 3-small's
+  0.31) and a higher absolute positive band (~0.61 vs ~0.50).
+
+**Why it matters.** On easy, well-separated cases the swap shows **little recall
+movement** — the exact "English holds but non-English doesn't actually improve" outcome the
+brief told me to escalate rather than absorb. The win, if real, will live in the **hard**
+cases: paraphrased persona questions (golden guardrail #1) over 332 real, topically-clustered
+Chinese devotionals **mixed with English competitors** — where 3-small's weaker in-language
+ranking should cost it recall@3 / coverage / MRR that qwen recovers.
+
+**What I'm doing about it (proceeding on recommendation; adjust before the expensive pass).**
+1. **Cheap-pass corpus = mixed, not Chinese-only.** thelife-zh (332 zh) **+ a small
+   topically-overlapping English layer** (`starting-with-god` 40 + `cru-10-basic-steps` 11,
+   gospel/assurance/discipleship). ~3 min extra crawl; makes the pass a fair, production-
+   realistic cross-lingual test instead of a saturated in-language one.
+2. **Read the win on recall@3 + coverage + MRR too, not only recall@10** (which will
+   saturate here) — this is the D2 fallback, triggered early by the probe evidence.
+3. If, after the real eval, qwen shows **no meaningful gain** on the Chinese suite, I
+   STOP and bring you the numbers as a go/no-go — I do not proceed to the expensive
+   English-floor re-embed on a swap that doesn't earn its keep.
+
+**Your call:**
+- [ ] Mixed cheap-pass corpus + read recall@3/coverage/MRR (recommended; I'm proceeding)
+- [ ] Chinese-only, accept saturation risk: ____________________
+- [ ] Other: ____________________
 - Notes: ____________________
 
 ---

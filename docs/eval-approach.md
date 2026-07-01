@@ -192,7 +192,10 @@ Adopting `qwen/qwen3-embedding-8b` ([ADR-0005](./decisions/0005-embedding-model-
 re-embeds the whole corpus, so eval covers two distinct concerns with two
 different bars. See the execution split in `~/Ops/docs/jesusfilm-rag-reembed-plan.md`.
 
-### English — a **drift gate**, not an improvement target
+### English — a **drift gate** (existing 6 sources only), not an improvement target
+**Scope: this no-human shortcut applies ONLY to re-embedding the existing 6 English
+sources**, which already carry curated golden cases — the model swap re-scores an
+*already-authored* suite, it does not create cases.
 English is the well-characterised baseline. After the re-embed, run `pnpm eval`
 (whole corpus, 62 cases) and compare the primary metrics — **recall@10** and
 **coverage** (per this doc's mechanism-not-ranking stance) — against the last
@@ -202,7 +205,14 @@ blocks**: proposed gate = recall@10 or coverage down **> 2% relative** vs
 baseline. An agent may judge this autonomously by reading `sources.md` + the
 prior results file for the historical numbers and the living-relevant-set /
 minScore history (a small dip from a living-set artifact is not a regression —
-see the `/slice` Stage-4 note). No human-in-the-loop needed for the English gate.
+see the `/slice` Stage-4 note). **No human-in-the-loop is needed for this gate** — it
+re-scores already-curated cases, it does not author new ones.
+
+> **A NEW English source (future work) is NOT covered by this shortcut.** It has no golden
+> cases yet, so it needs the same human-in-the-loop `/golden` authoring as the non-English
+> flow below — just without the translation step. The no-human path is exclusively the
+> model-swap drift re-score of the *existing* curated suite; authoring cases for any new
+> source, in any language, is always human-gated.
 
 ### Non-English — **human-in-the-loop**, one suite per language
 No non-English golden cases exist yet. For each non-English source key

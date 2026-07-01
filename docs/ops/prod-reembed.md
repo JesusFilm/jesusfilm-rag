@@ -22,11 +22,23 @@ box **inside `tmux`** so a dropped connection can't interrupt a long run.
 ### ⚠️ The one rule that must not be broken: query model == document model
 
 Retrieval compares a **query** embedding against **document** embeddings. If documents are
-re-embedded with qwen but the **live server still queries with 3-small** (or vice-versa),
-the two live in different vector spaces and retrieval **silently returns garbage** — no
-error, just wrong results. Therefore the corpus re-embed and the **serving cutover must be
-coordinated** (see step 4). `EMBED_QUERY_INSTRUCTION` is a *quality* enhancement (query
-side only); `EMBED_MODEL_ID` matching is a *correctness* requirement.
+re-embedded with qwen but a **query path still uses 3-small** (or vice-versa), the two live
+in different vector spaces and retrieval **silently returns garbage** — no error, just wrong
+results. Therefore the corpus re-embed and the **serving cutover must be coordinated** (see
+step 4). `EMBED_QUERY_INSTRUCTION` is a *quality* enhancement (query side only);
+`EMBED_MODEL_ID` matching is a *correctness* requirement.
+
+**Every query is embedded by the same wired embedder** (`main.wire()` → one
+`OpenRouterEmbedder` from `EMBED_MODEL_ID`), so there is no separate "retrieval model" in
+code — but **each of these entry points must run with `EMBED_MODEL_ID=qwen/qwen3-embedding-8b`**:
+
+- the **live `/v1` Railway server** (`pnpm serve`) — via Railway service vars (step 4);
+- `pnpm retrieve:production` / `pnpm eval:production` — via the seeded session (step 1);
+- (local, on the laptop) `pnpm query` / `pnpm eval` — via `.env`.
+
+The code **default stays `openai/text-embedding-3-small` on purpose**: Railway redeploys on
+push to `main`, so flipping the default before the corpus is re-embedded would break prod
+retrieval on the merge. The model is switched by **env at cutover**, never by the code default.
 
 ## Preconditions
 
@@ -47,9 +59,10 @@ ask Y/N again. They read creds from the shell/prompt, **never `.env`**. See
 tmux new -s reembed
 
 # 1. Seed prod creds once for the session, and export the qwen model + instruction.
-#    seed-prod.sh prompts for DATABASE_URL / OPENROUTER_API_KEY / EMBED_MODEL_ID —
-#    enter qwen/qwen3-embedding-8b for the model. Then export the query instruction
-#    (the :production scripts do NOT prompt for it):
+#    seed-prod.sh prompts for DATABASE_URL / OPENROUTER_API_KEY / EMBED_MODEL_ID.
+#    ⚠️ FOOTGUN: at the EMBED_MODEL_ID prompt, seed-prod.sh's Enter-default is the OLD model
+#    (openai/text-embedding-3-small). You MUST TYPE `qwen/qwen3-embedding-8b` — do NOT press
+#    Enter. Then export the query instruction (the :production scripts do NOT prompt for it):
 source scripts/seed-prod.sh
 export EMBED_QUERY_INSTRUCTION="Given a web search query, retrieve relevant passages that answer the query"
 

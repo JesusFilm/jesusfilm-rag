@@ -43,6 +43,11 @@ cases:
         - "/devotionals/when-panic-attacks"
         - "/devotionals/the-anxiety-that-consumes"
         - "/devotionals/kept-in-perfect-peace"
+        - "/devotionals/peace-in-the-unrest"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/work-for-peace"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/where-is-your-focus"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/pursue-peace"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/finding-perfect-peace-in-the-storm"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/can-we-escape-our-worry"
       familylife:
@@ -72,9 +77,11 @@ cases:
         - "/my-sins-are-too-great-for-god-to-forgive"
         - "/devotionals/disappointments"
         - "/devotionals/the-new-deal"
+        - "/if-god-is-in-control-why"  # re-credited 2026-07-02 (judge-approved, qwen)
       familylife:
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/help-for-the-suicidal"
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/feeling-lost-in-the-middle-of-your-life"
+        - "/articles/topics/marriage/marriage-challenges/drifting-apart/disappointed-in-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "swg-seeker-porn"
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
@@ -114,6 +121,10 @@ cases:
         - "/questions/does-god-really-love-me.html"
         - "/new-life/gods-love.html"
         - "/knowing-god/gods-grace.html"
+      sightline-ministry:
+        - "/daily-devo/the-biggest-no-brainer-of-them-all"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/old-mrs-headstomper"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/one-gigantic-sign-from-god-2"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "swg-believer-assurance"
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
     relevant:
@@ -145,6 +156,8 @@ cases:
         - "/devotionals/transform-me-by-your-spirit"
         - "/live-by-faith"
         - "/devotionals/the-fathers-promise"
+        - "/devotionals/be-spirit-led"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/god-s-power-plug"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/the-only-way-to-go-2"
   - id: "swg-newcomer-gospel"
@@ -219,10 +232,16 @@ cases:
         - "/daily-devo/is-there-a-way-to-gods-will"
         - "/daily-devo/gods-will-your-desires"
         - "/daily-devo/getting-the-word-on-tough-choices"
+        - "/daily-devo/gods-will-your-desires-they-fit"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/safety-in-counsel"
         - "/devotionals/asking-god-for-wisdom"
         - "/devotionals/guided-choices"
+        - "/devotionals/wisdom-from-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/invisible-obedience"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/plans-like-none-other"  # re-credited 2026-07-02 (judge-approved, qwen)
+      familylife:
+        - "/articles/topics/marriage/staying-married/communication/6-questions-to-ask-when-youre-making-a-big-decision-together"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "cru-believer-bible-study"
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
@@ -250,8 +269,11 @@ cases:
         - "/god-loves-time-with-you"
         - "/prayers-you-can-pray"
         - "/devotionals/specific-prayer"
+        - "/customize-your-quiet-time"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/positive-daydreaming"
+      familylife:
+        - "/articles/topics/faith/essentials-faith/spiritual-disciplines-essentials-faith/prayer-journaling-5-tips"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "cru-newcomer-holy-spirit"
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
     relevant:
@@ -277,6 +299,7 @@ cases:
         - "/6-myths-about-the-abundant-life"
         - "/are-you-all-in"
         - "/know-your-resources-as-a-child-of-god"
+        - "/you-cant-stay-seated-for-this"  # re-credited 2026-07-02 (judge-approved, qwen)
       jesusfilm-org:
         - "/blog/how-can-get-closer-to-god"
   - id: "cru-skeptic-jesus-uniqueness"
@@ -299,6 +322,14 @@ cases:
         - "/blog/who-is-jesus"
         - "/blog/jesus-facts"
         - "/blog/story-of-jesus"
+      sightline-ministry:
+        - "/jesus-just-man"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/jesus-better-than-good"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/jesus-liar-lunatic-lord"  # re-credited 2026-07-02 (judge-approved, qwen)
+      starting-with-god:
+        - "/new-life/jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-newcomer-why-jesus-died"
     question: "What was the point of Jesus dying on a cross — why did it have to happen?"
     relevant:
@@ -316,6 +347,11 @@ cases:
         - "/blog/the-importance-of-the-great-commission"
         - "/blog/great-commission-for"
         - "/blog/what-every-believer-can-do-great-commission"
+        - "/blog/disciple-making-bible-verses"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/sharing-gospel-need-to-know"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/live-missionally-inspiration"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/how-to-make-disciples"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/fulfill-the-great-commission"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/wherever-you-go"
   - id: "jf-skeptic-resurrection"
@@ -328,6 +364,12 @@ cases:
         - "/jesus-resurrection-importance"
         - "/resurrection-jesus-hoax-truth"
         - "/disillusioned-disciples-die-for-lie"
+        - "/jesus-resurrection-fact"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/christ-resurrection-empty-tomb"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/three-facts-resurrection"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/you-cant-get-around-the-empty-tomb-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+      thelife:
+        - "/the-resurrection-the-empty-tomb"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-skeptic-bible-contradictions"
     question: "People say the Bible is riddled with contradictions and errors — how do you square that?"
     relevant:
@@ -346,6 +388,10 @@ cases:
         - "/is-christianity-intolerant"
         - "/christian-view-on-tolerance"
         - "/is-jesus-the-way-john-14-6"
+        - "/judge-not-cultural-tolerance"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/arguments-critics-christianity"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/cultural-tolerance-fails-us"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/jesus-the-only-way"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-believer-parable-sower"
     question: "What's Jesus really getting at in the story about a farmer scattering seed on different soils?"
     relevant:
@@ -363,11 +409,15 @@ cases:
         - "/blog/mission-field-between-your-feet"
         - "/blog/becoming-a-more-missional-christian"
         - "/blog/live-missionally-inspiration"
+        - "/blog/10-bible-verses-missional-living"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/living-missionally-together-build-missional-communities"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/our-mission-grounds-are-our-stomping-grounds"
         - "/devotionals/we-each-have-a-role"
         - "/devotionals/little-missionary"
         - "/devotionals/what-we-can-do"
+        - "/devotionals/the-mission-field-next-door"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/mission-in-christ"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/missionary-in-the-mirror"
   - id: "jf-believer-disciple-making"
@@ -408,6 +458,15 @@ cases:
       sightline-ministry:
         - "/why-does-god-seem-hidden-from-us"
         - "/discern-gods-voice"
+        - "/when-god-feels-distant"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/up-close-and-personal-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+      thelife:
+        - "/devotionals/the-handprints-of-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/not-as-far-as-you-feel"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/god-comes-close"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/come-and-trust"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/the-courage-to-draw-near"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/losing-jesus"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "sl-skeptic-god-exists"
     question: "Is there any actual evidence that God exists, or is it just blind belief?"
     relevant:
@@ -423,6 +482,16 @@ cases:
       sightline-ministry:
         - "/3-reasons-suffering-serves-a-purpose"
         - "/security-in-suffering"
+        - "/gods-goodness-evident-covid19"  # re-credited 2026-07-02 (judge-approved, qwen)
+      thelife:
+        - "/when-someone-asks-me-why-god-allows-covid-19"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/do-evil-and-suffering-disprove-the-existence-of-god-part-3"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/disprove-the-existence-of-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/why-is-there-suffering-in-the-world"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/do-evil-and-suffering-disprove-the-existence-of-god-part-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/is-god-still-good-when-tragedy-strikes"  # re-credited 2026-07-02 (judge-approved, qwen)
+      familylife:
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/why-does-god-allow-suffering"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "sl-skeptic-science"
     question: "Hasn't science basically disproved religion? How can a thinking person believe in miracles?"
     relevant:
@@ -450,6 +519,8 @@ cases:
         - "/gospel-writers-reliable-video-2"
         - "/lost-gospels-dont-belong-bible"
         - "/when-gospels-written-reliable-video-3"
+        - "/gospel-authors-lying-or-reliable-video-7"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/can-anyone-believe-new-testament"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/are-the-gospels-anonymous"
         - "/putting-the-bible-through-the-internal-evidence-test"
@@ -462,10 +533,15 @@ cases:
         - "/when-god-feels-distant"
         - "/daily-devo/hide-and-seek-5"
         - "/listening-for-god-to-speak"
+        - "/know-god-really-exists"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/god-why-cant-i-hear-you"
         - "/devotionals/tell-him-he-wants-to-know"
         - "/are-you-feeling-ignored"
+        - "/six-ways-god-speaks"  # re-credited 2026-07-02 (judge-approved, qwen)
+      familylife:
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/do-you-feel-abandoned-by-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/god-where-are-you"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "sl-skeptic-copycat"
     question: "Isn't Jesus just a recycled myth — a copy of older dying-and-rising gods?"
     relevant:
@@ -572,6 +648,12 @@ cases:
         - "/articles/topics/marriage/staying-married/romance-and-sex/strategic-romance"
         - "/articles/topics/marriage/staying-married/why-intentional-quality-time-matters"
         - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/does-your-marriage-need-help"
+        - "/articles/topics/marriage/getting-married/newlyweds/a-hand-to-hold-when-i-grow-old"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/wives/4-ways-to-prioritize-your-spouse-above-your-schedule-and-your-kids"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/the-divorce-announcement-shouldnt-have-surprised-me"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/romance-and-sex/10-surprising-ways-to-increase-romance"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/7-healthy-habits-of-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/romance-and-sex/it-happens-in-spring"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-believer-obedience"
     question: "Sometimes God seems to ask things I really don't want to do — how do I live in obedience when I'd rather not?"
     relevant:
@@ -580,10 +662,19 @@ cases:
         - "/obedience-discipline-and-trust-things-i-ve-learned-from-the-book-of-joshua"
         - "/devotionals/invisible-obedience"
         - "/devotionals/yes-god"
+        - "/devotionals/sure-i-heard"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/yes-i-will"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/you-can-run-but"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/an-obedience-of-faith"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/called-to-obedience"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/then-do-it"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/trusting-him-through-it-all"  # re-credited 2026-07-02 (judge-approved, qwen)
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
       sightline-ministry:
         - "/daily-devo/when-the-pressure-is-on-2"
+      familylife:
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/5-qualities-for-thriving-in-a-hostile-culture"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-believer-disciple-new-christian"
     question: "My friend just trusted Christ for the first time — what does she need to know first, and how do I help her without overwhelming her?"
     relevant:
@@ -593,12 +684,16 @@ cases:
         - "/nurturing-new-believers"
         - "/start-strong"
         - "/how-will-i-know-when-theyre-ready"
+        - "/yes"  # re-credited 2026-07-02 (judge-approved, qwen)
       jesusfilm-org:
         - "/blog/evangelism-follow-up-strategies"
       starting-with-god:
         - "/new-life/new.html"
       sightline-ministry:
         - "/daily-devo/helping-new-christians-get-a-good-start-3"
+        - "/daily-devo/helping-babies-grow-up-4"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/helping-new-christians-get-a-good-start-4"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/helping-babies-grow-up-3"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-newcomer-decision"
     question: "I think I just decided to trust Jesus — what now? What's the very next step?"
     relevant:
@@ -619,6 +714,8 @@ cases:
         - "/blog/signs-healthy-church"
       starting-with-god:
         - "/new-life/connect.html"
+      familylife:
+        - "/articles/topics/faith/essentials-faith/church-involvement/6-tips-on-how-to-find-a-church-for-your-family"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-affair-trust"
     question: "My spouse had an affair and I don't know if I can ever trust them again — should I even try to save this?"
     language: "en"  # explicit: familylife declares [en, es]; this question is English
@@ -630,6 +727,7 @@ cases:
         - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/reunited-rebuilding-a-marriage-after-separation"
         - "/articles/topics/marriage/troubled-marriage/infidelity/after-the-affair-rebuilding-our-marriage"
         - "/articles/topics/marriage/troubled-marriage/infidelity/my-wifes-affair-shattered-and-saved-our-marriage"
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/wrestling-with-god-over-a-broken-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-believer-spiritual-leader"
     question: "I want to be the spiritual leader of my family but I feel inadequate — where do I even start?"
     language: "en"  # explicit: familylife declares [en, es]; this question is English
@@ -642,6 +740,8 @@ cases:
         - "/articles/topics/marriage/staying-married/wives/how-can-i-motivate-my-husband-to-get-right-with-god-and-become-the-spiritual-leader-of-our-family"
         - "/articles/topics/marriage/staying-married/wives/q-a-encouraging-husbands-to-lead-spiritually"
         - "/articles/topics/faith/mom-why-isnt-dad-coming-to-church"
+        - "/articles/topics/life-issues/challenges/cultural-issues/ten-urgent-steps-for-for-keeping-your-family-spiritually-strong"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/essentials/fathers/dad-university"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-teen-prodigal"
     question: "My teenager has walked away from God and I'm scared of losing them for good — what do I do?"
     language: "en"  # explicit: familylife declares [en, es]; this question is English
@@ -655,6 +755,9 @@ cases:
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/inside-the-mind-of-a-prodigal"
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/when-prodigals-come-home"
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/a-story-of-two-prodigals"
+        - "/articles/topics/parenting/essentials/praying-for-your-children/all-they-could-do-was-pray"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/holidays/featured-holidays/christmas/if-your-prodigal-wont-come-home-for-christmas"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/when-things-fall-apart"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-believer-teen-own-faith"
     question: "How do I help my teenager actually own their faith instead of just inheriting mine?"
     language: "en"  # explicit: familylife declares [en, es]; this question is English
@@ -666,6 +769,10 @@ cases:
         - "/articles/topics/parenting/foundations/spiritual-development/how-can-i-help-my-kids-avoid-a-crisis-of-faith"
         - "/articles/topics/parenting/foundations/spiritual-development/parenting-advice-in-a-pleasure-seeking-world"
         - "/articles/topics/parenting/ages-and-stages/teens/how-to-ruin-your-teens-for-life"
+        - "/articles/topics/parenting/essentials/releasing-your-child/7-ways-to-know-if-your-kids-will-choose-church-in-college"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/foundations/spiritual-development/5-ways-to-help-your-child-develop-a-growing-relationship-with-christ"  # re-credited 2026-07-02 (judge-approved, qwen)
+      sightline-ministry:
+        - "/questions-welcome"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-single-parent"
     question: "I'm a single parent and I'm exhausted — does God have anything for someone doing this alone?"
     relevant:
@@ -674,8 +781,11 @@ cases:
         - "/articles/topics/parenting/parenting-challenges/single-parenting/to-the-single-mom-you-dont-have-to-do-it-all"
         - "/equip/parenting-during-deployment"
         - "/articles/topics/faith/essentials-faith/growing-in-your-faith/no-cinderella-story"
+        - "/articles/topics/parenting/foundations/godly-legacy/im-not-alone-in-parenting"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/parenting-challenges/single-parenting/how-can-the-single-mom-do-it"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/going-it-alone"
+        - "/devotionals/sustained"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-newcomer-premarital"
     question: "What does the Bible say about preparing for marriage before the wedding?"
     relevant:
@@ -684,6 +794,7 @@ cases:
         - "/articles/topics/marriage/getting-married/choosing-a-spouse/evaluating-your-spiritual-relationship-before-marriage"
         - "/articles/topics/marriage/getting-married/before-marriage-5-things-you-dont-have-to-know"
         - "/articles/topics/marriage/getting-married/choosing-a-spouse/single-men-its-time-to-step-up"
+        - "/articles/topics/marriage/getting-married/engagements-and-weddings/save-sex-for-the-honeymoon"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/the-betrothed"
         - "/preparing-for-marriage-not-just-the-wedding"
@@ -694,10 +805,13 @@ cases:
         - "/articles/topics/marriage/getting-married/engagements-and-weddings/save-sex-for-the-honeymoon"
       thelife:
         - "/why-should-i-wait-for-sex"
+        - "/devotionals/wise-intimacy"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/good-reasons-to-wait"
         - "/puritans-viewed-sex-correctly"
         - "/sex-sacred-forgotten-that"
+        - "/daily-devo/is-it-good-for-you-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/one-gods-great-gifts"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-blended-family"
     question: "Our blended family is full of conflict and the kids resent us — is there any hope?"
     relevant:
@@ -706,6 +820,10 @@ cases:
         - "/articles/topics/blended-family/stepparents/stepfamily-living/stepfamily-dynamics-when-youre-not-blending"
         - "/articles/topics/blended-family/stepparents/stepparenting-skills/how-to-build-a-united-front-as-a-stepcouple"
         - "/articles/topics/blended-family/in-this-home-we-embrace-our-differences-as-a-stepfamily"
+        - "/articles/topics/blended-family/stepparents/4-ways-to-manage-your-emotions-as-a-stepparent"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/equip/well-blended"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/blended-family/stepparents/stepfamily-living/how-to-cook-a-stepfamily"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/parenting-challenges/single-parenting/preparing-for-a-successful-blend"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/kids-divorce-and-remarriage"
   - id: "fl-believer-prodigal-adult"
@@ -718,8 +836,12 @@ cases:
         - "/equip/when-someone-you-love-is-losing-faith"
         - "/equip/a-month-of-prayers-for-prodigals-and-their-parents"
         - "/articles/topics/parenting/ages-and-stages/adult-children/how-not-to-be-a-toxic-parent-to-your-adult-child"
+        - "/articles/topics/faith/essentials-faith/spiritual-disciplines-essentials-faith/does-prayer-really-do-any-good"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/holidays/featured-holidays/christmas/if-your-prodigal-wont-come-home-for-christmas"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/our-greatest-burden"
+      jesusfilm-org:
+        - "/blog/when-someone-is-deconstructing"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-newcomer-discipline-child"
     question: "What's the biblical way to discipline a young child without crushing their spirit?"
     language: "en"  # explicit: familylife declares [en, es]; this question is English

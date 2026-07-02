@@ -621,6 +621,7 @@ cases:
         - "/new-life/connect.html"
   - id: "fl-seeker-affair-trust"
     question: "My spouse had an affair and I don't know if I can ever trust them again — should I even try to save this?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/marriage/troubled-marriage/infidelity/affair-repair-for-your-marriage"
@@ -631,6 +632,7 @@ cases:
         - "/articles/topics/marriage/troubled-marriage/infidelity/my-wifes-affair-shattered-and-saved-our-marriage"
   - id: "fl-believer-spiritual-leader"
     question: "I want to be the spiritual leader of my family but I feel inadequate — where do I even start?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/essentials/fathers/7-essentials-to-help-you-be-the-spiritual-leader-of-your-family"
@@ -642,6 +644,7 @@ cases:
         - "/articles/topics/faith/mom-why-isnt-dad-coming-to-church"
   - id: "fl-seeker-teen-prodigal"
     question: "My teenager has walked away from God and I'm scared of losing them for good — what do I do?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/foundations/spiritual-development/10-ideas-to-challenge-your-teenage-son-to-make-his-faith-his-own"
@@ -654,6 +657,7 @@ cases:
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/a-story-of-two-prodigals"
   - id: "fl-believer-teen-own-faith"
     question: "How do I help my teenager actually own their faith instead of just inheriting mine?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/foundations/spiritual-development/10-ideas-to-challenge-your-teenage-son-to-make-his-faith-his-own"
@@ -718,6 +722,7 @@ cases:
         - "/devotionals/our-greatest-burden"
   - id: "fl-newcomer-discipline-child"
     question: "What's the biblical way to discipline a young child without crushing their spirit?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/parenting-challenges/discipline/the-forgotten-part-of-discipline"

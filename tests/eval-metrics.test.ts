@@ -196,8 +196,28 @@ describe("caseLanguage — per-case retrieval language scoping (eval must search
     expect(caseLanguage(c, LANGS)).toBeNull();
   });
 
-  it("returns null when a relevant source is itself multilingual", () => {
+  it("returns null for a single multilingual source (ambiguous without an explicit language)", () => {
     const c = gcase({ relevant: { multi: ["/a.html"] } });
     expect(caseLanguage(c, { multi: ["en", "fr"] })).toBeNull();
+  });
+
+  it("intersects multilingual sources with monolingual ones (familylife en+es ∩ thelife en = en)", () => {
+    const c = gcase({
+      relevant: { familylife: ["/a.html"], thelife: ["/b.html"] },
+    });
+    expect(caseLanguage(c, { familylife: ["en", "es"], thelife: ["en"] })).toBe("en");
+  });
+
+  it("returns null when the intersection is empty", () => {
+    const c = gcase({ relevant: { a: ["/a.html"], b: ["/b.html"] } });
+    expect(caseLanguage(c, { a: ["fr"], b: ["zh"] })).toBeNull();
+  });
+
+  it("an explicit case language always wins", () => {
+    const c = gcase({
+      language: "en",
+      relevant: { multi: ["/a.html"] },
+    });
+    expect(caseLanguage(c, { multi: ["en", "es"] })).toBe("en");
   });
 });

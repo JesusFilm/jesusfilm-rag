@@ -89,30 +89,29 @@ sources:
     slice_file: docs/slices/thelife.md
     last_updated: 2026-06-03
 
-  # Language variants of thelife (sibling domains). Multilingual acquisition pass
-  # 2026-06-24 — acquired only; ingest/retrieve/evaluate pending the embedder-
-  # model swap. Record: docs/sources.md "Multilingual acquisition".
+  # Language variants of thelife (sibling domains). Acquired in the multilingual
+  # pass 2026-06-24; ingested + evaluated 2026-07-03 on the qwen embedder swap
+  # (PR #57). Record: docs/sources.md "Multilingual acquisition" + "Embedding
+  # model swap".
   thelife-fr:
     name: thelife — French (La Vie J'en Parle, laviejenparle.com)
-    status: in-progress
+    status: done
     languages:
       fr:
-        status: in-progress
-        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
-        note: pending embedder-model swap
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/sources.md
-    last_updated: 2026-06-24
+    last_updated: 2026-07-02
 
   thelife-zh:
     name: thelife — Chinese (UWOTA, uwota.com)
-    status: in-progress
+    status: done
     languages:
       zh:
-        status: in-progress
-        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
-        note: pending embedder-model swap
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/sources.md
-    last_updated: 2026-06-24
+    last_updated: 2026-07-02
 
   familylife:
     name: FamilyLife
@@ -123,11 +122,12 @@ sources:
         stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
       es:
         status: in-progress
-        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
         scope: us-latinos (1 page)
-        note: pending embedder-model swap
+        note: "ingested on qwen (PR #57); retrieve/evaluate pending — 1
+          sitemap-discoverable es page"
     slice_file: docs/slices/familylife.md
-    last_updated: 2026-06-24
+    last_updated: 2026-07-02
 
   everystudent:
     name: EveryStudent
@@ -136,6 +136,7 @@ sources:
       en:
         status: blocked
         stages: { acquire: red, ingest: pending, retrieve: pending, evaluate: pending }
-        blocker: "Cloudflare JS managed challenge on all content pages — needs a JS-capable fetcher (see FOLLOW-UP G / #8)."
+        blocker: "Cloudflare JS managed challenge on all content pages — needs a
+          JS-capable fetcher (see FOLLOW-UP G / #8)."
     slice_file: docs/slices/everystudent.md
     last_updated: 2026-05-25

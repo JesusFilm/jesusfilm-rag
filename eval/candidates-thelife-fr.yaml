@@ -1,0 +1,228 @@
+# CANDIDATE golden cases for thelife-fr (laviejenparle.com) — AGENT-DRAFTED, PENDING HUMAN CURATION.
+# Do NOT merge into qa-golden.yaml until the operator approves/edits/rejects each case
+# (golden guardrail #4: the operator is the gate). Every non-English case MUST carry an
+# English translation of the question AND of each retrieved result as comments — see
+# docs/eval-approach.md → "Multilingual eval".
+#
+# Drafted 2026-07-02 against the qwen/qwen3-embedding-8b corpus (156 docs / 651 chunks).
+# RETRIEVED blocks: language-scoped (fr) top-10 from the 2026-07-02 eval run, after the
+# pgvector iterative-scan fix; every title translated to English for human verification.
+# Eval: recall@10 1.000 · coverage 0.817 · MRR 0.900 (eval/results-2026-07-02-thelife-fr.md).
+#
+# NEGATIVES (for minScore calibration via pnpm query — do NOT add to qa-golden.yaml):
+#   - "Comment déclarer mes impôts au Québec ?"             # EN: How do I file my taxes in Quebec? → top score 0.438 (money article)
+#   - "Quelle est la meilleure recette de tarte au sucre ?" # EN: What's the best sugar-pie recipe? → top 0.317
+#   - "Comment réparer un robinet qui fuit ?"               # EN: How do I fix a leaking tap? → top 0.367
+#   - "Quel entraînement pour courir un marathon ?"         # EN: What training plan for a marathon? → top 0.329
+
+# JUDGE REVIEW (LLM-as-judge, 2026-07-02): suite avg 0.8 — PASSES the >0.7 bar; no 0-scored cases.
+# Per-case (0 / 0.5 / 1 on result relevance, judged on EN translations):
+#   1.0: deuil-fils, dieu-existe, avortement, porno, saint-esprit, jesus
+#   0.5: resurrection, pardonner, mari-incroyant, anxiete (tail-drift: on-topic top ranks, off-topic tails
+#        — expected where a 156-doc corpus runs out of on-topic docs before rank 10)
+
+cases:
+  # EN: "My son died a few months ago and I'm angry at God — can my faith survive this?"
+  - id: "tlfr-seeker-deuil-fils"
+    question: "Mon fils est mort il y a quelques mois et je suis en colère contre Dieu — est-ce que ma foi peut survivre à ça ?"
+    relevant:
+      thelife-fr:
+        - "/comment-garder-la-foi-apres-la-perte-de-mon-fils"
+        - "/vivre-son-deuil"
+        - "/du-deuil-au-doute-au-dialogue"
+        - "/apres-le-deuil-la-vie"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02) — EN translations for human verification:
+  #   1. 0.766 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+  #   2. 0.724 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   3. 0.707 /apres-le-deuil-la-vie — EN: "After grief, life"
+  #   4. 0.678 /mon-petit-heros — EN: "My little hero" (a parent's testimony)
+  #   5. 0.629 /faire-son-deuil-apres-la-rupture — EN: "Grieving after a breakup"
+  #   6. 0.625 /guerir-de-son-passe-sexuel — EN: "Healing from your sexual past"
+  #   7. 0.619 /dans-la-tempete-faire-face-a-une-crise-familiale — EN: "In the storm: facing a family crisis"
+  #   8. 0.595 /un-dieu-deux-reponses-a-la-priere — EN: "One God, two answers to prayer"
+  #   9. 0.592 /mon-miracle-de-noel — EN: "My Christmas miracle"
+  #  10. 0.587 /surmonter-la-deception — EN: "Overcoming disappointment"
+
+  # EN: "I'm an atheist: give me one good reason to think a god exists."
+  - id: "tlfr-skeptic-dieu-existe"
+    question: "Je suis athée : donnez-moi une seule bonne raison de penser qu'un dieu existe."
+    relevant:
+      thelife-fr:
+        - "/dieu-existe-t-il"
+        - "/pourquoi-y-a-t-il-quelque-chose-plutot-que-rien"
+        - "/la-science-et-le-dieu-personnel"
+        - "/cinq-choses-que-la-science-ne-peut-prouver"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.722 /dieu-existe-t-il — EN: "Does God exist?"
+  #   2. 0.647 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
+  #   3. 0.643 /la-science-et-le-dieu-personnel — EN: "Science and the personal God"
+  #   4. 0.600 /pourquoi-y-a-t-il-quelque-chose-plutot-que-rien — EN: "Why is there something rather than nothing?"
+  #   5. 0.581 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
+  #   6. 0.558 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   7. 0.533 /y-a-t-il-une-vie-apres-la-mort — EN: "Is there life after death?"
+  #   8. 0.512 /cinq-choses-que-la-science-ne-peut-prouver — EN: "Five things science cannot prove"
+  #   9. 0.505 /qui-est-jesus — EN: "Who is Jesus?"
+  #  10. 0.496 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+
+  # EN: "How can anyone seriously believe a dead man came back to life 2,000 years ago?"
+  - id: "tlfr-skeptic-resurrection"
+    question: "Comment peut-on croire sérieusement qu'un homme mort est revenu à la vie il y a 2000 ans ?"
+    relevant:
+      thelife-fr:
+        - "/jesus-est-il-ressuscite-a-la-vie-eternelle"
+        - "/y-a-t-il-une-vie-apres-la-mort"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.724 /jesus-est-il-ressuscite-a-la-vie-eternelle — EN: "Did Jesus rise to eternal life?"
+  #   2. 0.716 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
+  #   3. 0.613 /qui-est-jesus — EN: "Who is Jesus?"
+  #   4. 0.580 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
+  #   5. 0.570 /voir-dieu-face-a-face — EN: "Seeing God face to face"
+  #   6. 0.563 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+  #   7. 0.562 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   8. 0.552 /un-nouvel-homme — EN: "A new man"
+  #   9. 0.525 /la-voie-de-la-joie — EN: "The way of joy"
+  #  10. 0.525 /comprendre-votre-relation-avec-jesus-christ — EN: "Understanding your relationship with Jesus Christ"
+
+  # EN: "I had an abortion years ago and still can't forgive myself — is healing possible for me?"
+  - id: "tlfr-seeker-avortement"
+    question: "J'ai avorté il y a des années et je n'arrive toujours pas à me le pardonner — est-ce qu'il y a une guérison possible pour moi ?"
+    relevant:
+      thelife-fr:
+        - "/qu-ai-je-fait-trouver-la-guerison-apres-mon-avortement"
+        - "/je-regrette-mon-avortement"
+        - "/guerir-d-un-l-avortement-passe"
+        - "/se-liberer-de-sa-culpabilite"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.845 /je-regrette-mon-avortement — EN: "I regret my abortion"
+  #   2. 0.824 /guerir-d-un-l-avortement-passe — EN: "Healing from a past abortion"
+  #   3. 0.816 /des-larmes-a-la-victoire — EN: "From tears to victory" (post-abortion testimony)
+  #   4. 0.751 /qu-ai-je-fait-trouver-la-guerison-apres-mon-avortement — EN: "What have I done? Finding healing after my abortion"
+  #   5. 0.693 /a-l-aide-j-aime-mon-partenaire-mais-je-n-aime-pas-le-sexe — EN: "Help! I love my partner but I don't like sex"
+  #   6. 0.685 /guerir-de-son-passe-sexuel — EN: "Healing from your sexual past"
+  #   7. 0.665 /il-ne-brisera-pas-le-roseau-qui-se-ploie — EN: "He will not break the bruised reed"
+  #   8. 0.662 /pourquoi-ai-je-tant-de-problemes-avec-l-intimite-sexuelle — EN: "Why do I have so many problems with sexual intimacy?"
+  #   9. 0.649 /apprenez-a-vous-voir-comme-dieu-vous-voit — EN: "Learn to see yourself as God sees you"
+  #  10. 0.649 /vivre-son-deuil — EN: "Living through your grief"
+
+  # EN: "I can't break free from porn and I'm so ashamed — how do I get out?"
+  - id: "tlfr-seeker-porno"
+    question: "Je n'arrive pas à décrocher du porno et j'ai tellement honte — comment m'en sortir ?"
+    relevant:
+      thelife-fr:
+        - "/je-lutte-avec-la-pornographie"
+        - "/le-vrai-visage-de-la-pornographie"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.761 /la-puissance-des-images — EN: "The power of images"
+  #   2. 0.754 /je-lutte-avec-la-pornographie — EN: "I struggle with pornography"
+  #   3. 0.714 /une-transformation-surnaturelle — EN: "A supernatural transformation"
+  #   4. 0.640 /le-plaisir-sexuel-se-vit-a-deux — EN: "Sexual pleasure is experienced together"
+  #   5. 0.602 /le-vrai-visage-de-la-pornographie — EN: "The true face of pornography"
+  #   6. 0.582 /liberes-de-la-honte — EN: "Freed from shame"
+  #   7. 0.579 /ces-mensonges-que-nous-croyons — EN: "The lies we believe"
+  #   8. 0.567 /apprenez-a-vous-voir-comme-dieu-vous-voit — EN: "Learn to see yourself as God sees you"
+  #   9. 0.561 /le-sexe-tout-se-passe-t-il-dans-ma-tete — EN: "Sex: is it all in my head?"
+  #  10. 0.557 /pourquoi-ai-je-tant-de-problemes-avec-l-intimite-sexuelle — EN: "Why do I have so many problems with sexual intimacy?"
+
+  # EN: "I've been deeply hurt; I know God asks me to forgive but I can't — how do I actually do it?"
+  - id: "tlfr-believer-pardonner"
+    question: "On m'a profondément blessé ; je sais que Dieu me demande de pardonner mais je n'y arrive pas — comment faire concrètement ?"
+    relevant:
+      thelife-fr:
+        - "/pardonner-n-est-pas-un-sentiment"
+        - "/la-puissance-du-pardon"
+        - "/le-pouvoir-guerissant-du-pardon"
+        - "/un-pardon-authentique"
+        - "/retrouver-la-liberte-en-pardonnant"
+        - "/vivre-le-pardon-et-l-amour-de-dieu"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.785 /je-ne-peux-pas-lui-pardonner-son-passe-sexuel — EN: "I can't forgive their sexual past"
+  #   2. 0.774 /un-pardon-authentique — EN: "Authentic forgiveness"
+  #   3. 0.767 /pardonner-n-est-pas-un-sentiment — EN: "Forgiveness is not a feeling"
+  #   4. 0.739 /trainer-les-bagages-de-famille-la-liberte-est-un-choix — EN: "Carrying family baggage: freedom is a choice"
+  #   5. 0.734 /delier-les-liens-sexuels — EN: "Untying sexual bonds"
+  #   6. 0.732 /comment-pardonner-et-oublier-quand-votre-partenaire-vous-decoit — EN: "How to forgive and forget when your partner lets you down"
+  #   7. 0.723 /vivre-son-deuil — EN: "Living through your grief"
+  #   8. 0.721 /la-puissance-du-pardon — EN: "The power of forgiveness"
+  #   9. 0.717 /violence-fraternelle — EN: "Sibling violence"
+  #  10. 0.714 /a-l-aide-j-aime-mon-partenaire-mais-je-n-aime-pas-le-sexe — EN: "Help! I love my partner but I don't like sex"
+
+  # EN: "My Christian life feels flat and powerless — how do I live daily in the Holy Spirit's power?"
+  - id: "tlfr-believer-saint-esprit"
+    question: "Ma vie chrétienne me semble plate et sans puissance — comment vivre chaque jour par la force du Saint-Esprit ?"
+    relevant:
+      thelife-fr:
+        - "/connaissez-vous-la-plenitude-du-saint-esprit"
+        - "/le-saint-esprit-et-la-difference-qu-il-fait"
+        - "/suivre-la-direction-du-saint-esprit"
+        - "/une-vie-chretienne-dynamique"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.746 /une-vie-chretienne-dynamique — EN: "A dynamic Christian life"
+  #   2. 0.703 /connaissez-vous-la-plenitude-du-saint-esprit — EN: "Do you know the fullness of the Holy Spirit?"
+  #   3. 0.683 /le-saint-esprit-et-la-difference-qu-il-fait — EN: "The Holy Spirit and the difference he makes"
+  #   4. 0.677 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   5. 0.648 /la-force-dans-la-faiblesse — EN: "Strength in weakness"
+  #   6. 0.647 /prier-selon-les-ecritures — EN: "Praying according to Scripture"
+  #   7. 0.645 /s-abandonner — EN: "Surrendering"
+  #   8. 0.626 /suivre-la-direction-du-saint-esprit — EN: "Following the Holy Spirit's leading"
+  #   9. 0.625 /savoir-tenir-ferme — EN: "Standing firm"
+  #  10. 0.619 /croitre-dans-votre-relation-avec-dieu — EN: "Growing in your relationship with God"
+
+  # EN: "My husband doesn't believe and I feel alone in my faith — how do I persevere and hope he meets God one day?"
+  - id: "tlfr-believer-mari-incroyant"
+    question: "Mon mari ne croit pas et je me sens seule dans ma foi — comment tenir et espérer qu'il rencontre Dieu un jour ?"
+    relevant:
+      thelife-fr:
+        - "/mon-mari-ne-partage-pas-ma-foi"
+        - "/le-salut-de-son-partenaire"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.790 /le-salut-de-son-partenaire — EN: "Your partner's salvation"
+  #   2. 0.713 /mon-mari-ne-partage-pas-ma-foi — EN: "My husband doesn't share my faith"
+  #   3. 0.696 /dieu-nous-promet-il-un-conjoint — EN: "Does God promise us a spouse?"
+  #   4. 0.696 /s-adapter-a-la-perte-de-travail-de-son-partenaire — EN: "Adjusting to your partner's job loss"
+  #   5. 0.675 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+  #   6. 0.650 /apres-le-deuil-la-vie — EN: "After grief, life"
+  #   7. 0.649 /surmonter-la-deception — EN: "Overcoming disappointment"
+  #   8. 0.647 /ma-boite-a-outils — EN: "My toolbox"
+  #   9. 0.634 /que-faire-lorsque-vous-vous-sentez-seuls-dans-votre-mariage — EN: "What to do when you feel alone in your marriage"
+  #  10. 0.628 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+
+  # EN: "I know almost nothing about Jesus — who was he, and what did he do that matters so much?"
+  - id: "tlfr-newcomer-jesus"
+    question: "Je ne connais presque rien à Jésus — c'était qui, et qu'est-ce qu'il a fait de si important ?"
+    relevant:
+      thelife-fr:
+        - "/qui-est-jesus"
+        - "/comprendre-votre-relation-avec-jesus-christ"
+        - "/la-beaute-de-jesus"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.615 /qui-est-jesus — EN: "Who is Jesus?"
+  #   2. 0.615 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
+  #   3. 0.566 /la-voie-de-la-joie — EN: "The way of joy"
+  #   4. 0.565 /voir-dieu-face-a-face — EN: "Seeing God face to face"
+  #   5. 0.556 /la-beaute-de-jesus — EN: "The beauty of Jesus"
+  #   6. 0.541 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
+  #   7. 0.540 /jesus-est-il-ressuscite-a-la-vie-eternelle — EN: "Did Jesus rise to eternal life?"
+  #   8. 0.535 /violence-fraternelle — EN: "Sibling violence"
+  #   9. 0.534 /un-nouvel-homme — EN: "A new man"
+  #  10. 0.522 /jesus-pleura — EN: "Jesus wept"
+
+  # EN: "My mind never stops churning over my worries — how do I find real inner peace?"
+  - id: "tlfr-seeker-anxiete"
+    question: "Mon cerveau n'arrête jamais de ressasser mes inquiétudes — comment retrouver une vraie paix intérieure ?"
+    relevant:
+      thelife-fr:
+        - "/surmonter-l-anxiete"
+        - "/pourquoi-se-faire-du-souci"
+        - "/ce-monstre-que-l-on-appelle-peur"
+        - "/quel-est-votre-niveau-de-stress"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.618 /pourquoi-se-faire-du-souci — EN: "Why worry?"
+  #   2. 0.572 /surmonter-l-anxiete — EN: "Overcoming anxiety"
+  #   3. 0.565 /quel-est-votre-niveau-de-stress — EN: "What's your stress level?"
+  #   4. 0.532 /ce-monstre-que-l-on-appelle-peur — EN: "That monster called fear"
+  #   5. 0.508 /les-merveilles-de-la-creation — EN: "The wonders of creation"
+  #   6. 0.505 /le-pouvoir-guerissant-du-pardon — EN: "The healing power of forgiveness"
+  #   7. 0.477 /la-meditation-trouver-notre-repos-en-dieu — EN: "Meditation: finding our rest in God"
+  #   8. 0.461 /un-nouvel-homme — EN: "A new man"
+  #   9. 0.457 /une-oeuvre-merveilleuse — EN: "A marvelous work"
+  #  10. 0.449 /trainer-les-bagages-de-famille-la-liberte-est-un-choix — EN: "Carrying family baggage: freedom is a choice"

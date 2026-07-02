@@ -234,11 +234,15 @@ No non-English golden cases exist yet. For each non-English source key
    Primary read is **recall@10 + coverage**, with recall@3 + MRR reported as
    ranking-quality secondaries (recall@10 can saturate on a small per-language set).
    **Every non-English case written to `eval/qa-golden.yaml` MUST carry an English
-   translation of its question as a YAML comment on the case (e.g. `# EN: …`).**
-   The translation is not decoration — it is what lets a reviewer who does not
-   read the language audit the suite later, and what future agents use to
-   re-review the living relevant sets without re-translating. A non-English case
-   without an `# EN:` comment is incomplete and must not be merged.
+   translation of its question as a YAML comment on the case (e.g. `# EN: …`), AND
+   its eval evidence MUST include the retrieved results translated to English** —
+   a `# RETRIEVED` comment block listing each returned doc (path + English-translated
+   title), as in `eval/candidates-thelife-*.yaml`. The translations are not
+   decoration — a reviewer who does not read the language can only verify that the
+   *results* answer the *question* if both sides are in English, and future agents
+   re-review the living relevant sets from them. A non-English case without its
+   `# EN:` question translation and translated retrieved results is incomplete and
+   must not be merged.
 4. **minScore** (0.37, English-derived) may shift under qwen and across languages —
    re-derive from the new score distribution using a few non-English off-topic
    negatives per language before changing the default; report before changing.

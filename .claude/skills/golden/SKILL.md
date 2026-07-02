@@ -189,6 +189,12 @@ a useful signal about phrasing or about gaps in the source's coverage.
   `swg-seeker-begin`); each MUST carry `source: <registry-key>` (the resolved
   source key — drives `pnpm eval --source` + the per-source breakdown) and at
   least `expected_doc_paths`.
+- **Non-English cases MUST carry an English translation of the question as a
+  YAML comment on the case (e.g. `# EN: …`).** A reviewer who doesn't read the
+  language audits the suite through these comments, and future agents re-review
+  the living relevant sets from them. A non-English case without an `# EN:`
+  comment is incomplete — do not write it. (See docs/eval-approach.md →
+  "Multilingual eval".)
 - **Negatives** → save the list to the source's slice file (Stage 4 section) — do
   **not** put them in `qa-golden.yaml` (`eval.ts` would miscount them as misses).
 

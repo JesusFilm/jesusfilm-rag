@@ -137,6 +137,45 @@ pnpm eval:production --source thelife-zh        # per-language (once zh golden c
 - **Shared OpenRouter key** — prod re-embed competes with any local run on the same rate
   limit. Don't run both at once.
 - **Long run / interruption** — hence `tmux`. `index:production` is per-document idempotent
-  (delete-then-insert in one tx); a killed run leaves that source partial, re-run drains the rest.
+  (delete-then-insert in one tx); a killed run leaves that source partial. ⚠️ **Resuming a
+  partial `--force` re-embed is NOT a plain re-run** (learned in the 2026-07-02 local run):
+  without `--force` the dedup gate sees unchanged `content_hash` and marks the remaining rows
+  "unchanged" **without re-embedding**, while re-running `--force` redoes the whole source,
+  wasting everything already re-embedded. Proven resume recipe — invalidate `content_hash`
+  for the docs still on the old model, reset their raw rows to pending, re-run **without**
+  `--force` (only the stale docs re-embed):
+  ```sql
+  WITH stale AS (
+    SELECT DISTINCT d.id, d.canonical_url FROM documents d
+    JOIN sources s ON s.id=d.source_id AND s.key='<source>'
+    JOIN chunks c ON c.document_id=d.id
+    JOIN chunk_embeddings ce ON ce.chunk_id=c.id AND ce.embedding_model='<old-model>'
+  ), inv AS (
+    UPDATE documents SET content_hash='INVALIDATED-REEMBED'
+     WHERE id IN (SELECT id FROM stale) RETURNING id
+  )
+  UPDATE raw_documents SET ingested_at=NULL
+   WHERE source_key='<source>' AND canonical_url IN (SELECT canonical_url FROM stale);
+  ```
 - **Cost** — one embedding per chunk (~24k) + queries; pennies on OpenRouter, but real. The
   redacted-target Y/N gate is the last line of defence against the wrong DB.
+
+## Local-run learnings (dev laptop, 2026-07-02) — apply to prod expectations
+
+The full local re-embed (8 sources, 24,642 chunks, ~9,000 documents) ran per-source
+`pnpm index --source <key> --force` in **6 parallel streams**:
+
+- **Parallel per-source streams are safe and effective**: zero 429s / zero rate-limit
+  pushback from OpenRouter at 6-way; transient timeouts (~0.5% of docs) all recovered by
+  the embedder's retry. Streams touch disjoint sources, so no DB contention.
+- **Do NOT run two streams on the same source**: the pending-row drain has no row claiming
+  (no `FOR UPDATE SKIP LOCKED`) — concurrent same-source workers double-process rows.
+  Per-source is the max safe fan-out today; intra-source workers would need a claiming
+  drain (follow-up if speed ever matters more).
+- **Throughput is provider-latency-bound, not concurrency-bound**: one embed request per
+  document (~5 chunks avg), 1–40s per request depending on OpenRouter's provider routing
+  (SiliconFlow fast, Nebius slow on big batches). Observed ~6–13 docs/min per stream,
+  ~20–35 docs/min aggregate. Whole corpus ≈ a working day wall-clock; the largest source
+  (`thelife`, 4,485 docs) dominates. Sequential prod (one key, per the procedure above)
+  should expect ~9,000 docs × ~9 s ≈ **22h+**; plan the tmux session accordingly or
+  run 2–3 sources in parallel panes if the shared-key rate budget allows.

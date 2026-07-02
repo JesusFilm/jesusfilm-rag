@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import {
   GoldenCaseSchema,
   allRelevantPaths,
+  caseLanguage,
   computeMetrics,
   coverageBySource,
   firstMatchingRank,
@@ -162,5 +163,41 @@ describe("safePathname", () => {
 
   it("falls back to the raw string on a non-URL", () => {
     expect(safePathname("not a url")).toBe("not a url");
+  });
+});
+
+describe("caseLanguage — per-case retrieval language scoping (eval must search the case's source language only)", () => {
+  const LANGS = {
+    "starting-with-god": ["en"],
+    "cru-10-basic-steps": ["en"],
+    "thelife-fr": ["fr"],
+    "thelife-zh": ["zh"],
+  };
+
+  it("derives the single language shared by every relevant source", () => {
+    const c = gcase({ relevant: { "thelife-fr": ["/dieu-existe-t-il"] } });
+    expect(caseLanguage(c, LANGS)).toBe("fr");
+  });
+
+  it("derives 'en' for a case spanning multiple English sources", () => {
+    const c = gcase(); // SWG + CRU, both en
+    expect(caseLanguage(c, LANGS)).toBe("en");
+  });
+
+  it("returns null (no filter) when relevant sources span languages", () => {
+    const c = gcase({
+      relevant: { "starting-with-god": ["/a.html"], "thelife-zh": ["/pray"] },
+    });
+    expect(caseLanguage(c, LANGS)).toBeNull();
+  });
+
+  it("returns null when a relevant source is unknown to the registry map", () => {
+    const c = gcase({ relevant: { "not-registered": ["/a.html"] } });
+    expect(caseLanguage(c, LANGS)).toBeNull();
+  });
+
+  it("returns null when a relevant source is itself multilingual", () => {
+    const c = gcase({ relevant: { multi: ["/a.html"] } });
+    expect(caseLanguage(c, { multi: ["en", "fr"] })).toBeNull();
   });
 });

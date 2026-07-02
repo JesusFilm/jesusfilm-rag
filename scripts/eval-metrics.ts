@@ -75,6 +75,28 @@ export function safePathname(url: string): string {
 }
 
 /**
+ * The retrieval language for a golden case: the single language shared by every
+ * source in its relevant set (looked up in `languagesBySource`, i.e. the registry's
+ * `languages` arrays). The eval must search **the case's source language only** —
+ * results in other languages must not push out retrieval of the language being
+ * evaluated (docs/eval-approach.md → "Multilingual eval"). Returns null (no
+ * filter) when the languages are mixed, a source is unknown, or a relevant
+ * source is itself multilingual — scoping would silently hide legitimate docs.
+ */
+export function caseLanguage(
+  c: GoldenCase,
+  languagesBySource: Record<string, string[]>,
+): string | null {
+  const langs = new Set<string>();
+  for (const sourceKey of Object.keys(c.relevant)) {
+    const sourceLangs = languagesBySource[sourceKey];
+    if (!sourceLangs || sourceLangs.length !== 1) return null;
+    langs.add(sourceLangs[0]);
+  }
+  return langs.size === 1 ? [...langs][0] : null;
+}
+
+/**
  * Every relevant pathname across sources, **distinct**. Deduped so the coverage
  * denominator matches the (also-deduped) returnedRelevant numerator — a doc
  * listed under two sources counts once, so perfect retrieval still reaches 1.0.

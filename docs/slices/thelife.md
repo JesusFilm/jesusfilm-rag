@@ -192,6 +192,22 @@ Faith-adjacent (above floor, below positive band):
   deity / identity, no Islamic content in corpus; below 0.55+ positive band)
 - "best meditation techniques from Buddhism" — 0 hits
 
+### thelife-fr (laviejenparle.com) — qwen corpus, 2026-07-02
+Moved here 2026-07-03 when `eval/candidates-thelife-fr.yaml` was folded into
+qa-golden.yaml (this slice hosts the fr/zh variants; they have no slice file).
+Scores are the top hit via `pnpm query` (qwen, minScore floor reference 0.37):
+- "Comment déclarer mes impôts au Québec ?"             — EN: How do I file my taxes in Quebec? → top 0.438 (money article)
+- "Quelle est la meilleure recette de tarte au sucre ?" — EN: What's the best sugar-pie recipe? → top 0.317
+- "Comment réparer un robinet qui fuit ?"               — EN: How do I fix a leaking tap? → top 0.367
+- "Quel entraînement pour courir un marathon ?"         — EN: What training plan for a marathon? → top 0.329
+
+### thelife-zh (uwota.com 人生你我他) — qwen corpus, 2026-07-02
+Moved here 2026-07-03 from `eval/candidates-thelife-zh.yaml` (same fold):
+- "怎么做正宗的红烧肉？"       — EN: How do I make authentic braised pork? → top 0.230
+- "去日本自由行签证怎么办理？" — EN: How do I get a visa for independent travel to Japan? → top 0.221
+- "如何修理漏水的水龙头？"     — EN: How do I fix a leaking tap? → top 0.238
+- "学游泳有什么技巧？"         — EN: What are tips for learning to swim? → top 0.454 (modesty/swimsuit article — semantic neighbor)
+
 ## Decisions made (this slice)
 - 2026-05-29 — **Pivoted target from powertochange.com → thelife.com.** Recon
   found powertochange.com 301-redirects every content URL (homepage → thelife.com;

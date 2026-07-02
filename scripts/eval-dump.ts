@@ -34,6 +34,13 @@ async function main(): Promise<void> {
   const cases = source
     ? golden.cases.filter((c) => Object.prototype.hasOwnProperty.call(c.relevant, source))
     : golden.cases;
+  if (source && cases.length === 0) {
+    const known = [...new Set(golden.cases.flatMap((c) => Object.keys(c.relevant)))].sort();
+    console.error(
+      `error: no golden cases with source="${source}" in their relevant set. known sources: ${known.join(", ")}`,
+    );
+    process.exit(2);
+  }
   const languagesBySource = Object.fromEntries(SOURCES.map((s) => [s.key, s.languages]));
 
   const wiring = wire();
@@ -41,6 +48,9 @@ async function main(): Promise<void> {
     const dump = [];
     for (const c of cases) {
       const language = caseLanguage(c, languagesBySource);
+      if (language === null) {
+        console.warn(`warn: ${c.id} — no case language derivable; dumping unscoped top-${TOP_K}`);
+      }
       const ranked = await wiring.retriever.search(c.question, {
         topK: TOP_K,
         ...(language ? { language } : {}),

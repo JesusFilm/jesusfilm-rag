@@ -117,7 +117,11 @@ async function main(): Promise<void> {
     );
     const results: CaseResult[] = [];
     for (const c of cases) {
-      const hits = await runOne(wiring.retriever, c.question, caseLanguage(c, languagesBySource));
+      const language = caseLanguage(c, languagesBySource);
+      if (language === null) {
+        console.warn(`  ⚠ ${c.id} — no case language derivable; searching unscoped`);
+      }
+      const hits = await runOne(wiring.retriever, c.question, language);
       const matchedRank = firstMatchingRank(hits, c);
       const returned = returnedRelevant(hits, c);
       results.push({ case: c, hits, matchedRank, returnedRelevant: returned });

@@ -71,15 +71,24 @@ export class PostgresCorpusSearchStore implements CorpusSearchStore {
     assertQueryDimensions(queryVec);
     const lit = toVectorLiteral(queryVec);
     const distance = sql`${chunkEmbeddings.embedding} <=> ${lit}::halfvec`;
-    return this.db
-      .select({ ...scoredColumns, score: sql<number>`1 - (${distance})` })
-      .from(chunkEmbeddings)
-      .innerJoin(chunks, eq(chunks.id, chunkEmbeddings.chunkId))
-      .innerJoin(documents, eq(documents.id, chunks.documentId))
-      .innerJoin(sources, eq(sources.id, chunks.sourceId))
-      .where(this.buildWhere(filter))
-      .orderBy(distance)
-      .limit(k);
+    return this.db.transaction(async (tx) => {
+      // pgvector 0.8 iterative scan (FOLLOW-UP J #17): with a selective filter
+      // (a rare language, a narrow source scope) the fixed hnsw candidate
+      // window (ef_search, default 40) can be exhausted by out-of-filter
+      // neighbors, returning ZERO in-filter rows that exist above the cutoff.
+      // strict_order keeps exact distance ordering; the scan is still capped
+      // by hnsw.max_scan_tuples. SET LOCAL needs the transaction.
+      await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
+      return tx
+        .select({ ...scoredColumns, score: sql<number>`1 - (${distance})` })
+        .from(chunkEmbeddings)
+        .innerJoin(chunks, eq(chunks.id, chunkEmbeddings.chunkId))
+        .innerJoin(documents, eq(documents.id, chunks.documentId))
+        .innerJoin(sources, eq(sources.id, chunks.sourceId))
+        .where(this.buildWhere(filter))
+        .orderBy(distance)
+        .limit(k);
+    });
   }
 
   async keywordSearch(

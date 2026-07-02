@@ -8,7 +8,7 @@
  * Constructed only by main.ts. See architecture §4.
  *
  * Two behaviours support instruction-aware models (e.g. Qwen3-Embedding), off by
- * default so `openai/text-embedding-3-small` is unchanged:
+ * default so a plain OpenAI-style embedder is unchanged:
  *   - `queryInstruction` — when set, `embedQuery` wraps the query as
  *     `Instruct: {task}\nQuery: {text}` (asymmetric encoding: documents via
  *     `embed()` stay raw). Qwen's recommended query format; measurably improves
@@ -33,7 +33,7 @@
 import type { Embedder } from "@/contracts/index.js";
 
 const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
-const DEFAULT_MODEL = "openai/text-embedding-3-small";
+const DEFAULT_MODEL = "qwen/qwen3-embedding-8b";
 const DEFAULT_DIMENSIONS = 1536;
 const DEFAULT_MAX_BATCH = 100; // OpenAI allows far more; 100 keeps requests modest.
 const DEFAULT_INTER_BATCH_DELAY_MS = 200;

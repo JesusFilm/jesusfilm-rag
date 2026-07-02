@@ -11,13 +11,14 @@
  *
  *   SMOKE_BASE_URL  target origin            (default http://localhost:8080)
  *   SMOKE_TOKEN     bearer the server trusts (required)
- *   SMOKE_MAX_MS    hang ceiling, ms         (default 5000)
+ *   SMOKE_MAX_MS    hang ceiling, ms         (default 15000)
  *
  * The gate is CORRECTNESS: health is up, /v1/search returns 200 with a
  * contract-valid response. Latency is reported every run but is NOT a sub-second
  * SLA — it is dominated by the embedding provider's variable round-trip
- * (~0.8–1.4s observed), so failing a deploy on a tight budget would flake. The
- * ceiling only catches a true hang/outage. Exits non-zero on any correctness
+ * (qwen/qwen3-embedding-8b via OpenRouter: ~1–11s observed, provider-routing
+ * dependent; 3-small was ~0.8–1.4s), so failing a deploy on a tight budget
+ * would flake. The ceiling only catches a true hang/outage. Exits non-zero on any correctness
  * breach so a CD pipeline can gate a deploy on it.
  */
 import type { SearchResponse } from "@/contracts/index.js";
@@ -25,7 +26,7 @@ import { searchResponseSchema } from "@/contracts/index.js";
 
 const BASE_URL = process.env.SMOKE_BASE_URL ?? "http://localhost:8080";
 const TOKEN = process.env.SMOKE_TOKEN;
-const MAX_MS = Number(process.env.SMOKE_MAX_MS ?? "5000");
+const MAX_MS = Number(process.env.SMOKE_MAX_MS ?? "15000");
 const QUERY =
   process.argv.slice(2).join(" ").trim() || "how do I become a Christian?";
 

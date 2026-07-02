@@ -5,7 +5,7 @@ import { z } from "zod";
 // Default embedding model — see docs/architecture.md (decision 1). The Embedder
 // adapter (src/adapters/openrouter) will own the canonical client; this is only
 // the env default, so EMBED_MODEL_ID can be omitted.
-const DEFAULT_EMBED_MODEL_ID = "openai/text-embedding-3-small";
+const DEFAULT_EMBED_MODEL_ID = "qwen/qwen3-embedding-8b";
 
 /**
  * Load `.env` from the repo root if present. We deliberately do NOT use
@@ -56,7 +56,7 @@ const envSchema = z.object({
   EMBED_BASE_URL: z.string().url().optional(),
   // Instruction-aware query task for Qwen3-Embedding-class models. When set,
   // embedQuery encodes `Instruct: {…}\nQuery: {text}` (documents stay raw).
-  // Unset ⇒ symmetric encoding (openai/text-embedding-3-small).
+  // Unset ⇒ symmetric encoding; set it for qwen (see docs/ops/prod-reembed.md).
   EMBED_QUERY_INSTRUCTION: z.string().min(1).optional(),
   // MRL fallback: truncate+renormalize a wider-than-1536 vector client-side, for
   // a self-hosted endpoint that ignores the `dimensions` request param. Off by

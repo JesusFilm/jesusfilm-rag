@@ -36,9 +36,14 @@ code — but **each of these entry points must run with `EMBED_MODEL_ID=qwen/qwe
 - `pnpm retrieve:production` / `pnpm eval:production` — via the seeded session (step 1);
 - (local, on the laptop) `pnpm query` / `pnpm eval` — via `.env`.
 
-The code **default stays `openai/text-embedding-3-small` on purpose**: Railway redeploys on
-push to `main`, so flipping the default before the corpus is re-embedded would break prod
-retrieval on the merge. The model is switched by **env at cutover**, never by the code default.
+⚠️ **The code default is now `qwen/qwen3-embedding-8b`** (flipped 2026-07-02 after the local
+re-embed + eval sign-off; the earlier revision of this runbook deliberately kept 3-small as
+the default). Consequence — **THIS IS A MERGE-BLOCKER**: Railway redeploys on push to `main`,
+and a qwen-defaulted server against the still-3-small prod corpus makes the retrieval guard
+error every query (prod retrieval DOWN, not wrong). Before merging this PR to `main`, either
+(a) run the prod re-embed (steps above) first, or (b) pin the Railway service var
+`EMBED_MODEL_ID=openai/text-embedding-3-small` so the deploy keeps serving the old corpus
+until the cutover, then remove the pin at step 4. Verify the Railway env BEFORE merge.
 
 **A retrieval-time guard now enforces this (`src/retrieval/retrieve.ts`):** if the query
 embedder's model is in *none* of the corpus's `embedding_model` values, `search` throws
@@ -68,9 +73,9 @@ tmux new -s reembed
 
 # 1. Seed prod creds once for the session, and export the qwen model + instruction.
 #    seed-prod.sh prompts for DATABASE_URL / OPENROUTER_API_KEY / EMBED_MODEL_ID.
-#    ⚠️ FOOTGUN: at the EMBED_MODEL_ID prompt, seed-prod.sh's Enter-default is the OLD model
-#    (openai/text-embedding-3-small). You MUST TYPE `qwen/qwen3-embedding-8b` — do NOT press
-#    Enter. Then export the query instruction (the :production scripts do NOT prompt for it):
+#    seed-prod.sh's Enter-default is now `qwen/qwen3-embedding-8b` (footgun removed
+#    2026-07-02 — the default used to be the old 3-small model), so pressing Enter is
+#    correct. Then export the query instruction (the :production scripts do NOT prompt for it):
 source scripts/seed-prod.sh
 export EMBED_QUERY_INSTRUCTION="Given a web search query, retrieve relevant passages that answer the query"
 

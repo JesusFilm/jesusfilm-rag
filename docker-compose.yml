@@ -42,6 +42,12 @@ services:
       DATABASE_URL: postgresql://jesusfilm_rag:jesusfilm_rag_dev@postgres:5432/jesusfilm_rag
       # Pulled from .env via compose substitution — never baked into the image.
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      # Query model MUST match the corpus rows (the retrieval guard throws
+      # otherwise). Defaults to the code default (qwen, ADR-0005); override via
+      # .env during a model transition.
+      EMBED_MODEL_ID: ${EMBED_MODEL_ID:-qwen/qwen3-embedding-8b}
+      # Query-side asymmetric instruction (documents embed raw) — qwen quality.
+      EMBED_QUERY_INSTRUCTION: ${EMBED_QUERY_INSTRUCTION:-Given a web search query, retrieve relevant passages that answer the query}
       PORT: 8080
       # Dev bearer token → all sources. Change here for a different local token.
       SERVE_BEARER_TOKENS: '{"local-dev-token":["*"]}'

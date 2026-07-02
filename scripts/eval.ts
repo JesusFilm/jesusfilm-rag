@@ -24,10 +24,12 @@ import path from "node:path";
 import YAML from "yaml";
 import { getEnv } from "@/env.js";
 import { wire } from "@/main.js";
+import { SOURCES } from "@/registry/index.js";
 import type { Retriever } from "@/contracts/index.js";
 import {
   GoldenFileSchema,
   allRelevantPaths,
+  caseLanguage,
   computeMetrics,
   coverageBySource,
   firstMatchingRank,
@@ -105,6 +107,9 @@ async function main(): Promise<void> {
   }
 
   const wiring = wire();
+  // Each case retrieves in ITS source language only (docs/eval-approach.md →
+  // "Multilingual eval"): other languages must not push out the language under eval.
+  const languagesBySource = Object.fromEntries(SOURCES.map((s) => [s.key, s.languages]));
   try {
     const scopeLabel = args.source ? `source=${args.source}` : "whole-corpus";
     console.log(
@@ -112,7 +117,11 @@ async function main(): Promise<void> {
     );
     const results: CaseResult[] = [];
     for (const c of cases) {
-      const hits = await runOne(wiring.retriever, c.question);
+      const language = caseLanguage(c, languagesBySource);
+      if (language === null) {
+        console.warn(`  ⚠ ${c.id} — no case language derivable; searching unscoped`);
+      }
+      const hits = await runOne(wiring.retriever, c.question, language);
       const matchedRank = firstMatchingRank(hits, c);
       const returned = returnedRelevant(hits, c);
       results.push({ case: c, hits, matchedRank, returnedRelevant: returned });
@@ -165,10 +174,19 @@ function printMetrics(label: string, metrics: Metrics): void {
  * One golden question through the real Retrieval library (the same Retriever the
  * MCP server / `pnpm query` use), mapped to the eval Hit shape. `docPath` is the
  * citation URL's pathname — relevant sets match on it. Retrieval is whole-corpus
- * (no source scope) even under `--source`.
+ * (no source scope) even under `--source`, but IS scoped to the case's source
+ * language (caseLanguage) — cross-language hits must not displace the language
+ * under eval.
  */
-async function runOne(retriever: Retriever, question: string): Promise<Hit[]> {
-  const ranked = await retriever.search(question, { topK: TOP_K });
+async function runOne(
+  retriever: Retriever,
+  question: string,
+  language: string | null,
+): Promise<Hit[]> {
+  const ranked = await retriever.search(question, {
+    topK: TOP_K,
+    ...(language ? { language } : {}),
+  });
   return ranked.map((r) => ({
     chunkId: r.chunkId,
     docPath: safePathname(r.citation.url),

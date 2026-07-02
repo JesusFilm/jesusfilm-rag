@@ -24,7 +24,7 @@ ADR are recorded inline here until they earn extraction — see
 
 | # | Decision | Choice | ADR |
 |---|---|---|---|
-| 1 | Embedding model + dims | `openai/text-embedding-3-small` via OpenRouter, **1536** dims. Matches jesusfilm-ai and Forge. | [ADR-0002](./decisions/0002-embeddings-halfvec-1536.md) |
+| 1 | Embedding model + dims | `qwen/qwen3-embedding-8b` via OpenRouter (later self-hosted vLLM), **1536** dims (MRL-truncated from 4096; instruction-aware queries). Multilingual; parity with Forge. Storage `halfvec(1536)` unchanged. *(Was `openai/text-embedding-3-small` — ADR-0002, superseded 2026-07-02.)* | [ADR-0005](./decisions/0005-embedding-model-qwen3-8b-multilingual.md) · [ADR-0002](./decisions/0002-embeddings-halfvec-1536.md) |
 | 2 | Persistence schema | **Normalized** (`sources`/`documents`/`chunks`/`chunk_embeddings`) + jesusfilm-ai's richer fields. | — |
 | 3 | Retrieval `minScore` | Port **0.3 verbatim**. Quality fix deferred to a follow-up ticket (FOLLOW-UP A below). | — |
 | 4 | Acquisition→Ingestion handoff | **Raw staging table** (`raw_documents`), which is also the reproducible raw snapshot. | — |

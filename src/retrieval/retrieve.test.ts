@@ -47,6 +47,7 @@ function chunk(
     domain: p.domain ?? "www.startingwithgod.com",
     language: p.language ?? "en",
     category: p.category ?? null,
+    embeddingModel: p.embeddingModel,
   };
 }
 
@@ -150,6 +151,39 @@ describe("3-key dedup (invariant 5) — at most one chunk per distinct document"
       chunk({ chunkId: "b", contentHash: "h2", canonicalUrl: "u/b", ord: 1, title: "B", text: "beta", embedding: [1, 0, 0] }),
     ]).search("q");
     expect(out.map((r) => r.chunkId)).toEqual(["a", "b"]);
+  });
+});
+
+describe("query/corpus model-match guard", () => {
+  // VecEmbedder.model is "test/vec"; the corpus reports its own embedding model(s).
+  it("throws when the query model is in NONE of the corpus models", async () => {
+    const r = retriever([
+      chunk({ chunkId: "a", embedding: [1, 0, 0], embeddingModel: "openai/text-embedding-3-small" }),
+    ]);
+    await expect(r.search("q")).rejects.toThrow(/model mismatch/i);
+    await expect(r.search("q")).rejects.toThrow(/test\/vec/); // reports the query model
+  });
+
+  it("passes when the query model is present in the corpus", async () => {
+    const out = await retriever([
+      chunk({ chunkId: "a", embedding: [1, 0, 0], embeddingModel: "test/vec" }),
+    ]).search("q");
+    expect(out.map((r) => r.chunkId)).toEqual(["a"]);
+  });
+
+  it("passes during a partial re-embed (mixed models) if the query model is one of them", async () => {
+    const out = await retriever([
+      chunk({ chunkId: "new", contentHash: "h1", canonicalUrl: "u/1", embedding: [1, 0, 0], embeddingModel: "test/vec" }),
+      chunk({ chunkId: "old", contentHash: "h2", canonicalUrl: "u/2", embedding: [1, 0, 0], embeddingModel: "legacy/model" }),
+    ]).search("q");
+    expect(out.map((r) => r.chunkId)).toContain("new");
+  });
+
+  it("skips the guard when the corpus reports no models (empty / model not tracked)", async () => {
+    const out = await retriever([
+      chunk({ chunkId: "a", embedding: [1, 0, 0] }), // no embeddingModel set
+    ]).search("q");
+    expect(out.map((r) => r.chunkId)).toEqual(["a"]);
   });
 });
 

@@ -20,6 +20,11 @@ export const GoldenCaseSchema = z
   .object({
     id: z.string(),
     question: z.string(),
+    // Explicit retrieval language for this case (e.g. "en"). Optional: when
+    // absent, caseLanguage() derives it from the relevant sources' registry
+    // languages. Set it when derivation is ambiguous (a case whose only
+    // relevant source is multilingual, e.g. familylife ["en","es"]).
+    language: z.string().optional(),
     // sourceKey -> canonical-url pathnames. Every doc that legitimately answers
     // the question, grouped by its source (each source listed has >= 1 path).
     relevant: z.record(z.array(z.string().min(1)).min(1)),
@@ -72,6 +77,35 @@ export function safePathname(url: string): string {
   } catch {
     return url;
   }
+}
+
+/**
+ * The retrieval language for a golden case. The eval must search **the case's
+ * source language only** — results in other languages must not push out
+ * retrieval of the language being evaluated (docs/eval-approach.md →
+ * "Multilingual eval").
+ *
+ * Resolution: an explicit `language:` on the case wins; otherwise the
+ * INTERSECTION of the relevant sources' registry `languages` arrays — a
+ * multilingual source (familylife ["en","es"]) narrows to "en" when the case
+ * also credits an en-only source. Returns null (no filter, logged by the
+ * runner) when the intersection is empty or still ambiguous, or a source is
+ * unknown — scoping would silently hide legitimate docs.
+ */
+export function caseLanguage(
+  c: GoldenCase,
+  languagesBySource: Record<string, string[]>,
+): string | null {
+  if (c.language) return c.language;
+  let common: Set<string> | null = null;
+  for (const sourceKey of Object.keys(c.relevant)) {
+    const sourceLangs = languagesBySource[sourceKey];
+    if (!sourceLangs || sourceLangs.length === 0) return null;
+    common = common
+      ? new Set(sourceLangs.filter((l) => common!.has(l)))
+      : new Set(sourceLangs);
+  }
+  return common && common.size === 1 ? [...common][0] : null;
 }
 
 /**

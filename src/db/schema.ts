@@ -11,7 +11,7 @@ import {
   halfvec,
 } from "drizzle-orm/pg-core";
 
-// jesusfilm-ai / Forge parity: openai/text-embedding-3-small at 1536 dims,
+// jesusfilm-ai / Forge parity: qwen/qwen3-embedding-8b at 1536 dims (ADR-0005),
 // stored as halfvec (fp16). 1536 is well under pgvector's full-precision
 // `vector` HNSW cap (2000), so plain `vector(1536)` would also work; we keep
 // halfvec for storage efficiency and forward-compat with larger models.

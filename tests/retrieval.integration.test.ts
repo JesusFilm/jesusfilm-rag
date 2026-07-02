@@ -82,6 +82,13 @@ function oneHot(i: number): number[] {
  * ingest (familylife, +9,815 chunks → 23,522) tipped the corpus past the size
  * where this approximation holds. Test 2 below now asserts only what's still
  * reliable (match is rank 1) until #17 lands and pre-filters scoped queries.
+ *
+ * 2026-07-02: #17's fix landed as pgvector iterative index scans (see
+ * corpus-search-store.vectorSearch + the swarm test below). It cures WINDOW
+ * starvation — the production failure — but not this fixture's graph-island
+ * (its back-edges lose every pruning contest to real-corpus neighbors), so
+ * test 2 stays loosened. An in-filter row must be graph-REACHABLE for any
+ * HNSW scan to find it; exact-scan fallback would be a different follow-up.
  */
 function cosTo0(c: number): number[] {
   const v = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
@@ -229,5 +236,64 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
     expect(hits.length).toBeGreaterThanOrEqual(1);
     expect(hits[0].citation.url).toBe(`${URL_PREFIX}match`);
     expect(hits[0].score).toBeCloseTo(1.0, 5);
+  });
+
+  /**
+   * FOLLOW-UP J #17, production form (hit by the 2026-07-02 multilingual eval):
+   * a filtered search whose in-scope rows live behind a wall of out-of-scope
+   * neighbors starves HNSW's candidate window and returns ZERO rows even though
+   * matching rows exist above the cutoff. Here: 60 English chunks at cosine
+   * .99 to the query swamp the default window (hnsw.ef_search = 40); the one
+   * zh chunk at cosine .97 never reaches the post-filter, so a language-scoped
+   * search comes back empty. pgvector 0.8 iterative index scans (SET LOCAL in
+   * the adapter) must keep scanning until in-filter rows surface.
+   *
+   * NOTE: seeds inside the test body — MUST run after the two tests above,
+   * which assert exact hit sets over the same sentinel source.
+   */
+  it("finds in-language rows behind an out-of-language HNSW swarm (language filter must not starve)", async () => {
+    const writeStore = new PostgresCorpusWriteStore(db);
+    for (let i = 0; i < 60; i++) {
+      // Distinct unit vectors, each cosine ~.99 to oneHot(0): a tight English
+      // cluster that is strictly closer to the query than the zh needle.
+      const v = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
+      v[0] = 0.99;
+      v[2 + i] = Math.sqrt(1 - 0.99 * 0.99);
+      await writeStore.replaceDocument(doc(`swarm-${i}`, `hash-swarm-${i}`), [
+        chunk(`english swarm passage ${i}`, v),
+      ]);
+    }
+    // The needle shares axis 2 with swarm-0, making it swarm-0's CLOSEST
+    // neighbor (cos .9946 > intra-swarm .9801) — a guaranteed HNSW edge into
+    // the swarm, so this tests window starvation, not graph reachability.
+    // (A needle merely *near* the swarm loses every edge-pruning contest to
+    // the tighter intra-swarm edges and becomes a one-way island the walk can
+    // never enter — verified empirically; that is the cosTo0-docstring
+    // pathology, a fixture artifact, not the production bug.) From the QUERY
+    // it is still rank 61 behind all 60 swarm members, so the default
+    // 40-candidate window never contains it.
+    const needleVec = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
+    needleVec[0] = 0.97;
+    needleVec[2] = Math.sqrt(1 - 0.97 * 0.97);
+    await writeStore.replaceDocument(
+      { ...doc("zh-needle", "hash-zh-needle"), language: "zh" },
+      [chunk("中文内容", needleVec)],
+    );
+
+    const retriever = createRetriever({
+      embedder: new StubEmbedder(oneHot(0)),
+      search: new PostgresCorpusSearchStore(db),
+    });
+
+    // Language-only filter — the exact shape that starved in the 2026-07-02
+    // zh eval. (No allowedSourceKeys: source-scoping makes the planner drive
+    // from the sentinel source and sidestep the hnsw window.) Real-corpus zh
+    // rows pass the filter too but score ≲.12 on a one-hot axis (see cosTo0
+    // docstring) — far below the .37 cutoff, so the needle is the only hit.
+    const hits = await retriever.search("probe", { language: "zh" });
+
+    expect(hits.length).toBeGreaterThanOrEqual(1);
+    expect(hits[0].citation.url).toBe(`${URL_PREFIX}zh-needle`);
+    expect(hits[0].score).toBeCloseTo(0.97, 2);
   });
 });

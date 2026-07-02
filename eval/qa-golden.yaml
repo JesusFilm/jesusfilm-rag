@@ -43,6 +43,11 @@ cases:
         - "/devotionals/when-panic-attacks"
         - "/devotionals/the-anxiety-that-consumes"
         - "/devotionals/kept-in-perfect-peace"
+        - "/devotionals/peace-in-the-unrest"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/work-for-peace"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/where-is-your-focus"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/pursue-peace"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/finding-perfect-peace-in-the-storm"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/can-we-escape-our-worry"
       familylife:
@@ -72,9 +77,11 @@ cases:
         - "/my-sins-are-too-great-for-god-to-forgive"
         - "/devotionals/disappointments"
         - "/devotionals/the-new-deal"
+        - "/if-god-is-in-control-why"  # re-credited 2026-07-02 (judge-approved, qwen)
       familylife:
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/help-for-the-suicidal"
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/feeling-lost-in-the-middle-of-your-life"
+        - "/articles/topics/marriage/marriage-challenges/drifting-apart/disappointed-in-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "swg-seeker-porn"
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
@@ -114,6 +121,10 @@ cases:
         - "/questions/does-god-really-love-me.html"
         - "/new-life/gods-love.html"
         - "/knowing-god/gods-grace.html"
+      sightline-ministry:
+        - "/daily-devo/the-biggest-no-brainer-of-them-all"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/old-mrs-headstomper"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/one-gigantic-sign-from-god-2"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "swg-believer-assurance"
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
     relevant:
@@ -145,6 +156,8 @@ cases:
         - "/devotionals/transform-me-by-your-spirit"
         - "/live-by-faith"
         - "/devotionals/the-fathers-promise"
+        - "/devotionals/be-spirit-led"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/god-s-power-plug"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/the-only-way-to-go-2"
   - id: "swg-newcomer-gospel"
@@ -219,10 +232,16 @@ cases:
         - "/daily-devo/is-there-a-way-to-gods-will"
         - "/daily-devo/gods-will-your-desires"
         - "/daily-devo/getting-the-word-on-tough-choices"
+        - "/daily-devo/gods-will-your-desires-they-fit"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/safety-in-counsel"
         - "/devotionals/asking-god-for-wisdom"
         - "/devotionals/guided-choices"
+        - "/devotionals/wisdom-from-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/invisible-obedience"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/plans-like-none-other"  # re-credited 2026-07-02 (judge-approved, qwen)
+      familylife:
+        - "/articles/topics/marriage/staying-married/communication/6-questions-to-ask-when-youre-making-a-big-decision-together"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "cru-believer-bible-study"
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
@@ -250,8 +269,11 @@ cases:
         - "/god-loves-time-with-you"
         - "/prayers-you-can-pray"
         - "/devotionals/specific-prayer"
+        - "/customize-your-quiet-time"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/positive-daydreaming"
+      familylife:
+        - "/articles/topics/faith/essentials-faith/spiritual-disciplines-essentials-faith/prayer-journaling-5-tips"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "cru-newcomer-holy-spirit"
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
     relevant:
@@ -277,6 +299,7 @@ cases:
         - "/6-myths-about-the-abundant-life"
         - "/are-you-all-in"
         - "/know-your-resources-as-a-child-of-god"
+        - "/you-cant-stay-seated-for-this"  # re-credited 2026-07-02 (judge-approved, qwen)
       jesusfilm-org:
         - "/blog/how-can-get-closer-to-god"
   - id: "cru-skeptic-jesus-uniqueness"
@@ -299,6 +322,14 @@ cases:
         - "/blog/who-is-jesus"
         - "/blog/jesus-facts"
         - "/blog/story-of-jesus"
+      sightline-ministry:
+        - "/jesus-just-man"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/jesus-better-than-good"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/jesus-liar-lunatic-lord"  # re-credited 2026-07-02 (judge-approved, qwen)
+      starting-with-god:
+        - "/new-life/jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
+      cru-10-basic-steps:
+        - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-newcomer-why-jesus-died"
     question: "What was the point of Jesus dying on a cross — why did it have to happen?"
     relevant:
@@ -316,6 +347,11 @@ cases:
         - "/blog/the-importance-of-the-great-commission"
         - "/blog/great-commission-for"
         - "/blog/what-every-believer-can-do-great-commission"
+        - "/blog/disciple-making-bible-verses"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/sharing-gospel-need-to-know"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/live-missionally-inspiration"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/how-to-make-disciples"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/fulfill-the-great-commission"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/wherever-you-go"
   - id: "jf-skeptic-resurrection"
@@ -328,6 +364,12 @@ cases:
         - "/jesus-resurrection-importance"
         - "/resurrection-jesus-hoax-truth"
         - "/disillusioned-disciples-die-for-lie"
+        - "/jesus-resurrection-fact"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/christ-resurrection-empty-tomb"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/three-facts-resurrection"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/you-cant-get-around-the-empty-tomb-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+      thelife:
+        - "/the-resurrection-the-empty-tomb"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-skeptic-bible-contradictions"
     question: "People say the Bible is riddled with contradictions and errors — how do you square that?"
     relevant:
@@ -346,6 +388,10 @@ cases:
         - "/is-christianity-intolerant"
         - "/christian-view-on-tolerance"
         - "/is-jesus-the-way-john-14-6"
+        - "/judge-not-cultural-tolerance"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/arguments-critics-christianity"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/cultural-tolerance-fails-us"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/jesus-the-only-way"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-believer-parable-sower"
     question: "What's Jesus really getting at in the story about a farmer scattering seed on different soils?"
     relevant:
@@ -363,11 +409,15 @@ cases:
         - "/blog/mission-field-between-your-feet"
         - "/blog/becoming-a-more-missional-christian"
         - "/blog/live-missionally-inspiration"
+        - "/blog/10-bible-verses-missional-living"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/blog/living-missionally-together-build-missional-communities"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/our-mission-grounds-are-our-stomping-grounds"
         - "/devotionals/we-each-have-a-role"
         - "/devotionals/little-missionary"
         - "/devotionals/what-we-can-do"
+        - "/devotionals/the-mission-field-next-door"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/mission-in-christ"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/missionary-in-the-mirror"
   - id: "jf-believer-disciple-making"
@@ -408,6 +458,15 @@ cases:
       sightline-ministry:
         - "/why-does-god-seem-hidden-from-us"
         - "/discern-gods-voice"
+        - "/when-god-feels-distant"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/up-close-and-personal-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+      thelife:
+        - "/devotionals/the-handprints-of-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/not-as-far-as-you-feel"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/god-comes-close"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/come-and-trust"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/the-courage-to-draw-near"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/losing-jesus"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "sl-skeptic-god-exists"
     question: "Is there any actual evidence that God exists, or is it just blind belief?"
     relevant:
@@ -423,6 +482,16 @@ cases:
       sightline-ministry:
         - "/3-reasons-suffering-serves-a-purpose"
         - "/security-in-suffering"
+        - "/gods-goodness-evident-covid19"  # re-credited 2026-07-02 (judge-approved, qwen)
+      thelife:
+        - "/when-someone-asks-me-why-god-allows-covid-19"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/do-evil-and-suffering-disprove-the-existence-of-god-part-3"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/disprove-the-existence-of-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/why-is-there-suffering-in-the-world"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/do-evil-and-suffering-disprove-the-existence-of-god-part-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/is-god-still-good-when-tragedy-strikes"  # re-credited 2026-07-02 (judge-approved, qwen)
+      familylife:
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/why-does-god-allow-suffering"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "sl-skeptic-science"
     question: "Hasn't science basically disproved religion? How can a thinking person believe in miracles?"
     relevant:
@@ -450,6 +519,8 @@ cases:
         - "/gospel-writers-reliable-video-2"
         - "/lost-gospels-dont-belong-bible"
         - "/when-gospels-written-reliable-video-3"
+        - "/gospel-authors-lying-or-reliable-video-7"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/can-anyone-believe-new-testament"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/are-the-gospels-anonymous"
         - "/putting-the-bible-through-the-internal-evidence-test"
@@ -462,10 +533,15 @@ cases:
         - "/when-god-feels-distant"
         - "/daily-devo/hide-and-seek-5"
         - "/listening-for-god-to-speak"
+        - "/know-god-really-exists"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/god-why-cant-i-hear-you"
         - "/devotionals/tell-him-he-wants-to-know"
         - "/are-you-feeling-ignored"
+        - "/six-ways-god-speaks"  # re-credited 2026-07-02 (judge-approved, qwen)
+      familylife:
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/do-you-feel-abandoned-by-god"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/god-where-are-you"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "sl-skeptic-copycat"
     question: "Isn't Jesus just a recycled myth — a copy of older dying-and-rising gods?"
     relevant:
@@ -572,6 +648,12 @@ cases:
         - "/articles/topics/marriage/staying-married/romance-and-sex/strategic-romance"
         - "/articles/topics/marriage/staying-married/why-intentional-quality-time-matters"
         - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/does-your-marriage-need-help"
+        - "/articles/topics/marriage/getting-married/newlyweds/a-hand-to-hold-when-i-grow-old"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/wives/4-ways-to-prioritize-your-spouse-above-your-schedule-and-your-kids"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/the-divorce-announcement-shouldnt-have-surprised-me"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/romance-and-sex/10-surprising-ways-to-increase-romance"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/7-healthy-habits-of-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/marriage/staying-married/romance-and-sex/it-happens-in-spring"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-believer-obedience"
     question: "Sometimes God seems to ask things I really don't want to do — how do I live in obedience when I'd rather not?"
     relevant:
@@ -580,10 +662,19 @@ cases:
         - "/obedience-discipline-and-trust-things-i-ve-learned-from-the-book-of-joshua"
         - "/devotionals/invisible-obedience"
         - "/devotionals/yes-god"
+        - "/devotionals/sure-i-heard"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/yes-i-will"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/you-can-run-but"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/an-obedience-of-faith"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/called-to-obedience"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/then-do-it"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/devotionals/trusting-him-through-it-all"  # re-credited 2026-07-02 (judge-approved, qwen)
       cru-10-basic-steps:
         - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
       sightline-ministry:
         - "/daily-devo/when-the-pressure-is-on-2"
+      familylife:
+        - "/articles/topics/faith/essentials-faith/growing-in-your-faith/5-qualities-for-thriving-in-a-hostile-culture"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-believer-disciple-new-christian"
     question: "My friend just trusted Christ for the first time — what does she need to know first, and how do I help her without overwhelming her?"
     relevant:
@@ -593,12 +684,16 @@ cases:
         - "/nurturing-new-believers"
         - "/start-strong"
         - "/how-will-i-know-when-theyre-ready"
+        - "/yes"  # re-credited 2026-07-02 (judge-approved, qwen)
       jesusfilm-org:
         - "/blog/evangelism-follow-up-strategies"
       starting-with-god:
         - "/new-life/new.html"
       sightline-ministry:
         - "/daily-devo/helping-new-christians-get-a-good-start-3"
+        - "/daily-devo/helping-babies-grow-up-4"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/helping-new-christians-get-a-good-start-4"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/helping-babies-grow-up-3"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-newcomer-decision"
     question: "I think I just decided to trust Jesus — what now? What's the very next step?"
     relevant:
@@ -619,8 +714,11 @@ cases:
         - "/blog/signs-healthy-church"
       starting-with-god:
         - "/new-life/connect.html"
+      familylife:
+        - "/articles/topics/faith/essentials-faith/church-involvement/6-tips-on-how-to-find-a-church-for-your-family"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-affair-trust"
     question: "My spouse had an affair and I don't know if I can ever trust them again — should I even try to save this?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/marriage/troubled-marriage/infidelity/affair-repair-for-your-marriage"
@@ -629,8 +727,10 @@ cases:
         - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/reunited-rebuilding-a-marriage-after-separation"
         - "/articles/topics/marriage/troubled-marriage/infidelity/after-the-affair-rebuilding-our-marriage"
         - "/articles/topics/marriage/troubled-marriage/infidelity/my-wifes-affair-shattered-and-saved-our-marriage"
+        - "/articles/topics/marriage/troubled-marriage/saving-a-marriage/wrestling-with-god-over-a-broken-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-believer-spiritual-leader"
     question: "I want to be the spiritual leader of my family but I feel inadequate — where do I even start?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/essentials/fathers/7-essentials-to-help-you-be-the-spiritual-leader-of-your-family"
@@ -640,8 +740,11 @@ cases:
         - "/articles/topics/marriage/staying-married/wives/how-can-i-motivate-my-husband-to-get-right-with-god-and-become-the-spiritual-leader-of-our-family"
         - "/articles/topics/marriage/staying-married/wives/q-a-encouraging-husbands-to-lead-spiritually"
         - "/articles/topics/faith/mom-why-isnt-dad-coming-to-church"
+        - "/articles/topics/life-issues/challenges/cultural-issues/ten-urgent-steps-for-for-keeping-your-family-spiritually-strong"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/essentials/fathers/dad-university"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-teen-prodigal"
     question: "My teenager has walked away from God and I'm scared of losing them for good — what do I do?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/foundations/spiritual-development/10-ideas-to-challenge-your-teenage-son-to-make-his-faith-his-own"
@@ -652,8 +755,12 @@ cases:
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/inside-the-mind-of-a-prodigal"
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/when-prodigals-come-home"
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/a-story-of-two-prodigals"
+        - "/articles/topics/parenting/essentials/praying-for-your-children/all-they-could-do-was-pray"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/holidays/featured-holidays/christmas/if-your-prodigal-wont-come-home-for-christmas"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/when-things-fall-apart"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-believer-teen-own-faith"
     question: "How do I help my teenager actually own their faith instead of just inheriting mine?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/foundations/spiritual-development/10-ideas-to-challenge-your-teenage-son-to-make-his-faith-his-own"
@@ -662,6 +769,10 @@ cases:
         - "/articles/topics/parenting/foundations/spiritual-development/how-can-i-help-my-kids-avoid-a-crisis-of-faith"
         - "/articles/topics/parenting/foundations/spiritual-development/parenting-advice-in-a-pleasure-seeking-world"
         - "/articles/topics/parenting/ages-and-stages/teens/how-to-ruin-your-teens-for-life"
+        - "/articles/topics/parenting/essentials/releasing-your-child/7-ways-to-know-if-your-kids-will-choose-church-in-college"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/foundations/spiritual-development/5-ways-to-help-your-child-develop-a-growing-relationship-with-christ"  # re-credited 2026-07-02 (judge-approved, qwen)
+      sightline-ministry:
+        - "/questions-welcome"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-single-parent"
     question: "I'm a single parent and I'm exhausted — does God have anything for someone doing this alone?"
     relevant:
@@ -670,8 +781,11 @@ cases:
         - "/articles/topics/parenting/parenting-challenges/single-parenting/to-the-single-mom-you-dont-have-to-do-it-all"
         - "/equip/parenting-during-deployment"
         - "/articles/topics/faith/essentials-faith/growing-in-your-faith/no-cinderella-story"
+        - "/articles/topics/parenting/foundations/godly-legacy/im-not-alone-in-parenting"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/parenting-challenges/single-parenting/how-can-the-single-mom-do-it"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/going-it-alone"
+        - "/devotionals/sustained"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-newcomer-premarital"
     question: "What does the Bible say about preparing for marriage before the wedding?"
     relevant:
@@ -680,6 +794,7 @@ cases:
         - "/articles/topics/marriage/getting-married/choosing-a-spouse/evaluating-your-spiritual-relationship-before-marriage"
         - "/articles/topics/marriage/getting-married/before-marriage-5-things-you-dont-have-to-know"
         - "/articles/topics/marriage/getting-married/choosing-a-spouse/single-men-its-time-to-step-up"
+        - "/articles/topics/marriage/getting-married/engagements-and-weddings/save-sex-for-the-honeymoon"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/the-betrothed"
         - "/preparing-for-marriage-not-just-the-wedding"
@@ -690,10 +805,13 @@ cases:
         - "/articles/topics/marriage/getting-married/engagements-and-weddings/save-sex-for-the-honeymoon"
       thelife:
         - "/why-should-i-wait-for-sex"
+        - "/devotionals/wise-intimacy"  # re-credited 2026-07-02 (judge-approved, qwen)
       sightline-ministry:
         - "/daily-devo/good-reasons-to-wait"
         - "/puritans-viewed-sex-correctly"
         - "/sex-sacred-forgotten-that"
+        - "/daily-devo/is-it-good-for-you-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/daily-devo/one-gods-great-gifts"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-seeker-blended-family"
     question: "Our blended family is full of conflict and the kids resent us — is there any hope?"
     relevant:
@@ -702,6 +820,10 @@ cases:
         - "/articles/topics/blended-family/stepparents/stepfamily-living/stepfamily-dynamics-when-youre-not-blending"
         - "/articles/topics/blended-family/stepparents/stepparenting-skills/how-to-build-a-united-front-as-a-stepcouple"
         - "/articles/topics/blended-family/in-this-home-we-embrace-our-differences-as-a-stepfamily"
+        - "/articles/topics/blended-family/stepparents/4-ways-to-manage-your-emotions-as-a-stepparent"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/equip/well-blended"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/blended-family/stepparents/stepfamily-living/how-to-cook-a-stepfamily"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/parenting/parenting-challenges/single-parenting/preparing-for-a-successful-blend"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/kids-divorce-and-remarriage"
   - id: "fl-believer-prodigal-adult"
@@ -714,10 +836,15 @@ cases:
         - "/equip/when-someone-you-love-is-losing-faith"
         - "/equip/a-month-of-prayers-for-prodigals-and-their-parents"
         - "/articles/topics/parenting/ages-and-stages/adult-children/how-not-to-be-a-toxic-parent-to-your-adult-child"
+        - "/articles/topics/faith/essentials-faith/spiritual-disciplines-essentials-faith/does-prayer-really-do-any-good"  # re-credited 2026-07-02 (judge-approved, qwen)
+        - "/articles/topics/holidays/featured-holidays/christmas/if-your-prodigal-wont-come-home-for-christmas"  # re-credited 2026-07-02 (judge-approved, qwen)
       thelife:
         - "/devotionals/our-greatest-burden"
+      jesusfilm-org:
+        - "/blog/when-someone-is-deconstructing"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "fl-newcomer-discipline-child"
     question: "What's the biblical way to discipline a young child without crushing their spirit?"
+    language: "en"  # explicit: familylife declares [en, es]; this question is English
     relevant:
       familylife:
         - "/articles/topics/parenting/parenting-challenges/discipline/the-forgotten-part-of-discipline"
@@ -726,3 +853,418 @@ cases:
         - "/articles/topics/parenting/parenting-challenges/discipline/disciplining-your-children-is-challenging-but-vital"
         - "/articles/topics/parenting/gospel-centered-discipline"
         - "/articles/topics/parenting/parenting-challenges/anger-and-rebellion/qa-what-to-do-about-children-expressing-anger-through-hitting"
+
+  # ── thelife-fr (laviejenparle.com) ─ merged 2026-07-03 from candidates-thelife-fr.yaml
+  # after operator approval. Drafted 2026-07-02 against the qwen corpus (156 docs / 651
+  # chunks); LLM-judge review 2026-07-02: suite avg 0.8 (bar >0.7), no 0-scored cases.
+  # RETRIEVED blocks = fr-scoped qwen top-10 evidence (post iterative-scan fix), titles
+  # translated to English per the multilingual MUST (docs/eval-approach.md).
+  # EN: "My son died a few months ago and I'm angry at God — can my faith survive this?"
+  - id: "tlfr-seeker-deuil-fils"
+    question: "Mon fils est mort il y a quelques mois et je suis en colère contre Dieu — est-ce que ma foi peut survivre à ça ?"
+    relevant:
+      thelife-fr:
+        - "/comment-garder-la-foi-apres-la-perte-de-mon-fils"
+        - "/vivre-son-deuil"
+        - "/du-deuil-au-doute-au-dialogue"
+        - "/apres-le-deuil-la-vie"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02) — EN translations for human verification:
+  #   1. 0.766 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+  #   2. 0.724 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   3. 0.707 /apres-le-deuil-la-vie — EN: "After grief, life"
+  #   4. 0.678 /mon-petit-heros — EN: "My little hero" (a parent's testimony)
+  #   5. 0.629 /faire-son-deuil-apres-la-rupture — EN: "Grieving after a breakup"
+  #   6. 0.625 /guerir-de-son-passe-sexuel — EN: "Healing from your sexual past"
+  #   7. 0.619 /dans-la-tempete-faire-face-a-une-crise-familiale — EN: "In the storm: facing a family crisis"
+  #   8. 0.595 /un-dieu-deux-reponses-a-la-priere — EN: "One God, two answers to prayer"
+  #   9. 0.592 /mon-miracle-de-noel — EN: "My Christmas miracle"
+  #  10. 0.587 /surmonter-la-deception — EN: "Overcoming disappointment"
+
+  # EN: "I'm an atheist: give me one good reason to think a god exists."
+  - id: "tlfr-skeptic-dieu-existe"
+    question: "Je suis athée : donnez-moi une seule bonne raison de penser qu'un dieu existe."
+    relevant:
+      thelife-fr:
+        - "/dieu-existe-t-il"
+        - "/pourquoi-y-a-t-il-quelque-chose-plutot-que-rien"
+        - "/la-science-et-le-dieu-personnel"
+        - "/cinq-choses-que-la-science-ne-peut-prouver"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.722 /dieu-existe-t-il — EN: "Does God exist?"
+  #   2. 0.647 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
+  #   3. 0.643 /la-science-et-le-dieu-personnel — EN: "Science and the personal God"
+  #   4. 0.600 /pourquoi-y-a-t-il-quelque-chose-plutot-que-rien — EN: "Why is there something rather than nothing?"
+  #   5. 0.581 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
+  #   6. 0.558 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   7. 0.533 /y-a-t-il-une-vie-apres-la-mort — EN: "Is there life after death?"
+  #   8. 0.512 /cinq-choses-que-la-science-ne-peut-prouver — EN: "Five things science cannot prove"
+  #   9. 0.505 /qui-est-jesus — EN: "Who is Jesus?"
+  #  10. 0.496 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+
+  # EN: "How can anyone seriously believe a dead man came back to life 2,000 years ago?"
+  - id: "tlfr-skeptic-resurrection"
+    question: "Comment peut-on croire sérieusement qu'un homme mort est revenu à la vie il y a 2000 ans ?"
+    relevant:
+      thelife-fr:
+        - "/jesus-est-il-ressuscite-a-la-vie-eternelle"
+        - "/y-a-t-il-une-vie-apres-la-mort"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.724 /jesus-est-il-ressuscite-a-la-vie-eternelle — EN: "Did Jesus rise to eternal life?"
+  #   2. 0.716 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
+  #   3. 0.613 /qui-est-jesus — EN: "Who is Jesus?"
+  #   4. 0.580 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
+  #   5. 0.570 /voir-dieu-face-a-face — EN: "Seeing God face to face"
+  #   6. 0.563 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+  #   7. 0.562 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   8. 0.552 /un-nouvel-homme — EN: "A new man"
+  #   9. 0.525 /la-voie-de-la-joie — EN: "The way of joy"
+  #  10. 0.525 /comprendre-votre-relation-avec-jesus-christ — EN: "Understanding your relationship with Jesus Christ"
+
+  # EN: "I had an abortion years ago and still can't forgive myself — is healing possible for me?"
+  - id: "tlfr-seeker-avortement"
+    question: "J'ai avorté il y a des années et je n'arrive toujours pas à me le pardonner — est-ce qu'il y a une guérison possible pour moi ?"
+    relevant:
+      thelife-fr:
+        - "/qu-ai-je-fait-trouver-la-guerison-apres-mon-avortement"
+        - "/je-regrette-mon-avortement"
+        - "/guerir-d-un-l-avortement-passe"
+        - "/se-liberer-de-sa-culpabilite"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.845 /je-regrette-mon-avortement — EN: "I regret my abortion"
+  #   2. 0.824 /guerir-d-un-l-avortement-passe — EN: "Healing from a past abortion"
+  #   3. 0.816 /des-larmes-a-la-victoire — EN: "From tears to victory" (post-abortion testimony)
+  #   4. 0.751 /qu-ai-je-fait-trouver-la-guerison-apres-mon-avortement — EN: "What have I done? Finding healing after my abortion"
+  #   5. 0.693 /a-l-aide-j-aime-mon-partenaire-mais-je-n-aime-pas-le-sexe — EN: "Help! I love my partner but I don't like sex"
+  #   6. 0.685 /guerir-de-son-passe-sexuel — EN: "Healing from your sexual past"
+  #   7. 0.665 /il-ne-brisera-pas-le-roseau-qui-se-ploie — EN: "He will not break the bruised reed"
+  #   8. 0.662 /pourquoi-ai-je-tant-de-problemes-avec-l-intimite-sexuelle — EN: "Why do I have so many problems with sexual intimacy?"
+  #   9. 0.649 /apprenez-a-vous-voir-comme-dieu-vous-voit — EN: "Learn to see yourself as God sees you"
+  #  10. 0.649 /vivre-son-deuil — EN: "Living through your grief"
+
+  # EN: "I can't break free from porn and I'm so ashamed — how do I get out?"
+  - id: "tlfr-seeker-porno"
+    question: "Je n'arrive pas à décrocher du porno et j'ai tellement honte — comment m'en sortir ?"
+    relevant:
+      thelife-fr:
+        - "/je-lutte-avec-la-pornographie"
+        - "/le-vrai-visage-de-la-pornographie"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.761 /la-puissance-des-images — EN: "The power of images"
+  #   2. 0.754 /je-lutte-avec-la-pornographie — EN: "I struggle with pornography"
+  #   3. 0.714 /une-transformation-surnaturelle — EN: "A supernatural transformation"
+  #   4. 0.640 /le-plaisir-sexuel-se-vit-a-deux — EN: "Sexual pleasure is experienced together"
+  #   5. 0.602 /le-vrai-visage-de-la-pornographie — EN: "The true face of pornography"
+  #   6. 0.582 /liberes-de-la-honte — EN: "Freed from shame"
+  #   7. 0.579 /ces-mensonges-que-nous-croyons — EN: "The lies we believe"
+  #   8. 0.567 /apprenez-a-vous-voir-comme-dieu-vous-voit — EN: "Learn to see yourself as God sees you"
+  #   9. 0.561 /le-sexe-tout-se-passe-t-il-dans-ma-tete — EN: "Sex: is it all in my head?"
+  #  10. 0.557 /pourquoi-ai-je-tant-de-problemes-avec-l-intimite-sexuelle — EN: "Why do I have so many problems with sexual intimacy?"
+
+  # EN: "I've been deeply hurt; I know God asks me to forgive but I can't — how do I actually do it?"
+  - id: "tlfr-believer-pardonner"
+    question: "On m'a profondément blessé ; je sais que Dieu me demande de pardonner mais je n'y arrive pas — comment faire concrètement ?"
+    relevant:
+      thelife-fr:
+        - "/pardonner-n-est-pas-un-sentiment"
+        - "/la-puissance-du-pardon"
+        - "/le-pouvoir-guerissant-du-pardon"
+        - "/un-pardon-authentique"
+        - "/retrouver-la-liberte-en-pardonnant"
+        - "/vivre-le-pardon-et-l-amour-de-dieu"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.785 /je-ne-peux-pas-lui-pardonner-son-passe-sexuel — EN: "I can't forgive their sexual past"
+  #   2. 0.774 /un-pardon-authentique — EN: "Authentic forgiveness"
+  #   3. 0.767 /pardonner-n-est-pas-un-sentiment — EN: "Forgiveness is not a feeling"
+  #   4. 0.739 /trainer-les-bagages-de-famille-la-liberte-est-un-choix — EN: "Carrying family baggage: freedom is a choice"
+  #   5. 0.734 /delier-les-liens-sexuels — EN: "Untying sexual bonds"
+  #   6. 0.732 /comment-pardonner-et-oublier-quand-votre-partenaire-vous-decoit — EN: "How to forgive and forget when your partner lets you down"
+  #   7. 0.723 /vivre-son-deuil — EN: "Living through your grief"
+  #   8. 0.721 /la-puissance-du-pardon — EN: "The power of forgiveness"
+  #   9. 0.717 /violence-fraternelle — EN: "Sibling violence"
+  #  10. 0.714 /a-l-aide-j-aime-mon-partenaire-mais-je-n-aime-pas-le-sexe — EN: "Help! I love my partner but I don't like sex"
+
+  # EN: "My Christian life feels flat and powerless — how do I live daily in the Holy Spirit's power?"
+  - id: "tlfr-believer-saint-esprit"
+    question: "Ma vie chrétienne me semble plate et sans puissance — comment vivre chaque jour par la force du Saint-Esprit ?"
+    relevant:
+      thelife-fr:
+        - "/connaissez-vous-la-plenitude-du-saint-esprit"
+        - "/le-saint-esprit-et-la-difference-qu-il-fait"
+        - "/suivre-la-direction-du-saint-esprit"
+        - "/une-vie-chretienne-dynamique"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.746 /une-vie-chretienne-dynamique — EN: "A dynamic Christian life"
+  #   2. 0.703 /connaissez-vous-la-plenitude-du-saint-esprit — EN: "Do you know the fullness of the Holy Spirit?"
+  #   3. 0.683 /le-saint-esprit-et-la-difference-qu-il-fait — EN: "The Holy Spirit and the difference he makes"
+  #   4. 0.677 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+  #   5. 0.648 /la-force-dans-la-faiblesse — EN: "Strength in weakness"
+  #   6. 0.647 /prier-selon-les-ecritures — EN: "Praying according to Scripture"
+  #   7. 0.645 /s-abandonner — EN: "Surrendering"
+  #   8. 0.626 /suivre-la-direction-du-saint-esprit — EN: "Following the Holy Spirit's leading"
+  #   9. 0.625 /savoir-tenir-ferme — EN: "Standing firm"
+  #  10. 0.619 /croitre-dans-votre-relation-avec-dieu — EN: "Growing in your relationship with God"
+
+  # EN: "My husband doesn't believe and I feel alone in my faith — how do I persevere and hope he meets God one day?"
+  - id: "tlfr-believer-mari-incroyant"
+    question: "Mon mari ne croit pas et je me sens seule dans ma foi — comment tenir et espérer qu'il rencontre Dieu un jour ?"
+    relevant:
+      thelife-fr:
+        - "/mon-mari-ne-partage-pas-ma-foi"
+        - "/le-salut-de-son-partenaire"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.790 /le-salut-de-son-partenaire — EN: "Your partner's salvation"
+  #   2. 0.713 /mon-mari-ne-partage-pas-ma-foi — EN: "My husband doesn't share my faith"
+  #   3. 0.696 /dieu-nous-promet-il-un-conjoint — EN: "Does God promise us a spouse?"
+  #   4. 0.696 /s-adapter-a-la-perte-de-travail-de-son-partenaire — EN: "Adjusting to your partner's job loss"
+  #   5. 0.675 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
+  #   6. 0.650 /apres-le-deuil-la-vie — EN: "After grief, life"
+  #   7. 0.649 /surmonter-la-deception — EN: "Overcoming disappointment"
+  #   8. 0.647 /ma-boite-a-outils — EN: "My toolbox"
+  #   9. 0.634 /que-faire-lorsque-vous-vous-sentez-seuls-dans-votre-mariage — EN: "What to do when you feel alone in your marriage"
+  #  10. 0.628 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
+
+  # EN: "I know almost nothing about Jesus — who was he, and what did he do that matters so much?"
+  - id: "tlfr-newcomer-jesus"
+    question: "Je ne connais presque rien à Jésus — c'était qui, et qu'est-ce qu'il a fait de si important ?"
+    relevant:
+      thelife-fr:
+        - "/qui-est-jesus"
+        - "/comprendre-votre-relation-avec-jesus-christ"
+        - "/la-beaute-de-jesus"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.615 /qui-est-jesus — EN: "Who is Jesus?"
+  #   2. 0.615 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
+  #   3. 0.566 /la-voie-de-la-joie — EN: "The way of joy"
+  #   4. 0.565 /voir-dieu-face-a-face — EN: "Seeing God face to face"
+  #   5. 0.556 /la-beaute-de-jesus — EN: "The beauty of Jesus"
+  #   6. 0.541 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
+  #   7. 0.540 /jesus-est-il-ressuscite-a-la-vie-eternelle — EN: "Did Jesus rise to eternal life?"
+  #   8. 0.535 /violence-fraternelle — EN: "Sibling violence"
+  #   9. 0.534 /un-nouvel-homme — EN: "A new man"
+  #  10. 0.522 /jesus-pleura — EN: "Jesus wept"
+
+  # EN: "My mind never stops churning over my worries — how do I find real inner peace?"
+  - id: "tlfr-seeker-anxiete"
+    question: "Mon cerveau n'arrête jamais de ressasser mes inquiétudes — comment retrouver une vraie paix intérieure ?"
+    relevant:
+      thelife-fr:
+        - "/surmonter-l-anxiete"
+        - "/pourquoi-se-faire-du-souci"
+        - "/ce-monstre-que-l-on-appelle-peur"
+        - "/quel-est-votre-niveau-de-stress"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-02):
+  #   1. 0.618 /pourquoi-se-faire-du-souci — EN: "Why worry?"
+  #   2. 0.572 /surmonter-l-anxiete — EN: "Overcoming anxiety"
+  #   3. 0.565 /quel-est-votre-niveau-de-stress — EN: "What's your stress level?"
+  #   4. 0.532 /ce-monstre-que-l-on-appelle-peur — EN: "That monster called fear"
+  #   5. 0.508 /les-merveilles-de-la-creation — EN: "The wonders of creation"
+  #   6. 0.505 /le-pouvoir-guerissant-du-pardon — EN: "The healing power of forgiveness"
+  #   7. 0.477 /la-meditation-trouver-notre-repos-en-dieu — EN: "Meditation: finding our rest in God"
+  #   8. 0.461 /un-nouvel-homme — EN: "A new man"
+  #   9. 0.457 /une-oeuvre-merveilleuse — EN: "A marvelous work"
+  #  10. 0.449 /trainer-les-bagages-de-famille-la-liberte-est-un-choix — EN: "Carrying family baggage: freedom is a choice"
+
+  # ── thelife-zh (uwota.com 人生你我他) ─ merged 2026-07-03 from candidates-thelife-zh.yaml
+  # after operator approval. Drafted 2026-07-02 against the qwen corpus (332 docs / 460
+  # chunks); LLM-judge review 2026-07-02: suite avg 0.8 (bar >0.7), no 0-scored cases.
+  # RETRIEVED blocks = zh-scoped qwen top-10 evidence (post iterative-scan fix, which took
+  # zh recall@10 0.800 → 1.000), titles translated to English per the multilingual MUST.
+  # EN: "I want to believe in Jesus but don't know how to start — what's the first step?"
+  - id: "tlzh-newcomer-xinzhu"
+    question: "我想信耶稣，但不知道该怎么开始，第一步是什么？"
+    relevant:
+      thelife-zh:
+        - "/pray"
+        - "/new-born"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02) — EN translations for human verification:
+  #   1. 0.654 /changing-power — EN: "The power to change" (gospel transformation)
+  #   2. 0.632 /new-born — EN: "Lesson 1: Understanding your relationship with Christ Jesus"
+  #   3. 0.584 /turning-point — EN: "The power of love — a turning point"
+  #   4. 0.561 /forgiveness — EN: "The power of forgiveness"
+  #   5. 0.557 /what-s-next — EN: "After believing: the path to growth"
+  #   6. 0.552 /good-friday — EN: "Good Friday"
+  #   7. 0.551 /a-happy-life — EN: "A happy life"
+  #   8. 0.527 /growth — EN: "Lesson 4: Growing in Christ Jesus"
+  #   9. 0.526 /pray — EN: "Receiving the Lord Jesus as Savior (a prayer)"
+  #  10. 0.522 /success — EN: "The definition of success"
+
+  # EN: "I'm busy every day yet feel empty inside — what am I actually living for?"
+  - id: "tlzh-seeker-yiyi"
+    question: "我每天忙忙碌碌，却总觉得心里空空的，活着到底是为了什么？"
+    relevant:
+      thelife-zh:
+        - "/life-meanings"
+        - "/life-purpose"
+        - "/vacuum-in-heart"
+        - "/a-meaningful-life"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.534 /midlife — EN: "A new benchmark for life — midlife"
+  #   2. 0.520 /life-purpose — EN: "Searching for life's purpose"
+  #   3. 0.513 /a-meaningful-life — EN: "A meaningful life"
+  #   4. 0.508 /a-new-life — EN: "A new life"
+  #   5. 0.504 /adopted-kid — EN: "I am an adopted child"
+  #   6. 0.496 /mothers-day — EN: "Early morning on Mother's Day"
+  #   7. 0.478 /fear-of-death — EN: "Fear of death"
+  #   8. 0.477 /the-greatest-love-letter — EN: "The greatest love letter"
+  #   9. 0.470 /vacuum-in-heart — EN: "The vacuum in the heart"
+  #  10. 0.468 /simple-life — EN: "Simple is happy"
+
+  # EN: "I've been down for months and can't get motivated by anything — how do I climb out?"
+  - id: "tlzh-seeker-youyu"
+    question: "我情绪低落了好几个月，什么都提不起劲，我该怎么走出来？"
+    relevant:
+      thelife-zh:
+        - "/depression"
+        - "/overcome-depress"
+        - "/away-from-depression"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.554 /give-yourself-a-new-life — EN: "Give yourself a way out (a new life)"
+  #   2. 0.507 /away-from-depression — EN: "Away from depression"
+  #   3. 0.475 /pray — EN: "Receiving the Lord Jesus as Savior (a prayer)"
+  #   4. 0.465 /depression — EN: "When depression strikes"
+  #   5. 0.433 /overcome-depress — EN: "Out of depression, toward laughter"
+  #   6. 0.430 /new-resolution — EN: "New year, new goals"
+  #   7. 0.420 /summer-beautiful — EN: "Pampering yourself in summer"
+  #   8. 0.416 /sex-abused — EN: "Sexual abuse (recovery)"
+  #   9. 0.412 /emotional-eating — EN: "Emotional eating"
+  #  10. 0.405 /grief-alongside — EN: "Coming alongside grieving friends"
+
+  # EN: "The Bible teaches forgiveness, but that person hurt me too deeply and I truly can't — what do I do?"
+  - id: "tlzh-believer-raoshu"
+    question: "圣经教导要饶恕，可是那个人伤我太深，我真的做不到，怎么办？"
+    relevant:
+      thelife-zh:
+        - "/forgiveness"
+        - "/forgive"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02; found only after the iterative-scan fix):
+  #   1. 0.577 /father-and-me — EN: "Father and me" (forgiving a father, testimony)
+  #   2. 0.564 /cry2 — EN: "Crying" (healing from deep hurt)
+  #   3. 0.562 /forgiveness — EN: "The power of forgiveness"
+  #   4. 0.552 /forgiven — EN: "Lesson 2: Experiencing God's love and forgiveness"
+  #   5. 0.537 /marriage-hurts — EN: "Marriage hurts"
+  #   6. 0.526 /conflict — EN: "Marriage conflict"
+  #   7. 0.510 /sex-abused — EN: "Sexual abuse (recovery)"
+  #   8. 0.504 /marriage-crisis — EN: "Walking through the shadow of divorce"
+  #   9. 0.485 /cry — EN: "No more crying"
+  #  10. 0.461 /love-without — EN: "Love to the end without resentment"
+
+  # EN: "I discovered my spouse is having an affair and I'm heartbroken — can this marriage still be saved?"
+  - id: "tlzh-seeker-waiyu"
+    question: "我发现配偶有了外遇，心都碎了——这段婚姻还有救吗？"
+    relevant:
+      thelife-zh:
+        - "/affairs"
+        - "/overcomeaffairs"
+        - "/marriage-crisis"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02; found only after the iterative-scan fix):
+  #   1. 0.545 /preventing-affairs — EN: "How to prevent an affair?"
+  #   2. 0.539 /affairs — EN: "An affair? (rebuilding after my husband's affair)"
+  #   3. 0.503 /divorce — EN: "Is divorce a release?"
+  #   4. 0.493 /marriage-crisis — EN: "Walking through the shadow of divorce"
+  #   5. 0.481 /looking-for-true-love — EN: "Where to find true love?"
+  #   6. 0.462 /husband-no-sex — EN: "Husband has no interest in sex"
+  #   7. 0.460 /addicted-chatting — EN: "He's hooked on a woman online"
+  #   8. 0.451 /after-divorce — EN: "Life after divorce"
+  #   9. 0.449 /crave-for-happiness — EN: "The pursuit of happiness"
+  #  10. 0.439 /pornography — EN: "My husband is addicted to porn"
+
+  # EN: "Our teenager is getting more and more rebellious and talks back at everything — how should parents communicate with him?"
+  - id: "tlzh-believer-qingshaonian"
+    question: "家里的青少年越来越叛逆，说什么都顶嘴，做父母的该怎么跟他沟通？"
+    relevant:
+      thelife-zh:
+        - "/teen-rebellion"
+        - "/communication-with-teen"
+        - "/teen-challenges"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.675 /teen-rebellion — EN: "The teenage rebellion phase"
+  #   2. 0.643 /communication-with-teen — EN: "Communicating with teens"
+  #   3. 0.515 /communicating-with-aging — EN: "Communicating with aging parents"
+  #   4. 0.468 /panic — EN: "Parents' fears"
+  #   5. 0.440 /pygmalion-effect — EN: "The magic effect of praising your child"
+  #   6. 0.436 /kids-life-purpose — EN: "Your child's life purpose"
+  #   7. 0.426 /teen-challenges — EN: "Teen challenges"
+  #   8. 0.417 /marriage-communication — EN: "Husband–wife communication"
+  #   9. 0.412 /teens-money-management — EN: "Teens' money management"
+  #  10. 0.411 /kids-leadership — EN: "Developing kids' leadership"
+
+  # EN: "I just made a decision to trust Christ — what should I do next to grow in the faith?"
+  - id: "tlzh-newcomer-chengzhang"
+    question: "我刚刚决志信主，接下来该做些什么才能在信仰上成长？"
+    relevant:
+      thelife-zh:
+        - "/what-s-next"
+        - "/growth"
+        - "/new-life"
+        - "/growing-life"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.685 /what-s-next — EN: "After believing: the path to growth"
+  #   2. 0.672 /growth — EN: "Lesson 4: Growing in Christ Jesus"
+  #   3. 0.638 /new-born — EN: "Lesson 1: Understanding your relationship with Christ Jesus"
+  #   4. 0.583 /a-happy-life — EN: "A happy life"
+  #   5. 0.575 /changing-power — EN: "The power to change"
+  #   6. 0.556 /turning-point — EN: "The power of love — a turning point"
+  #   7. 0.544 /forgiveness — EN: "The power of forgiveness"
+  #   8. 0.529 /pray — EN: "Receiving the Lord Jesus as Savior (a prayer)"
+  #   9. 0.526 /new-life — EN: "Lesson 3: Living the Christian life in power"
+  #  10. 0.526 /growing-life — EN: "Life change and growth"
+
+  # EN: "Work and life pressure are crushing me and I'm about to break — is there a way out?"
+  - id: "tlzh-seeker-yali"
+    question: "工作和生活的压力压得我喘不过气，快撑不住了，有什么出路？"
+    relevant:
+      thelife-zh:
+        - "/stress-free"
+        - "/stress"
+        - "/overcome-pressure"
+        - "/grow-in-pressure"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.563 /overcome-pressure — EN: "Overcoming pressure"
+  #   2. 0.516 /grow-in-pressure — EN: "Growing under pressure"
+  #   3. 0.513 /pamper-yourself — EN: "Caring for yourself"
+  #   4. 0.504 /leadership — EN: "Boosting your leadership boldness"
+  #   5. 0.487 /superwoman — EN: "I am superwoman"
+  #   6. 0.483 /stress-free — EN: "When stress makes you sick"
+  #   7. 0.477 /quietness — EN: "Quietness amid busyness"
+  #   8. 0.470 /stress — EN: "Facing stress positively"
+  #   9. 0.470 /fatigue — EN: "Women's mental fatigue"
+  #  10. 0.464 /simple — EN: "Peace is blessing"
+
+  # EN: "If a loving God really exists, why are there so many natural disasters and human tragedies?"
+  # (Engine-corrected earlier: /q-and-a contains the theodicy answer "如果神是良善的，为什么还有邪恶和苦难？")
+  - id: "tlzh-skeptic-tianzai"
+    question: "如果真有一位慈爱的神，为什么世界上还有这么多天灾人祸？"
+    relevant:
+      thelife-zh:
+        - "/q-and-a"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.618 /q-and-a — EN: "Faith Q&A (incl. 'If God is good, why is there evil and suffering?')"
+  #   2. 0.507 /massacre — EN: "Reflections on a school massacre"
+  #   3. 0.495 /father-and-me — EN: "Father and me"
+  #   4. 0.492 /peace-troubled — EN: "Finding peace in disaster"
+  #   5. 0.461 /where-to-go — EN: "Where are you going?"
+  #   6. 0.452 /escapte-and-return — EN: "Escape and return"
+  #   7. 0.449 /life-meanings — EN: "How can I find life's meaning?"
+  #   8. 0.445 /the-greatest-love-letter — EN: "The greatest love letter"
+  #   9. 0.442 /an-important-decision — EN: "A life-and-death decision"
+  #  10. 0.437 /changing-power — EN: "The power to change"
+
+  # EN: "As a Christian, how should I view earning and managing money in a way that pleases God?"
+  - id: "tlzh-believer-qiancai"
+    question: "作为基督徒，我该怎样看待赚钱和理财才合神心意？"
+    relevant:
+      thelife-zh:
+        - "/good-steward"
+        - "/money-money-money"
+        - "/money-management"
+  # RETRIEVED (qwen, zh-scoped, 2026-07-02):
+  #   1. 0.656 /money-management — EN: "Spending money effectively"
+  #   2. 0.590 /money-management-home — EN: "Family money management"
+  #   3. 0.530 /good-steward — EN: "The good steward"
+  #   4. 0.518 /opportunities — EN: "High-risk opportunities"
+  #   5. 0.442 /another-choice — EN: "Rich but not retiring"
+  #   6. 0.434 /simple-life — EN: "Simple is happy"
+  #   7. 0.422 /money-money-money — EN: "Is money almighty?"
+  #   8. 0.422 /workaholics — EN: "Workaholics"
+  #   9. 0.417 /gift-of-giving — EN: "The gift of giving"
+  #  10. 0.407 /model-career — EN: "A modeling career"

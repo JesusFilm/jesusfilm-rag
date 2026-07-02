@@ -38,9 +38,9 @@ read -r DATABASE_URL
 printf '  OPENROUTER_API_KEY: '
 read -rs OPENROUTER_API_KEY
 printf '\n'
-printf '  EMBED_MODEL_ID (Enter for openai/text-embedding-3-small): '
+printf '  EMBED_MODEL_ID (Enter for qwen/qwen3-embedding-8b): '
 read -r EMBED_MODEL_ID
-[ -z "$EMBED_MODEL_ID" ] && EMBED_MODEL_ID="openai/text-embedding-3-small"
+[ -z "$EMBED_MODEL_ID" ] && EMBED_MODEL_ID="qwen/qwen3-embedding-8b"
 
 export DATABASE_URL OPENROUTER_API_KEY EMBED_MODEL_ID
 

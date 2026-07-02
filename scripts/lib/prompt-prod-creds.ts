@@ -52,7 +52,7 @@ export interface PromptOptions {
   summary: () => string[];
 }
 
-const DEFAULT_EMBED_MODEL = "openai/text-embedding-3-small";
+const DEFAULT_EMBED_MODEL = "qwen/qwen3-embedding-8b";
 
 /** Redact the password in a postgres URL for the on-screen summary. */
 export function redactDbUrl(databaseUrl: string): string {

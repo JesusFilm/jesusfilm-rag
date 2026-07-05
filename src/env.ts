@@ -36,6 +36,31 @@ function loadDotEnv(): void {
   }
 }
 
+/**
+ * The dedicated `forge-rag` Doppler project (doppler.yaml) carries its secrets
+ * under NAMESPACED keys (JFRAG_*) precisely so that a `doppler run` wrapped
+ * around LOCAL tooling can never silently repoint it at prod: DATABASE_URL and
+ * EMBED_MODEL_ID stay local-owned, and the prod DB URL is only used by code
+ * that EXPLICITLY opts in (dashboard credentials, the :production scripts'
+ * non-interactive mode). The ONE environment-agnostic credential is the
+ * OpenRouter spend key — the same key serves local and prod — so it alone is
+ * mapped here: a doppler-injected JFRAG_OPENROUTER_API_KEY fills
+ * OPENROUTER_API_KEY when the plain name isn't genuinely set. Exported for
+ * unit tests. Deliberately NO other JFRAG_* mapping — see the safety test in
+ * tests/env-fallbacks.test.ts.
+ */
+export function applyNamespacedEnvFallbacks(
+  env: Record<string, string | undefined> = process.env,
+): void {
+  if (!env.OPENROUTER_API_KEY?.trim() && env.JFRAG_OPENROUTER_API_KEY?.trim()) {
+    env.OPENROUTER_API_KEY = env.JFRAG_OPENROUTER_API_KEY;
+  }
+}
+
+// Order matters: fallbacks first (genuinely-injected env, e.g. doppler), THEN
+// the .env file fill — a doppler-injected JFRAG_OPENROUTER_API_KEY must beat a
+// placeholder sitting in .env, and loadDotEnv only fills keys still undefined.
+applyNamespacedEnvFallbacks();
 loadDotEnv();
 
 // The schema validates exactly what the running code consumes: the DB, the

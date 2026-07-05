@@ -1,15 +1,23 @@
 # Doppler project/config targeting for `doppler run` in this repo. Contains
-# NO secrets — only the project + config NAMES. The dashboard refresh
-# (`doppler run -- pnpm dashboard:data`) reads JFRAG_POSTGRESQL_DB_URL from the
-# injected env.
+# NO secrets — only the project + config NAMES. Doppler does NOT auto-apply
+# this file: activate it once per checkout with `doppler setup --no-interactive`
+# (or pass `--project forge-rag --config prd` on each run).
 #
-# ⚠️ TEMPORARY: the dashboard's prod DB URL is parked in the low-usage
-# `resources` project (env `prd`) under the namespaced key
-# JFRAG_POSTGRESQL_DB_URL, because a dedicated `jesusfilm-rag` Doppler project
-# cannot be created yet. Migrate to a `jesusfilm-rag` project + revert the skill
-# to the structurally-enforced default once access exists.
-# Tech debt: migrate to a jesusfilm-rag project — see #53 and
-# docs/ops/dashboard-secret-access.md.
+# The dedicated `forge-rag` project (env `prd`) carries this repo's prod
+# secrets under NAMESPACED keys — JFRAG_POSTGRESQL_DB_URL,
+# JFRAG_OPENROUTER_API_KEY, JFRAG_OPENROUTER_EMBED_MODEL_ID,
+# JFRAG_SERVE_BEARER_TOKENS — deliberately distinct from the plain names the
+# local tooling reads (DATABASE_URL, EMBED_MODEL_ID, …), so a `doppler run`
+# wrapped around a LOCAL command can never silently repoint it at prod.
+# Consumers that INTEND prod opt in explicitly: `dashboard:data` resolves
+# JFRAG_POSTGRESQL_DB_URL (scripts/lib/dashboard/credentials.ts), and the
+# `:production` scripts' --non-interactive mode resolves all three (#56).
+# The one environment-agnostic credential — the OpenRouter spend key — is
+# additionally filled into OPENROUTER_API_KEY by src/env.ts when the plain
+# name isn't set, so local embed flows work under `doppler run` too.
+#
+# Migrated from the interim shared `resources`/`prd` home on 2026-07-06 (#53);
+# history: docs/ops/dashboard-secret-access.md.
 setup:
-  project: resources
+  project: forge-rag
   config: prd

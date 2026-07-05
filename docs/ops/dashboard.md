@@ -67,10 +67,10 @@ The dashboard's prod credential is the **namespaced** secret
 `JFRAG_POSTGRESQL_DB_URL`, deliberately distinct from `DATABASE_URL`: the source
 tooling (acquire/index/eval) reads `DATABASE_URL` for the **local dev DB**, so the
 prod URL — living under a different name — cannot bleed into a source run, even one
-accidentally wrapped in `doppler run`. ⚠️ Interim home: the `resources` Doppler
-project, env `prd` (pinned by the repo's `doppler.yaml`) until a `jesusfilm-rag`
-project exists. Rationale + migration: `docs/ops/dashboard-secret-access.md`. See
-also the secret-safety contract in `.claude/skills/status-dashboard/SKILL.md`.
+accidentally wrapped in `doppler run`. Home: the dedicated **`forge-rag`** Doppler
+project, env `prd` (pinned by the repo's `doppler.yaml`; migrated from the interim
+`resources` home 2026-07-06). Rationale + history: `docs/ops/dashboard-secret-access.md`.
+See also the secret-safety contract in `.claude/skills/status-dashboard/SKILL.md`.
 
 ## Design
 

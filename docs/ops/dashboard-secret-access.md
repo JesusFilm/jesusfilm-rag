@@ -1,8 +1,32 @@
 # Decision: short-term prod credential access for the status dashboard
 
-**Status:** decided · **Date:** 2026-06-29 · **Blocks PR #52?** No (runtime/ops + additive docs; nothing gates the merge).
+**Status:** ✅ migration completed 2026-07-06 (#53) · originally decided 2026-06-29 · **Blocks PR #52?** No (runtime/ops + additive docs; nothing gates the merge).
 
-## Decision taken (interim)
+## ✅ Current state (migrated 2026-07-06)
+
+The interim home is retired. The repo's prod secrets live in the dedicated
+**`forge-rag`** Doppler project, env **`prd`**, under **namespaced** keys:
+`JFRAG_POSTGRESQL_DB_URL`, `JFRAG_OPENROUTER_API_KEY`,
+`JFRAG_OPENROUTER_EMBED_MODEL_ID`, `JFRAG_SERVE_BEARER_TOKENS`.
+
+- The **namespacing is kept on purpose** even in the dedicated project: local
+  tooling reads the plain names (`DATABASE_URL` for the local dev DB), so a
+  `doppler run` wrapped around a local command can never silently repoint it
+  at prod. Prod-intent consumers opt in explicitly — the dashboard reads
+  `JFRAG_POSTGRESQL_DB_URL` (`scripts/lib/dashboard/credentials.ts`), and the
+  `:production` scripts' `--non-interactive` mode resolves all the JFRAG_*
+  keys as fallbacks (#56). The one environment-agnostic credential — the
+  OpenRouter spend key — is filled into `OPENROUTER_API_KEY` by `src/env.ts`
+  when the plain name isn't set (safety boundary unit-tested in
+  `tests/env-fallbacks.test.ts`).
+- `doppler.yaml` (committed; names only) pins `project: forge-rag` /
+  `config: prd`. Re-activate per checkout: `doppler setup --no-interactive`.
+- The old `resources`/`prd` guard ("must not also define `DATABASE_URL`") is
+  moot in the dedicated project, but the same rule carries over: **never add a
+  plain-named `DATABASE_URL` / `EMBED_MODEL_ID` secret to `forge-rag`** — the
+  namespacing is the control.
+
+## Decision taken 2026-06-29 (interim — superseded by the migration above)
 
 Use Doppler (the structurally-enforced path) but in a **temporary home**, since a
 dedicated `jesusfilm-rag` project can't be created yet:

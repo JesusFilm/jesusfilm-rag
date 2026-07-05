@@ -44,10 +44,10 @@ leak is *structurally* hard. You MUST keep it that way:
 
 The dashboard's prod credential is the namespaced secret **`JFRAG_POSTGRESQL_DB_URL`**,
 deliberately distinct from `DATABASE_URL` so the prod URL can never bleed into the
-source tooling (acquire/index/eval read `DATABASE_URL` for the local dev DB). ⚠️
-Interim: it currently lives in the `resources` Doppler project, env `prd` (pinned by
-the repo's `doppler.yaml`) until a `jesusfilm-rag` project exists — see
-`docs/ops/dashboard-secret-access.md`.
+source tooling (acquire/index/eval read `DATABASE_URL` for the local dev DB). It
+lives in the dedicated **`forge-rag`** Doppler project, env `prd` (pinned by the
+repo's `doppler.yaml`; migrated from the interim `resources` home 2026-07-06) —
+see `docs/ops/dashboard-secret-access.md`.
 
 If you cannot satisfy the above, do not proceed — surface the blocker instead.
 
@@ -58,15 +58,15 @@ If you cannot satisfy the above, do not proceed — surface the blocker instead.
 - **doppler** installed and authenticated (`doppler login`), with access to the
   project holding the prod secret.
 - **Activate the doppler scope — required, one-time per checkout.** The repo ships
-  a `doppler.yaml` pinning the interim target (`resources` / `prd`), but doppler
-  does **NOT** auto-apply `doppler.yaml` to `doppler run` — you must run it once
+  a `doppler.yaml` pinning `forge-rag` / `prd`, but doppler does **NOT**
+  auto-apply `doppler.yaml` to `doppler run` — you must run it once
   **from this directory** (the worktree where `doppler.yaml` lives):
   ```bash
-  doppler setup --no-interactive   # reads doppler.yaml → pins resources/prd for this dir
+  doppler setup --no-interactive   # reads doppler.yaml → pins forge-rag/prd for this dir
   ```
-  (Alternative, no setup: pass `--project resources --config prd` on every
+  (Alternative, no setup: pass `--project forge-rag --config prd` on every
   `doppler run`.) Confirm the scope took: `doppler configure get project config`
-  should show `resources` / `prd` — **names only, never a secret value**.
+  should show `forge-rag` / `prd` — **names only, never a secret value**.
 - **Verify the secret is injected — without revealing it:**
   `doppler run -- node -e "process.exit(process.env.JFRAG_POSTGRESQL_DB_URL?0:1)"`
   (exit 0 = present). Never print the value to check it.

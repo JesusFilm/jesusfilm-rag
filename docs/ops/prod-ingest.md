@@ -96,6 +96,47 @@ genuinely `export`ed this session, never file values. The stale-`.env` hazard
 this flow exists to prevent is untouched. Mechanism + tests:
 `scripts/lib/prompt-prod-creds.ts`, `tests/prompt-prod-creds.test.ts`.
 
+## Headless / server runs (`--non-interactive`)
+
+For unattended runs — the always-on Ops server, CI-style checks, or
+agent-invoked tasks — every `:production` script accepts
+**`--non-interactive`** (alias `--yes` / `-y`). No prompts, no Y/N gates:
+credentials come **strictly from the environment**, typically injected by
+`doppler run` against the dedicated **`forge-rag`** Doppler project (config
+`prd`). Each value resolves plain-name-first, then the namespaced Doppler key:
+
+| Credential | Resolution order |
+|---|---|
+| `DATABASE_URL` | `DATABASE_URL` → `JFRAG_POSTGRESQL_DB_URL` |
+| `OPENROUTER_API_KEY` | `OPENROUTER_API_KEY` → `JFRAG_OPENROUTER_API_KEY` |
+| `EMBED_MODEL_ID` | `EMBED_MODEL_ID` → `JFRAG_OPENROUTER_EMBED_MODEL_ID` → default |
+
+```sh
+# Read-only smoke test, fully unattended:
+doppler run --project forge-rag --config prd -- \
+  pnpm retrieve:production --non-interactive --expect-host rlwy.net \
+    --source cru-10-basic-steps "how do I become a Christian?"
+```
+
+Safety (the interactive gates exist for a reason — these replace them):
+
+- **Fail fast, fail closed.** A missing/empty credential, or a malformed
+  `DATABASE_URL`, exits **3** with a clear message before anything runs.
+- **`--expect-host <substr>`** — aborts before any connection if the resolved
+  DB host doesn't contain the substring (e.g. `rlwy.net` for Railway). Use it
+  on every unattended run; it's the non-interactive stand-in for eyeballing
+  the redacted host.
+- **Write ops need a second signal.** `acquire:production` / `index:production`
+  additionally require **`JFRAG_ALLOW_PROD_WRITE=1`** in the environment — a
+  stray `--non-interactive` can never start an unattended prod write on its
+  own. Read-only `retrieve` / `eval` don't need it.
+- The **redacted target summary is still printed** (audit trail), and the
+  `.env` / `.env.local` invariant is unchanged — only genuinely exported or
+  doppler-injected values can resolve.
+
+The PTY-driver workaround previously needed to run these scripts headless is
+obsolete.
+
 ## What each script does
 
 | Script | What it does | When to use |

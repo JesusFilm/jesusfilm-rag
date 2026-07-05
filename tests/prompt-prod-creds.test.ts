@@ -9,9 +9,12 @@
  */
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_EMBED_MODEL,
+  extractProdRunFlags,
   redactDbUrl,
   redactSecret,
   resolveCredential,
+  resolveNonInteractiveCreds,
 } from "../scripts/lib/prompt-prod-creds.js";
 
 const isPostgres = (v: string): string | null =>
@@ -126,5 +129,175 @@ describe("redactSecret", () => {
   it("fully masks anything 4 chars or shorter", () => {
     expect(redactSecret("abcd")).toBe("***");
     expect(redactSecret("ab")).toBe("***");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Non-interactive mode (#56)
+// ---------------------------------------------------------------------------
+
+describe("extractProdRunFlags", () => {
+  it("recognizes --non-interactive and both aliases, removing them from argv", () => {
+    for (const alias of ["--non-interactive", "--yes", "-y"]) {
+      const { flags, rest, error } = extractProdRunFlags([
+        "--source",
+        "thelife",
+        alias,
+        "how do I pray?",
+      ]);
+      expect(error).toBeUndefined();
+      expect(flags.nonInteractive).toBe(true);
+      expect(rest).toEqual(["--source", "thelife", "how do I pray?"]);
+    }
+  });
+
+  it("defaults to interactive when no flag is present", () => {
+    const { flags, rest } = extractProdRunFlags(["--source", "thelife"]);
+    expect(flags.nonInteractive).toBe(false);
+    expect(flags.expectHost).toBeUndefined();
+    expect(rest).toEqual(["--source", "thelife"]);
+  });
+
+  it("captures --expect-host and its value, removing both", () => {
+    const { flags, rest } = extractProdRunFlags([
+      "--expect-host",
+      "rlwy.net",
+      "-y",
+      "what is grace?",
+    ]);
+    expect(flags.expectHost).toBe("rlwy.net");
+    expect(flags.nonInteractive).toBe(true);
+    expect(rest).toEqual(["what is grace?"]);
+  });
+
+  it("errors on --expect-host without a value (end of argv or next flag)", () => {
+    expect(extractProdRunFlags(["--expect-host"]).error).toMatch(
+      /--expect-host needs a value/,
+    );
+    expect(
+      extractProdRunFlags(["--expect-host", "--non-interactive"]).error,
+    ).toMatch(/--expect-host needs a value/);
+  });
+
+  it("errors on --expect-host followed by a short flag (never eats -y as the host)", () => {
+    const { flags, error } = extractProdRunFlags(["--expect-host", "-y"]);
+    expect(error).toMatch(/--expect-host needs a value/);
+    expect(flags.expectHost).toBeUndefined();
+    expect(flags.nonInteractive).toBe(false);
+  });
+
+  it("leaves unrelated tokens (including query words) untouched", () => {
+    const { rest } = extractProdRunFlags(["--top-k", "8", "yes and amen"]);
+    expect(rest).toEqual(["--top-k", "8", "yes and amen"]);
+  });
+});
+
+describe("resolveNonInteractiveCreds — env-strict resolution", () => {
+  const fullEnv = {
+    DATABASE_URL: "postgres://user:pw@db.rlwy.net:5432/rag",
+    OPENROUTER_API_KEY: "sk-or-v1-test",
+    EMBED_MODEL_ID: "qwen/qwen3-embedding-8b",
+  };
+
+  it("resolves all three creds from plain env names", () => {
+    expect(resolveNonInteractiveCreds(fullEnv)).toEqual(fullEnv);
+  });
+
+  it("falls back to the namespaced Doppler keys (JFRAG_*)", () => {
+    const creds = resolveNonInteractiveCreds({
+      JFRAG_POSTGRESQL_DB_URL: "postgres://u:p@db.rlwy.net:5432/rag",
+      JFRAG_OPENROUTER_API_KEY: "sk-or-v1-doppler",
+      JFRAG_OPENROUTER_EMBED_MODEL_ID: "qwen/qwen3-embedding-8b",
+    });
+    expect(creds.DATABASE_URL).toBe("postgres://u:p@db.rlwy.net:5432/rag");
+    expect(creds.OPENROUTER_API_KEY).toBe("sk-or-v1-doppler");
+    expect(creds.EMBED_MODEL_ID).toBe("qwen/qwen3-embedding-8b");
+  });
+
+  it("prefers the plain name over the namespaced fallback", () => {
+    const creds = resolveNonInteractiveCreds({
+      ...fullEnv,
+      JFRAG_POSTGRESQL_DB_URL: "postgres://other:x@elsewhere:5432/nope",
+      JFRAG_OPENROUTER_API_KEY: "sk-or-v1-other",
+    });
+    expect(creds.DATABASE_URL).toBe(fullEnv.DATABASE_URL);
+    expect(creds.OPENROUTER_API_KEY).toBe(fullEnv.OPENROUTER_API_KEY);
+  });
+
+  it("falls back to the default embedding model when none is in env", () => {
+    const creds = resolveNonInteractiveCreds({
+      DATABASE_URL: fullEnv.DATABASE_URL,
+      OPENROUTER_API_KEY: fullEnv.OPENROUTER_API_KEY,
+    });
+    expect(creds.EMBED_MODEL_ID).toBe(DEFAULT_EMBED_MODEL);
+  });
+
+  it("fails closed when DATABASE_URL is missing everywhere", () => {
+    expect(() =>
+      resolveNonInteractiveCreds({ OPENROUTER_API_KEY: "sk-or-v1-x" }),
+    ).toThrow(/required for: DATABASE_URL/);
+  });
+
+  it("fails closed when OPENROUTER_API_KEY is missing everywhere", () => {
+    expect(() =>
+      resolveNonInteractiveCreds({ DATABASE_URL: fullEnv.DATABASE_URL }),
+    ).toThrow(/required for: OPENROUTER_API_KEY/);
+  });
+
+  it("rejects a malformed DATABASE_URL from env exactly like a typed one", () => {
+    expect(() =>
+      resolveNonInteractiveCreds({
+        DATABASE_URL: "mysql://nope",
+        OPENROUTER_API_KEY: "sk-or-v1-x",
+      }),
+    ).toThrow(/must start with postgres/);
+  });
+});
+
+describe("resolveNonInteractiveCreds — --expect-host guard", () => {
+  const env = {
+    DATABASE_URL: "postgres://user:pw@db.rlwy.net:5432/rag",
+    OPENROUTER_API_KEY: "sk-or-v1-test",
+  };
+
+  it("passes when the resolved host contains the expected substring", () => {
+    expect(() =>
+      resolveNonInteractiveCreds(env, { expectHost: "rlwy.net" }),
+    ).not.toThrow();
+  });
+
+  it("aborts when the host does not match", () => {
+    expect(() =>
+      resolveNonInteractiveCreds(env, { expectHost: "localhost" }),
+    ).toThrow(/--expect-host "localhost" does not match/);
+  });
+});
+
+describe("resolveNonInteractiveCreds — prod-write second signal", () => {
+  const env = {
+    DATABASE_URL: "postgres://user:pw@db.rlwy.net:5432/rag",
+    OPENROUTER_API_KEY: "sk-or-v1-test",
+  };
+
+  it("refuses a write op without JFRAG_ALLOW_PROD_WRITE=1", () => {
+    expect(() => resolveNonInteractiveCreds(env, { writeOp: true })).toThrow(
+      /JFRAG_ALLOW_PROD_WRITE=1/,
+    );
+    expect(() =>
+      resolveNonInteractiveCreds(
+        { ...env, JFRAG_ALLOW_PROD_WRITE: "true" },
+        { writeOp: true },
+      ),
+    ).toThrow(/JFRAG_ALLOW_PROD_WRITE=1/); // exact-match "1", not truthiness
+  });
+
+  it("allows a write op with the explicit ack, and read ops without it", () => {
+    expect(() =>
+      resolveNonInteractiveCreds(
+        { ...env, JFRAG_ALLOW_PROD_WRITE: "1" },
+        { writeOp: true },
+      ),
+    ).not.toThrow();
+    expect(() => resolveNonInteractiveCreds(env, {})).not.toThrow();
   });
 });

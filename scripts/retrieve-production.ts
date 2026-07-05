@@ -13,10 +13,11 @@
 import {
   promptProductionCredentials,
   installCreds,
+  extractProdRunFlags,
 } from "./lib/prompt-prod-creds.js";
 
 const USAGE =
-  'usage: pnpm retrieve:production [--source <key>] [--top-k N] [--min-score S] [--prefer <key>] "<question>"';
+  'usage: pnpm retrieve:production [--source <key>] [--top-k N] [--min-score S] [--prefer <key>] [--non-interactive [--expect-host <substr>]] "<question>"';
 
 function die(msg: string): never {
   console.error(`error: ${msg}\n${USAGE}`);
@@ -79,7 +80,13 @@ function filterDescription(policy: ParsedPolicy): string {
 }
 
 async function main(): Promise<void> {
-  const { query, policy } = parseArgs(process.argv.slice(2));
+  // Extract shared flags BEFORE parseArgs — its free-arg collection would
+  // otherwise swallow --non-interactive / -y into the query text.
+  const { flags: runFlags, rest, error } = extractProdRunFlags(
+    process.argv.slice(2),
+  );
+  if (error) die(error);
+  const { query, policy } = parseArgs(rest);
   if (!query) die("a question is required (the last positional argument)");
   const filterDesc = filterDescription(policy);
 
@@ -96,6 +103,7 @@ async function main(): Promise<void> {
       `  query:           "${query}"`,
       `  filter:          ${filterDesc}`,
     ],
+    runFlags, // read-only — no writeOp gate
   });
   if (!creds) process.exit(0);
 

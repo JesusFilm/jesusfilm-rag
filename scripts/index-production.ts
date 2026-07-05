@@ -12,6 +12,7 @@
 import {
   promptProductionCredentials,
   installCreds,
+  extractProdRunFlags,
 } from "./lib/prompt-prod-creds.js";
 
 interface Args {
@@ -42,7 +43,14 @@ function parseArgs(argv: string[]): Args {
 }
 
 async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+  const { flags: runFlags, rest, error } = extractProdRunFlags(
+    process.argv.slice(2),
+  );
+  if (error) {
+    console.error(`error: ${error}`);
+    process.exit(2);
+  }
+  const args = parseArgs(rest);
   const scope = args.source ? `--source ${args.source}` : "all pending sources";
 
   const creds = await promptProductionCredentials({
@@ -62,6 +70,8 @@ async function main(): Promise<void> {
       `  limit:           ${args.limit ?? "(none)"}`,
       `  force:           ${args.force ? "yes (full re-index)" : "no"}`,
     ],
+    writeOp: true, // embeds + writes prod corpus — non-interactive needs JFRAG_ALLOW_PROD_WRITE=1
+    runFlags,
   });
   if (!creds) process.exit(0);
 

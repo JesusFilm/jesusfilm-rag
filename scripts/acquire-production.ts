@@ -16,6 +16,7 @@
 import {
   promptProductionCredentials,
   installCreds,
+  extractProdRunFlags,
 } from "./lib/prompt-prod-creds.js";
 
 interface Args {
@@ -36,10 +37,18 @@ function parseArgs(argv: string[]): Args {
 }
 
 async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+  const { flags: runFlags, rest, error } = extractProdRunFlags(
+    process.argv.slice(2),
+  );
+  if (error) {
+    console.error(`error: ${error}`);
+    process.exit(2);
+  }
+  const args = parseArgs(rest);
   if (!args.all && !args.source) {
     console.error(
-      "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume]",
+      "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume] " +
+        "[--non-interactive [--expect-host <substr>]]",
     );
     process.exit(2);
   }
@@ -61,6 +70,8 @@ async function main(): Promise<void> {
       `  dry-run:         ${args.dryRun}`,
       `  resume:          ${args.resume}`,
     ],
+    writeOp: true, // stages rows into prod — non-interactive needs JFRAG_ALLOW_PROD_WRITE=1
+    runFlags,
   });
   if (!creds) process.exit(0);
 

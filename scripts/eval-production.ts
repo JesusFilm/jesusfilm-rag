@@ -16,6 +16,7 @@
 import {
   promptProductionCredentials,
   installCreds,
+  extractProdRunFlags,
 } from "./lib/prompt-prod-creds.js";
 
 interface Args {
@@ -55,7 +56,14 @@ function parseArgs(argv: string[]): Args {
 }
 
 async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+  const { flags: runFlags, rest, error } = extractProdRunFlags(
+    process.argv.slice(2),
+  );
+  if (error) {
+    console.error(`error: ${error}`);
+    process.exit(2);
+  }
+  const args = parseArgs(rest);
   const scope = args.source
     ? `--source ${args.source} (cases whose relevant set includes this source)`
     : "whole-corpus (all golden cases)";
@@ -73,6 +81,7 @@ async function main(): Promise<void> {
       "case (cents, not dollars).",
     ],
     summary: () => [`  scope:           ${scope}`],
+    runFlags, // read-only against the corpus (writes only a local results file)
   });
   if (!creds) process.exit(0);
 

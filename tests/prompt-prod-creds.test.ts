@@ -179,6 +179,13 @@ describe("extractProdRunFlags", () => {
     ).toMatch(/--expect-host needs a value/);
   });
 
+  it("errors on --expect-host followed by a short flag (never eats -y as the host)", () => {
+    const { flags, error } = extractProdRunFlags(["--expect-host", "-y"]);
+    expect(error).toMatch(/--expect-host needs a value/);
+    expect(flags.expectHost).toBeUndefined();
+    expect(flags.nonInteractive).toBe(false);
+  });
+
   it("leaves unrelated tokens (including query words) untouched", () => {
     const { rest } = extractProdRunFlags(["--top-k", "8", "yes and amen"]);
     expect(rest).toEqual(["--top-k", "8", "yes and amen"]);

@@ -103,7 +103,12 @@ export function extractProdRunFlags(argv: string[]): {
       flags.nonInteractive = true;
     } else if (a === "--expect-host") {
       const v = argv[++i];
-      if (v === undefined || v.startsWith("--")) {
+      // Reject any dash-led token, not just "--": a host substring can never
+      // start with "-" (DNS labels can't lead with a hyphen), so this also
+      // stops a misplaced short flag like `--expect-host -y` from being eaten
+      // as the value — which would leave nonInteractive false and silently
+      // fall back to the interactive readline path (a hang under headless/CI).
+      if (v === undefined || v.startsWith("-")) {
         return { flags, rest, error: "--expect-host needs a value" };
       }
       flags.expectHost = v;

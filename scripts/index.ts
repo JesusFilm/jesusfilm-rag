@@ -4,8 +4,10 @@
  *   pnpm index                              # drain all pending raw_documents
  *   pnpm index --source starting-with-god   # only this source's pending rows
  *   pnpm index --limit 10                    # cap rows this run
- *   pnpm index --force                       # full re-index: re-drain already-ingested
- *                                            #   rows AND re-embed (e.g. model change)
+ *   pnpm index --force                       # re-embed (resumable): re-drain already-
+ *                                            #   ingested rows AND re-embed docs NOT yet on
+ *                                            #   the target model (skip ones already on it)
+ *   pnpm index --force-all                   # re-embed EVERY doc, incl. same-model (chunker change)
  *
  * Thin entry point: parse args, wire the adapters (main.wire()), drain
  * `raw_documents` (ingested_at IS NULL) through ingestPending (normalize → chunk
@@ -20,6 +22,7 @@ interface Args {
   source?: string;
   limit?: number;
   force: boolean;
+  forceAll: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -36,10 +39,12 @@ function parseArgs(argv: string[]): Args {
     }
     limit = n;
   }
+  const forceAll = argv.includes("--force-all");
   return {
     source: s >= 0 ? argv[s + 1] : undefined,
     limit,
-    force: argv.includes("--force"),
+    force: argv.includes("--force") || forceAll, // --force-all implies --force
+    forceAll,
   };
 }
 
@@ -53,7 +58,7 @@ function report(s: IngestSummary): void {
 }
 
 async function main(): Promise<void> {
-  const { source, limit, force } = parseArgs(process.argv.slice(2));
+  const { source, limit, force, forceAll } = parseArgs(process.argv.slice(2));
 
   const wiring = wire();
   try {
@@ -61,7 +66,7 @@ async function main(): Promise<void> {
       `\n▶ indexing pending raw_documents` +
         (source ? ` for ${source}` : " (all sources)") +
         (limit != null ? `, limit ${limit}` : "") +
-        (force ? ", force" : ""),
+        (forceAll ? ", force-all" : force ? ", force" : ""),
     );
     const summary = await ingestPending(
       {
@@ -69,7 +74,7 @@ async function main(): Promise<void> {
         embedder: wiring.embedder,
         writer: wiring.corpusWriteStore,
       },
-      { sourceKey: source, limit, force, onProgress: (line) => console.log(line) },
+      { sourceKey: source, limit, force, forceAll, onProgress: (line) => console.log(line) },
     );
     report(summary);
   } finally {

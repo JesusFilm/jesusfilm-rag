@@ -222,7 +222,9 @@ describe.skipIf(!dbUp)("Postgres storage adapters (integration)", () => {
       chunk(0, "alpha chunk", oneHot(0)),
       chunk(1, "bravo chunk", oneHot(1)),
     ]);
-    expect(await writeStore.getDedup(TEST_KEY, url)).toEqual({ contentHash: "hash-a" });
+    // getDedup also reports the document's embedding model (from a joined chunk)
+    // so the ingest force-gate can skip docs already on the target model.
+    expect(await writeStore.getDedup(TEST_KEY, url)).toEqual({ contentHash: "hash-a", embeddingModel: "openai/text-embedding-3-small" });
 
     // Query equal to chunk 0's vector → it ranks first at score ~1. Scope by
     // urlPrefix so the assertion is independent of other tests' rows.

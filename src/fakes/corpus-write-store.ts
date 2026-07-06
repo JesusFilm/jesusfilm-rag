@@ -41,7 +41,13 @@ export class FakeCorpusWriteStore implements CorpusWriteStore {
     canonicalUrl: string,
   ): Promise<DedupRecord | null> {
     const stored = this.documents.get(docKey(sourceKey, canonicalUrl));
-    return stored ? { contentHash: stored.doc.contentHash } : null;
+    if (!stored) return null;
+    // A document is written atomically on one model, so any chunk represents it;
+    // null when it has no chunks (mirrors the adapter's left-joined model).
+    return {
+      contentHash: stored.doc.contentHash,
+      embeddingModel: stored.chunks[0]?.embeddingModel ?? null,
+    };
   }
 
   async replaceDocument(

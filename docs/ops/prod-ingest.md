@@ -142,7 +142,7 @@ obsolete.
 | Script | What it does | When to use |
 |---|---|---|
 | `pnpm acquire:production --source <key>` | Crawls + stages rows into the prod `raw_documents` table. No LLM. | Once per new source. |
-| `pnpm index:production --source <key>` | Drains pending raws → normalize → chunk → **embed** → write to prod corpus tables. Idempotent (re-run drains what's pending). `--force` for a full re-index. | Once per new source. |
+| `pnpm index:production --source <key>` | Drains pending raws → normalize → chunk → **embed** → write to prod corpus tables. Idempotent (re-run drains what's pending). `--force` re-embeds the source and is **resumable** — a re-run skips docs already on the target model, re-embedding only the rest ([#61](https://github.com/JesusFilm/jesusfilm-rag/issues/61)); `--force-all` re-embeds every doc (chunker change). | Once per new source; `--force` for a model re-embed. |
 | `pnpm retrieve:production --source <key> "<question>"` | Embeds the query and searches the prod corpus, scoped to the given source. Read-only vibe-check. | Immediately after the index, as a quick smoke test that the source is queryable in prod. |
 | `pnpm eval:production --source <key>` | Runs the golden case suite (`eval/qa-golden.yaml`) against the prod retriever, scoped to one source. Prints recall/MRR/coverage; writes `eval/results-YYYY-MM-DD-<key>.md`. | Right after retrieve, as the **certification step** — does the slice's local eval still hold against prod data? |
 
@@ -184,7 +184,10 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
   ingest.
 - **Partial index.** `pnpm index:production` is idempotent on a per-document
   basis (delete-then-insert in one tx). A killed run leaves the corpus in a
-  partial state for that source; re-running drains the rest.
+  partial state for that source; re-running drains the rest. A killed `--force`
+  re-embed likewise resumes on a plain re-run — the model-aware gate skips docs
+  already on the target model, re-embedding only the remainder
+  ([#61](https://github.com/JesusFilm/jesusfilm-rag/issues/61)).
 - **Wrong environment.** The script's redacted-host preview is your last line
   of defence. If the host looks wrong, answer `N`. Never put prod values into
   `.env`/`.env.local` — the unsuffixed scripts will use them silently.

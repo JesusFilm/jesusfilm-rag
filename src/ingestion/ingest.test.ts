@@ -4,7 +4,9 @@
  * using the real `starting-with-god` registry entry (pure data). Locks: source
  * upsert + document/chunk writes + ingested marking; the dedup gate (unchanged →
  * no rewrite); re-chunk on content change (delete-then-insert, no duplication);
- * and the skip paths (too-thin, unknown source).
+ * the model-aware force gate (skip docs already on the target model, so an
+ * interrupted re-embed resumes; forceAll overrides it); and the skip paths
+ * (too-thin, unknown source).
  */
 import { describe, expect, it } from "vitest";
 import type { PendingRawDocument } from "@/contracts/index.js";
@@ -113,22 +115,59 @@ describe("ingestPending", () => {
     expect(d.reader.isIngested("thin")).toBe(true);
   });
 
-  it("force re-indexes already-ingested rows and re-embeds unchanged content", async () => {
+  it("force re-drains ingested rows but SKIPS docs already on the target model", async () => {
     const d = deps([pending({ id: "a" }), pending({ id: "b" })]);
 
-    await ingestPending(d); // first pass marks both ingested
+    await ingestPending(d); // first pass marks both ingested (on the fake's model)
     const firstChunks = d.writer.totalChunks();
     expect(d.reader.ingestedCount()).toBe(2);
 
     // A plain re-run drains nothing (both already ingested).
     expect((await ingestPending(d)).attempted).toBe(0);
 
-    // force re-drains the ingested rows and re-embeds them (delete-then-insert,
-    // so the chunk total stays the same — replaced, not accumulated).
+    // force re-drains the snapshot, but both docs are already on the target model
+    // with unchanged content ⇒ re-embedding is a no-op ⇒ skipped. This model-aware
+    // skip is what makes an interrupted --force resumable (see the next test).
     const forced = await ingestPending(d, { force: true });
-    expect(forced).toMatchObject({ attempted: 2, updated: 2, unchanged: 0 });
+    expect(forced).toMatchObject({ attempted: 2, updated: 0, unchanged: 2 });
     expect(d.writer.allDocuments()).toHaveLength(2);
     expect(d.writer.totalChunks()).toBe(firstChunks);
+  });
+
+  it("force re-embeds when the target model differs, then resumes idempotently", async () => {
+    const rows = [pending({ id: "a" }), pending({ id: "b" })];
+    const reader = new FakeRawDocumentReader(rows);
+    const writer = new FakeCorpusWriteStore();
+    const oldModel = new FakeEmbedder({ dimensions: 16, model: "openai/text-embedding-3-small" });
+    const newModel = new FakeEmbedder({ dimensions: 16, model: "qwen/qwen3-embedding-8b" });
+    const allOn = (m: string): boolean =>
+      writer.allDocuments().every((doc) => doc.chunks.every((c) => c.embeddingModel === m));
+
+    // Initial ingest on the OLD model.
+    await ingestPending({ reader, embedder: oldModel, writer });
+    expect(allOn("openai/text-embedding-3-small")).toBe(true);
+
+    // force with the NEW model re-embeds every doc (model differs ⇒ not skipped).
+    const migrated = await ingestPending({ reader, embedder: newModel, writer }, { force: true });
+    expect(migrated).toMatchObject({ attempted: 2, updated: 2, unchanged: 0 });
+    expect(allOn("qwen/qwen3-embedding-8b")).toBe(true);
+
+    // Re-running the SAME force now skips both — already migrated. The resume
+    // property: an interrupted re-embed continues, it does not restart from zero.
+    const resumed = await ingestPending({ reader, embedder: newModel, writer }, { force: true });
+    expect(resumed).toMatchObject({ attempted: 2, updated: 0, unchanged: 2 });
+  });
+
+  it("forceAll re-embeds even documents already on the target model", async () => {
+    const reader = new FakeRawDocumentReader([pending({ id: "a" })]);
+    const writer = new FakeCorpusWriteStore();
+    const embedder = new FakeEmbedder({ dimensions: 16, model: "qwen/qwen3-embedding-8b" });
+
+    await ingestPending({ reader, embedder, writer });
+    // Same model + unchanged content ⇒ force would skip; forceAll re-embeds
+    // regardless — the escape hatch for a chunker change on the same model.
+    const forced = await ingestPending({ reader, embedder, writer }, { forceAll: true });
+    expect(forced).toMatchObject({ attempted: 1, updated: 1, unchanged: 0 });
   });
 
   it("skips an unknown source and leaves the row un-marked", async () => {

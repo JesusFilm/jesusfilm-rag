@@ -7,7 +7,9 @@
  *
  *   pnpm index:production --source <key>
  *   pnpm index:production --source <key> --limit 10
- *   pnpm index:production --source <key> --force   # full re-embed
+ *   pnpm index:production --source <key> --force       # re-embed (resumable — skips
+ *                                                      #   docs already on the target model)
+ *   pnpm index:production --source <key> --force-all   # re-embed EVERY doc (chunker change)
  */
 import {
   promptProductionCredentials,
@@ -19,6 +21,7 @@ interface Args {
   source?: string;
   limit?: number;
   force: boolean;
+  forceAll: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -35,11 +38,21 @@ function parseArgs(argv: string[]): Args {
     }
     limit = n;
   }
+  const forceAll = argv.includes("--force-all");
   return {
     source: s >= 0 ? argv[s + 1] : undefined,
     limit,
-    force: argv.includes("--force"),
+    force: argv.includes("--force") || forceAll, // --force-all implies --force
+    forceAll,
   };
+}
+
+/** One-line description of the re-embed mode for the banner + summary. */
+function reembedMode(args: Args): string {
+  if (args.forceAll) return "force-all (re-embed every doc, incl. same-model)";
+  if (args.force)
+    return "force (resumable — skip docs already on the target model)";
+  return "no (incremental — pending rows only)";
 }
 
 async function main(): Promise<void> {
@@ -59,16 +72,15 @@ async function main(): Promise<void> {
       "",
       "This will drain pending raw_documents → normalize → chunk → EMBED →",
       "write documents/chunks/chunk_embeddings into the PRODUCTION corpus.",
-      `Scope: ${scope}${args.limit ? `, limit ${args.limit}` : ""}${
-        args.force ? ", FORCE re-embed" : ""
-      }`,
+      `Scope: ${scope}${args.limit ? `, limit ${args.limit}` : ""}`,
+      `Re-embed: ${reembedMode(args)}`,
       "",
       "Embeddings cost real money on the prompted OPENROUTER_API_KEY.",
     ],
     summary: () => [
       `  scope:           ${scope}`,
       `  limit:           ${args.limit ?? "(none)"}`,
-      `  force:           ${args.force ? "yes (full re-index)" : "no"}`,
+      `  re-embed:        ${reembedMode(args)}`,
     ],
     writeOp: true, // embeds + writes prod corpus — non-interactive needs JFRAG_ALLOW_PROD_WRITE=1
     runFlags,
@@ -88,7 +100,7 @@ async function main(): Promise<void> {
       `\n▶ indexing pending raw_documents` +
         (args.source ? ` for ${args.source}` : " (all sources)") +
         (args.limit != null ? `, limit ${args.limit}` : "") +
-        (args.force ? ", force" : ""),
+        (args.forceAll ? ", force-all" : args.force ? ", force" : ""),
     );
     const summary = await ingestPending(
       {
@@ -100,6 +112,7 @@ async function main(): Promise<void> {
         sourceKey: args.source,
         limit: args.limit,
         force: args.force,
+        forceAll: args.forceAll,
         onProgress: (line) => console.log(line),
       },
     );

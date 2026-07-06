@@ -94,8 +94,9 @@ echo "model=$EMBED_MODEL_ID  instr=${EMBED_QUERY_INSTRUCTION:0:24}..."
 # 3. Re-embed every source. --force re-drains ALREADY-ingested English rows AND drains the
 #    pending fr/zh rows, re-embedding everything with qwen. Documents embed raw (instruction
 #    is query-side only), so the export above does not affect ingestion — it's for step 4/5.
-#    Run per-source so a failure is scoped and resumable. Do them SEQUENTIALLY here (one prod
-#    key; parallel is a local experiment, see the master plan):
+#    Run per-source so a failure is scoped. If a source dies mid-run, just re-run the SAME
+#    --force line — it RESUMES (skips docs already on qwen, re-embeds only the rest; #61). Do
+#    them SEQUENTIALLY here (one prod key; parallel is a local experiment, see the master plan):
 pnpm index:production --source starting-with-god   --force
 pnpm index:production --source cru-10-basic-steps   --force
 pnpm index:production --source jesusfilm-org        --force
@@ -142,26 +143,13 @@ pnpm eval:production --source thelife-zh        # per-language (once zh golden c
 - **Shared OpenRouter key** — prod re-embed competes with any local run on the same rate
   limit. Don't run both at once.
 - **Long run / interruption** — hence `tmux`. `index:production` is per-document idempotent
-  (delete-then-insert in one tx); a killed run leaves that source partial. ⚠️ **Resuming a
-  partial `--force` re-embed is NOT a plain re-run** (learned in the 2026-07-02 local run):
-  without `--force` the dedup gate sees unchanged `content_hash` and marks the remaining rows
-  "unchanged" **without re-embedding**, while re-running `--force` redoes the whole source,
-  wasting everything already re-embedded. Proven resume recipe — invalidate `content_hash`
-  for the docs still on the old model, reset their raw rows to pending, re-run **without**
-  `--force` (only the stale docs re-embed):
-  ```sql
-  WITH stale AS (
-    SELECT DISTINCT d.id, d.canonical_url FROM documents d
-    JOIN sources s ON s.id=d.source_id AND s.key='<source>'
-    JOIN chunks c ON c.document_id=d.id
-    JOIN chunk_embeddings ce ON ce.chunk_id=c.id AND ce.embedding_model='<old-model>'
-  ), inv AS (
-    UPDATE documents SET content_hash='INVALIDATED-REEMBED'
-     WHERE id IN (SELECT id FROM stale) RETURNING id
-  )
-  UPDATE raw_documents SET ingested_at=NULL
-   WHERE source_key='<source>' AND canonical_url IN (SELECT canonical_url FROM stale);
-  ```
+  (delete-then-insert in one tx). A killed run leaves the source on a mix of old + new
+  vectors — **just re-run the same `--force` command to resume** (#61): the model-aware force
+  gate skips documents already on the target model and re-embeds only the remainder, so
+  nothing already done is redone. Reach for `--force-all` only to re-embed docs already on the
+  target model (e.g. a chunker change that did not change the model). *(Before #61, resuming a
+  partial `--force` needed a manual `content_hash` invalidation + `ingested_at = NULL` reset
+  and a non-`--force` re-run — no longer necessary; `--force` is now resumable by design.)*
 - **Cost** — one embedding per chunk (~24k) + queries; pennies on OpenRouter, but real. The
   redacted-target Y/N gate is the last line of defence against the wrong DB.
 

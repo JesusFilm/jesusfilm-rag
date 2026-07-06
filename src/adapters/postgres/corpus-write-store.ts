@@ -59,17 +59,28 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
     sourceKey: string,
     canonicalUrl: string,
   ): Promise<DedupRecord | null> {
+    // Left-join one chunk embedding to report the document's model. A document
+    // is written atomically on a single model (replaceDocument), so every chunk
+    // shares it — LIMIT 1 picks a representative one; null when it has no chunks.
     const [row] = await this.db
-      .select({ contentHash: documents.contentHash })
+      .select({
+        contentHash: documents.contentHash,
+        embeddingModel: chunkEmbeddings.embeddingModel,
+      })
       .from(documents)
       .innerJoin(sources, eq(sources.id, documents.sourceId))
+      .leftJoin(chunks, eq(chunks.documentId, documents.id))
+      .leftJoin(chunkEmbeddings, eq(chunkEmbeddings.chunkId, chunks.id))
       .where(
         and(
           eq(sources.key, sourceKey),
           eq(documents.canonicalUrl, canonicalUrl),
         ),
-      );
-    return row ? { contentHash: row.contentHash } : null;
+      )
+      .limit(1);
+    return row
+      ? { contentHash: row.contentHash, embeddingModel: row.embeddingModel ?? null }
+      : null;
   }
 
   async replaceDocument(

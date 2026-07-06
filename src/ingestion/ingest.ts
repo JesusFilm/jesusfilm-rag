@@ -49,12 +49,23 @@ export interface IngestOptions {
   sourceKey?: string;
   limit?: number;
   /**
-   * Full re-index: re-drain already-ingested rows from the raw snapshot AND
-   * re-chunk/re-embed even when the contentHash is unchanged (bypasses the dedup
-   * skip). Use after an embedding-model or chunker change. Default false =
-   * incremental (only un-ingested rows, skip unchanged).
+   * Re-index from the raw snapshot: re-drain already-ingested rows AND re-embed
+   * a document whose content is unchanged **when it isn't already on the target
+   * embedding model**. A document already on the target model is skipped, so an
+   * interrupted `force` re-embed RESUMES on a plain re-run — it does the
+   * remaining old-model docs instead of restarting the whole source (the #39
+   * re-embed / model-migration path). Default false = incremental (only
+   * un-ingested rows, skip unchanged).
    */
   force?: boolean;
+  /**
+   * Unconditional re-embed: like `force`, but re-embed EVERY document even one
+   * already on the target model (bypasses the model-aware skip). The escape
+   * hatch for a change that alters chunk output without changing the model —
+   * e.g. a chunker retune. Implies `force`. Rarely needed; `force` is the
+   * resumable default for model swaps.
+   */
+  forceAll?: boolean;
   onProgress?: (line: string) => void;
 }
 
@@ -78,7 +89,7 @@ async function ingestDocument(
   deps: IngestDeps,
   entry: SourceEntry,
   raw: PendingRawDocument,
-  force: boolean,
+  flags: { force: boolean; forceAll: boolean },
 ): Promise<{ status: IngestStatus; chunks: number }> {
   const norm = normalizeDocument(entry, {
     url: raw.url,
@@ -90,8 +101,16 @@ async function ingestDocument(
   const doc = norm.doc;
 
   const existing = await deps.writer.getDedup(doc.sourceKey, doc.canonicalUrl);
-  if (existing && existing.contentHash === doc.contentHash && !force) {
-    return { status: "unchanged", chunks: 0 };
+  if (existing && existing.contentHash === doc.contentHash) {
+    // Content unchanged. Re-embedding is worthwhile only when the stored vectors
+    // are stale, so skip unless we must re-embed:
+    //  - forceAll re-embeds unconditionally (chunker-change escape hatch); or
+    //  - force re-embeds a document on a DIFFERENT model than the target — the
+    //    resumable re-embed (already-migrated docs skipped, the rest re-run).
+    // A plain (non-force) run always skips unchanged content (incremental dedup).
+    const onTargetModel = existing.embeddingModel === deps.embedder.model;
+    const mustReembed = flags.forceAll || (flags.force && !onTargetModel);
+    if (!mustReembed) return { status: "unchanged", chunks: 0 };
   }
 
   const spans = chunkDocument(doc.content);
@@ -122,10 +141,12 @@ export async function ingestPending(
   deps: IngestDeps,
   opts: IngestOptions = {},
 ): Promise<IngestSummary> {
+  const forceAll = opts.forceAll ?? false;
+  const force = (opts.force ?? false) || forceAll; // forceAll implies force
   const pending = await deps.reader.listPending({
     sourceKey: opts.sourceKey,
     limit: opts.limit,
-    includeIngested: opts.force ?? false, // force ⇒ re-index from the snapshot
+    includeIngested: force, // force/forceAll ⇒ re-index from the snapshot
   });
   const summary: IngestSummary = {
     attempted: 0,
@@ -152,7 +173,7 @@ export async function ingestPending(
       upserted.add(entry.key);
     }
 
-    const { status, chunks } = await ingestDocument(deps, entry, raw, opts.force ?? false);
+    const { status, chunks } = await ingestDocument(deps, entry, raw, { force, forceAll });
     if (status === "inserted") summary.inserted++;
     else if (status === "updated") summary.updated++;
     else if (status === "unchanged") summary.unchanged++;

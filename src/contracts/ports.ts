@@ -106,10 +106,23 @@ export interface Embedder {
 
 export interface DedupRecord {
   contentHash: string;
+  /**
+   * The embedding model of this document's stored chunks — any one, since
+   * replaceDocument writes a document atomically on a single model, so all its
+   * chunks share it. null when the document has no chunks yet (a prior
+   * skipped-thin / skipped-no-chunks pass). Lets Ingestion skip a `force`
+   * re-embed of a document already on the target model, so an interrupted
+   * re-embed RESUMES (does the remaining old-model docs) instead of restarting.
+   */
+  embeddingModel: string | null;
 }
 
 export interface CorpusWriteStore {
   upsertSource(source: SourceRecord): Promise<string>; // returns source id
+  /**
+   * The document's dedup record (contentHash + current embedding model) for the
+   * ingest skip gate, or null when the document isn't in the corpus yet.
+   */
   getDedup(
     sourceKey: string,
     canonicalUrl: string,

@@ -94,8 +94,11 @@ describe("FakeCorpusWriteStore", () => {
 
     await store.replaceDocument(doc(), [chunk(0, a), chunk(1, b), chunk(2, c)]);
     expect(store.totalChunks()).toBe(3);
+    // getDedup reports the document's embedding model (from a stored chunk) too,
+    // so the ingest force-gate can skip docs already on the target model.
     expect(await store.getDedup("demo", "https://demo.org/a")).toEqual({
       contentHash: "hash-1",
+      embeddingModel: "fake/deterministic-embedder",
     });
 
     // Re-index the same document with fewer chunks: old chunks must be gone.

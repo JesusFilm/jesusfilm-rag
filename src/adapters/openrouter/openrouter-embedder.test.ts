@@ -241,6 +241,23 @@ describe("OpenRouterEmbedder — retry/backoff", () => {
     expect(onRetry.mock.calls.map((c) => c[0].delayMs)).toEqual([1, 2, 4]);
   });
 
+  it("default max attempts (10) rides out a transient blur the old 4-cap aborted on", async () => {
+    // Regression for #64: 8 consecutive AbortErrors on one batch — past the old
+    // 4-attempt cap — then success. With the default budget the batch recovers.
+    const onRetry = vi.fn();
+    const spy = stubFetchSequence([
+      abort, abort, abort, abort, abort, abort, abort, abort, okWith(3),
+    ]);
+    const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 3, retryBaseDelayMs: 0, onRetry });
+
+    const out = await embedder.embed(["x"]);
+
+    expect(out).toEqual([[1, 1, 1]]);
+    expect(spy).toHaveBeenCalledTimes(9); // 8 failures + 1 success, within the 10-attempt default
+    expect(onRetry).toHaveBeenCalledTimes(8);
+    expect(onRetry.mock.calls[0][0].maxAttempts).toBe(10);
+  });
+
   it("does NOT retry a non-retryable 4xx", async () => {
     const onRetry = vi.fn();
     const spy = stubFetchSequence([fail(402, "Payment Required")]);

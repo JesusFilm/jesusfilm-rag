@@ -74,8 +74,10 @@ const envSchema = z.object({
   OPENROUTER_API_KEY: z.string().min(1),
   EMBED_MODEL_ID: z.string().min(1).default(DEFAULT_EMBED_MODEL_ID),
   // Per-batch embed attempts (initial try + retries) before an index run fails;
-  // raise it for a flaky provider. Consumed by the OpenRouter Embedder (main.ts).
-  EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(4),
+  // raise it for a flaky provider. Default 10 (1 try + 9 retries, ~47s of backoff)
+  // so a transient OpenRouter blip recovers instead of aborting a long ingest run
+  // — see issue #64. Consumed by the OpenRouter Embedder (main.ts).
+  EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
   // Embeddings endpoint base URL. Defaults to OpenRouter; point at a self-hosted
   // vLLM `/v1` for on-prem serving. Consumed by the Embedder adapter (main.ts).
   EMBED_BASE_URL: z.string().url().optional(),

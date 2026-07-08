@@ -13,6 +13,7 @@
  * `pnpm eval`. The engineer can choose to commit that file alongside their
  * post-prod-ingest docs PR to record the prod-corpus numbers.
  */
+import { SOURCES } from "@/registry/index.js";
 import {
   promptProductionCredentials,
   installCreds,
@@ -97,6 +98,7 @@ async function main(): Promise<void> {
   const {
     GoldenFileSchema,
     allRelevantPaths,
+    caseLanguage,
     computeMetrics,
     coverageBySource,
     firstMatchingRank,
@@ -139,6 +141,11 @@ async function main(): Promise<void> {
   }
 
   const wiring = wire();
+  // Each case retrieves in ITS source language only (docs/eval-approach.md →
+  // "Multilingual eval"): other languages must not push out the language under eval.
+  const languagesBySource = Object.fromEntries(
+    SOURCES.map((s) => [s.key, s.languages]),
+  );
   try {
     const scopeLabel = args.source ? `source=${args.source}` : "whole-corpus";
     console.log(
@@ -146,7 +153,14 @@ async function main(): Promise<void> {
     );
     const results: CaseResult[] = [];
     for (const c of cases) {
-      const ranked = await wiring.retriever.search(c.question, { topK: TOP_K });
+      const language = caseLanguage(c, languagesBySource);
+      if (language === null) {
+        console.warn(`  ⚠ ${c.id} — no case language derivable; searching unscoped`);
+      }
+      const ranked = await wiring.retriever.search(c.question, {
+        topK: TOP_K,
+        ...(language ? { language } : {}),
+      });
       const hits: Hit[] = ranked.map((r) => ({
         chunkId: r.chunkId,
         docPath: safePathname(r.citation.url),

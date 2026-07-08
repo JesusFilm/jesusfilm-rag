@@ -26,9 +26,14 @@
  * Transient failures (request timeout, network drop, HTTP 429/5xx) are retried
  * per batch with exponential backoff up to `maxAttempts` (configurable; env
  * EMBED_MAX_ATTEMPTS, wired in main.ts). A single slow batch previously aborted
- * an entire index run — the AbortError crashes seen promoting sightline/
- * familylife to prod. Data-integrity errors (width/count mismatch) and client
- * errors (4xx other than 429) are NOT retried — a retry can't fix them.
+ * an entire index run — the AbortError crashes seen promoting thelife/sightline/
+ * familylife to prod, where 4 consecutive blips on one batch exhausted the old
+ * 4-attempt cap and threw away hours of a long run (see issue #64). The default
+ * is now 10 attempts (~47s of cumulative retry per batch, backoff capped at 8s),
+ * enough to ride out the observed transient OpenRouter blips while still failing
+ * a genuinely-down provider in under a minute. Data-integrity errors (width/count
+ * mismatch) and client errors (4xx other than 429) are NOT retried — a retry
+ * can't fix them.
  */
 import type { Embedder } from "@/contracts/index.js";
 
@@ -38,8 +43,8 @@ const DEFAULT_DIMENSIONS = 1536;
 const DEFAULT_MAX_BATCH = 100; // OpenAI allows far more; 100 keeps requests modest.
 const DEFAULT_INTER_BATCH_DELAY_MS = 200;
 const DEFAULT_TIMEOUT_MS = 30_000;
-const DEFAULT_MAX_ATTEMPTS = 4; // 1 initial try + 3 retries.
-const DEFAULT_RETRY_BASE_DELAY_MS = 500; // 500ms → 1s → 2s … (doubles, capped).
+const DEFAULT_MAX_ATTEMPTS = 10; // 1 initial try + 9 retries (~47s total, see below).
+const DEFAULT_RETRY_BASE_DELAY_MS = 500; // 500ms → 1s → 2s → 4s → 8s → 8s … (doubles, capped).
 const RETRY_MAX_DELAY_MS = 8_000; // ceiling so a high maxAttempts can't wait minutes.
 
 export interface OpenRouterEmbedderOptions {

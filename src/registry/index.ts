@@ -5,7 +5,8 @@
  */
 import type { SourceEntry } from "./types.js";
 import { startingWithGod } from "./starting-with-god.js";
-import { cru10BasicSteps } from "./cru-10-basic-steps.js";
+import { cru } from "./cru.js";
+import { cruEs } from "./cru-es.js";
 import { jesusFilmOrg } from "./jesusfilm-org.js";
 import { sightlineMinistry } from "./sightline-ministry.js";
 import { thelife } from "./thelife.js";
@@ -16,15 +17,21 @@ import { familylife } from "./familylife.js";
 export type { SourceEntry, CrawlPolicy } from "./types.js";
 
 /** Every registered source, in registry order (language variants follow their
- *  parent English source). Two non-English variants were investigated but NOT
- *  registered: thelife's Persian site (shagerdan.com) serves a Cloudflare 403
- *  wall to non-JS fetchers (see FOLLOW-UP G / #8), and cru.org's Spanish
- *  "10 Pasos Básicos" path serves UNTRANSLATED English lesson bodies under
- *  Spanish chrome (no real Spanish content to acquire). Both documented in
- *  docs/sources.md. */
+ *  parent English source).
+ *
+ *  One non-English variant was investigated but NOT registered: thelife's Persian
+ *  site (shagerdan.com) serves a Cloudflare 403 wall to non-JS fetchers (see
+ *  FOLLOW-UP G / #8).
+ *
+ *  `cru-es` IS registered (2026-07-09). The earlier note here — that cru.org's
+ *  Spanish locale had no real Spanish content — over-generalized from one path:
+ *  only `/mx/es/.../10-pasos-basicos/` serves untranslated English bodies under
+ *  Spanish chrome. It is blocked in `cru-es`; the other 564 `/mx/es/` pages are
+ *  genuine Spanish (verified by sampling). See `cru-es.ts` and docs/sources.md. */
 export const SOURCES: readonly SourceEntry[] = [
   startingWithGod,
-  cru10BasicSteps,
+  cru,
+  cruEs,
   jesusFilmOrg,
   sightlineMinistry,
   thelife,

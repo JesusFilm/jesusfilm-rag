@@ -10,7 +10,7 @@ import type { IngestionMode, SourceTrust } from "@/contracts/index.js";
  * How a source is crawled. Two modes, both valid:
  *
  *  - **Hand-listed** (slices #1–2): set `seedPaths` to the exact content pages.
- *    Small, static, curated scopes (Starting With God, cru-10-basic-steps).
+ *    Small, static, curated scopes (Starting With God).
  *  - **Discovery** (slice #3+, FOLLOW-UP F): set `sitemaps` + the `allow`/`block`/
  *    `articleHints` filters and let Acquisition discover the article set from the
  *    site's sitemap. The only tractable way to reach a large source (jesusfilm.org

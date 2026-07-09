@@ -2,7 +2,7 @@
  * On-demand eval runner.
  *
  *   pnpm eval                          # whole corpus + per-source coverage
- *   pnpm eval --source cru-10-basic-steps   # cases whose relevant set includes it
+ *   pnpm eval --source cru   # cases whose relevant set includes it
  *
  * Reads eval/qa-golden.yaml, runs each question through the same Retriever the
  * MCP server / `pnpm query` use (top_k=10), and reports recall@3 / recall@10 /

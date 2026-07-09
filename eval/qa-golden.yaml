@@ -12,7 +12,7 @@
 #       relevant:                      # required; >=1 source, each with >=1 path
 #         starting-with-god:
 #           - "/path/one.html"
-#         cru-10-basic-steps:
+#         cru:
 #           - "/us/en/.../lesson.html"
 #
 # `pnpm eval` reports recall@3 / recall@10 / COVERAGE (fraction of the relevant
@@ -104,7 +104,7 @@ cases:
     relevant:
       starting-with-god:
         - "/new-life/jesus.html"
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
       jesusfilm-org:
         - "/blog/did-jesus-claim-to-be-god"
@@ -134,7 +134,7 @@ cases:
         - "/questions/sin.html"
         - "/new-life/am-i-christian.html"
         - "/bible-study/lesson-2.html"
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/1-the-christian-adventure.html"
       thelife:
         - "/devotionals/full-confidence"
@@ -147,7 +147,7 @@ cases:
         - "/new-life/spirit-filled.html"
         - "/knowing-god/holy-spirit.html"
         - "/struggles/how-to-live-the-christian-life.html"
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
       jesusfilm-org:
         - "/blog/walking-in-spirit"
@@ -165,7 +165,7 @@ cases:
     relevant:
       starting-with-god:
         - "/bible-study/what-is-the-gospel.html"
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
       jesusfilm-org:
         - "/blog/what-is-the-gospel"
@@ -181,7 +181,7 @@ cases:
   - id: "cru-newcomer-new-testament"
     question: "I want to start reading the New Testament but don't know how it's organized or where to begin — can you orient me?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/10-the-new-testament.html"
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
       starting-with-god:
@@ -189,13 +189,13 @@ cases:
   - id: "cru-believer-old-testament"
     question: "The Old Testament feels like a confusing jumble of names and events. How does the whole story actually hang together?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/9-the-old-testament.html"
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
   - id: "cru-stewardship"
     question: "As a Christian, does God have a claim on my money — how am I supposed to handle my finances and possessions?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/8-giving.html"
       jesusfilm-org:
         - "/blog/jesus-talk-about-money"
@@ -203,7 +203,7 @@ cases:
   - id: "cru-believer-witnessing"
     question: "I want to share my faith but I freeze up. How did Jesus himself approach people, and what does it take?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/7-the-christian-and-witnessing.html"
       starting-with-god:
         - "/questions/start-easy-conversations-about-god.html"
@@ -218,7 +218,7 @@ cases:
   - id: "cru-believer-guidance"
     question: "How do I actually figure out what God wants me to do when I'm facing a hard decision?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
       starting-with-god:
         - "/knowing-god/how-god-speaks.html"
@@ -245,7 +245,7 @@ cases:
   - id: "cru-believer-bible-study"
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
       starting-with-god:
         - "/knowing-god/bible.html"
@@ -255,7 +255,7 @@ cases:
   - id: "cru-newcomer-prayer"
     question: "I never know what to actually say when I pray. Is there a simple way to build a daily prayer habit?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/4-prayer.html"
       starting-with-god:
         - "/knowing-god/motivating.html"
@@ -277,7 +277,7 @@ cases:
   - id: "cru-newcomer-holy-spirit"
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
       starting-with-god:
         - "/new-life/spirit-filled.html"
@@ -285,7 +285,7 @@ cases:
   - id: "cru-seeker-abundant-life"
     question: "Being a Christian honestly feels flat and rule-bound to me. Is there supposed to be more life to it than this?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/2-abundant-life.html"
       starting-with-god:
         - "/new-life/spirit-filled.html"
@@ -305,7 +305,7 @@ cases:
   - id: "cru-skeptic-jesus-uniqueness"
     question: "Every religion has its founder. What actually sets Jesus apart from all the others?"
     relevant:
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
       starting-with-god:
         - "/new-life/jesus.html"
@@ -328,7 +328,7 @@ cases:
         - "/jesus-liar-lunatic-lord"  # re-credited 2026-07-02 (judge-approved, qwen)
       starting-with-god:
         - "/new-life/jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "jf-newcomer-why-jesus-died"
     question: "What was the point of Jesus dying on a cross — why did it have to happen?"
@@ -669,7 +669,7 @@ cases:
         - "/devotionals/called-to-obedience"  # re-credited 2026-07-02 (judge-approved, qwen)
         - "/devotionals/then-do-it"  # re-credited 2026-07-02 (judge-approved, qwen)
         - "/devotionals/trusting-him-through-it-all"  # re-credited 2026-07-02 (judge-approved, qwen)
-      cru-10-basic-steps:
+      cru:
         - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
       sightline-ministry:
         - "/daily-devo/when-the-pressure-is-on-2"

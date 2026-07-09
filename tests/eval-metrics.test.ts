@@ -22,7 +22,7 @@ import {
 } from "../scripts/eval-metrics.js";
 
 const SWG = "starting-with-god";
-const CRU = "cru-10-basic-steps";
+const CRU = "cru";
 
 function gcase(over: Partial<GoldenCase> = {}): GoldenCase {
   return {
@@ -169,7 +169,7 @@ describe("safePathname", () => {
 describe("caseLanguage — per-case retrieval language scoping (eval must search the case's source language only)", () => {
   const LANGS = {
     "starting-with-god": ["en"],
-    "cru-10-basic-steps": ["en"],
+    "cru": ["en"],
     "thelife-fr": ["fr"],
     "thelife-zh": ["zh"],
   };

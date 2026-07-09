@@ -26,7 +26,7 @@ interface Args {
 
 /**
  * Source keys are stable, lowercase, alphanumeric+hyphen slugs (`starting-with-
- * god`, `cru-10-basic-steps`, …). Validate at the script boundary so the value
+ * god`, `cru`, …). Validate at the script boundary so the value
  * cannot carry path separators or any other character we'd later interpolate
  * into a filename. The output path is constructed as
  * `eval/results-<date>-<source>.md`; without this check, `--source ../foo`

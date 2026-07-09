@@ -403,3 +403,6 @@ articles:
 Recorded here so the next reader knows the "one domain = one source" rule did not, by itself,
 prevent same-domain multilingual content — FamilyLife was simply the first case noticed. `thelife`
 needs its own label-only backfill, and a registry fix to its declared language set.
+
+Tracked in [#73](https://github.com/JesusFilm/jesusfilm-rag/issues/73) (corpus-wide language audit),
+which also carries the detection-floor experiment that gates PR-B.

@@ -1,7 +1,46 @@
 # Slice: Cru — consolidated English + Spanish (`cru`, `cru-es`)
 
-_Branch: `slice/cru` · Started: 2026-07-09 · Status: in-progress_
+_Branch: `slice/cru` · Started: 2026-07-09 · Status: blocked_
 <!-- Status: in-progress | blocked | done -->
+
+## ⛔ PAUSED at Stage 2 — blocked on engine work (2026-07-09)
+
+The operator is landing an engine change before this slice ingests:
+1. **One domain = one source**, always — no per-case judgement calls.
+2. **Language is per-document detection at ingest**, never inferred from the source.
+3. `/slice` must fill in a per-source **language plan** during policy investigation
+   (`single: es` | `by-path: {…}` | `detect`).
+4. **Backfill = a `documents.language` column update. No re-embed.**
+
+**Consequence for this slice:** `cru-es` must be **folded into `cru`** (both are
+`www.cru.org`). `thelife-fr` / `thelife-zh` stay separate — different domains
+(laviejenparle.com / uwota.com) — so they already obey the rule.
+
+**Nothing acquired is wasted.** `raw_documents` has **no `language` column**; language is
+assigned only at ingest (`normalize.ts`). The crawl output is language-agnostic and
+survives the pivot intact. Backfill needs no re-crawl either: `raw_documents.raw_content`
+and `documents.content` are already stored, so a detector can run over them in place.
+
+### ⚠️ Evidence the engine work must not ignore: `<html lang>` LIES
+
+Measured 2026-07-09 on cru.org:
+
+| page | `<html lang>` | `.article-long-form` | body reads |
+|---|---|---|---|
+| `/us/en/train-and-grow/10-basic-steps/4-prayer.html` | `en-us` | yes | EN ✓ |
+| `/mx/es/conoce-a-dios/jesus-dios-o-simplemente-buen-hombre.html` | `es-mx` | no | ES ✓ |
+| `/mx/es/…/10-pasos-basicos-…/intro-the-uniqueness-of-jesus.html` | **`es-mx`** | yes | **EN** ✗ |
+
+So `<html lang>` is a **locale marker, not a body-language signal** — it fails on exactly
+the same pages the URL path fails on. Two consequences:
+- **`by-path` (and `<html lang>`) must not be a trusted rung above detection.** Treat them
+  as a *prior* that body-detection can override, and **log/flag disagreements** — that
+  check would have caught the `/10-pasos/` pages automatically instead of by hand.
+- **Capturing `<html lang>` into `RawDocument` is not worth a schema change** — it buys a
+  signal we've just proven unreliable. Detect from the extracted body, which is already
+  persisted.
+
+These three URLs are a ready-made acceptance fixture for the detection cascade.
 
 ## Goal (architecture altitude)
 Consolidate Cru into **one `cru` source** covering its whole English spiritual corpus,
@@ -50,7 +89,8 @@ identical slugs under a different locale path would duplicate the corpus.
 - [x] DB migration: dropped `cru-10-basic-steps` (11 docs / 35 chunks / 35 embeds + 11 raw rows), 0 orphans. 8→7 sources.
 - [x] Dry discovery: `cru` 2,145 kept / 3,642 seen · `cru-es` 571 kept / 709 seen (the 2nd es sitemap adds 6 unique).
 - [x] **Extraction fix** — the first live crawl skipped 59/59 `/how-to-know-god/` too-thin.   <!-- sha: b793502 -->
-- [ ] Live crawl `cru` + `cru-es` → `raw_documents`; spot-read `raw_content`; **language-audit `cru-es` bodies** (trust the body, not the path).
+- [x] Live crawl `cru` (English) → **1,905 staged / 240 skipped of 2,145**, exit 0. All status 200, 1,905 distinct canonical_url, 0 null titles; chars min 250 / avg 4,954 / max 52,671 (heaven-and-hell — matches the 52,409 body-fallback prediction). 9× 429 + 5 fetch-fails across 2,145 requests. Skips are hub/index pages.
+- [~] Live crawl `cru-es` (571 URLs) — ran under the soon-to-be-retired `cru-es` key. Its raw rows are **re-keyable to `cru`** with one `UPDATE`: mx/es pages have no `.article-long-form`, so both policies extract via the identical chrome-stripped `<body>` path. Alternatively re-acquire with `--resume`.
 - [ ] Record counts in `sources.md` (→ Acquired) + `docs/source-status.yaml`.
 
 ### 2. Ingest → corpus tables
@@ -87,12 +127,37 @@ identical slugs under a different locale path would duplicate the corpus.
 - **AEM chrome is `<div>`-based**, so a `header`/`footer` tag strip misses it. The
   `.cmp-global-picker` alone is ~1,745 chars of country names per page.
 
+## Fold-in work, once the engine change lands (one commit, ~contained)
+- Delete `src/registry/cru-es.ts`; **migrate its verified knowledge into `cru.ts` first**
+  (the `/10-pasos/` English-body reproduction, the 0/30 Spanish sample, the
+  `.category-layout` 138-char CTA trap, the `.aem-Grid`/`.cmp-text` first-match traps).
+  That docstring is the only home for several hours of verification.
+- Extend `cru.crawl.allow` with `^https://www\.cru\.org/mx/es/(conoce-a-dios|crecer-y-equipar)[/.]`
+  and keep `block: ["/10-pasos", …]`. Selectors need no change: `.article-long-form` is
+  absent on mx/es, so those pages already take the `<body>` path.
+- Add cru's **language plan**: `by-path { "/mx/es/": es, default: en }` — *as a prior only*,
+  with body-detection authoritative (see the `<html lang>` table above).
+- `UPDATE raw_documents SET source_key='cru' WHERE source_key='cru-es'` (no re-crawl).
+- Update `cru.test.ts` (drop the cru-es block, keep every trap guard) and `sources.md`.
+- **Bonus unlocked:** `/language-resources/` (~29 pages, ~28 languages) can be *un-blocked* —
+  it was excluded only because a single source could hold one language. Per-doc detection
+  makes it ingestible. Scope grows slightly; re-run dry discovery.
+
 ## Open question / blocker
-- none
+- **BLOCKED:** waiting on the engine change (domain-as-source + per-doc language detection
+  + slice-skill language-plan field + `documents.language` backfill). FOLLOW-UP M in
+  `architecture.md` §11 is the spec seed; it should be promoted to an ADR + closed by that work.
+
+## Process gap found this slice (worth folding into the same skill edit)
+`/slice`'s verify gate is `depcruise && lint && typecheck && test`, but **CI also runs
+`db:check`, `status:check` and `dashboard:verify`**. A slice can go green locally and red in
+CI. All three pass on this branch, but the gate should name them.
 
 ## Resume hint (for a cold start)
-At: Stage 1 — "Live crawl". Background crawl stages `cru` (2,145 URLs) then `cru-es`
-(571) at 2,000 ms delay, ~90 min total; logs in the session scratchpad. If interrupted,
-re-run `pnpm acquire --source <key> --resume` (skips already-staged URLs).
-Then: language-audit `cru-es` raw bodies, record counts, and move to Stage 2 ingest.
-Last verify: green @ b793502 (depcruise 82/0, lint, typecheck, 263/263). Branch: slice/cru.
+At: **Stage 2, BLOCKED on engine work** (see the PAUSED banner). Acquire is done for English
+(1,905 rows under `source_key='cru'`). Do NOT ingest yet: `normalize()` still stamps
+`language = entry.languages[0]`, so ingesting now would tag everything from the
+soon-to-be-unified cru source as `en`.
+When the engine lands: do the "Fold-in work" list above, then `pnpm index --source cru`.
+Last verify: green @ 579b067 (depcruise 82/0, lint, typecheck, 263/263; db:check,
+status:check, dashboard:verify also green). Branch: slice/cru.

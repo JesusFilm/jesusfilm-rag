@@ -40,21 +40,31 @@ This is not hypothetical. The local run found `/equip/your-child-and-the-autism-
 detectAll(text) → [{ lang: "hi", accuracy: 1 }]        // Hindi. Confidence 1.000. English page.
 ```
 
-while genuine English prose returns four candidates with the winner at `0.07`. **No confidence
-threshold can catch this**, because the wrong answer scores the maximum. What actually protected
-this backfill is the orthogonal **declared-set cross-check** (`detected ∈ source.languages`),
-which discarded `hi`.
+**No confidence threshold can catch *this document***, because the wrong answer scores the maximum.
+What protected this backfill is the orthogonal **declared-set cross-check**
+(`detected ∈ source.languages`), which discarded `hi`.
 
-That protection is narrow: it only blocks misdetections landing *outside* the declared set. A
-lone-candidate misfire that landed on `es` for a thin English page would have been written
-silently, with "confidence 1.000". Two consequences:
+A corpus-wide scan of all 8993 ingested documents puts that in proportion — **do not
+over-generalise from the one example**:
+
+| Observation | Value |
+|---|---|
+| lone-candidate docs (`detectAll` returns 1) | 6376 / 8993 (**71%**) — including a 143k-char doc, and the *correct* detections |
+| detector disagreements with the stored label | 7 |
+| …scoring `< 0.75` (caught by the threshold) | **4 of 5 detector errors** |
+| …scoring `1.000` and wrong | **1** — the 251-char page above |
+| its cleaned length vs the ingest floor | **251 vs 250** — it cleared the gate by one character |
+
+So a lone candidate is *normal*, not a defect signal, and the confidence threshold is **necessary
+and nearly sufficient**. It fails in exactly one place: documents with too little prose to detect
+on at all. Two consequences:
 
 1. **This runbook is scoped to `familylife` and must not be pointed at another source** without
    first re-reading this section and re-running the dry run.
-2. **Unit B (the `normalize.ts` wire-up) must not gate on confidence alone.** A `confidence >=
-   threshold → content wins` rule would stamp `hi` on an English autism article at ingest. It
-   needs corroborating signal: a minimum content-length floor to suppress thin-document
-   artifacts, a declared-set restriction, or a second detector that must agree.
+2. **Unit B (the `normalize.ts` wire-up) must not gate on confidence alone.** It needs a
+   **detection floor distinct from the 250-char ingest floor** — a document can be worth *storing*
+   while carrying too little prose to *language-detect* — plus the declared-set cross-check. Below
+   that floor, do not guess: fall back to the declared language, or surface to the operator.
 
 ## Exact scope + gate (do not paraphrase)
 
@@ -379,3 +389,17 @@ Until PR-B (the `normalize.ts` wire-up) is merged:
 - If you must, re-run this backfill immediately afterward and re-verify with Block A.
 
 And when Unit B is written, it must not gate on `confidence` alone — see the second ⚠️ box.
+
+## FamilyLife is not the only source with this bug
+
+The corpus-wide scan run during Unit G found the same defect in `thelife`, which declares
+`languages: ["en"]` and therefore stamps `en` on everything — while `thelife.com` hosts French
+articles:
+
+- `thelife.com/quand-ca-ne-va-pas-dites-la-verite` → `fr` @ 1.000, stored `en`
+- `thelife.com/les-relations-sexuelles-ce-n-est-pas-du-cinema` → `fr` @ 0.910, stored `en`
+
+**Out of scope for this runbook**, which filters on `source.key = 'familylife'` and is unaffected.
+Recorded here so the next reader knows the "one domain = one source" rule did not, by itself,
+prevent same-domain multilingual content — FamilyLife was simply the first case noticed. `thelife`
+needs its own label-only backfill, and a registry fix to its declared language set.

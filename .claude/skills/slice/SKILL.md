@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 5 -->
+<!-- version: 6 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -94,9 +94,28 @@ broken foundation.
    translate STATUS's high-level "Next action" into the low-level steps yourself
    (this is the "unpack next work" the operator asked for). Keep each sub-step
    small enough to verify and commit on its own.
-3. Create the slice branch: `git checkout main && git pull --ff-only` (if a
+3. **Produce the source's language plan (mandatory — do this during unpack, BEFORE
+   writing crawl policy or registering the source).** Language is **not** an ad-hoc
+   per-source question anymore; it follows a deterministic recipe (architecture
+   invariant 6, [ADR-0006](../../../docs/decisions/0006-per-document-language-detection.md)):
+   1. **Enumerate domains → one source per domain (hard rule).** The same ministry/
+      banner on multiple domains → multiple source keys (the `thelife` /
+      `thelife-fr` / `thelife-zh` pattern). This is not a judgment call and needs no
+      operator question.
+   2. **Declare the expected language set by inspecting the site** (sitemaps/sections
+      — e.g. a `/us-latinos/` Spanish sitemap on a shared domain). This fills the
+      registry `languages` as the *declared/expected* set (a cross-check), NOT the
+      per-document label.
+   3. **State that language is detected per document at ingest** from the content
+      (`ingestion/detect-language.ts`). The skill never assumes one language per
+      source and never trusts the URL path or `<html lang>` for the label.
+   Escalate to the operator **only** if detection confidence is *systematically* low
+   for a source (a genuine fork), not to ask "how do we handle languages?".
+   *(slice: FamilyLife `es` was mislabeled `en` because language was sourced from
+   `languages[0]` — see #68 / ADR-0006.)*
+4. Create the slice branch: `git checkout main && git pull --ff-only` (if a
    remote is configured; skip if not) `&& git checkout -b slice/<source-key>`.
-4. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
+5. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
    "Next action" at it and set the source's row in `sources.md` to `Acquiring`.
    Register the source in `docs/source-status.yaml` via the tool:
    `pnpm status:add-source --key <source-key> --name "<name>" --lang <code> --slice-file docs/slices/<source-key>.md`
@@ -104,9 +123,10 @@ broken foundation.
    derives `status` and stamps `last_updated`). Never hand-edit the YAML — the
    `*:production` scripts read it, and a stray edit makes engineers pick wrong
    keys (see `docs/ops/prod-ingest.md`).
-5. **Present the plan in plain language and get a go-ahead** (this is the first
-   stage-boundary pause). Show the stages + sub-steps as a short narrative, not a
-   wall of detail. Then proceed to Step 3.
+6. **Present the plan in plain language and get a go-ahead** (this is the first
+   stage-boundary pause). Show the stages + sub-steps — **including the language
+   plan (domains → source keys, declared languages, per-doc detection)** — as a
+   short narrative, not a wall of detail. Then proceed to Step 3.
 
 ### Step 3 — Drive a stage (the inner loop)
 
@@ -241,8 +261,13 @@ The bar for "this sub-step is real":
   - *Acquire* — rows in `raw_documents` for the source; spot-read `raw_content`,
     confirm it's real article text, not nav/boilerplate.
   - *Ingest* — rows in `documents`/`chunks`/`chunk_embeddings`; chunk counts sane;
-    re-run is idempotent (delete-then-insert, no duplicate chunks).
-  - *Retrieve* — a real query returns ranked, cited hits from this source.
+    re-run is idempotent (delete-then-insert, no duplicate chunks). **For a
+    multi-language source, spot-check that a non-primary-language document lands
+    with the correct `documents.language`** (e.g. a FamilyLife `/us-latinos/` page
+    reads `es`, not `en`) — this is the invariant-6 detection working.
+  - *Retrieve* — a real query returns ranked, cited hits from this source. **For a
+    multi-language source, a `language:<code>` filter returns ONLY that language**
+    (e.g. `language:"es"` returns Spanish and no English).
   - *Spot-check* — a handful of representative queries return relevant chunks
     (operator eyeballs).
 

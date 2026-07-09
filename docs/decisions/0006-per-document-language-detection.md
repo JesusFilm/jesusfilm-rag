@@ -89,9 +89,11 @@ near-language pairs (es↔pt, Simplified↔Traditional Chinese). `tinyld` was ch
   filterable. Retrieval needs **no change** — the filter starts working the moment labels
   are correct.
 - (+) The existing corpus is corrected by a **label-only backfill** (`UPDATE documents SET
-  language`), matched from `raw_documents.raw_content` by `(source_id, canonical_url)`. Because
-  vectors live in a separate table (`chunk_embeddings`), **no re-chunk, no re-embed** — the
-  constraint is time, not cost.
+  language`), matched by `(source_id, canonical_url)`. The backfill detects on the **same
+  normalized text the ingest path produces** (`cleanText(raw_documents.raw_content)`), not the
+  raw snapshot, so a backfilled label is identical to what a future re-ingest would assign.
+  Because vectors live in a separate table (`chunk_embeddings`), **no re-chunk, no re-embed** —
+  the constraint is time, not cost.
 - (+) `/slice` gets a deterministic language rule (domains-by-source + declared set +
   per-doc detection) — no ad-hoc "how do we handle languages?" operator question.
 - (−) A new runtime dependency (`tinyld`) in the ingest path, and a confidence-gate threshold

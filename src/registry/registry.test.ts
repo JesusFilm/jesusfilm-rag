@@ -290,16 +290,19 @@ describe("SourceRegistry", () => {
     expect(kept("https://uwota.com/")).toBe(false);
   });
 
-  it("registers the crawlable non-English variants and omits the un-acquirable ones", () => {
-    // Crawlable, genuine-target-language sibling sources.
-    expect(getSource("thelife-fr")).toBeDefined();
+  it("splits sources by DOMAIN, not by language", () => {
+    // Separate keys ONLY because the domain differs.
+    expect(getSource("thelife-fr")?.domain).toBe("laviejenparle.com");
     expect(getSource("thelife-zh")).toBeDefined();
-    // cru.org/mx/es IS acquirable: only its /10-pasos/ path is untranslated English
-    // (blocked inside `cru-es`), not the whole locale as once recorded.
-    expect(getSource("cru-es")).toBeDefined();
+    expect(getSource("thelife")?.domain).toBe("thelife.com");
+    // cru.org's Spanish lives under /mx/es/ on the SAME domain, so it is part of `cru`,
+    // never a `cru-es` sibling. Language is a per-document property decided at ingest.
+    expect(getSource("cru-es")).toBeUndefined();
+    expect(getSource("cru")?.domain).toBe("www.cru.org");
+    expect(getSource("cru")?.languages).toEqual(["en", "es"]);
+    // Likewise the old narrow sub-scope key — absorbed into the consolidated `cru`.
+    expect(getSource("cru-10-basic-steps")).toBeUndefined();
     // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall.
     expect(getSource("thelife-fa")).toBeUndefined();
-    // The old narrow sub-scope key is gone — absorbed into the consolidated `cru`.
-    expect(getSource("cru-10-basic-steps")).toBeUndefined();
   });
 });

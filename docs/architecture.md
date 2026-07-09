@@ -33,6 +33,7 @@ ADR are recorded inline here until they earn extraction — see
 | 7 | Architecture boundary | **Three bounded contexts behind ports + the import law** — everything depends on `contracts` interfaces; only `main.ts` builds adapters; mechanically enforced by dependency-cruiser (§5). | [ADR-0001](./decisions/0001-ports-and-adapters-boundary.md) |
 | 8 | Data-access mechanism *(added 2026-05-27)* | **Drizzle's query builder for adapter CRUD**, behind the ports; Drizzle stays the single schema + migration tool; pgvector/FTS hot paths remain raw `sql` fragments. Prisma / full ORM rejected. Implementation tracked by [#20](https://github.com/JesusFilm/jesusfilm-rag/issues/20). | [ADR-0003](./decisions/0003-data-access-drizzle-query-builder.md) |
 | 9 | RAG access path *(added 2026-06-15)* | **Access the RAG over the `/v1` HTTP API against production** — consumers via scoped, read-only, revocable bearer tokens; RAG Engine Devs likewise for dev/integration (the read-only/public boundary makes hitting prod safe). Local DB snapshots rejected; a staging mirror from a prod backup deferred until load demands it. Consumer-token process tracked by [#36](https://github.com/JesusFilm/jesusfilm-rag/issues/36). | [ADR-0004](./decisions/0004-rag-access-http-prod.md) |
+| 10 | Language labeling *(added 2026-07-09)* | **Per-document, content-based language detection at ingest** — `documents.language` is detected from the cleaned content by an in-process `tinyld` detector (invariant 6), never sourced from `source.languages`/URL/`<html lang>`. `source.languages` becomes the declared/expected set. Sources are split by **domain**; language is a per-document property. Fixes the FamilyLife `es`→`en` mislabel with a label-only backfill (no re-embed). Tracked by [#68](https://github.com/JesusFilm/jesusfilm-rag/issues/68). | [ADR-0006](./decisions/0006-per-document-language-detection.md) |
 
 ---
 
@@ -136,6 +137,7 @@ interface Retriever { search(query: string, policy?: RetrievalPolicy): Promise<R
 3. **Dedup lifecycle = delete-then-insert in one transaction** — on content-hash change: delete the document's chunks → insert new chunks → upsert the document row. Skipping the delete double-indexes.
 4. **Chunking is faithful** — target ~500 tokens (`maxChars = tokens*4`), 50-token overlap, paragraph-boundary preserving, drop tail chunks < 20 tokens.
 5. **Candidate fan-out before cutoff** — `candidateTopK = min(50, max(topK*3, topK+5))`, cosine `ORDER BY score DESC`, then `minScore` cutoff, then 3-key dedup, then slice to `topK`.
+6. **Language is detected from content, not sourced** — `documents.language` is decided at ingest by a content-based, in-process detector (`ingestion/detect-language.ts`), never from `source.languages`, the URL path, or `<html lang>` (all of which can lie). `source.languages` is the **declared/expected** set (a cross-check + documentation), not the label source. Retrieval's language filter reads `documents.language` end-to-end. See [ADR-0006](./decisions/0006-per-document-language-detection.md).
 
 ---
 
@@ -148,7 +150,7 @@ interface Retriever { search(query: string, policy?: RetrievalPolicy): Promise<R
 - **Does NOT:** build `NormalizedDocument`, chunk, embed, or touch corpus tables. (Output stops at a `raw_documents` row.)
 
 ### Ingestion — *RawDocument → embedded chunks via the storage port; never fetch, never serve*
-- **Owns:** normalize (clean text, language/category/tags, `contentHash`), chunk (per invariant 4), embed (batched), the dedup gate, idempotent write.
+- **Owns:** normalize (clean text, **language detected from content** — invariant 6 — plus category/tags, `contentHash`), chunk (per invariant 4), embed (batched), the dedup gate, idempotent write.
 - **Ports needed:** `Embedder`, `CorpusWriteStore`.
 - **Ports from jfa:** `ingest/normalize.ts`, `chunk.ts`, `embed.ts`, plus chunk/dedup write logic out of `store.ts`.
 - **Does NOT:** fetch URLs, run robots, expose search.

@@ -18,16 +18,19 @@
  * Scope: `/mx/es/conoce-a-dios/` (seeker) + `/mx/es/crecer-y-equipar/` (grow & equip),
  * minus `/10-pasos/` ⇒ **564** of the 578 in-scope sitemap locs.
  *
- * **Extraction differs from the English locale.** `.article-long-form` is absent here;
- * the article body is the first `.aem-Grid` (verified over 12 pages, bodies 1.3k–14k
- * chars, matching the body-fallback text). `.category-layout` matches on *every* page
- * but yields only a 138-char CTA blurb — a trap selector, deliberately not used, and
- * not listed as a fallback (a miss should fall through to `<body>` + minContentLength,
- * not to boilerplate).
+ * **Extraction: `contentSelectors` is deliberately empty** — every page falls through
+ * to `<body>` and `stripSelectors` does the work, exactly as in the English `cru`
+ * source (see its docstring for the full derivation). Selectors that look right here
+ * are all traps: `.article-long-form` is absent (its *presence* is the tell for an
+ * untranslated English page), `.category-layout` matches every page but yields a
+ * 138-char CTA blurb, and `.aem-Grid` / `.cmp-text` are first-match containers that
+ * truncate or return empty on some templates. Over a 10-page sample the body fallback
+ * captured a **median 105% of ground truth** with zero chrome leaks; the only drop was
+ * `/mx/es/conoce-a-dios.html`, a section landing page.
  *
  * Language: `languages:["es"]`. `normalize()` stamps a document's language from
  * `languages[0]`, so one source per language is required for correct tagging — the
- * same model as `thelife-fr` / `thelife-zh`.
+ * same model as `thelife-fr` / `thelife-zh`. See FOLLOW-UP M.
  */
 import type { SourceEntry } from "./types.js";
 
@@ -59,10 +62,9 @@ export const cruEs: SourceEntry = {
       "\\?",
     ],
     articleHints: ["\\.html$"],
-    // The Spanish AEM template: body is the first `.aem-Grid`. NOT `.article-long-form`
-    // (absent, and its presence here is the tell for an untranslated English page),
-    // NOT `.category-layout` (138-char CTA boilerplate on every page).
-    contentSelectors: [".aem-Grid"],
+    // Intentionally empty: no reliable container on this template — extract <body>
+    // and let stripSelectors remove the chrome. See docstring.
+    contentSelectors: [],
     stripSelectors: [
       "script",
       "style",
@@ -71,6 +73,17 @@ export const cruEs: SourceEntry = {
       "nav",
       "header",
       "footer",
+      // AEM chrome — <div>s, missed by the tag strip above.
+      ".cmp-header",
+      ".cmp-footer",
+      ".cmp-global-picker",
+      ".cmp-breadcrumb",
+      // related-content furniture
+      ".cmp-experiencefragment",
+      ".cmp-teaser",
+      ".swiper",
+      ".swiper-slide",
+      ".legacy-tile",
       ".material-icons-outlined",
       ".material-icons",
       ".article-share",

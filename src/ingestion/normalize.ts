@@ -1,13 +1,16 @@
 /**
  * normalize — RawDocument fields → NormalizedDocument. Cleans the extracted text
- * (preserving the paragraph boundaries the chunker relies on), applies the
- * source's registry defaults (language / category / tags / attribution), and
- * computes the chunk-dedup `contentHash` = sha256(`${title}\n\n${content}`)
- * (architecture §2 invariant 1). Pure: no I/O, no chunking, no embedding.
+ * (preserving the paragraph boundaries the chunker relies on), decides the
+ * document's language from that cleaned content (decide-language.ts, #74 /
+ * ADR-0006 — never from the source's declared `languages`), applies the
+ * source's registry defaults (category / tags / attribution), and computes the
+ * chunk-dedup `contentHash` = sha256(`${title}\n\n${content}`) (architecture §2
+ * invariant 1). Pure: no I/O, no chunking, no embedding.
  */
 import { createHash } from "node:crypto";
 import type { NormalizedDocument } from "@/contracts/index.js";
 import type { SourceEntry } from "@/registry/index.js";
+import { decideLanguage } from "./decide-language.js";
 
 export interface RawInput {
   url: string;
@@ -17,7 +20,7 @@ export interface RawInput {
 }
 
 export type NormalizeOutcome =
-  | { ok: true; doc: NormalizedDocument }
+  | { ok: true; doc: NormalizedDocument; warning?: string }
   | { ok: false; reason: "empty" | "too-thin" };
 
 /**
@@ -45,7 +48,9 @@ export function normalizeDocument(
   }
 
   const title = (raw.title ?? "").trim() || null;
-  const language = entry.languages[0] ?? "en";
+  const { language, warning } = decideLanguage(content, {
+    declared: entry.languages,
+  });
   const category = entry.defaultCategory ?? "general";
   const tags = [...new Set(entry.defaultTags)];
   const contentHash = createHash("sha256")
@@ -54,6 +59,7 @@ export function normalizeDocument(
 
   return {
     ok: true,
+    ...(warning !== undefined && { warning }),
     doc: {
       sourceKey: entry.key,
       source: entry.domain, // bare-domain attribution (matches jfa `chunks.source`)

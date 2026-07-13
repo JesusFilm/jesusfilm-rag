@@ -41,7 +41,7 @@ export interface NormalizedDocument {
   canonicalUrl: string;
   title: string | null;
   content: string; // cleaned
-  language: string;
+  language: string | null; // ISO 639-1 detected from content; null = not confidently detected (#74)
   category: string;
   tags: string[];
   contentHash: string; // sha256(`${title}\n\n${content}`) — chunk-dedup gate

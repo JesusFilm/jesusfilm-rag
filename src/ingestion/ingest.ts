@@ -90,7 +90,7 @@ async function ingestDocument(
   entry: SourceEntry,
   raw: PendingRawDocument,
   flags: { force: boolean; forceAll: boolean },
-): Promise<{ status: IngestStatus; chunks: number }> {
+): Promise<{ status: IngestStatus; chunks: number; warning?: string }> {
   const norm = normalizeDocument(entry, {
     url: raw.url,
     canonicalUrl: raw.canonicalUrl,
@@ -99,6 +99,9 @@ async function ingestDocument(
   });
   if (!norm.ok) return { status: "skipped-thin", chunks: 0 };
   const doc = norm.doc;
+  // Language decision warning (detected outside the declared set, #74) — an
+  // operator signal independent of whether this row's write is deduped away.
+  const warning = norm.warning;
 
   const existing = await deps.writer.getDedup(doc.sourceKey, doc.canonicalUrl);
   if (existing && existing.contentHash === doc.contentHash) {
@@ -110,7 +113,7 @@ async function ingestDocument(
     // A plain (non-force) run always skips unchanged content (incremental dedup).
     const onTargetModel = existing.embeddingModel === deps.embedder.model;
     const mustReembed = flags.forceAll || (flags.force && !onTargetModel);
-    if (!mustReembed) return { status: "unchanged", chunks: 0 };
+    if (!mustReembed) return { status: "unchanged", chunks: 0, warning };
   }
 
   const spans = chunkDocument(doc.content);
@@ -130,10 +133,10 @@ async function ingestDocument(
       embeddingModel: deps.embedder.model,
     });
   });
-  if (chunks.length === 0) return { status: "skipped-no-chunks", chunks: 0 };
+  if (chunks.length === 0) return { status: "skipped-no-chunks", chunks: 0, warning };
 
   await deps.writer.replaceDocument(doc, chunks);
-  return { status: existing ? "updated" : "inserted", chunks: chunks.length };
+  return { status: existing ? "updated" : "inserted", chunks: chunks.length, warning };
 }
 
 /** Drain all pending staging rows (optionally scoped) through ingestDocument. */
@@ -173,7 +176,7 @@ export async function ingestPending(
       upserted.add(entry.key);
     }
 
-    const { status, chunks } = await ingestDocument(deps, entry, raw, { force, forceAll });
+    const { status, chunks, warning } = await ingestDocument(deps, entry, raw, { force, forceAll });
     if (status === "inserted") summary.inserted++;
     else if (status === "updated") summary.updated++;
     else if (status === "unchanged") summary.unchanged++;
@@ -181,6 +184,7 @@ export async function ingestPending(
     summary.chunksWritten += chunks;
 
     await deps.reader.markIngested([raw.id]);
+    if (warning) opts.onProgress?.(`  ⚠ ${raw.url} — ${warning}`);
     opts.onProgress?.(`  ✓ ${raw.url} — ${status} (${chunks} chunks)`);
   }
 

@@ -296,4 +296,34 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
     expect(hits[0].citation.url).toBe(`${URL_PREFIX}zh-needle`);
     expect(hits[0].score).toBeCloseTo(0.97, 2);
   });
+
+  /**
+   * #74: a document whose language was not confidently detected is stored with
+   * `language = NULL`. Lock the column-level semantics against the real store:
+   * NULL round-trips through the write path, `language = $1` filters exclude
+   * it (SQL three-valued logic), and the row stays fully reachable unfiltered.
+   * Presence is asserted via keywordSearch (FTS) — deterministic, no HNSW
+   * graph-reachability caveats (see the cosTo0 docstring above).
+   */
+  it("stores a NULL language and excludes it from language filters, not from unfiltered search (#74)", async () => {
+    const writeStore = new PostgresCorpusWriteStore(db);
+    await writeStore.replaceDocument(
+      { ...doc("null-lang", "hash-null-lang"), language: null },
+      [chunk("an unlabelled zebrafish sentinel passage", oneHot(1))],
+    );
+
+    const [row] = await sql`
+      SELECT language FROM documents
+      WHERE canonical_url = ${`${URL_PREFIX}null-lang`}`;
+    expect(row.language).toBeNull();
+
+    const store = new PostgresCorpusSearchStore(db);
+    for (const language of ["en", "es"]) {
+      const filtered = await store.keywordSearch("unlabelled zebrafish", { language }, 10);
+      expect(filtered.map((r) => r.canonicalUrl)).not.toContain(`${URL_PREFIX}null-lang`);
+    }
+
+    const unfiltered = await store.keywordSearch("unlabelled zebrafish", {}, 10);
+    expect(unfiltered.map((r) => r.canonicalUrl)).toContain(`${URL_PREFIX}null-lang`);
+  });
 });

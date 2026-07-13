@@ -180,3 +180,70 @@ describe("ingestPending", () => {
     expect(d.reader.isIngested("x")).toBe(false);
   });
 });
+
+describe("ingestPending language detection (#74)", () => {
+  // Article-length Spanish prose split into paragraphs the chunker can work
+  // with — flows through the real familylife entry (declares ["en", "es"]).
+  const ES_BODY = [
+    "La gracia de Dios es un regalo que nunca podríamos ganar por nuestra cuenta. El " +
+      "evangelio invita a cada persona a confiar en Jesús y a apartarse del pecado.",
+    "Cuando leemos las Escrituras descubrimos que el amor del Padre no depende de " +
+      "nuestras obras ni de nuestros méritos, sino de su fidelidad eterna hacia nosotros.",
+    "Por eso la fe cristiana no es una lista de reglas, sino una relación viva con el " +
+      "Dios que nos creó, nos busca y nos llama por nombre cada día de nuestra vida.",
+    "El perdón que Cristo ofrece renueva el corazón cansado y da esperanza verdadera a " +
+      "toda persona que se acerca a él con humildad y con un corazón dispuesto a creer.",
+  ].join("\n\n");
+  const FR_BODY = [
+    "La grâce de Dieu est un don que nous ne pourrions jamais mériter par nous-mêmes. " +
+      "L'évangile invite chaque personne à faire confiance à Jésus de tout son cœur.",
+    "Lorsque nous lisons les Écritures, nous découvrons que l'amour du Père ne dépend " +
+      "pas de nos œuvres ni de nos mérites, mais de sa fidélité éternelle envers nous.",
+    "C'est pourquoi la foi chrétienne n'est pas une liste de règles, mais une relation " +
+      "vivante avec le Dieu qui nous a créés et qui nous appelle par notre propre nom.",
+    "Le pardon que le Christ offre renouvelle le cœur fatigué et donne une espérance " +
+      "véritable à toute personne qui s'approche de lui avec humilité et avec foi.",
+  ].join("\n\n");
+
+  it("labels a Spanish document es end-to-end (documents.language = 'es')", async () => {
+    const url = "https://www.familylife.com/us-latinos/articulo";
+    const d = deps([
+      pending({ id: "es-doc", sourceKey: "familylife", url, canonicalUrl: url, rawContent: ES_BODY }),
+    ]);
+
+    const summary = await ingestPending(d);
+
+    expect(summary).toMatchObject({ attempted: 1, inserted: 1 });
+    expect(d.writer.getDocument("familylife", url)!.doc.language).toBe("es");
+  });
+
+  it("stores an out-of-declared-set language and logs a ⚠ warning line", async () => {
+    // starting-with-god declares ["en"]; confident French must be stored as fr
+    // (content wins, ADR-0006) and the registry gap surfaced to the operator.
+    const url = "https://www.startingwithgod.com/french-page.html";
+    const d = deps([
+      pending({ id: "fr-doc", url, canonicalUrl: url, rawContent: FR_BODY }),
+    ]);
+    const lines: string[] = [];
+
+    await ingestPending(d, { onProgress: (line) => lines.push(line) });
+
+    expect(d.writer.getDocument(KEY, url)!.doc.language).toBe("fr");
+    expect(lines.some((l) => l.includes("⚠") && l.includes("'fr'"))).toBe(true);
+  });
+
+  it("stores language null below the detection floor (doc still ingested and chunked)", async () => {
+    // 300 chars clears minContentLength (250) but not the detection floor (500).
+    const url = "https://www.startingwithgod.com/thin-but-storable.html";
+    const d = deps([
+      pending({ id: "short-doc", url, canonicalUrl: url, rawContent: ES_BODY.slice(0, 300) }),
+    ]);
+
+    const summary = await ingestPending(d);
+
+    expect(summary).toMatchObject({ attempted: 1, inserted: 1 });
+    const stored = d.writer.getDocument(KEY, url)!;
+    expect(stored.doc.language).toBeNull();
+    expect(stored.chunks.length).toBeGreaterThan(0);
+  });
+});

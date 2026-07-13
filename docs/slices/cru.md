@@ -149,9 +149,17 @@ identical slugs under a different locale path would duplicate the corpus.
       (→ Acquired) + `source-status.yaml` (acquire green ×3 langs).
 
 ### 2. Ingest → corpus tables
-- [ ] `pnpm index --source cru` → qwen3 @ 1536; counts sane; idempotent re-run drains 0.
-- [ ] **Invariant-6 evidence:** a `/mx/es/` doc reads `language='es'`; the ~39 English-bodied es-path docs read `'en'`; `null` count sane (~thin docs only); out-of-declared-set warnings reviewed.
-- [ ] Re-run the FULL gate at the new corpus size (a data stage can redden integration tests).
+- [x] `pnpm index --source cru` → **2,444 docs / 8,497 chunks / 8,497 embeddings** (qwen3 @ 1536, 1:1, 0 skipped, chunks/doc avg 3.48); idempotent re-run drains **0**.
+- [x] **Invariant-6 evidence (first multi-language single-source ingest):**
+      `en` 1,805 (incl. **30 English-bodied `/mx/es/` docs — the audit's predicted class,
+      correctly labelled `en`**) · `es` 447 (all es-path) · `fr` 1 (the language-resources
+      article) · `null` 190 (7.8%; lengths 250–28k, median 918 — 76 near-floor, 114
+      confidence-gated; honest #73 worklist, retrievable unfiltered) · `vi` 1 — the run's
+      single ⚠ warning, a detector misfire on genuine 654-char Spanish ("El poder de la
+      oración ferviente", conf 0.89): the ADR-0007 sweep's 0.3% wrong-above-gate class,
+      #73 cleanup material. es-path total reconciles: 447+30+59+1 = 537 ✓.
+- [x] Full gate re-run at new corpus size (~33.2k chunks): depcruise ✓ lint ✓ typecheck ✓
+      db:check ✓ **295/295 tests** — the #17 canary did not bite this time.
 
 ### 3. Retrieve → ranked results
 - [ ] Spot-retrieval in the 9-source space; cru + cru-es cited; **Spanish query returns Spanish docs**; cross-source health; minScore 0.37 re-confirmed.

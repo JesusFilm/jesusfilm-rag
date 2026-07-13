@@ -51,13 +51,16 @@ sources:
 
   cru-10-basic-steps:
     name: Cru — 10 Basic Steps
-    status: done
+    status: deferred
     languages:
       en:
-        status: done
+        status: deferred
         stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+        note: "superseded by 'cru' (one domain = one source, slice #7): registry key +
+          local DB rows deleted; prod rows remain until the slice-7 prod cutover
+          replaces them"
     slice_file: docs/slices/cru-10-basic-steps.md
-    last_updated: 2026-05-25
+    last_updated: 2026-07-13
 
   jesusfilm-org:
     name: Jesus Film Project
@@ -140,3 +143,19 @@ sources:
           JS-capable fetcher (see FOLLOW-UP G / #8)."
     slice_file: docs/slices/everystudent.md
     last_updated: 2026-05-25
+  cru:
+    name: Cru
+    status: in-progress
+    languages:
+      en:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+      es:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+      fr:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        scope: language-resources (1 article)
+    slice_file: docs/slices/cru.md
+    last_updated: 2026-07-13

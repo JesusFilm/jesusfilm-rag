@@ -1,9 +1,26 @@
-# Slice: Cru — consolidated English + Spanish (`cru`, `cru-es`)
+# Slice: Cru — consolidated, one domain one source (`cru`)
 
-_Branch: `slice/cru` · Started: 2026-07-09 · Status: blocked_
+_Branch: `slice/cru` · Started: 2026-07-09 · Status: in-progress_
 <!-- Status: in-progress | blocked | done -->
 
-## ⛔ PAUSED at Stage 2 — blocked on engine work (2026-07-09)
+## ✅ UNBLOCKED 2026-07-13 — the language engine landed
+
+Everything this slice paused for is now merged to `main` (and merged into this
+branch, commit `86a4d97`):
+- **Per-document content-based detection** (`tinyld`) wired into `normalize()` —
+  [ADR-0006](../decisions/0006-per-document-language-detection.md), PR #77.
+- **Thresholds + `null` policy** — 500-char detection floor, 0.75 confidence gate,
+  below either the label is stored **`null`** (never a guess, never a default to the
+  declared language) — [ADR-0007](../decisions/0007-language-decision-thresholds-null-policy.md).
+  Note: ADR-0007 **dropped the "by-path prior" idea** this slice sketched — there is no
+  prior rung at all; content detection or `null`, with out-of-declared-set detections
+  stored + warned.
+- **`/slice` skill** now carries the deterministic language plan (domains → source
+  keys, declared set by inspection, per-doc detection) — no more re-asking.
+
+The section below is the historical pause record, kept verbatim.
+
+## ⛔ PAUSED at Stage 2 — blocked on engine work (2026-07-09, RESOLVED above)
 
 The operator is landing an engine change before this slice ingests:
 1. **One domain = one source**, always — no per-case judgement calls.
@@ -119,11 +136,21 @@ identical slugs under a different locale path would duplicate the corpus.
 - [x] Dry discovery: `cru` 2,145 kept / 3,642 seen · `cru-es` 571 kept / 709 seen (the 2nd es sitemap adds 6 unique).
 - [x] **Extraction fix** — the first live crawl skipped 59/59 `/how-to-know-god/` too-thin.   <!-- sha: b793502 -->
 - [x] Live crawl `cru` (English) → **1,905 staged / 240 skipped of 2,145**, exit 0. All status 200, 1,905 distinct canonical_url, 0 null titles; chars min 250 / avg 4,954 / max 52,671 (heaven-and-hell — matches the 52,409 body-fallback prediction). 9× 429 + 5 fetch-fails across 2,145 requests. Skips are hub/index pages.
-- [~] Live crawl `cru-es` (571 URLs) — ran under the soon-to-be-retired `cru-es` key. Its raw rows are **re-keyable to `cru`** with one `UPDATE`: mx/es pages have no `.article-long-form`, so both policies extract via the identical chrome-stripped `<body>` path. Alternatively re-acquire with `--resume`.
-- [ ] Record counts in `sources.md` (→ Acquired) + `docs/source-status.yaml`.
+- [x] Live crawl `cru-es` (571 URLs) — ran under the retired `cru-es` key; its 537 raw rows re-keyed to `cru` with one `UPDATE` (see Fold-in below).
+- [x] Un-block `/language-resources/` + add `fr` to the declared set (detection landed).   <!-- sha: 19591a1 -->
+      **Scope correction by inspection:** the 28 per-language pages are ~90-char
+      link-card hubs (external `.cmp-teaser` links) that `minContentLength` drops —
+      NOT "gospel content in 28 languages". The section's one real doc is a French
+      article. Dry discovery 2,746 kept (was 2,716).
+- [x] Resume-crawl the delta → **staged 2/305** (the French article, 3,415 chars, + one
+      train-and-grow story that grew past the floor); 300 hub pages re-skipped too-thin
+      exactly as predicted, 3 transient fetch-fails. **Stage 1 FINAL: 2,444 rows**
+      (1,907 en-path + 537 es-path), all pending. Counts recorded in `sources.md`
+      (→ Acquired) + `source-status.yaml` (acquire green ×3 langs).
 
 ### 2. Ingest → corpus tables
-- [ ] `pnpm index --source cru` and `--source cru-es` → qwen3 @ 1536; counts sane; idempotent re-run drains 0.
+- [ ] `pnpm index --source cru` → qwen3 @ 1536; counts sane; idempotent re-run drains 0.
+- [ ] **Invariant-6 evidence:** a `/mx/es/` doc reads `language='es'`; the ~39 English-bodied es-path docs read `'en'`; `null` count sane (~thin docs only); out-of-declared-set warnings reviewed.
 - [ ] Re-run the FULL gate at the new corpus size (a data stage can redden integration tests).
 
 ### 3. Retrieve → ranked results
@@ -135,6 +162,12 @@ identical slugs under a different locale path would duplicate the corpus.
 - [ ] `pnpm eval` + per-source `cru` / `cru-es` breakdown; record results.
 
 ## Decisions made (this slice)
+- 2026-07-13 — **Declared set is `["en","es","fr"]`, by inspection** (ADR-0006's rule): en +
+  es trunks, plus fr for the single real `/language-resources/` French article. The other
+  27 per-language hub pages never reach ingest (thin), so their languages are NOT declared.
+- 2026-07-13 — **`cru-10-basic-steps` YAML row → `deferred` + supersession note**, not
+  deleted: prod still serves its rows until this slice's prod cutover, and the status
+  tool (correctly) has no row-delete — the note carries the story.
 - 2026-07-09 — **One `cru` source, absorb `cru-10-basic-steps`** (operator). Its lesson pages are re-crawled inside `/train-and-grow/`.
 - 2026-07-09 — **Scope is broader than train-and-grow.** Scoping to it alone would have dropped `/how-to-know-god/` (the seeker gospel trunk) and `/blog/` — the operator caught this.
 - 2026-07-09 — **Sitemap discovery**, not seed+link-follow: cru.org exposes `/sitemap.xml` → per-locale children.
@@ -172,17 +205,18 @@ identical slugs under a different locale path would duplicate the corpus.
   the mx/es allow, the `/10-pasos/` block, the tt-en/bb-en mirrors, and
   `getSource("cru-es") === undefined`. `registry.test.ts` now asserts the domain rule.
 
-### Still to do when detection lands
-- Add cru's **language plan** field: `by-path { "/mx/es/": es, default: en }` — *prior only*,
-  body-detection authoritative. It would mislabel 39 docs on its own (see audit above).
-- **Un-block `/language-resources/`** (~29 pages, ~28 languages). It was excluded only
-  because a source could hold one language. Re-run dry discovery; scope grows.
-- Then `pnpm index --source cru`.
+### Still to do when detection lands — RESOLVED 2026-07-13
+- [x] Language plan: the "by-path prior" idea was **dropped by ADR-0007** (no prior rung
+  exists — detection or `null`). The plan is now just the declared set on the registry
+  entry: `languages: ["en","es","fr"]` (fr = the one real `/language-resources/` article).
+- [x] `/language-resources/` un-blocked (`19591a1`) — scope grew by 1 real doc, not ~29
+  (the 28 per-language pages are thin link hubs; see Stage 1).
+- [ ] `pnpm index --source cru` → Stage 2.
 
 ## Open question / blocker
-- **BLOCKED:** waiting on the engine change (domain-as-source + per-doc language detection
-  + slice-skill language-plan field + `documents.language` backfill). FOLLOW-UP M in
-  `architecture.md` §11 is the spec seed; it should be promoted to an ADR + closed by that work.
+- none — the engine-work blocker resolved 2026-07-13 (ADR-0006/0007 merged; FOLLOW-UP M
+  was promoted into those ADRs and removed from `architecture.md` §11, replaced by
+  invariant 6 + decision row 10).
 
 ## Process gap found this slice (worth folding into the same skill edit)
 `/slice`'s verify gate is `depcruise && lint && typecheck && test`, but **CI also runs
@@ -190,14 +224,12 @@ identical slugs under a different locale path would duplicate the corpus.
 CI. All three pass on this branch, but the gate should name them.
 
 ## Resume hint (for a cold start)
-At: **Stage 2, BLOCKED on the language engine work.** Acquire is COMPLETE — 2,442 rows
-staged under `source_key='cru'` (1,905 English + 537 Spanish), all pending ingest. The
-registry fold-in is done (one domain = one source).
-
-**Do NOT run `pnpm index`** until per-document language detection lands: `normalize()`
-still stamps `language = entry.languages[0]`, which would label all 537 Spanish rows `en`.
-
-When the engine lands: add cru's language plan (prior only), un-block `/language-resources/`,
-re-run dry discovery, then `pnpm index --source cru` → Stage 3.
-Last verify: green (depcruise 81/0, lint, typecheck, **267/267**; db:check, status:check,
-dashboard:verify also green). Branch: slice/cru.
+At: **Stage 1 close → Stage 2 (ingest).** The engine blocker is RESOLVED (main merged in,
+`86a4d97`; detection wired per ADR-0006/0007). `/language-resources/` un-blocked
+(`19591a1`, +1 real French doc; declared set now en/es/fr). Resume-crawl of the delta ran
+2026-07-13; then: record staged counts in `sources.md` + `source-status.yaml` (cru row via
+`status:add-source`/`add-lang`; retire `cru-10-basic-steps` to deferred+note), close
+Stage 1, then `pnpm index --source cru` (qwen3 @ 1536) and verify the invariant-6
+evidence (es labels, `null` counts, out-of-set warnings).
+Last verify: green post-merge (depcruise 87/0, lint, typecheck, db:check, **295/295**,
+status:check, dashboard:verify). Branch: slice/cru.

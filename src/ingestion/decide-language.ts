@@ -1,6 +1,7 @@
 /**
- * decide-language — the per-document `documents.language` decision (#74,
- * ADR-0006). Pure policy over the pure detector, kept as its own primitive so
+ * decide-language — the per-document `documents.language` decision (#74;
+ * thresholds + null policy recorded as ADR-0007, which supersedes ADR-0006's
+ * low-confidence fallback). Pure policy over the pure detector, kept as its own primitive so
  * every consumer of the decision — the ingest path (normalize.ts) and the #73
  * corpus audit / null-backfill pass — shares one tested implementation instead
  * of re-encoding the thresholds.

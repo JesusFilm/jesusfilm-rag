@@ -45,7 +45,9 @@ function chunk(
     contentHash: p.contentHash ?? `hash-${p.chunkId}`,
     embedding: p.embedding,
     domain: p.domain ?? "www.startingwithgod.com",
-    language: p.language ?? "en",
+    // `??` would coerce an explicit null (a "not confidently detected" row,
+    // #74) back to "en" — only default when the field was omitted entirely.
+    language: p.language === undefined ? "en" : p.language,
     category: p.category ?? null,
     embeddingModel: p.embeddingModel,
   };
@@ -202,6 +204,23 @@ describe("source scope + preference", () => {
       chunk({ chunkId: "es", language: "es", contentHash: "h2", canonicalUrl: "u/2", embedding: [1, 0, 0] }),
     ]).search("q", { language: "es" });
     expect(out.map((r) => r.chunkId)).toEqual(["es"]);
+  });
+
+  it("excludes null-language rows from every language filter but returns them unfiltered (#74)", async () => {
+    // A null language means "not confidently detected" — the row must be
+    // invisible to any language:<code> filter yet fully present in unfiltered
+    // search (it is excluded, not lost).
+    const seed = [
+      chunk({ chunkId: "en", language: "en", contentHash: "h1", canonicalUrl: "u/1", embedding: [1, 0, 0] }),
+      chunk({ chunkId: "es", language: "es", contentHash: "h2", canonicalUrl: "u/2", embedding: [1, 0, 0] }),
+      chunk({ chunkId: "unk", language: null, contentHash: "h3", canonicalUrl: "u/3", embedding: [1, 0, 0] }),
+    ];
+    const es = await retriever(seed).search("q", { language: "es" });
+    expect(es.map((r) => r.chunkId)).toEqual(["es"]);
+    const en = await retriever(seed).search("q", { language: "en" });
+    expect(en.map((r) => r.chunkId)).toEqual(["en"]);
+    const all = await retriever(seed).search("q");
+    expect(all.map((r) => r.chunkId).sort()).toEqual(["en", "es", "unk"]);
   });
 
   it("applies preferSourceKey as a tiebreak only (scores untouched)", async () => {

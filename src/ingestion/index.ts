@@ -5,6 +5,12 @@
  */
 export { normalizeDocument, type NormalizeOutcome, type RawInput } from "./normalize.js";
 export {
+  decideLanguage,
+  CONFIDENCE_GATE,
+  DETECTION_FLOOR_CHARS,
+  type LanguageDecision,
+} from "./decide-language.js";
+export {
   chunkText,
   chunkDocument,
   estimateTokens,

@@ -1,6 +1,6 @@
 # ADR-0006 — Per-document, content-based language detection (`tinyld`)
 
-- Status: Accepted
+- Status: Accepted — **low-confidence fallback superseded by [ADR-0007](./0007-language-decision-thresholds-null-policy.md)** (2026-07-13): below the detection floor (500 chars) or confidence gate (0.75) the label is stored `null`, never defaulted to the declared language. Everything else below stands.
 - Date: 2026-07-09
 - Issue/PR: [#68](https://github.com/JesusFilm/jesusfilm-rag/issues/68)
 - Related: [ADR-0005](./0005-embedding-model-qwen3-8b-multilingual.md) (qwen is multilingual — no model change here)

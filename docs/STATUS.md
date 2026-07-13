@@ -5,9 +5,27 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-06-04 — slice #6 (FamilyLife) DONE, all 4 stages green_
+_Last updated: 2026-07-13 — slice #7 (Cru consolidated) Stages 1–3 green on
+`slice/cru`; Stage 4 (eval via `/golden`) is next_
 
 ## You are here
+
+**Slice #7 (Cru consolidated, `cru`) — Stages 1–3 GREEN 2026-07-13** on
+`slice/cru`. One whole-domain source (en+es+fr) superseding `cru-10-basic-steps`
+and the short-lived `cru-es` (one domain = one source, ADR-0006). The slice
+paused 2026-07-09 blocked on the language engine; that work landed and merged
+(**ADR-0006/0007**, PR #77: per-doc `tinyld` detection, 500-char floor / 0.75
+confidence gate / `null`-never-guess). **Acquire:** 2,444 rows (1,907 en-path +
+537 es-path; `/language-resources/` un-blocked — its 28 per-language pages are
+thin link hubs, its ONE real doc is a French article). **Ingest — first
+multi-language single-source ingest under invariant 6:** 2,444 docs / 8,497
+chunks / 8,497 qwen3 embeddings; labels `en` 1,805 (incl. 30 English-bodied
+`/mx/es/` docs correctly `en`) · `es` 447 · `fr` 1 · `null` 190 (honest ADR-0007
+blanks → #73 worklist) · `vi` 1 (sole ⚠, detector misfire on genuine Spanish →
+#73). **Retrieve:** `--language es`/`fr` filters pure; swg flagship rank 1 on
+assurance (cross-source health); cru-10 content resurfaces via broad-cru (first
+FOLLOW-UP I #15 relief signal); minScore 0.37 holds. Full gate green at ~33.2k
+chunks (295/295). See [docs/slices/cru.md](./slices/cru.md).
 
 **Slice #1 (Starting With God) is DONE and MERGED to `main`** (PR #2,
 2026-05-25) — acquired (40 rows), ingested (**40 docs / 183 chunks / 183
@@ -42,6 +60,16 @@ Eval methodology (source-agnostic questions + multi-source living `relevant` set
 recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-approach.md)**.
 
 ## Next action
+
+**Slice #7 Stage 4 — eval via `/golden`** (operator-interactive): re-key check is
+already done (golden cases re-keyed `cru-10-basic-steps:` → `cru:` at `579b067`);
+run the content-grounded re-review of living `relevant` maps (broad cru now
+answers far more questions than the 12-lesson sub-scope did) + add cru-native
+persona cases (incl. Spanish), then `pnpm eval` with per-source breakdown.
+After Stage 4: slice close, merge decision, prod cutover
+(`docs/ops/prod-ingest.md` — replaces the prod `cru-10-basic-steps` rows).
+
+---
 
 **Slice #6 (FamilyLife, `familylife`) is DONE 2026-06-04** on
 `slice/familylife` (not yet merged). All 4 stages green; familylife

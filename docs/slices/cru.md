@@ -162,7 +162,20 @@ identical slugs under a different locale path would duplicate the corpus.
       db:check ✓ **295/295 tests** — the #17 canary did not bite this time.
 
 ### 3. Retrieve → ranked results
-- [ ] Spot-retrieval in the 9-source space; cru + cru-es cited; **Spanish query returns Spanish docs**; cross-source health; minScore 0.37 re-confirmed.
+- [x] Spot-retrieval in the 9-source space (read-only, no code changes):
+      **`--language es` pure** — "¿Cómo puedo conocer a Dios personalmente?" → 5/5 Spanish
+      cru docs, flagship "Conoce a Dios personalmente" rank 1 @ 0.686. **`--language fr`
+      pure** — the new cru French article rank 1 @ 0.763, thelife-fr behind it (cross-source
+      fr space coherent). **Cross-source health:** "sure I will go to heaven?" → swg
+      flagship **rank 1 @ 0.696** (founding source LEADS after +8.5k cru chunks), cru's
+      re-crawled 10-basic-steps assurance lesson #2 — first FOLLOW-UP I #15 *relief*
+      signal: broad-cru surfaces where cru-10 was crowded out. cru-native maturity query →
+      all-cru top 5 (incl. Spanish "Pasos hacia la madurez" #1 — unfiltered queries mix
+      languages by design; the filter is the consumer tool). **minScore 0.37 holds:**
+      faucet 0 hits; index-funds 1 honest hit @ 0.391 (a real thelife-zh
+      invest-for-kids article — topical overlap, pre-existing); Quran/Ramadan → only
+      Christian-fasting docs 0.56–0.59, below the qwen positive band (0.65–0.76; the old
+      "0.55+ band" was a 3-small artifact).
 
 ### 4. Eval + spot-check
 - [ ] Re-key golden `cru-10-basic-steps:` → `cru:` (17 refs) + `tests/eval-metrics.test.ts` fixture.
@@ -232,12 +245,14 @@ identical slugs under a different locale path would duplicate the corpus.
 CI. All three pass on this branch, but the gate should name them.
 
 ## Resume hint (for a cold start)
-At: **Stage 1 close → Stage 2 (ingest).** The engine blocker is RESOLVED (main merged in,
-`86a4d97`; detection wired per ADR-0006/0007). `/language-resources/` un-blocked
-(`19591a1`, +1 real French doc; declared set now en/es/fr). Resume-crawl of the delta ran
-2026-07-13; then: record staged counts in `sources.md` + `source-status.yaml` (cru row via
-`status:add-source`/`add-lang`; retire `cru-10-basic-steps` to deferred+note), close
-Stage 1, then `pnpm index --source cru` (qwen3 @ 1536) and verify the invariant-6
-evidence (es labels, `null` counts, out-of-set warnings).
-Last verify: green post-merge (depcruise 87/0, lint, typecheck, db:check, **295/295**,
-status:check, dashboard:verify). Branch: slice/cru.
+At: **Stage 4 (eval via `/golden`) — Stages 1–3 are GREEN.** Corpus: 2,444 cru docs /
+8,497 qwen3 chunks live and retrievable; language labels correct per invariant 6 (es/fr
+filters pure). The golden re-key `cru-10-basic-steps:` → `cru:` is ALREADY DONE
+(`579b067`) — the first Stage-4 sub-step just needs verifying, not doing. Next concrete
+action: run `/golden` in content-grounded mode — Part A re-review living `relevant`
+maps (broad cru answers far more than the 12-lesson sub-scope; expect prior-source
+credits to move), Part B add cru-native persona cases incl. Spanish (`language: es`
+cases now work — 447 es docs are filterable). Then `pnpm eval` + per-source breakdown.
+Stage 4 is operator-interactive; don't run it headless.
+Last verify: green @ ~33.2k chunks (depcruise, lint, typecheck, db:check, **295/295**,
+status:check). Last commit: see log. Branch: slice/cru.

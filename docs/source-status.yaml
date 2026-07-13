@@ -149,13 +149,13 @@ sources:
     languages:
       en:
         status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
       es:
         status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
       fr:
         status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
         scope: language-resources (1 article)
     slice_file: docs/slices/cru.md
     last_updated: 2026-07-13

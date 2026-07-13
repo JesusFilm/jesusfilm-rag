@@ -52,6 +52,7 @@ export interface CaseResult {
   hits: Hit[];
   matchedRank: number | null; // 1-indexed rank of first hit matching ANY relevant path
   returnedRelevant: string[]; // distinct relevant paths present in the returned hits
+  language: string | null; // resolved retrieval language (caseLanguage), null = unscoped
 }
 
 export interface Metrics {
@@ -68,6 +69,13 @@ export interface SourceCoverage {
   cases: number; // cases where this source has >= 1 relevant doc
   recall: number; // fraction of those cases where >= 1 of its docs was returned
   coverage: number; // mean fraction of its relevant docs returned
+}
+
+export interface LanguageCoverage {
+  language: string; // resolved case language, or "(unscoped)" when none was derivable
+  cases: number;
+  recall_at_10: number;
+  coverage: number;
 }
 
 /** Pathname of a URL for matching against `relevant`; falls back to the raw string. */
@@ -194,6 +202,42 @@ export function coverageBySource(results: CaseResult[]): SourceCoverage[] {
   });
 }
 
+/**
+ * Per-language coverage, grouped by each case's RESOLVED retrieval language
+ * (`CaseResult.language`, from caseLanguage()).
+ *
+ * Until ADR-0006 every non-English source was its own key (thelife-fr, thelife-zh),
+ * so `--source <key>` doubled as the per-language view. ADR-0006 ("one domain =
+ * one source") ended that: `cru` is a single key carrying en + es + fr, so a
+ * per-source number now BLENDS its languages and can hide an unhealthy one. This
+ * view is the per-source view's analogue — same derive-from-the-data principle,
+ * grouped by language instead of source key.
+ *
+ * A case with no derivable language (searched unscoped) is grouped under
+ * "(unscoped)" rather than dropped — silently omitting it would hide the very
+ * misconfiguration the warning exists to surface.
+ */
+export function coverageByLanguage(results: CaseResult[]): LanguageCoverage[] {
+  const byLanguage = new Map<string, CaseResult[]>();
+  for (const r of results) {
+    const key = r.language ?? "(unscoped)";
+    const bucket = byLanguage.get(key);
+    if (bucket) bucket.push(r);
+    else byLanguage.set(key, [r]);
+  }
+  return [...byLanguage.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([language, rs]) => {
+      const m = computeMetrics(rs);
+      return {
+        language,
+        cases: m.cases,
+        recall_at_10: m.recall_at_10,
+        coverage: m.coverage,
+      };
+    });
+}
+
 function escape(s: string): string {
   return s.replace(/\|/g, "\\|");
 }
@@ -205,11 +249,15 @@ export interface RenderInput {
   results: CaseResult[];
   metrics: Metrics;
   perSource: SourceCoverage[];
+  perLanguage: LanguageCoverage[];
 }
 
-/** Markdown report: header + metrics + per-source coverage + per-case table. */
+/**
+ * Markdown report: header + metrics + per-source coverage + per-language coverage
+ * + per-case table.
+ */
 export function renderMarkdown(input: RenderInput): string {
-  const { modelId, topK, scope, results, metrics, perSource } = input;
+  const { modelId, topK, scope, results, metrics, perSource, perLanguage } = input;
 
   const caseRows = results.map((r) => {
     const tick = r.matchedRank !== null ? "✓" : "✗";
@@ -222,6 +270,11 @@ export function renderMarkdown(input: RenderInput): string {
   const perSourceRows = perSource.map(
     (s) =>
       `| \`${s.source}\` | ${s.cases} | ${s.recall.toFixed(3)} | ${s.coverage.toFixed(3)} |`,
+  );
+
+  const perLanguageRows = perLanguage.map(
+    (l) =>
+      `| \`${l.language}\` | ${l.cases} | ${l.recall_at_10.toFixed(3)} | ${l.coverage.toFixed(3)} |`,
   );
 
   return [
@@ -251,6 +304,17 @@ export function renderMarkdown(input: RenderInput): string {
     "| source | cases | recall | coverage |",
     "|--------|------:|-------:|---------:|",
     ...perSourceRows,
+    "",
+    "## Per-language coverage",
+    "",
+    "(grouped by each case's resolved retrieval language. A multi-language source",
+    "like `cru` blends its languages in the per-source view above — this splits them.",
+    "`(unscoped)` means no language was derivable: the case searched the whole",
+    "multilingual corpus, which is a case-configuration bug, not a result.)",
+    "",
+    "| language | cases | recall@10 | coverage |",
+    "|----------|------:|----------:|---------:|",
+    ...perLanguageRows,
     "",
     "## Per-case",
     "",

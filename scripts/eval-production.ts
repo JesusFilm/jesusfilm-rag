@@ -100,6 +100,7 @@ async function main(): Promise<void> {
     allRelevantPaths,
     caseLanguage,
     computeMetrics,
+    coverageByLanguage,
     coverageBySource,
     firstMatchingRank,
     renderMarkdown,
@@ -169,7 +170,13 @@ async function main(): Promise<void> {
       }));
       const matchedRank = firstMatchingRank(hits, c);
       const returned = returnedRelevant(hits, c);
-      results.push({ case: c, hits, matchedRank, returnedRelevant: returned });
+      results.push({
+        case: c,
+        hits,
+        matchedRank,
+        returnedRelevant: returned,
+        language,
+      });
       const tick = matchedRank !== null ? "✓" : "✗";
       const total = allRelevantPaths(c).length;
       console.log(
@@ -190,6 +197,13 @@ async function main(): Promise<void> {
       );
     }
 
+    console.log("\nper-language coverage:");
+    for (const l of coverageByLanguage(results)) {
+      console.log(
+        `  ${l.language.padEnd(20)} n=${l.cases}  recall@10=${l.recall_at_10.toFixed(3)}  coverage=${l.coverage.toFixed(3)}`,
+      );
+    }
+
     const date = new Date().toISOString().slice(0, 10);
     const suffix = args.source ? `-${args.source}` : "";
     const outPath = path.resolve(
@@ -206,6 +220,7 @@ async function main(): Promise<void> {
         results,
         metrics,
         perSource: coverageBySource(results),
+        perLanguage: coverageByLanguage(results),
       }),
     );
     console.log(`\nwrote ${path.relative(process.cwd(), outPath)}`);

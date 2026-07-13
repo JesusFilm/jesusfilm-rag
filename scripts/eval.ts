@@ -31,6 +31,7 @@ import {
   allRelevantPaths,
   caseLanguage,
   computeMetrics,
+  coverageByLanguage,
   coverageBySource,
   firstMatchingRank,
   renderMarkdown,
@@ -124,7 +125,13 @@ async function main(): Promise<void> {
       const hits = await runOne(wiring.retriever, c.question, language);
       const matchedRank = firstMatchingRank(hits, c);
       const returned = returnedRelevant(hits, c);
-      results.push({ case: c, hits, matchedRank, returnedRelevant: returned });
+      results.push({
+        case: c,
+        hits,
+        matchedRank,
+        returnedRelevant: returned,
+        language,
+      });
       const tick = matchedRank !== null ? "✓" : "✗";
       const total = allRelevantPaths(c).length;
       console.log(
@@ -142,6 +149,15 @@ async function main(): Promise<void> {
       );
     }
 
+    // A multi-language source (cru: en+es+fr, ADR-0006) blends its languages in the
+    // per-source view — this is the only place an unhealthy language shows up.
+    console.log("\nper-language coverage:");
+    for (const l of coverageByLanguage(results)) {
+      console.log(
+        `  ${l.language.padEnd(20)} n=${l.cases}  recall@10=${l.recall_at_10.toFixed(3)}  coverage=${l.coverage.toFixed(3)}`,
+      );
+    }
+
     const date = new Date().toISOString().slice(0, 10);
     const suffix = args.source ? `-${args.source}` : "";
     const outPath = path.resolve(process.cwd(), `eval/results-${date}${suffix}.md`);
@@ -155,6 +171,7 @@ async function main(): Promise<void> {
         results,
         metrics,
         perSource: coverageBySource(results),
+        perLanguage: coverageByLanguage(results),
       }),
     );
     console.log(`\nwrote ${path.relative(process.cwd(), outPath)}`);

@@ -22,7 +22,7 @@ function keeps(url: string): boolean {
 }
 
 describe("Cru registry entry", () => {
-  it("is one source for the whole domain, declaring both languages", () => {
+  it("is one source for the whole domain, declaring the expected language set", () => {
     const c = getSource("cru");
     expect(c).toBeDefined();
     expect(c?.domain).toBe("www.cru.org");
@@ -33,7 +33,7 @@ describe("Cru registry entry", () => {
     // The old narrow sub-scope is absorbed too.
     expect(getSource("cru-10-basic-steps")).toBeUndefined();
     // DECLARED set; language is a per-document property decided at ingest.
-    expect(c?.languages).toEqual(["en", "es"]);
+    expect(c?.languages).toEqual(["en", "es", "fr"]);
     // Discovery source (absorbed the 12 hand-listed 10-basic-steps seeds).
     expect(c?.crawl.seedPaths).toBeUndefined();
     expect(c?.crawl.sitemaps?.some((s) => s.includes("us-en-sitemap.xml"))).toBe(true);
@@ -80,11 +80,17 @@ describe("Cru registry entry", () => {
     expect(keeps("https://www.cru.org/bb/en/train-and-grow/spiritual-growth.html")).toBe(false);
   });
 
-  it("blocks /language-resources/ until per-document language detection lands", () => {
-    // ~28 languages under the English path; a single-language stamp would mis-tag them.
+  it("keeps /language-resources/ now that per-document language detection landed (ADR-0006/0007)", () => {
+    // Un-blocked 2026-07-13. The 28 per-language pages are ~90-char link-card hubs that
+    // minContentLength drops; the section's one real doc is a French article — kept.
     expect(keeps("https://www.cru.org/us/en/train-and-grow/language-resources/french.html")).toBe(
-      false,
+      true,
     );
+    expect(
+      keeps(
+        "https://www.cru.org/us/en/train-and-grow/language-resources/french/que-se-passe-t-il-lorsque-les-gens-font-une-recherche-google-sur.html",
+      ),
+    ).toBe(true);
   });
 
   it("REGRESSION: contentSelectors exclude every container that silently loses content", () => {

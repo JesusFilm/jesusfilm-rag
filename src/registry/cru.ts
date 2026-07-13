@@ -29,16 +29,20 @@
  * mirrors `tt-en` (3,203) and `bb-en` (3,079): identical slugs under a different
  * locale path, which would duplicate the corpus under distinct canonical URLs.
  *
- * `/language-resources/` (29 pages, gospel content in ~28 languages) is **still blocked,
- * but only until per-document language detection lands** — it was excluded because a
- * source could hold exactly one language. Once detection exists, un-block it and re-run
- * dry discovery; nothing else about this policy needs to change.
+ * `/language-resources/` was un-blocked 2026-07-13 once per-document language detection
+ * landed (ADR-0006/0007) — and inspection corrected the scope expectation: the 28
+ * per-language pages (arabic.html … vietnamese.html) are **~90-char link-card hubs**
+ * (the resources are `.cmp-teaser` cards pointing at external sites), all dropped by
+ * `minContentLength`. The section's ONE real document is a French blog article
+ * (`/language-resources/french/que-se-passe-t-il…`, ~3.5k chars of genuine French) —
+ * hence `fr` in the declared set below.
  *
  * ## Language: the path lies, and so does `<html lang>`
  *
- * Intended language plan: `by-path { "/mx/es/": es, default: en }` — **as a prior only.**
- * Body detection must be authoritative, and a prior/detection disagreement should be
- * logged. Evidence, all measured 2026-07-09 on this domain:
+ * Language is decided **per document at ingest** from the cleaned body
+ * (`ingestion/decide-language.ts`: 500-char floor, 0.75 confidence gate, `null` = not
+ * confidently detected — never a guess; ADR-0006/0007). Neither the URL path nor
+ * `<html lang>` participates. Evidence for why, all measured 2026-07-09 on this domain:
  *
  *  - `/mx/es/.../10-pasos-basicos-para-la-madurez-cristiana/**` serves **untranslated
  *    English** lesson bodies (Bill Bright's 10 Basic Steps) under Spanish chrome. Those
@@ -106,10 +110,11 @@ export const cru: SourceEntry = {
   domain: "www.cru.org",
   trust: "partner",
   ingestionMode: "html-scrape",
-  // DECLARED set, not the per-document stamp. `normalize()` still stamps
-  // `languages[0]`, so this source must NOT be ingested until per-document language
-  // detection lands — every Spanish page would otherwise be labelled `en`.
-  languages: ["en", "es"],
+  // DECLARED/expected set (ADR-0006) — a cross-check, never the per-document stamp.
+  // The label comes from content detection at ingest (decide-language.ts); a confident
+  // detection outside this set is stored anyway and logs a warning. `fr` covers the one
+  // real /language-resources/ French article.
+  languages: ["en", "es", "fr"],
   defaultTags: ["cru", "discipleship", "spiritual-growth"],
   defaultCategory: "discipleship",
   rights:
@@ -135,7 +140,6 @@ export const cru: SourceEntry = {
     ],
     block: [
       "/10-pasos", // untranslated English bodies under Spanish chrome — verified
-      "/language-resources", // ~28 languages; un-block once per-doc detection lands
       "/video/",
       "/quizzes-and-assessments/",
       "/audio/",

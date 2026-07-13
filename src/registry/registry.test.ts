@@ -299,7 +299,7 @@ describe("SourceRegistry", () => {
     // never a `cru-es` sibling. Language is a per-document property decided at ingest.
     expect(getSource("cru-es")).toBeUndefined();
     expect(getSource("cru")?.domain).toBe("www.cru.org");
-    expect(getSource("cru")?.languages).toEqual(["en", "es"]);
+    expect(getSource("cru")?.languages).toEqual(["en", "es", "fr"]);
     // Likewise the old narrow sub-scope key — absorbed into the consolidated `cru`.
     expect(getSource("cru-10-basic-steps")).toBeUndefined();
     // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall.

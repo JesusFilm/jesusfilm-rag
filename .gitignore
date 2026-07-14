@@ -15,3 +15,7 @@ eval/results-*.md
 # Dashboard: the raw prod read is a regenerable intermediate (run dashboard:data).
 # The curated dashboard/compiled-data.json + dashboard/index.html ARE committed.
 dashboard/prod-status-data.json
+
+# language-sweep generated per-run outputs
+sweep-out/
+sim-run.sh

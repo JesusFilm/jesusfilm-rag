@@ -40,7 +40,12 @@ export const thelife: SourceEntry = {
   domain: "thelife.com",
   trust: "partner",
   ingestionMode: "html-scrape",
-  languages: ["en"],
+  // en + fr: the domain is overwhelmingly English, but it also serves genuine
+  // French articles on the English host (e.g. /quand-ca-ne-va-pas-dites-la-verite,
+  // /les-relations-sexuelles-ce-n-est-pas-du-cinema) — same-domain mixed content,
+  // confirmed by the #73 corpus language sweep. Language is per-document at ingest
+  // (decide-language.ts); this set only documents what the source contains.
+  languages: ["en", "fr"],
   defaultTags: ["thelife", "cru-canada", "topic:discipleship"],
   defaultCategory: "article",
   rights:

@@ -1,0 +1,251 @@
+/**
+ * resolve-language — the #73 corpus-sweep language policy, layered ON TOP of the
+ * pure per-document decision (`decide-language.ts`, #74). Where `decideLanguage`
+ * answers "what does the content confidently say, else null?", `resolveLanguage`
+ * answers the sweep's stronger question: "what language should this document's
+ * column actually hold?" — where a `null` is the rare, deliberate exception, not
+ * the default.
+ *
+ * The purpose of the sweep is that EVERY document ends up labelled with the
+ * language it is actually in. `decideLanguage` is intentionally cautious and
+ * emits `null` whenever it is unsure (below the 500-char floor or the 0.75
+ * gate). That caution is right at ingest time, but for a whole-corpus correction
+ * pass an unexplained `null` is a document that has silently dropped out of every
+ * `language:<code>` filter. So this module keeps `decideLanguage`'s confident
+ * verdicts verbatim and, only when it abstains, applies a safe fallback ladder:
+ *
+ *   1. `detected`             — decideLanguage returned a language (floor + gate
+ *                               passed). Trust it verbatim, warning and all. This
+ *                               is where the genuine relabels come from (e.g. a
+ *                               French `thelife` article stamped `en`).
+ *   2. `declared-monolingual` — decideLanguage abstained, but the source declares
+ *                               exactly ONE language. A short/ambiguous page on a
+ *                               single-language source is almost certainly in that
+ *                               language, so fall back to it. (Residual risk: a
+ *                               SHORT foreign page on a monolingual source — #73's
+ *                               known blind spot — which is why every fallback is
+ *                               sampled into the report for a human to eyeball.)
+ *   3. `declared-primary`     — decideLanguage abstained on the GATE (there was
+ *                               enough prose, ≥ floor, it was just ambiguous) on a
+ *                               MULTI-language source, and the detector's leaning
+ *                               candidate is inside the declared set. Take that
+ *                               dominant-language lean. Reported for review.
+ *   4. `unresolved-null`      — a multi-language source with too little text
+ *                               (< floor) or a lean OUTSIDE the declared set. Here
+ *                               guessing would re-introduce the exact `languages[0]`
+ *                               mislabel #73 exists to fix, so we honestly leave
+ *                               `null`. THIS is the documented exception, surfaced
+ *                               and highlighted at the end of every report.
+ *
+ * Pure: no I/O. The ladder itself (`resolveFromSignals`) is separated from the
+ * detector calls so every branch is deterministically unit-testable without
+ * depending on tinyld's exact scores. The sweep script owns DB reads, the
+ * transaction, the change log and the report; this module only decides.
+ */
+import { decideLanguage } from "./decide-language.js";
+import type { LanguageDecision } from "./decide-language.js";
+import { detectLanguage } from "./detect-language.js";
+import { DETECTION_FLOOR_CHARS } from "./decide-language.js";
+
+/** How a document's resolved label was arrived at (drives report grouping). */
+export type ResolutionBasis =
+  | "detected"
+  | "declared-monolingual"
+  | "declared-primary"
+  | "unresolved-null";
+
+export interface LanguageResolution {
+  /** The label to store. `null` ONLY for `unresolved-null` (the exception). */
+  language: string | null;
+  /** How we got there — groups the report and flags what needs eyeballing. */
+  basis: ResolutionBasis;
+  /** Raw detector top candidate on the cleaned content (for the report sample),
+   *  or `""` when the content was undetectable. Independent of the gate. */
+  detected: string;
+  /** Raw detector confidence in `[0, 1]` (0 when undetectable). */
+  confidence: number;
+  /** Present when a confident detection fell outside the declared set —
+   *  passed straight through from `decideLanguage` (registry may be incomplete). */
+  warning?: string;
+  /** Plain-language reason for any fallback or null — printed in the report. */
+  note?: string;
+}
+
+/** True only for a fallback that a human should eyeball (basis 2 & 3). */
+export function isFallback(basis: ResolutionBasis): boolean {
+  return basis === "declared-monolingual" || basis === "declared-primary";
+}
+
+/** The detector/decision signals the ladder needs — fabricated freely in tests. */
+export interface ResolveSignals {
+  /** Output of `decideLanguage` (the cautious per-doc verdict). */
+  decision: LanguageDecision;
+  /** Raw detector top candidate (`""` if undetectable), before the gate. */
+  detected: string;
+  /** Raw detector confidence in `[0, 1]`. */
+  confidence: number;
+  /** Length of the cleaned content, in characters. */
+  contentLength: number;
+  /** The source's declared language set. */
+  declared: readonly string[];
+}
+
+/**
+ * The pure fallback ladder — deterministic in its inputs, no detector calls.
+ * Exported so every branch is unit-testable without crafting text that lands on
+ * a specific tinyld score.
+ */
+export function resolveFromSignals(sig: ResolveSignals): LanguageResolution {
+  const { decision, detected, confidence, contentLength, declared } = sig;
+
+  // 1. Confident detection — trust it verbatim (this is where relabels happen).
+  if (decision.language !== null) {
+    return {
+      language: decision.language,
+      basis: "detected",
+      detected,
+      confidence,
+      ...(decision.warning !== undefined && { warning: decision.warning }),
+    };
+  }
+
+  // decideLanguage abstained (below floor or below gate). Fall back safely.
+  const aboveFloor = contentLength >= DETECTION_FLOOR_CHARS;
+
+  // 2. Single-language source → its one declared language.
+  if (declared.length === 1) {
+    return {
+      language: declared[0],
+      basis: "declared-monolingual",
+      detected,
+      confidence,
+      note:
+        `unsure (${aboveFloor ? `low confidence ${confidence.toFixed(2)}` : `only ${contentLength} chars, below the ${DETECTION_FLOOR_CHARS}-char floor`})` +
+        ` — fell back to the source's sole declared language '${declared[0]}'`,
+    };
+  }
+
+  // 3. Multi-language source, but there was enough prose (≥ floor) and the
+  //    detector's dominant candidate is inside the declared set → take the lean.
+  if (
+    declared.length > 1 &&
+    aboveFloor &&
+    detected !== "" &&
+    declared.includes(detected)
+  ) {
+    return {
+      language: detected,
+      basis: "declared-primary",
+      detected,
+      confidence,
+      note:
+        `ambiguous multi-language content; detector leans '${detected}' ` +
+        `(confidence ${confidence.toFixed(2)}) and it is within the declared ` +
+        `set [${declared.join(", ")}] — took the dominant language`,
+    };
+  }
+
+  // 4. Multi-language source we cannot resolve safely → the documented exception.
+  return {
+    language: null,
+    basis: "unresolved-null",
+    detected,
+    confidence,
+    note:
+      declared.length === 0
+        ? `undetectable and the source declares no language to fall back to — left null`
+        : `multi-language source [${declared.join(", ")}] with ` +
+          (aboveFloor
+            ? `a leaning candidate '${detected || "?"}' outside the declared set`
+            : `only ${contentLength} chars (below the ${DETECTION_FLOOR_CHARS}-char floor)`) +
+          ` — cannot label safely without guessing, left null for review`,
+  };
+}
+
+/**
+ * What the sweep should DO with one document, given its current label and a fresh
+ * resolution. This is the safety policy that keeps the sweep from ever making the
+ * corpus worse:
+ *
+ *   • A CONFIDENT detection (`basis: "detected"`) is authoritative — it may
+ *     override an existing label (a real relabel, e.g. `en` → `fr`) or fill a null.
+ *   • A WEAK signal (any fallback, or an unresolved null) may only FILL a null.
+ *     It never overrides a non-null label and never blanks one to null — a short,
+ *     genuinely-English page (below the floor) must keep its `en`, not lose it.
+ *   • When a weak signal disagrees with the kept label, the document is flagged
+ *     for `review` (the report's eyeball list) — surfaced, never silently changed.
+ *
+ * Consequence: the sweep only ever ADDS information (fills blanks, fixes confident
+ * mislabels). It never removes a label. `final` is `null` only when the document
+ * was already null and could not be resolved.
+ */
+export type SweepReason =
+  | "confirmed" // detected, already matches — no change
+  | "relabel" // detected, differs from a non-null label — corrected
+  | "filled" // was null, now labelled
+  | "still-null" // was null, still unresolvable (the documented exception)
+  | "kept"; // non-null, only a weak signal — left as-is
+
+export interface SweepDecision {
+  /** The label to store. Never null unless the document was already null. */
+  final: string | null;
+  /** Whether `final` differs from the current label (i.e. a DB write is needed). */
+  changed: boolean;
+  reason: SweepReason;
+  /** Human should eyeball this one (a fallback fill, an unresolved null, or a
+   *  kept label the detector disagrees with — #73's short-doc blind spot). */
+  review: boolean;
+}
+
+/** Decide the sweep action for one document. Pure; unit-tested per branch. */
+export function decideSweep(
+  oldLang: string | null,
+  res: LanguageResolution,
+): SweepDecision {
+  // Confident detection — authoritative. May override or fill. (Guard: a
+  // "detected" basis should always carry a language; if a malformed resolution
+  // ever pairs it with null, fall through to the weak-signal path rather than
+  // ever writing a null over an existing label.)
+  if (res.basis === "detected" && res.language !== null) {
+    const final = res.language;
+    if (final === oldLang) return { final, changed: false, reason: "confirmed", review: false };
+    return {
+      final,
+      changed: true,
+      reason: oldLang === null ? "filled" : "relabel",
+      review: false,
+    };
+  }
+
+  // Weak signal (fallback or unresolved). Only allowed to fill a null.
+  if (oldLang === null) {
+    if (res.language === null) {
+      return { final: null, changed: false, reason: "still-null", review: true };
+    }
+    return { final: res.language, changed: true, reason: "filled", review: isFallback(res.basis) };
+  }
+
+  // Non-null label + weak signal → keep it. Never override, never blank.
+  const disagrees = res.detected !== "" && res.detected !== oldLang;
+  return { final: oldLang, changed: false, reason: "kept", review: disagrees };
+}
+
+/**
+ * Resolve the `documents.language` label for one document's CLEANED content.
+ * `declared` is the source's declared language set (registry `languages`).
+ * Thin wrapper: run the detector + decision, then apply the pure ladder.
+ */
+export function resolveLanguage(
+  content: string,
+  opts: { declared: readonly string[] },
+): LanguageResolution {
+  const raw = detectLanguage(content);
+  const decision = decideLanguage(content, { declared: opts.declared });
+  return resolveFromSignals({
+    decision,
+    detected: raw.language,
+    confidence: raw.confidence,
+    contentLength: content.length,
+    declared: opts.declared,
+  });
+}

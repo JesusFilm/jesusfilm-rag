@@ -254,6 +254,13 @@
         border-color: rgba(145, 33, 74, 0.4);
         background: rgba(145, 33, 74, 0.06);
       }
+      /* Deferred sits off the acquired → ingested → evaluated progression
+         (the row is superseded), so it recedes rather than taking a hue. */
+      .stage-deferred {
+        color: var(--soft-black);
+        border-color: var(--warm-gray-1);
+        background: var(--gray-2);
+      }
       .note {
         display: block;
         font-size: 12px;

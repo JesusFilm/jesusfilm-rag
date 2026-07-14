@@ -127,8 +127,9 @@ sources:
         status: in-progress
         stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
         scope: us-latinos (1 page)
-        note: "ingested on qwen (PR #57); retrieve/evaluate pending — 1
-          sitemap-discoverable es page"
+        note: "ingested locally on the qwen embedder (PR #57); not yet embedded in
+          the prod index, so it shows 0 documents here — retrieve/evaluate pending;
+          1 sitemap-discoverable es page"
     slice_file: docs/slices/familylife.md
     last_updated: 2026-07-02
 

@@ -83,7 +83,7 @@
       "evaluate": false,
       "embedded_doc_count": 0,
       "row_status": "in-progress",
-      "note": "ingested on qwen (PR #57); retrieve/evaluate pending — 1 sitemap-discoverable es page"
+      "note": "ingested locally on the qwen embedder (PR #57); not yet embedded in the prod index, so it shows 0 documents here — retrieve/evaluate pending; 1 sitemap-discoverable es page"
     },
     {
       "source": "Jesus Film Project",

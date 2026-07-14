@@ -80,6 +80,9 @@ checklist** (no gradients, functional color, real hierarchy, honest data, a
 semantic left-aligned table — no hero, no card grid, no emoji bullets). The brand
 has **no green**, so lifecycle state uses a progression within the palette:
 neutral (acquired) → navy (ingested) → red (evaluated), with maroon for blocked.
+Rows that are off that progression recede instead of taking a hue: **deferred**
+(superseded — e.g. a source replaced by a whole-domain successor) is a muted gray
+pill, and **not started** keeps the bare `.stage` styling.
 Inter is used deliberately as the JFP brand typeface (the anti-slop "avoid Inter
 as a lazy default" rule is satisfied by it being an intentional brand choice).
 

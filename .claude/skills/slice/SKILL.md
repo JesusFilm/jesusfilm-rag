@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 6 -->
+<!-- version: 7 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -192,6 +192,35 @@ Pause and hand back to the operator, in plain language, when:
   presented with the actual chunk snippet, not just title + score. Title-only
   review is rubber-stamping, not curation. If `/golden` regresses to title
   lists, push back; rebuild the surface around real text.
+- **Stage 4 curation: judge the DOCUMENT, not the chunk.** The relevant set credits
+  **document paths**, so relevance must be judged on the whole document. Cru articles
+  routinely open with a long lead-in anecdote, so judging chunk 0 rejects docs whose
+  answer lives in chunk 7. (slice #7: 75% of the docs a first judging pass rejected as
+  "off-question" had >2 chunks — the rejection list was junk and had to be re-run.)
+- **Never author a relevant set from what the engine returned — coverage goes circular.**
+  `coverage` exists to detect a good answer being *buried*; if the set contains only what
+  came back, it is 1.0 by construction and detects nothing. Build the set from the
+  **corpus** (deep-k probe + keyword sweep), then check the engine against it. (slice #7:
+  fake 1.0 → honest 0.45–1.00 per case after backfilling the buried answers.)
+- **Score relevance and biblical soundness as SEPARATE axes, and gate on both.** slice #7
+  ran Stage 4 through a 3-lens LLM judge panel (theologian / pastor / mature Christian).
+  **73 of 151 proposed credits were biblically SOUND but OFF-QUESTION** — a
+  soundness-only rubric would have auto-accepted every one and corrupted the answer keys.
+  The gate itself must live in **code**, not in a model's head. Caveat: three personas on
+  one base model agree far more than three humans (max spread 0.25 vs a 0.5 escalation
+  threshold → zero escalations), so don't read agreement as corroboration — but the
+  soundness axis surfaced real content problems (#78) relevance never could.
+  Prompt: `~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
+- **A multi-language source breaks per-source eval reads.** Since ADR-0006 (one domain =
+  one source), `--source <key>` blends a source's languages. Use the per-language
+  coverage view, and **pin `language:` on any case whose only relevant source is
+  multilingual** — otherwise `caseLanguage()` can't derive one and the case silently
+  searches the whole multilingual corpus. See `docs/eval-approach.md` → Multilingual eval.
+- **Verify your probing tool before you trust its verdicts.** slice #7's deep-k curation
+  probe (`--top-k 40`) was silently truncating at ~33 docs — `candidateTopK` was capped at
+  a flat 50 — so every "not ranked" verdict really meant "not in the top ~33". Prod and
+  eval never hit it (topK 5 / 10). If a probe tells you a doc is *absent*, confirm the
+  probe can actually see that far.
 
 ### Step 5 — Slice complete
 
@@ -239,10 +268,13 @@ When all four stages are green and the spot-check looks good:
 
 The bar for "this sub-step is real":
 
-- **Always:** `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm db:check && pnpm test` — green.
+- **Always:** `pnpm depcruise && pnpm lint && pnpm typecheck && pnpm db:check && pnpm status:check && pnpm test` — green.
   `depcruise` red usually means a boundary was crossed (architecture §5) — fix the
   placement, don't loosen the rule. `db:check` red means `src/db/schema.ts` changed
   without a migration — run `pnpm db:generate` and commit the new file, don't skip it.
+  **`status:check` is in the gate because CI runs it** — a slice can otherwise go green
+  locally and red in CI. (CI also runs `dashboard:verify`; run it if you touched the
+  dashboard.) *(slice #7 found this gap.)*
 - **Re-run the full gate after Acquire/Ingest, not only after code changes.**
   `pnpm test` includes integration tests that query the live Postgres, so a *data*
   stage can turn them red with **zero** code changes (slice #3: ingesting 349 docs

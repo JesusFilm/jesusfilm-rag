@@ -5,27 +5,60 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-13 — slice #7 (Cru consolidated) Stages 1–3 green on
-`slice/cru`; Stage 4 (eval via `/golden`) is next_
+_Last updated: 2026-07-14 — **slice #7 (Cru consolidated) is DONE** on `slice/cru`
+(not yet merged); merge decision + prod cutover are next_
 
 ## You are here
 
-**Slice #7 (Cru consolidated, `cru`) — Stages 1–3 GREEN 2026-07-13** on
-`slice/cru`. One whole-domain source (en+es+fr) superseding `cru-10-basic-steps`
-and the short-lived `cru-es` (one domain = one source, ADR-0006). The slice
-paused 2026-07-09 blocked on the language engine; that work landed and merged
-(**ADR-0006/0007**, PR #77: per-doc `tinyld` detection, 500-char floor / 0.75
-confidence gate / `null`-never-guess). **Acquire:** 2,444 rows (1,907 en-path +
-537 es-path; `/language-resources/` un-blocked — its 28 per-language pages are
-thin link hubs, its ONE real doc is a French article). **Ingest — first
-multi-language single-source ingest under invariant 6:** 2,444 docs / 8,497
-chunks / 8,497 qwen3 embeddings; labels `en` 1,805 (incl. 30 English-bodied
-`/mx/es/` docs correctly `en`) · `es` 447 · `fr` 1 · `null` 190 (honest ADR-0007
-blanks → #73 worklist) · `vi` 1 (sole ⚠, detector misfire on genuine Spanish →
-#73). **Retrieve:** `--language es`/`fr` filters pure; swg flagship rank 1 on
-assurance (cross-source health); cru-10 content resurfaces via broad-cru (first
-FOLLOW-UP I #15 relief signal); minScore 0.37 holds. Full gate green at ~33.2k
-chunks (295/295). See [docs/slices/cru.md](./slices/cru.md).
+**Slice #7 (Cru consolidated, `cru`) is DONE 2026-07-14** — all 4 stages green on
+`slice/cru`, **not yet merged**. One whole-domain source (en+es+fr) superseding
+`cru-10-basic-steps` and the short-lived `cru-es` (one domain = one source,
+ADR-0006). **2,444 docs / 8,497 qwen3 chunks**, queryable in three languages.
+
+**Stage 4 (eval) used a 3-lens LLM judge panel** (theologian / pastor / mature
+Christian) instead of a hand-curated pass. Every proposed credit was scored on
+**TWO orthogonal axes** — *relevance* (does it answer THIS question) and *biblical
+soundness* — both gated at 0.75. **73 of 151 proposals were biblically SOUND but
+OFF-QUESTION**: orthodox docs answering a question nobody asked. A soundness-only
+rubric would have auto-accepted every one into the answer keys and quietly
+corrupted the eval. 73 credits approved; suite **82 → 96 cases** (+6 en cru-native,
+**+8 es — the first Spanish cases in the suite**). Prompt preserved at
+`~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md` (candidate for
+promotion into `.claude/skills/golden`).
+
+**Final eval @ 96 cases / 9 sources:** recall@3 **0.938** · recall@10 **1.000** ·
+coverage **0.689** · MRR 0.814 · P@1 0.677. **cru per-source recall 0.125 → 0.828,
+coverage 0.063 → 0.576 with NO engine change** — the 0.125 was a **stale answer
+key** (still crediting only the 11 retired 10-Basic-Steps pages against a 2,444-doc
+source), never a retrieval regression. **Per-language coverage — a new view:**
+en 0.614 · **es 0.938** · fr 0.817 · zh 0.867, **0 unscoped**. minScore **0.37
+holds in Spanish** (es negatives ≤ 0.308; es positive band 0.622–0.739).
+
+**Two engine changes shipped this slice:**
+- **`08acd48` — per-language coverage.** ADR-0006 made `cru` the first single source
+  carrying several languages, so the per-source view BLENDS them and can hide an
+  unhealthy language. `coverageByLanguage()` splits them; a case with no derivable
+  language surfaces as `(unscoped)` rather than being dropped (that state is a bug).
+- **`3418717` — candidate fan-out cap bug.** `candidateTopK` ceilinged at a flat 50,
+  so any `topK >= 17` fetched 50 chunks → ~33 docs after dedup: `search` answered a
+  request for 100 results with 33 and said nothing. Prod (topK 5) and eval (topK 10)
+  sit under the old cap and were never affected — deep-k **curation probing** exposed
+  it, which means every "not ranked" verdict really meant "not in the top ~33".
+
+**Findings filed:** **[#78](https://github.com/JesusFilm/jesusfilm-rag/issues/78)** —
+18 docs below 0.75 soundness (14 cru, **3 thelife ⚠️ already in prod**, 1 familylife).
+One real pattern: **prosperity drift** (tithe → financial return) across four sources.
+Deliberately **not** blanket-excluded from the crawl — none are heresy (0.57–0.73), 4
+of the 14 are Spanish machine-translation damage misfiled as doctrine, and it was a
+sample of 151 of ~11,500 docs, not an audit.
+
+**Unfiled engine findings (in the slice file):** retrieval returns **one chunk per
+doc** and cru articles open with long lead-in anecdotes → **40 of 151 docs judged
+`answer_buried`** (right doc, useless snippet); **1,375 cru chunks (16.2%) begin with
+the junk string `0 100 0`** (AEM artifact, no other source has it); Cru's Spanish
+corpus is **machine-translated to near-unreadability**.
+
+See [docs/slices/cru.md](./slices/cru.md).
 
 **Slice #1 (Starting With God) is DONE and MERGED to `main`** (PR #2,
 2026-05-25) — acquired (40 rows), ingested (**40 docs / 183 chunks / 183
@@ -61,13 +94,22 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Slice #7 Stage 4 — eval via `/golden`** (operator-interactive): re-key check is
-already done (golden cases re-keyed `cru-10-basic-steps:` → `cru:` at `579b067`);
-run the content-grounded re-review of living `relevant` maps (broad cru now
-answers far more questions than the 12-lesson sub-scope did) + add cru-native
-persona cases (incl. Spanish), then `pnpm eval` with per-source breakdown.
-After Stage 4: slice close, merge decision, prod cutover
-(`docs/ops/prod-ingest.md` — replaces the prod `cru-10-basic-steps` rows).
+**Operator decides.** Slice #7 is closed; nothing is mid-flight.
+
+1. **Merge slice #7** — open a PR from `slice/cru` to `main`. Then the **prod cutover**
+   (`docs/ops/prod-ingest.md`, #29): prod is still serving the 11 `cru-10-basic-steps`
+   rows and must be replaced by the 2,444-doc `cru` source.
+2. **Promote the judge panel into a skill.** The two-axis (relevance ⊥ soundness) gate
+   caught 73 sound-but-off-question credits that a hand pass would have waved through,
+   and cut operator review from 151 items to 91 ranked ones. It belongs in
+   `.claude/skills/golden` (or a sibling) so every future Stage 4 runs this way.
+   Prompt: `~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
+3. **The chunking finding** (see "You are here") is the strongest engine lead we have:
+   one chunk per doc + long lead-in anecdotes = right document, useless snippet. This
+   plausibly subsumes the "register gap" and much of FOLLOW-UP I #15.
+4. **FOLLOW-UP I #15** (`maxPerSource` / MMR) and **FOLLOW-UP E #6** (`excludedSourceKeys`)
+   remain unblocked consumer-layer work.
+5. **Next source slice** — GotQuestions / KnowGod / Issues I Face.
 
 ---
 

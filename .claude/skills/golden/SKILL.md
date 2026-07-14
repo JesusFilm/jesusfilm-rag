@@ -5,7 +5,7 @@ allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *
 disable-model-invocation: true
 ---
 
-<!-- version: 2 -->
+<!-- version: 3 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -85,6 +85,39 @@ The personas are the default balanced set; the operator may swap or add one.
    around a surgical chunk-snippet probe. The mechanism is the wired
    `Retriever.search(question, { allowedSourceKeys, topK }).then(hits => …)`
    — every result carries `.text` which is the chunk excerpt to display.)
+
+## Guardrail #6 — score RELEVANCE and BIBLICAL SOUNDNESS as separate axes (slice #7)
+
+Curation at scale is a judging problem, and the axis you judge on decides what gets in.
+**Relevance and biblical soundness are orthogonal. Never blend them into one score.**
+
+A document can be **1.0 sound and 0.2 relevant** — perfectly orthodox, answering a question
+nobody asked. In slice #7, **73 of 151 proposed credits were exactly that** (mean soundness
+0.87). A soundness-only rubric would have auto-accepted every one of them into the answer
+keys and quietly corrupted the eval. That pairing is the **tripwire**; count it separately,
+never fold it into a generic fail.
+
+The working shape (prompt preserved at
+`~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`, candidate for promotion
+into this skill):
+
+1. **Panel of 3 lenses** — theologian · pastor · mature Christian. **Separate agents**, or
+   they anchor on each other and the spread is meaningless.
+2. **Judge the WHOLE DOCUMENT, never chunk 0.** The relevant set credits document paths, and
+   articles often open with a long lead-in anecdote. (slice #7: judging chunk 0 rejected 75%
+   of docs whose answer lived further in — the whole rejection list had to be thrown away.)
+3. **Both axes gated at 0.75, in CODE.** Means, thresholds, and the disagreement rule are
+   arithmetic. A model deciding "that's about a 0.8" is a vibe with a number attached.
+4. **Non-English: judge in-language**, explain in English.
+5. **Surface only failures + escalations** to the operator, worst-first, with a one-sentence
+   verdict each. Everything that passes is accepted without review — that is the point.
+   (slice #7 cut operator review from 151 uniform cards to 91 ranked ones.)
+
+**Honest caveat:** three personas on one base model converge far more than three humans.
+Slice #7's max panel disagreement was **0.25** against a 0.5 escalation threshold — **zero
+escalations fired**. Do not read agreement as corroboration. The axis that earned its keep
+was **soundness**, which found prosperity drift and genuinely harmful pastoral content that
+no relevance check could ever surface (→ issue #78).
 
 ## Two operating modes
 

@@ -145,17 +145,22 @@ sources:
     last_updated: 2026-05-25
   cru:
     name: Cru
-    status: in-progress
+    status: done
     languages:
       en:
-        status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
       es:
-        status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
       fr:
-        status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
         scope: language-resources (1 article)
+        note: "no golden case authored: the sole fr doc is a marketing piece about
+          Google search behaviour, and at n=1 recall@10 is 1.000 by construction
+          — a case would measure nothing. fr retrieval verified in Stage 3
+          (--language fr returns it rank 1 @ 0.763); thelife-fr carries the real
+          French eval (10 cases)."
     slice_file: docs/slices/cru.md
-    last_updated: 2026-07-13
+    last_updated: 2026-07-14

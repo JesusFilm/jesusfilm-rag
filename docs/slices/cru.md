@@ -1,7 +1,17 @@
 # Slice: Cru — consolidated, one domain one source (`cru`)
 
-_Branch: `slice/cru` · Started: 2026-07-09 · Status: in-progress_
+_Branch: `slice/cru` · Started: 2026-07-09 · Closed: 2026-07-14 · Status: done_
 <!-- Status: in-progress | blocked | done -->
+
+## ✅ DONE 2026-07-14 — all four stages green
+
+2,444 docs / 8,497 qwen3 chunks, queryable in en + es + fr. Eval @ 96 cases:
+recall@10 **1.000** · coverage **0.689** · **cru recall 0.125 → 0.828** (stale answer key, not a
+retrieval regression). Per-language: en 0.614 · es 0.938 · fr 0.817 · zh 0.867.
+
+**Engine work this slice:** per-language coverage view (`08acd48`) · candidate fan-out cap bug
+(`3418717`). **Findings filed:** [#78](https://github.com/JesusFilm/jesusfilm-rag/issues/78)
+content-soundness (18 docs). See "Findings" below for the chunking + Spanish-MT discoveries.
 
 ## ✅ UNBLOCKED 2026-07-13 — the language engine landed
 
@@ -178,9 +188,36 @@ identical slugs under a different locale path would duplicate the corpus.
       "0.55+ band" was a 3-small artifact).
 
 ### 4. Eval + spot-check
-- [ ] Re-key golden `cru-10-basic-steps:` → `cru:` (17 refs) + `tests/eval-metrics.test.ts` fixture.
-- [ ] `/golden` content-grounded re-review of living `relevant` maps (broad cru now answers far more questions).
-- [ ] `pnpm eval` + per-source `cru` / `cru-es` breakdown; record results.
+- [x] Re-key golden `cru-10-basic-steps:` → `cru:` (17 refs) + `tests/eval-metrics.test.ts` fixture.   <!-- sha: 579b067 -->
+- [x] **Per-language coverage breakdown** — ADR-0006 made `cru` the first single source carrying
+      several languages, so the per-source view BLENDS en+es+fr and can hide an unhealthy language.
+      `coverageByLanguage()` splits them; cases with no derivable language surface as `(unscoped)`
+      rather than being dropped (that state is a bug, not a result).   <!-- sha: 08acd48 -->
+- [x] **Engine bug found + fixed: candidate fan-out was hard-capped at 50.** Any `topK >= 17`
+      fetched exactly 50 chunks; the 3-key dedup collapsed those to ~33 docs, so `search` answered
+      a request for 100 results with 33 and said nothing. Prod (topK 5) and eval (topK 10) sit under
+      the old cap and were never affected — deep-k *curation probing* is what exposed it, and every
+      "not ranked" verdict really meant "not in the top ~33". Ceiling now scales with topK.   <!-- sha: 3418717 -->
+- [x] **Curation via a 3-lens LLM judge panel** (theologian / pastor / mature Christian), scoring
+      every proposed credit on TWO ORTHOGONAL axes — *relevance* (does it answer THIS question) and
+      *biblical soundness* — both gated at 0.75. **73 of 151 proposals were biblically SOUND but
+      OFF-QUESTION**: a soundness-only rubric would have auto-accepted every one into the answer keys
+      and quietly corrupted the eval. 73 credits approved (60 passed, 13 reinstated on review).
+      Prompt preserved at `~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
+- [x] `pnpm eval` @ **96 cases** (was 82; +14 — 6 en cru-native, 8 **es: the suite's first Spanish
+      cases**). recall@3 **0.938** · recall@10 **1.000** · coverage **0.689** · MRR 0.814 · P@1 0.677.
+      **cru per-source recall 0.125 → 0.828, coverage 0.063 → 0.576** with NO engine change — proof
+      the 0.125 was a stale answer key (still crediting only the 11 retired 10-Basic-Steps pages
+      against a 2,444-doc source), not a retrieval regression.
+      **Per-language:** en 0.614 · **es 0.938** · fr 0.817 · zh 0.867 — 0 unscoped.   <!-- sha: f8d19d0 -->
+
+**minScore 0.37 holds in Spanish.** Four es negatives (beans, visas, brake pads, World Cup) top out
+at **0.308**; the es positive band is **0.622–0.739**. The cutoff sits in a wide dead zone — no change.
+
+**French: deliberately NOT cased.** The sole fr doc is a Cru marketing piece about Google search
+behaviour — not doctrinal or pastoral. At n=1 recall@10 is 1.000 *by construction*, so a case would
+measure nothing and inflate the multilingual numbers. thelife-fr already carries 10 real French cases.
+Recorded here so a future agent does not "fix" the gap.
 
 ## Decisions made (this slice)
 - 2026-07-13 — **Declared set is `["en","es","fr"]`, by inspection** (ADR-0006's rule): en +
@@ -244,15 +281,37 @@ identical slugs under a different locale path would duplicate the corpus.
 `db:check`, `status:check` and `dashboard:verify`**. A slice can go green locally and red in
 CI. All three pass on this branch, but the gate should name them.
 
+## Findings that outlive this slice (Stage 4)
+
+**1. Retrieval returns ONE chunk per doc, and cru docs bury their answer.** The 3-key dedup yields
+at most one chunk per document, and cru articles routinely open with a long lead-in anecdote (a swim
+team, an Antarctic expedition) before the substance. **≥2 of 3 judges flagged 40 of 151 docs as
+`answer_buried`** — right document, useless snippet. This is the most likely mechanical cause of the
+register gap and the buried on-ramp pages, and it is an ingest/chunking problem, not a curation one.
+
+**2. 1,375 cru chunks (16.2%) literally begin with the junk string `0 100 0`** — an AEM widget
+artifact the `<body>` fallback extraction picks up. No other source has it (0.0%). It sits at the
+*front* of the embedded chunk, i.e. the highest-signal position. Candidate contributor to (1).
+
+**3. Cru's Spanish corpus is machine-translated to near-unreadability.** All three judge lenses said
+so independently. The teaching is orthodox; the prose is broken. Acquire-side quality ceiling on
+what Spanish retrieval can ever be worth — not a soundness problem, and it must not be filed as one.
+
+**4. Content soundness → [#78](https://github.com/JesusFilm/jesusfilm-rag/issues/78).** 18 docs below
+0.75 soundness (14 cru, 3 thelife ⚠️ *in prod*, 1 familylife). One real pattern: prosperity drift
+(tithe → financial return) across **four sources** — a corpus-wide policy question, not a block list.
+Three are genuinely harmful and worth raising with Cru as content owners. **Deliberately did NOT
+blanket-exclude them from the crawl:** none are heresy (band 0.57–0.73), 4 of the 14 are the
+translation problem in disguise, and this was 151 of ~11,500 docs — a sample, not an audit.
+
+**5. Judge-panel caveat.** Max disagreement between the three lenses was **0.25** (escalation
+threshold 0.5), so **zero escalations fired**. Three personas on one base model converge far more
+than three humans would — the panel buys less independent signal than the design implies. The axis
+that genuinely earned its place is **soundness**, which found things relevance never could.
+
 ## Resume hint (for a cold start)
-At: **Stage 4 (eval via `/golden`) — Stages 1–3 are GREEN.** Corpus: 2,444 cru docs /
-8,497 qwen3 chunks live and retrievable; language labels correct per invariant 6 (es/fr
-filters pure). The golden re-key `cru-10-basic-steps:` → `cru:` is ALREADY DONE
-(`579b067`) — the first Stage-4 sub-step just needs verifying, not doing. Next concrete
-action: run `/golden` in content-grounded mode — Part A re-review living `relevant`
-maps (broad cru answers far more than the 12-lesson sub-scope; expect prior-source
-credits to move), Part B add cru-native persona cases incl. Spanish (`language: es`
-cases now work — 447 es docs are filterable). Then `pnpm eval` + per-source breakdown.
-Stage 4 is operator-interactive; don't run it headless.
-Last verify: green @ ~33.2k chunks (depcruise, lint, typecheck, db:check, **295/295**,
-status:check). Last commit: see log. Branch: slice/cru.
+**Slice is DONE (2026-07-14).** All four stages green; `source-status.yaml` rolls up to `done` for
+en + es + fr. Nothing to resume. Branch `slice/cru`, not yet merged.
+Last verify: green (depcruise, lint, typecheck, db:check, status:check, **299/299**).
+Last commit: `f8d19d0`. Next: merge decision, then prod cutover (`docs/ops/prod-ingest.md` — the prod
+`cru-10-basic-steps` rows are still being served and must be replaced).

@@ -61,11 +61,24 @@ function retriever(seed: FakeIndexedChunk[], q: number[] = Q) {
 }
 
 describe("candidateTopK (fan-out, invariant 5)", () => {
-  it("over-fetches topK*3 (or topK+5 for small topK), capped at 50", () => {
-    expect(candidateTopK(5)).toBe(15); // max(15, 10)
+  it("over-fetches topK*3 (or topK+5 for small topK)", () => {
+    expect(candidateTopK(5)).toBe(15); // max(15, 10) — retrieval default, unchanged
     expect(candidateTopK(1)).toBe(6); // max(3, 6)
-    expect(candidateTopK(10)).toBe(30); // max(30, 15)
-    expect(candidateTopK(20)).toBe(50); // max(60, 25) capped at 50
+    expect(candidateTopK(10)).toBe(30); // max(30, 15) — the eval's topK, unchanged
+  });
+
+  it("scales the fan-out with topK instead of pinning at a flat cap", () => {
+    // Regression: the ceiling was a flat 50, so every topK >= 17 fanned out to
+    // exactly 50 candidates. After the 3-key dedup that answered a request for
+    // 100 results with ~33 documents — silent truncation. The fan-out must keep
+    // growing with topK or `search` cannot honour its own topK.
+    expect(candidateTopK(20)).toBe(60); // was 50
+    expect(candidateTopK(40)).toBe(120); // was 50
+    expect(candidateTopK(100)).toBe(300); // was 50
+  });
+
+  it("still bounds the fan-out so a pathological topK cannot scan the corpus", () => {
+    expect(candidateTopK(100_000)).toBe(500);
   });
 });
 

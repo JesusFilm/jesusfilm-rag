@@ -11,6 +11,7 @@ import {
   allRelevantPaths,
   caseLanguage,
   computeMetrics,
+  coverageByLanguage,
   coverageBySource,
   firstMatchingRank,
   renderMarkdown,
@@ -22,7 +23,7 @@ import {
 } from "../scripts/eval-metrics.js";
 
 const SWG = "starting-with-god";
-const CRU = "cru-10-basic-steps";
+const CRU = "cru";
 
 function gcase(over: Partial<GoldenCase> = {}): GoldenCase {
   return {
@@ -42,12 +43,13 @@ function hitsWith(at: Record<number, string>, len = 10): Hit[] {
   return Array.from({ length: len }, (_, i) => at[i + 1] ? hit(at[i + 1]) : hit(`/miss-${i}.html`));
 }
 
-function result(c: GoldenCase, hits: Hit[]): CaseResult {
+function result(c: GoldenCase, hits: Hit[], language: string | null = "en"): CaseResult {
   return {
     case: c,
     hits,
     matchedRank: firstMatchingRank(hits, c),
     returnedRelevant: returnedRelevant(hits, c),
+    language,
   };
 }
 
@@ -138,8 +140,38 @@ describe("coverageBySource", () => {
   });
 });
 
+describe("coverageByLanguage — a multi-language source blends its languages in the per-source view", () => {
+  it("splits cases by their resolved retrieval language", () => {
+    // Both cases credit ONLY cru, but in different languages — exactly the
+    // ADR-0006 shape the per-source view cannot distinguish.
+    const en = gcase({ id: "en1", relevant: { [CRU]: ["/x.html"] } });
+    const es = gcase({ id: "es1", relevant: { [CRU]: ["/y.html"] } });
+    const results = [
+      result(en, hitsWith({ 1: "/x.html" }), "en"), // hit
+      result(es, hitsWith({}), "es"), // miss — the es half is unhealthy
+    ];
+
+    // The per-source view averages the two into a misleading middle.
+    const bySource = coverageBySource(results).find((s) => s.source === CRU)!;
+    expect(bySource.recall).toBeCloseTo(0.5, 5);
+
+    // The per-language view exposes which half is broken.
+    const byLang = coverageByLanguage(results);
+    expect(byLang.map((l) => l.language)).toEqual(["en", "es"]); // sorted
+    expect(byLang.find((l) => l.language === "en")!.recall_at_10).toBeCloseTo(1, 5);
+    expect(byLang.find((l) => l.language === "es")!.recall_at_10).toBeCloseTo(0, 5);
+  });
+
+  it("surfaces cases with no derivable language under (unscoped) rather than dropping them", () => {
+    const c = gcase({ id: "amb", relevant: { [CRU]: ["/x.html"] } });
+    const byLang = coverageByLanguage([result(c, hitsWith({ 1: "/x.html" }), null)]);
+    expect(byLang.map((l) => l.language)).toEqual(["(unscoped)"]);
+    expect(byLang[0].cases).toBe(1);
+  });
+});
+
 describe("renderMarkdown", () => {
-  it("includes coverage, per-source coverage, and a per-case coverage column", () => {
+  it("includes coverage, per-source + per-language coverage, and a per-case coverage column", () => {
     const c = gcase();
     const results = [result(c, hitsWith({ 1: "/a.html", 2: "/x.html" }))];
     const md = renderMarkdown({
@@ -149,9 +181,11 @@ describe("renderMarkdown", () => {
       results,
       metrics: computeMetrics(results),
       perSource: coverageBySource(results),
+      perLanguage: coverageByLanguage(results),
     });
     expect(md).toContain("| coverage |");
     expect(md).toContain("## Per-source coverage");
+    expect(md).toContain("## Per-language coverage");
     expect(md).toContain("first rank");
   });
 });
@@ -169,7 +203,7 @@ describe("safePathname", () => {
 describe("caseLanguage — per-case retrieval language scoping (eval must search the case's source language only)", () => {
   const LANGS = {
     "starting-with-god": ["en"],
-    "cru-10-basic-steps": ["en"],
+    "cru": ["en"],
     "thelife-fr": ["fr"],
     "thelife-zh": ["zh"],
   };

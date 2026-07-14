@@ -51,13 +51,16 @@ sources:
 
   cru-10-basic-steps:
     name: Cru — 10 Basic Steps
-    status: done
+    status: deferred
     languages:
       en:
-        status: done
+        status: deferred
         stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+        note: "superseded by 'cru' (one domain = one source, slice #7): registry key +
+          local DB rows deleted; prod rows remain until the slice-7 prod cutover
+          replaces them"
     slice_file: docs/slices/cru-10-basic-steps.md
-    last_updated: 2026-05-25
+    last_updated: 2026-07-13
 
   jesusfilm-org:
     name: Jesus Film Project
@@ -140,3 +143,24 @@ sources:
           JS-capable fetcher (see FOLLOW-UP G / #8)."
     slice_file: docs/slices/everystudent.md
     last_updated: 2026-05-25
+  cru:
+    name: Cru
+    status: done
+    languages:
+      en:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+      es:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+      fr:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+        scope: language-resources (1 article)
+        note: "no golden case authored: the sole fr doc is a marketing piece about
+          Google search behaviour, and at n=1 recall@10 is 1.000 by construction
+          — a case would measure nothing. fr retrieval verified in Stage 3
+          (--language fr returns it rank 1 @ 0.763); thelife-fr carries the real
+          French eval (10 cases)."
+    slice_file: docs/slices/cru.md
+    last_updated: 2026-07-14

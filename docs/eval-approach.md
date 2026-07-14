@@ -96,6 +96,51 @@ questions (the cru P@1 artifact). Useful as a first cut; superseded by the model
 **1.00** · coverage **0.896** · MRR 0.881 · P@1 0.80. Per-source coverage: cru-10-basic-steps
 recall 0.929 / coverage 0.929 (n=14); starting-with-god recall 1.000 / coverage 0.906 (n=18).
 
+## Two traps when authoring a relevant set (slice #7)
+
+**1. Never build a relevant set from what the engine returned — coverage becomes a
+tautology.** It is tempting to author a new case by running the question, then crediting
+the good hits. But `coverage` exists to detect **a good answer being buried**; if the
+relevant set contains only what came back, coverage is 1.0 *by construction* and can
+never detect anything. The set must be built from the **corpus** (what legitimately
+answers), then the engine's output is checked *against* it. In slice #7 the first pass
+did this backwards; backfilling the buried answers moved honest coverage from a fake
+1.0 to a real **0.45–1.00** per case. Deep-k probing (`--top-k 40+`) and a keyword sweep
+of the corpus are how you find the buried ones.
+
+**2. Judge the DOCUMENT, not the chunk.** The relevant set credits **document paths**
+(`returnedRelevant` matches on the citation pathname), so relevance must be judged on the
+whole document. Slice #7's first judging pass showed reviewers only **chunk 0** — and cru
+articles routinely open with a long lead-in anecdote, so 75% of the docs it rejected as
+"off-question" had >2 chunks with their actual answer further in. Judging the wrong unit
+manufactured a rejection list that had to be thrown away and re-run.
+
+## LLM-as-judge curation: score relevance and soundness as SEPARATE axes (slice #7)
+
+Slice #7 replaced the hand pass with a **3-lens judge panel** (theologian / pastor /
+mature Christian) gating every proposed credit. **The load-bearing design choice is that
+relevance and biblical soundness are ORTHOGONAL and must never be blended into one score.**
+
+**73 of 151 proposed credits were biblically SOUND but OFF-QUESTION** — orthodox,
+well-written documents answering a question nobody asked. A soundness-only rubric would
+have auto-accepted every one of them (mean soundness 0.89) straight into the answer keys
+and quietly corrupted the eval. That pairing — *high soundness, low relevance* — is the
+tripwire the panel exists to catch; report it as its own count, never folded into a
+generic fail.
+
+Two honest caveats, both worth knowing before relying on a panel:
+
+- **The gate must live in code, not in a model's head.** Means, thresholds, and the
+  disagreement rule are arithmetic. A model deciding "that's about a 0.8" is a vibe with
+  a number attached.
+- **Three personas on one base model converge far more than three humans.** In slice #7
+  the maximum disagreement across the whole panel was **0.25** against a 0.5 escalation
+  threshold, so **zero escalations fired**. Do not read panel agreement as corroboration.
+  The axis that genuinely earned its keep was **soundness**, which surfaced prosperity
+  drift, a passage attributing a child's sexual abuse to Satan, and a discredited
+  aetiology of same-sex attraction — none of which a relevance check could ever find
+  (→ [#78](https://github.com/JesusFilm/jesusfilm-rag/issues/78)).
+
 ## Correction to the slice #2 record — RESOLVED
 
 cru-10's v1 **P@1 0.20** (and the "SwG out-ranks cru" framing first recorded in `sources.md` /
@@ -216,15 +261,35 @@ re-scores already-curated cases, it does not author new ones.
 > model-swap drift re-score of the *existing* curated suite; authoring cases for any new
 > source, in any language, is always human-gated.
 
+> ### ⚠️ CORRECTED 2026-07-14 (slice #7, cru) — "one language per source key" is DEAD
+>
+> The section below was written when every non-English source was its own key
+> (`thelife-fr`, `thelife-zh`). **ADR-0006 ("one domain = one source") ended that.**
+> `cru` is a single key carrying **en + es + fr**, and it broke two things:
+>
+> 1. **`pnpm eval --source <key>` is NO LONGER a per-language view.** It blends a
+>    multi-language source's languages into one number, so an unhealthy language can
+>    hide behind a healthy one. Use the **per-language coverage breakdown**
+>    (`coverageByLanguage()`, added in `08acd48`) — it groups by each case's *resolved*
+>    retrieval language, mirroring `coverageBySource`.
+> 2. **A case whose only relevant source is multilingual cannot derive its language.**
+>    `caseLanguage()` intersects the registry `languages` of every source in `relevant`;
+>    `cru` declares `["en","es","fr"]`, so a cru-only case is 3-way ambiguous → returns
+>    `null` → **the case searches the whole multilingual corpus unscoped**, which is
+>    exactly what this section forbids. It was live on `cru-believer-old-testament`.
+>    **Every case whose `relevant` map contains only a multilingual source MUST pin
+>    `language:` explicitly.** Such cases now surface under `(unscoped)` in the
+>    per-language report rather than being silently dropped — that state is a
+>    case-configuration bug, not a result.
+
 ### Non-English — **human-in-the-loop**, one suite per language
-No non-English golden cases exist yet. For each non-English source key
-(`thelife-fr`, `thelife-zh`, …), author a suite with `/golden`
+For each non-English source, author a suite with `/golden`
 (`.claude/skills/golden/SKILL.md`) against the **qwen-embedded** corpus:
 
 1. Survey what landed for the source; draft persona-diverse questions grounded
-   in real docs, `relevant` scoped to that source key (isolates the cross-lingual
-   signal). Because each language is its own source key, `pnpm eval --source
-   thelife-fr` **is** the per-language breakdown — no new `--language` flag.
+   in real docs. For a single-language source key, scope `relevant` to that key. For a
+   **multi-language source** (`cru`), pin `language:` on the case and read the
+   per-language breakdown (see the correction above).
 2. **Human-in-the-loop is mandatory for taste + accuracy**, and the reviewer may
    not read the language. So the agent presents every candidate case **with an
    English translation** of the question *and* the expected-doc chunk snippet

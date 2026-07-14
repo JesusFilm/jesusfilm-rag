@@ -18,21 +18,6 @@ describe("SourceRegistry", () => {
     expect((swg?.crawl.seedPaths ?? []).length).toBeGreaterThan(0);
   });
 
-  it("resolves Cru 10 Basic Steps by key with the AEM long-form selector + 12 seeds", () => {
-    const cru = getSource("cru-10-basic-steps");
-    expect(cru).toBeDefined();
-    expect(cru?.domain).toBe("www.cru.org");
-    expect(cru?.trust).toBe("partner");
-    expect(cru?.ingestionMode).toBe("html-scrape");
-    // `.article-long-form` is the verified content container for Cru AEM lessons.
-    expect(cru?.crawl.contentSelectors[0]).toBe(".article-long-form");
-    expect(cru?.crawl.seedPaths).toHaveLength(12);
-    // every seed is within the 10-basic-steps scope.
-    for (const p of cru!.crawl.seedPaths ?? []) {
-      expect(p.startsWith("/us/en/train-and-grow/10-basic-steps")).toBe(true);
-    }
-  });
-
   it("resolves Jesus Film Project as an owned discovery source (sitemap + /blog/ hints)", () => {
     const jf = getSource("jesusfilm-org");
     expect(jf).toBeDefined();
@@ -305,14 +290,19 @@ describe("SourceRegistry", () => {
     expect(kept("https://uwota.com/")).toBe(false);
   });
 
-  it("registers the crawlable non-English variants and omits the un-acquirable ones", () => {
-    // Crawlable, genuine-target-language sibling sources.
-    expect(getSource("thelife-fr")).toBeDefined();
+  it("splits sources by DOMAIN, not by language", () => {
+    // Separate keys ONLY because the domain differs.
+    expect(getSource("thelife-fr")?.domain).toBe("laviejenparle.com");
     expect(getSource("thelife-zh")).toBeDefined();
-    // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall, and
-    // cru.org's Spanish "10 Pasos" path serves untranslated English bodies — no
-    // real non-English content to acquire (see docs/sources.md).
+    expect(getSource("thelife")?.domain).toBe("thelife.com");
+    // cru.org's Spanish lives under /mx/es/ on the SAME domain, so it is part of `cru`,
+    // never a `cru-es` sibling. Language is a per-document property decided at ingest.
+    expect(getSource("cru-es")).toBeUndefined();
+    expect(getSource("cru")?.domain).toBe("www.cru.org");
+    expect(getSource("cru")?.languages).toEqual(["en", "es", "fr"]);
+    // Likewise the old narrow sub-scope key — absorbed into the consolidated `cru`.
+    expect(getSource("cru-10-basic-steps")).toBeUndefined();
+    // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall.
     expect(getSource("thelife-fa")).toBeUndefined();
-    expect(getSource("cru-10-basic-steps-es")).toBeUndefined();
   });
 });

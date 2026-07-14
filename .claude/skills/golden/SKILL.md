@@ -98,7 +98,7 @@ keys and quietly corrupted the eval. That pairing is the **tripwire**; count it 
 never fold it into a generic fail.
 
 The working shape (prompt preserved at
-`~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`, candidate for promotion
+`docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`, candidate for promotion
 into this skill):
 
 1. **Panel of 3 lenses** — theologian · pastor · mature Christian. **Separate agents**, or

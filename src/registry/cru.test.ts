@@ -12,13 +12,25 @@ import type { SourceEntry } from "./types.js";
 
 const cru = (): SourceEntry => getSource("cru")!;
 
-/** Apply the discovery filters exactly as `discover.ts` does. */
+/**
+ * Local mirror of `discover.ts`'s `keepUrl`: allow ∧ articleHints ∧ ¬block, where an
+ * empty list means "no constraint" on that gate.
+ *
+ * Reimplemented rather than imported on purpose — `registry-is-pure`
+ * (`.dependency-cruiser.cjs`) forbids anything under `src/registry/` from importing
+ * `src/acquisition/`. Keep it in step with `keepUrl`; the `articleHints` gate is
+ * load-bearing here (cru declares `\.html$`, which is what drops the extensionless
+ * hub/section pages).
+ */
 function keeps(url: string): boolean {
-  const c = cru().crawl;
-  return (
-    (c.allow ?? []).some((a) => new RegExp(a).test(url)) &&
-    !(c.block ?? []).some((b) => new RegExp(b).test(url))
-  );
+  const { allow = [], block = [], articleHints = [] } = cru().crawl;
+  const matches = (patterns: string[]): boolean =>
+    patterns.some((p) => new RegExp(p).test(url));
+
+  if (allow.length > 0 && !matches(allow)) return false;
+  if (articleHints.length > 0 && !matches(articleHints)) return false;
+  if (block.length > 0 && matches(block)) return false;
+  return true;
 }
 
 describe("Cru registry entry", () => {

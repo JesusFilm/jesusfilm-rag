@@ -203,7 +203,7 @@ identical slugs under a different locale path would duplicate the corpus.
       *biblical soundness* — both gated at 0.75. **73 of 151 proposals were biblically SOUND but
       OFF-QUESTION**: a soundness-only rubric would have auto-accepted every one into the answer keys
       and quietly corrupted the eval. 73 credits approved (60 passed, 13 reinstated on review).
-      Prompt preserved at `~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
+      Prompt preserved at `docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
 - [x] `pnpm eval` @ **96 cases** (was 82; +14 — 6 en cru-native, 8 **es: the suite's first Spanish
       cases**). recall@3 **0.938** · recall@10 **1.000** · coverage **0.689** · MRR 0.814 · P@1 0.677.
       **cru per-source recall 0.125 → 0.828, coverage 0.063 → 0.576** with NO engine change — proof
@@ -283,13 +283,14 @@ CI. All three pass on this branch, but the gate should name them.
 
 ## Findings that outlive this slice (Stage 4)
 
-**1. Retrieval returns ONE chunk per doc, and cru docs bury their answer.** The 3-key dedup yields
+**1. Retrieval returns ONE chunk per doc, and cru docs bury their answer.** → [#79](https://github.com/JesusFilm/jesusfilm-rag/issues/79)
+(architecture §11 FOLLOW-UP N). The 3-key dedup yields
 at most one chunk per document, and cru articles routinely open with a long lead-in anecdote (a swim
 team, an Antarctic expedition) before the substance. **≥2 of 3 judges flagged 40 of 151 docs as
 `answer_buried`** — right document, useless snippet. This is the most likely mechanical cause of the
 register gap and the buried on-ramp pages, and it is an ingest/chunking problem, not a curation one.
 
-**2. 1,375 cru chunks (16.2%) literally begin with the junk string `0 100 0`** — an AEM widget
+**2. 1,375 cru chunks (16.2%) literally begin with the junk string `0 100 0`** ([#79](https://github.com/JesusFilm/jesusfilm-rag/issues/79)) — an AEM widget
 artifact the `<body>` fallback extraction picks up. No other source has it (0.0%). It sits at the
 *front* of the embedded chunk, i.e. the highest-signal position. Candidate contributor to (1).
 

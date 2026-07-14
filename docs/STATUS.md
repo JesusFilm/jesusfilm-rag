@@ -23,7 +23,7 @@ OFF-QUESTION**: orthodox docs answering a question nobody asked. A soundness-onl
 rubric would have auto-accepted every one into the answer keys and quietly
 corrupted the eval. 73 credits approved; suite **82 → 96 cases** (+6 en cru-native,
 **+8 es — the first Spanish cases in the suite**). Prompt preserved at
-`~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md` (candidate for
+`docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md` (candidate for
 promotion into `.claude/skills/golden`).
 
 **Final eval @ 96 cases / 9 sources:** recall@3 **0.938** · recall@10 **1.000** ·
@@ -52,11 +52,14 @@ Deliberately **not** blanket-excluded from the crawl — none are heresy (0.57�
 of the 14 are Spanish machine-translation damage misfiled as doctrine, and it was a
 sample of 151 of ~11,500 docs, not an audit.
 
-**Unfiled engine findings (in the slice file):** retrieval returns **one chunk per
-doc** and cru articles open with long lead-in anecdotes → **40 of 151 docs judged
-`answer_buried`** (right doc, useless snippet); **1,375 cru chunks (16.2%) begin with
-the junk string `0 100 0`** (AEM artifact, no other source has it); Cru's Spanish
-corpus is **machine-translated to near-unreadability**.
+**Engine findings from slice #7 (detail in the slice file):**
+- **FILED → [#79](https://github.com/JesusFilm/jesusfilm-rag/issues/79)** (architecture
+  §11 FOLLOW-UP N): retrieval returns **one chunk per doc** and cru articles open with
+  long lead-in anecdotes → **40 of 151 docs judged `answer_buried`** (right doc, useless
+  snippet); compounded by **1,375 cru chunks (16.2%) beginning with the junk string
+  `0 100 0`** (AEM artifact, no other source has it).
+- **Still unfiled:** Cru's Spanish corpus is **machine-translated to near-unreadability**
+  — an acquire-side quality ceiling, not a soundness problem (do not file it as one).
 
 See [docs/slices/cru.md](./slices/cru.md).
 
@@ -103,7 +106,7 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
    caught 73 sound-but-off-question credits that a hand pass would have waved through,
    and cut operator review from 151 items to 91 ranked ones. It belongs in
    `.claude/skills/golden` (or a sibling) so every future Stage 4 runs this way.
-   Prompt: `~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
+   Prompt: `docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
 3. **The chunking finding** (see "You are here") is the strongest engine lead we have:
    one chunk per doc + long lead-in anecdotes = right document, useless snippet. This
    plausibly subsumes the "register gap" and much of FOLLOW-UP I #15.

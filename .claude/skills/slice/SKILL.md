@@ -210,7 +210,7 @@ Pause and hand back to the operator, in plain language, when:
   one base model agree far more than three humans (max spread 0.25 vs a 0.5 escalation
   threshold → zero escalations), so don't read agreement as corroboration — but the
   soundness axis surfaced real content problems (#78) relevance never could.
-  Prompt: `~/Jaxs/docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
+  Prompt: `docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
 - **A multi-language source breaks per-source eval reads.** Since ADR-0006 (one domain =
   one source), `--source <key>` blends a source's languages. Use the per-language
   coverage view, and **pin `language:` on any case whose only relevant source is

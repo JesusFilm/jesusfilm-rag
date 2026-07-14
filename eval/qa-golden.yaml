@@ -106,6 +106,7 @@ cases:
         - "/new-life/jesus.html"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+        - "/us/en/how-to-know-god/is-jesus-god.html"
       jesusfilm-org:
         - "/blog/did-jesus-claim-to-be-god"
         - "/blog/was-jesus-god"
@@ -114,6 +115,10 @@ cases:
         - "/jesus-say-he-is-god"
         - "/deity-of-christ-true-or-false"
         - "/jesus-liar-lunatic-lord"
+        - "/daily-devo/he-is-who-he-says-he-is-2"
+        - "/god-became-man-incarnation"
+        - "/jesus-just-man"
+        - "/two-reasons-skeptics-believe-jesus-is-not-god"
   - id: "swg-skeptic-gods-love"
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
     relevant:
@@ -136,10 +141,13 @@ cases:
         - "/bible-study/lesson-2.html"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/1-the-christian-adventure.html"
+        - "/us/en/train-and-grow/spiritual-growth/beginning-with-god/personal-follow-up-your-new-life-reformatted.html"
+        - "/us/en/blog/spiritual-growth/beginning-with-god/our-new-relationship-with-god.html"
       thelife:
         - "/devotionals/full-confidence"
         - "/how-to-know-im-really-saved"
         - "/understanding-your-relationship-with-jesus-christ"
+        - "/devotionals/doubting"
   - id: "swg-believer-holy-spirit"
     question: "How do I actually live day to day in the power of the Holy Spirit?"
     relevant:
@@ -167,6 +175,8 @@ cases:
         - "/bible-study/what-is-the-gospel.html"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+        - "/us/en/train-and-grow/spiritual-growth/core-christian-beliefs/what-makes-christianity-different.html"
+        - "/us/en/train-and-grow/spiritual-growth/devotionals/passages/guide/first-importance.html"
       jesusfilm-org:
         - "/blog/what-is-the-gospel"
         - "/blog/what-is-the-gospel-really"
@@ -187,14 +197,20 @@ cases:
       starting-with-god:
         - "/knowing-god/bible.html"
   - id: "cru-believer-old-testament"
+    language: "en"  # explicit: cru is the only relevant source and declares [en, es, fr]
     question: "The Old Testament feels like a confusing jumble of names and events. How does the whole story actually hang together?"
     relevant:
       cru:
         - "/us/en/train-and-grow/10-basic-steps/9-the-old-testament.html"
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+        - "/us/en/train-and-grow/bible-studies/how-to-take-on-the-old-testament-and-not-die-trying.html"
+        - "/us/en/train-and-grow/bible-studies/how-it-came-to-be-a-brief-history-of-the-bible.html"
+        - "/us/en/train-and-grow/spiritual-growth/seeing-christ-in-all-of-scripture.html"
   - id: "cru-stewardship"
     question: "As a Christian, does God have a claim on my money — how am I supposed to handle my finances and possessions?"
     relevant:
+      familylife:
+        - "/articles/topics/marriage/marriage-challenges/finances/how-do-we-deal-with-financial-difficulties"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/8-giving.html"
       jesusfilm-org:
@@ -205,6 +221,7 @@ cases:
     relevant:
       cru:
         - "/us/en/train-and-grow/10-basic-steps/7-the-christian-and-witnessing.html"
+        - "/us/en/train-and-grow/share-the-gospel/personal-evangelism-101.html"
       starting-with-god:
         - "/questions/start-easy-conversations-about-god.html"
       jesusfilm-org:
@@ -212,6 +229,8 @@ cases:
         - "/blog/tips-getting-over-fear-of-sharing-faith"
         - "/blog/sharing-even-when-nervous"
         - "/blog/evangelism-tips-non-evangelists"
+        - "/blog/personal-evangelism"
+        - "/blog/tips-sharing-the-gospel"
       sightline-ministry:
         - "/talking-to-people-like-jesus-did"
         - "/can-we-talk-about-jesus"
@@ -220,6 +239,9 @@ cases:
     relevant:
       cru:
         - "/us/en/train-and-grow/10-basic-steps/6-obedience.html"
+        - "/us/en/train-and-grow/help-others-grow/collaborative-discipleship/lessons/3c-how-to-discern-gods-will.html"
+        - "/us/en/train-and-grow/leadership-training/sending-your-team/discerning-gods-will.html"
+        - "/us/en/train-and-grow/spiritual-growth/point-toward-gods-will.html"
       starting-with-god:
         - "/knowing-god/how-god-speaks.html"
         - "/directors-blog/is-god-willing-to-give-me-direction-in-my-life.html"
@@ -245,8 +267,13 @@ cases:
   - id: "cru-believer-bible-study"
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
+      thelife:
+        - "/how-to-have-an-inductive-bible-study"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/5-the-bible.html"
+        - "/us/en/train-and-grow/bible-studies/7-steps-to-improve-your-bible-study.html"
+        - "/us/en/blog/help-others-grow/mentoring/five-techniques-study.html"
+        - "/us/en/train-and-grow/bible-studies/how-to-study-the-bible.html"
       starting-with-god:
         - "/knowing-god/bible.html"
         - "/knowing-god/how-god-speaks.html"
@@ -257,6 +284,7 @@ cases:
     relevant:
       cru:
         - "/us/en/train-and-grow/10-basic-steps/4-prayer.html"
+        - "/us/en/train-and-grow/spiritual-growth/prayer/daily-prayer.html"
       starting-with-god:
         - "/knowing-god/motivating.html"
         - "/bible-study/lesson-5.html"
@@ -277,8 +305,12 @@ cases:
   - id: "cru-newcomer-holy-spirit"
     question: "Who exactly is the Holy Spirit, and what is he supposed to do in my life?"
     relevant:
+      thelife:
+        - "/the-power-you-need"
+        - "/power-for-living-a-dynamic-christian-life"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/3-the-holy-spirit.html"
+        - "/us/en/train-and-grow/spiritual-growth/holy-spirit.html"
       starting-with-god:
         - "/new-life/spirit-filled.html"
         - "/knowing-god/holy-spirit.html"
@@ -287,6 +319,8 @@ cases:
     relevant:
       cru:
         - "/us/en/train-and-grow/10-basic-steps/2-abundant-life.html"
+        - "/us/en/train-and-grow/transferable-concepts/walk-in-the-spirit.html"
+        - "/us/en/blog/spiritual-growth/beginning-with-god/holy-spirit-work-life.html"
       starting-with-god:
         - "/new-life/spirit-filled.html"
         - "/struggles/how-to-live-the-christian-life.html"
@@ -305,8 +339,11 @@ cases:
   - id: "cru-skeptic-jesus-uniqueness"
     question: "Every religion has its founder. What actually sets Jesus apart from all the others?"
     relevant:
+      thelife:
+        - "/devotionals/god-came-down"
       cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"
+        - "/us/en/train-and-grow/spiritual-growth/core-christian-beliefs/what-makes-christianity-different.html"
       starting-with-god:
         - "/new-life/jesus.html"
       jesusfilm-org:
@@ -315,6 +352,7 @@ cases:
         - "/copycat-religion-christianity"
         - "/jesus-liar-lunatic-lord"
         - "/deity-of-christ-true-or-false"
+        - "/jesus-better-than-good"
   - id: "jf-newcomer-who-is-jesus"
     question: "I don't really know anything about Jesus — who was he and what did he actually do?"
     relevant:
@@ -1268,3 +1306,159 @@ cases:
   #   8. 0.422 /workaholics — EN: "Workaholics"
   #   9. 0.417 /gift-of-giving — EN: "The gift of giving"
   #  10. 0.407 /model-career — EN: "A modeling career"
+
+
+  # ── slice #7 (cru) Stage 4 — judge-panel curated 2026-07-14.
+  # Every credit below was scored by a 3-lens LLM panel (theologian / pastor /
+  # mature Christian) on TWO axes: relevance (does it answer THIS question) and
+  # biblical soundness. Both had to clear 0.75. A doc that was orthodox but
+  # off-question was REJECTED — 73 of 151 proposals survived.
+  # Spanish cases carry `language: "es"` explicitly: cru declares [en,es,fr], so
+  # caseLanguage() cannot derive one and would search the whole multilingual corpus.
+  - id: "cru-believer-depressed-friend"
+    language: "en"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "My flatmate has barely gotten out of bed in weeks and every time I try to cheer her up it lands wrong. How do I actually be there for her without making it worse?"
+    relevant:
+      cru:
+        - "/us/en/blog/life-and-relationships/emotions/3-ways-to-care-for-your-depressed-friend.html"
+        - "/us/en/blog/life-and-relationships/emotions/help-others-understand-depression-anxiety.html"
+        - "/us/en/blog/life-and-relationships/emotions/the-worst-way-to-counsel-a-friend.html"
+        - "/us/en/train-and-grow/life-and-relationships/hardships/the-unseen-crisis-among-college-women.html"
+  - id: "cru-believer-disciple-someone"
+    language: "en"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "A guy in my church small group asked me to meet with him weekly and pour into him spiritually. I said yes and now I'm panicking — what do I actually do when we sit down?"
+    relevant:
+      cru:
+        - "/us/en/train-and-grow/help-others-grow/discipleship/5-basics-of-a-discipleship-time.html"
+        - "/us/en/train-and-grow/help-others-grow/discipleship/how-to-make-disciples.html"
+        - "/us/en/train-and-grow/help-others-grow/discipleship/what-to-teach-your-disciple.html"
+  - id: "cru-believer-start-ministry"
+    language: "en"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "There's nothing Christian happening on my campus and I keep thinking someone should start something. I'm 20 and no one has ever put me in charge of anything — is that even realistic?"
+    relevant:
+      cru:
+        - "/us/en/train-and-grow/leadership-training/starting-a-ministry/launching/make-a-difference.html"
+        - "/us/en/train-and-grow/leadership-training/starting-a-ministry/start/can-i-really-do-this.html"
+        - "/us/en/train-and-grow/leadership-training/starting-a-ministry/start/whats-on-your-heart.html"
+        - "/us/en/train-and-grow/leadership-training/starting-a-ministry/start/where-do-i-start.html"
+  # EN: "I ask God for the same thing over and over and get no answer. Why is he silent with me?"
+  - id: "cru-es-believer-dios-callado"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Le pido a Dios lo mismo una y otra vez y no obtengo respuesta. ¿Por qué se queda callado conmigo?"
+    relevant:
+      cru:
+        - "/mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/5-cosas-que-hacer-cuando-dios-parece-silencioso.html"
+        - "/mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/cosas-que-hacer-cuando-dios-guarda-silencio.html"
+        - "/mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/dios-siempre-responde-a-la-oracion.html"
+        - "/mx/es/crecer-y-equipar/vida-y-relaciones/emotions/when-god-seems-distant.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 2 · 0.712 /mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/5-cosas-que-hacer-cuando-dios-parece-silencioso.html — same article, two URLs. Corpus hygiene issue.
+  #   rank 1 · 0.734 /mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/cosas-que-hacer-cuando-dios-guarda-silencio.html — EN: '5 things to do when God seems to keep silent'. Strongest hit in the Spanish set.
+  #   rank 3 · 0.663 /mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/dios-siempre-responde-a-la-oracion.html — EN: 'Does God always answer prayer?'
+  #   rank 6 · 0.623 /mx/es/crecer-y-equipar/vida-y-relaciones/emotions/when-god-seems-distant.html — EN: 'When God seems distant'.
+  # EN: "I want to tell my coworkers about Jesus but I'm painfully embarrassed and don't even know how to bring it up."
+  - id: "cru-es-believer-evangelismo-trabajo"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Quiero hablarles de Jesús a mis compañeros de trabajo pero me da una vergüenza tremenda y no sé ni cómo sacar el tema."
+    relevant:
+      cru:
+        - "/mx/es/crecer-y-equipar/comparte-evangelio/estrategias-evangelismo/como-incorporar-tu-fe-al-trabajo.html"
+        - "/mx/es/crecer-y-equipar/comparte-evangelio/obstaculos-de-fe/hablando-de-dios-abiertamente.html"
+        - "/mx/es/crecer-y-equipar/comparte-evangelio/obstaculos-de-fe/perdiendo-el-miedo-al-rechazo-al-compartir-mi-fe.html"
+        - "/mx/es/crecer-y-equipar/comparte-evangelio/principios-evangelismo/pasos-de-fe-8-tips-para-hablar-de-jesus.html"
+        - "/mx/es/crecer-y-equipar/comparte-evangelio/principios-evangelismo/pasos-de-fe-a-que-le-temes.html"
+        - "/mx/es/crecer-y-equipar/comparte-evangelio/principios-evangelismo/seis-grados-transiciones-al-evangelio.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 1 · 0.708 /mx/es/crecer-y-equipar/comparte-evangelio/estrategias-evangelismo/como-incorporar-tu-fe-al-trabajo.html — EN: 'How to bring your faith into work'.
+  #   rank 3 · 0.684 /mx/es/crecer-y-equipar/comparte-evangelio/obstaculos-de-fe/hablando-de-dios-abiertamente.html — 'how can I talk about God without botching it'.
+  #   rank 4 · 0.653 /mx/es/crecer-y-equipar/comparte-evangelio/obstaculos-de-fe/perdiendo-el-miedo-al-rechazo-al-compartir-mi-fe.html — the shame half.
+  #   BURIED rank 11 /mx/es/crecer-y-equipar/comparte-evangelio/principios-evangelismo/pasos-de-fe-8-tips-para-hablar-de-jesus.html — eight concrete keys for starting the conversation. One rank below the cut.
+  #   BURIED rank 16 /mx/es/crecer-y-equipar/comparte-evangelio/principios-evangelismo/pasos-de-fe-a-que-le-temes.html — 'most Christians shrink at the word evangelism'.
+  #   BURIED rank 24 /mx/es/crecer-y-equipar/comparte-evangelio/principios-evangelismo/seis-grados-transiciones-al-evangelio.html — EN: 'Six degrees: transitions to the gospel'. VERBATIM the user's problem: 'the hardest thing is starting. How
+  # EN: "I fall into the same sin over and over — I repent, and two days later I'm right back at it. How do I break the cycle?"
+  - id: "cru-es-believer-pecado-recurrente"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Caigo una y otra vez en el mismo pecado, me arrepiento y a los dos días vuelvo a lo mismo. ¿Cómo rompo ese círculo?"
+    relevant:
+      cru:
+        - "/mx/es/conoce-a-dios/la-vida-llena-del-espiritu/holy-spirit-work-life.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 4 · 0.548 /mx/es/conoce-a-dios/la-vida-llena-del-espiritu/holy-spirit-work-life.html — EN: 'How to experience life change'.
+  # EN: "I just gave my life to Christ. How do I spend time with God every day without it getting boring?"
+  - id: "cru-es-newcomer-tiempo-diario"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Acabo de entregarle mi vida a Cristo. ¿Cómo hago para pasar un rato con Dios cada día sin que se me haga aburrido?"
+    relevant:
+      cru:
+        - "/mx/es/crecer-y-equipar/crecimiento-espiritual/devocionales/a-daily-time-with-the-lord.html"
+        - "/mx/es/crecer-y-equipar/crecimiento-espiritual/devocionales/how-to-have-a-quiet-time.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 1 · 0.739 /mx/es/crecer-y-equipar/crecimiento-espiritual/devocionales/a-daily-time-with-the-lord.html — EN: 'A daily time with the Lord'.
+  #   rank 4 · 0.687 /mx/es/crecer-y-equipar/crecimiento-espiritual/devocionales/how-to-have-a-quiet-time.html — EN: 'How to have a quiet time'.
+  # EN: "For months I haven't felt like doing anything; I get up and just want to go back to bed. Does God even care how I feel?"
+  - id: "cru-es-seeker-desanimo"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Llevo meses sin ganas de nada, me levanto y solo quiero volver a la cama. ¿A Dios le importa cómo me siento?"
+    relevant:
+      cru:
+        - "/mx/es/crecer-y-equipar/vida-y-relaciones/emotions/depression-anxiety-all-in-your-head.html"
+        - "/mx/es/crecer-y-equipar/vida-y-relaciones/emotions/to-the-depressed-christian.html"
+        - "/mx/es/crecer-y-equipar/vida-y-relaciones/emotions/when-god-seems-distant.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 7 · 0.583 /mx/es/crecer-y-equipar/vida-y-relaciones/emotions/depression-anxiety-all-in-your-head.html — EN: 'Depression and anxiety: it's all in your head'. Agent excluded it (chunk pivots to helping a *friend*, wr
+  #   rank 3 · 0.612 /mx/es/crecer-y-equipar/vida-y-relaciones/emotions/to-the-depressed-christian.html — first-person, 'we are not alone'.
+  #   rank 4 · 0.610 /mx/es/crecer-y-equipar/vida-y-relaciones/emotions/when-god-seems-distant.html — the 'does God care' half.
+  # EN: "I have a job, a partner, everything that's supposed to make me happy — and inside I feel empty. What am I missing?"
+  - id: "cru-es-seeker-vacio"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Tengo trabajo, pareja, todo lo que supuestamente debería hacerme feliz, y por dentro me siento vacío. ¿Qué me falta?"
+    relevant:
+      cru:
+        - "/mx/es/conoce-a-dios/mi-historia-una-vida-cambiada/si-estas-con-el-quien-contra-ti.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 1 · 0.621 /mx/es/conoce-a-dios/mi-historia-una-vida-cambiada/si-estas-con-el-quien-contra-ti.html — testimony: 'I felt empty even though I had everything'.
+  # EN: "If God is so good, how is it justifiable for him to send people to burn forever?"
+  - id: "cru-es-skeptic-infierno"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Si Dios es tan bueno, ¿cómo se justifica que mande gente a quemarse para siempre?"
+    relevant:
+      cru:
+        - "/mx/es/conoce-a-dios/que-pasa-cuando-muero.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 2 · 0.625 /mx/es/conoce-a-dios/que-pasa-cuando-muero.html — EN: 'What happens when I die?'
+  # EN: "I don't buy that some guy from two thousand years ago is God. What proof is there that he wasn't just another teacher?"
+  - id: "cru-es-skeptic-jesus-hombre"
+    language: "es"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "No me trago que un tipo de hace dos mil años sea Dios. ¿Qué pruebas hay de que no fue solo un maestro más?"
+    relevant:
+      cru:
+        - "/mx/es/conoce-a-dios/jesus-dios-o-simplemente-buen-hombre.html"
+        - "/mx/es/conoce-a-dios/jesus-realmente-resucito.html"
+        - "/mx/es/crecer-y-equipar/crecimiento-espiritual/core-christian-beliefs/beyond-blind-faith.html"
+  # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
+  #   rank 2 · 0.630 /mx/es/conoce-a-dios/jesus-dios-o-simplemente-buen-hombre.html — the question's exact frame.
+  #   rank 5 · 0.564 /mx/es/conoce-a-dios/jesus-realmente-resucito.html — the evidence.
+  #   rank 1 · 0.649 /mx/es/crecer-y-equipar/crecimiento-espiritual/core-christian-beliefs/beyond-blind-faith.html — faith is not blind; God takes the initiative to reveal himself.
+  - id: "cru-newcomer-ordinary-testimony"
+    question: "People at church give these dramatic testimonies and mine is just — I grew up believing, nothing happened to me. Why would anyone care about that? Is it even worth telling?"
+    relevant:
+      cru:
+        - "/us/en/how-to-know-god/my-story-a-life-changed/is-your-story-good-enough.html"
+      jesusfilm-org:
+        - "/blog/what-if-you-dont-have-dramatic-christian-testimony"
+  - id: "cru-seeker-ethnic-identity"
+    language: "en"  # explicit: cru declares [en, es, fr] — without this the case searches unscoped
+    question: "Church always feels like a white space where my background is something I'm supposed to leave at the door. Does following Jesus mean giving up where I come from?"
+    relevant:
+      cru:
+        - "/us/en/blog/help-others-grow/discipleship/god-made-me-hispanic-and-it-was-good.html"
+        - "/us/en/how-to-know-god/my-story-a-life-changed/nick-ross.html"
+        - "/us/en/train-and-grow/help-others-grow/collaborative-discipleship/lessons/3b-embracing-our-ethnicity.html"
+        - "/us/en/train-and-grow/life-and-relationships/understanding-ethnic-identity.html"
+  - id: "cru-skeptic-hell"
+    question: "A loving God who tortures people forever just for believing the wrong thing? That's the part I can't get past. How do you defend that?"
+    relevant:
+      sightline-ministry:
+        - "/daily-devo/love-and-hell-dont-mix-do-they-2"
+      thelife:
+        - "/is-hell-unjust"

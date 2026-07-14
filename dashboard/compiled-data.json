@@ -1,8 +1,44 @@
 {
-  "generated_at": "2026-06-29",
+  "generated_at": "2026-07-14",
   "sources": [
     {
-      "source": "Cru — 10 Basic Steps Toward Christian Maturity",
+      "source": "Cru",
+      "key": "cru",
+      "host": "www.cru.org",
+      "language": "en",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "Cru",
+      "key": "cru",
+      "host": "www.cru.org",
+      "language": "es",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "Cru",
+      "key": "cru",
+      "host": "www.cru.org",
+      "language": "fr",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
+      "row_status": "done",
+      "note": "no golden case authored: the sole fr doc is a marketing piece about Google search behaviour, and at n=1 recall@10 is 1.000 by construction — a case would measure nothing. fr retrieval verified in Stage 3 (--language fr returns it rank 1 @ 0.763); thelife-fr carries the real French eval (10 cases)."
+    },
+    {
+      "source": "Cru — 10 Basic Steps",
       "key": "cru-10-basic-steps",
       "host": "www.cru.org",
       "language": "en",
@@ -10,8 +46,8 @@
       "ingest": true,
       "evaluate": true,
       "embedded_doc_count": 11,
-      "row_status": "done",
-      "note": null
+      "row_status": "deferred",
+      "note": "superseded by 'cru' (one domain = one source, slice #7): registry key + local DB rows deleted; prod rows remain until the slice-7 prod cutover replaces them"
     },
     {
       "source": "EveryStudent",
@@ -33,7 +69,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 2239,
+      "embedded_doc_count": 2241,
       "row_status": "done",
       "note": null
     },
@@ -47,7 +83,7 @@
       "evaluate": false,
       "embedded_doc_count": 0,
       "row_status": "in-progress",
-      "note": "pending embedder-model swap"
+      "note": "ingested on qwen (PR #57); retrieve/evaluate pending — 1 sitemap-discoverable es page"
     },
     {
       "source": "Jesus Film Project",
@@ -103,11 +139,11 @@
       "host": "uwota.com",
       "language": "zh",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
-      "row_status": "in-progress",
-      "note": "pending embedder-model swap"
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 332,
+      "row_status": "done",
+      "note": null
     },
     {
       "source": "thelife — French (La Vie J'en Parle)",
@@ -115,11 +151,11 @@
       "host": "laviejenparle.com",
       "language": "fr",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
-      "row_status": "in-progress",
-      "note": "pending embedder-model swap"
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 156,
+      "row_status": "done",
+      "note": null
     }
   ]
 }

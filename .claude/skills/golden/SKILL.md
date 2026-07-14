@@ -93,7 +93,7 @@ Curation at scale is a judging problem, and the axis you judge on decides what g
 
 A document can be **1.0 sound and 0.2 relevant** — perfectly orthodox, answering a question
 nobody asked. In slice #7, **73 of 151 proposed credits were exactly that** (mean soundness
-0.87). A soundness-only rubric would have auto-accepted every one of them into the answer
+0.89). A soundness-only rubric would have auto-accepted every one of them into the answer
 keys and quietly corrupted the eval. That pairing is the **tripwire**; count it separately,
 never fold it into a generic fail.
 

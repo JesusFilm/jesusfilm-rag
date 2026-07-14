@@ -123,7 +123,7 @@ relevance and biblical soundness are ORTHOGONAL and must never be blended into o
 
 **73 of 151 proposed credits were biblically SOUND but OFF-QUESTION** — orthodox,
 well-written documents answering a question nobody asked. A soundness-only rubric would
-have auto-accepted every one of them (mean soundness 0.87) straight into the answer keys
+have auto-accepted every one of them (mean soundness 0.89) straight into the answer keys
 and quietly corrupted the eval. That pairing — *high soundness, low relevance* — is the
 tripwire the panel exists to catch; report it as its own count, never folded into a
 generic fail.

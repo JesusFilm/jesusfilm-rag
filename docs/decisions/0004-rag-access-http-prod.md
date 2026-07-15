@@ -22,7 +22,7 @@ database?
 production deployment** — for both consumers and for RAG Engine Devs doing
 development/integration. Production is the only deployed environment today, and
 that is acceptable because the `/v1` boundary is **read-only over public
-content** (no write surface — see `AGENT.md`): a leaked or misused bearer token
+content** (no write surface — see `AGENTS.md`): a leaked or misused bearer token
 can only run searches, never mutate or drop anything.
 
 - **Consumers** authenticate with a **scoped, read-only, revocable** bearer

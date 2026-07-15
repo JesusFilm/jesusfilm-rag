@@ -16,6 +16,8 @@ import type {
   Embedder,
   Fetcher,
   FetchStateStore,
+  LanguageDetector,
+  LlmReviewer,
   RawDocumentReader,
   RawDocumentStore,
   Retriever,
@@ -28,7 +30,11 @@ import {
   PostgresRawDocumentStore,
 } from "@/adapters/postgres/index.js";
 import { HttpFetcher } from "@/adapters/http-fetch/index.js";
-import { OpenRouterEmbedder } from "@/adapters/openrouter/index.js";
+import {
+  OpenRouterEmbedder,
+  OpenRouterLanguageDetector,
+  OpenRouterReviewer,
+} from "@/adapters/openrouter/index.js";
 import { createRetriever } from "@/retrieval/index.js";
 import { closeDb, getDb } from "@/db/index.js";
 import { getEnv } from "@/env.js";
@@ -42,6 +48,8 @@ export interface Wiring {
   rawDocumentReader: RawDocumentReader;
   fetcher: Fetcher;
   embedder: Embedder;
+  languageDetector: LanguageDetector;
+  llmReviewer: LlmReviewer;
   retriever: Retriever;
   shutdown(): Promise<void>;
 }
@@ -65,6 +73,36 @@ export function wire(): Wiring {
       );
     },
   });
+  const onLangRetry = ({
+    attempt,
+    maxAttempts,
+    delayMs,
+    error,
+  }: {
+    attempt: number;
+    maxAttempts: number;
+    delayMs: number;
+    error: unknown;
+  }) => {
+    const reason = error instanceof Error ? error.name : "error";
+    console.warn(
+      `  ⟳ detect attempt ${attempt}/${maxAttempts} failed (${reason}); retrying in ${delayMs}ms`,
+    );
+  };
+  const languageDetector = new OpenRouterLanguageDetector({
+    apiKey: env.OPENROUTER_API_KEY,
+    model: env.LANG_DETECT_MODEL_ID,
+    baseUrl: env.LANG_DETECT_BASE_URL,
+    maxAttempts: env.LANG_DETECT_MAX_ATTEMPTS,
+    onRetry: onLangRetry,
+  });
+  const llmReviewer = new OpenRouterReviewer({
+    apiKey: env.OPENROUTER_API_KEY,
+    model: env.LANG_DETECT_MODEL_ID,
+    baseUrl: env.LANG_DETECT_BASE_URL,
+    maxAttempts: env.LANG_DETECT_MAX_ATTEMPTS,
+    onRetry: onLangRetry,
+  });
   return {
     corpusWriteStore: new PostgresCorpusWriteStore(db),
     corpusSearchStore,
@@ -73,6 +111,8 @@ export function wire(): Wiring {
     rawDocumentReader: new PostgresRawDocumentReader(db),
     fetcher: new HttpFetcher(),
     embedder,
+    languageDetector,
+    llmReviewer,
     retriever: createRetriever({ embedder, search: corpusSearchStore }),
     shutdown: () => closeDb(),
   };

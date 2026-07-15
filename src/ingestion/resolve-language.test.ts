@@ -2,12 +2,14 @@ import { describe, it, expect } from "vitest";
 import {
   resolveFromSignals,
   resolveLanguage,
+  resolveFromLlm,
   decideSweep,
   isFallback,
   type ResolveSignals,
   type LanguageResolution,
 } from "./resolve-language.js";
 import { DETECTION_FLOOR_CHARS } from "./decide-language.js";
+import type { DetectedLanguage } from "@/contracts/index.js";
 
 /** A signal bundle with sensible defaults; override per case. */
 function signals(over: Partial<ResolveSignals> = {}): ResolveSignals {
@@ -251,5 +253,77 @@ describe("resolveLanguage — integration over the real detector", () => {
     });
     expect(r.language).toBe("en");
     expect(r.basis).toBe("declared-monolingual");
+  });
+});
+
+describe("resolveFromLlm — the LLM detector path (#84, no length floor)", () => {
+  const det = (over: Partial<DetectedLanguage> = {}): DetectedLanguage => ({
+    language: "en",
+    confidence: 0.99,
+    evidence: "",
+    ...over,
+  });
+
+  it("trusts a confident verdict verbatim, carrying the evidence quote", () => {
+    const r = resolveFromLlm(
+      det({ language: "fr", confidence: 0.97, evidence: "dire la vérité" }),
+      { declared: ["en", "fr"] },
+    );
+    expect(r).toMatchObject({
+      language: "fr",
+      basis: "detected",
+      detected: "fr",
+      evidence: "dire la vérité",
+    });
+    expect(r.warning).toBeUndefined(); // fr is inside [en, fr]
+  });
+
+  it("relabels a SHORT foreign page regardless of length — the whole point of #84", () => {
+    // A 30-char French page that tinyld's 500-char floor would leave null/`en`.
+    const res = resolveFromLlm(det({ language: "fr", confidence: 0.9 }), {
+      declared: ["en", "fr"],
+    });
+    // Authoritative → decideSweep relabels the stored `en`, even this short.
+    const sweep = decideSweep("en", res);
+    expect(sweep).toMatchObject({ final: "fr", changed: true, reason: "relabel" });
+  });
+
+  it("warns when a confident verdict is outside the declared set (content wins)", () => {
+    const r = resolveFromLlm(det({ language: "es", confidence: 0.95 }), {
+      declared: ["en"],
+    });
+    expect(r.language).toBe("es"); // stored anyway — content wins
+    expect(r.basis).toBe("detected");
+    expect(r.warning).toMatch(/outside the declared set/);
+  });
+
+  it("leaves null when the model abstains, and never blanks an existing label", () => {
+    const res = resolveFromLlm(det({ language: null, confidence: 0, evidence: "" }), {
+      declared: ["en", "es", "fr"],
+    });
+    expect(res).toMatchObject({ language: null, basis: "unresolved-null" });
+    // A weak/abstain signal must keep an existing label, not overwrite it with null.
+    expect(decideSweep("en", res)).toMatchObject({
+      final: "en",
+      changed: false,
+      reason: "kept",
+    });
+    // …and it fills a genuinely-null row's decision path as still-null.
+    expect(decideSweep(null, res)).toMatchObject({
+      final: null,
+      changed: false,
+      reason: "still-null",
+    });
+  });
+
+  it("fills a null row from a confident verdict", () => {
+    const res = resolveFromLlm(det({ language: "es", confidence: 0.92 }), {
+      declared: ["en", "es"],
+    });
+    expect(decideSweep(null, res)).toMatchObject({
+      final: "es",
+      changed: true,
+      reason: "filled",
+    });
   });
 });

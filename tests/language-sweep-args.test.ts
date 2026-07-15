@@ -13,6 +13,9 @@ describe("parseArgs — the sweep CLI contract", () => {
       sampleLimit: 15,
       outDir: null, // resolved at run time: --out-dir > env > <cwd>/reports
       verifyLog: false,
+      concurrency: 3, // default parallel detector calls
+      maxDetectChars: 8000, // default content window sent to the LLM
+      llmReview: false, // opt-in
     });
   });
 
@@ -24,6 +27,18 @@ describe("parseArgs — the sweep CLI contract", () => {
     expect(a).toMatchObject({
       kind: "sweep", sources: "all", mode: "blanks", apply: true,
       limit: 50, verifyLog: true, outDir: "/tmp/x",
+    });
+  });
+
+  it("parses the LLM flags: --concurrency, --max-detect-chars, --llm-review", () => {
+    expect(
+      parseArgs([
+        "--source", "cru", "--concurrency", "5",
+        "--max-detect-chars", "4000", "--llm-review",
+      ]),
+    ).toMatchObject({
+      kind: "sweep", sources: "cru", concurrency: 5,
+      maxDetectChars: 4000, llmReview: true,
     });
   });
 
@@ -54,6 +69,10 @@ describe("parseArgs — the sweep CLI contract", () => {
       ["negative limit", ["--source", "x", "--limit", "-3"]],
       ["non-numeric limit", ["--source", "x", "--limit", "abc"]],
       ["zero limit", ["--source", "x", "--limit", "0"]],
+      ["zero concurrency", ["--source", "x", "--concurrency", "0"]],
+      ["bad max-detect-chars", ["--source", "x", "--max-detect-chars", "-1"]],
+      ["revert + llm-review", ["--revert", "l.jsonl", "--llm-review"]],
+      ["revert + concurrency", ["--revert", "l.jsonl", "--concurrency", "3"]],
       ["revert + source", ["--revert", "l.jsonl", "--source", "x"]],
       ["revert + all", ["--revert", "l.jsonl", "--all"]],
       ["revert + mode", ["--revert", "l.jsonl", "--mode", "blanks"]],

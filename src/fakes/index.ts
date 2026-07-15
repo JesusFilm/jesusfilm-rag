@@ -4,6 +4,11 @@
  * that can't be tested on fakes is already coupled.
  */
 export { FakeEmbedder, type FakeEmbedderOptions } from "./embedder.js";
+export {
+  FakeLanguageDetector,
+  FakeLlmReviewer,
+  type FakeLanguageDetectorOptions,
+} from "./language-detector.js";
 export { FakeFetcher } from "./fetcher.js";
 export { FakeFetchStateStore } from "./fetch-state-store.js";
 export { FakeRawDocumentStore } from "./raw-document-store.js";

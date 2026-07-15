@@ -20,8 +20,11 @@
  *     (by index), and a single serialized append-writer owns each log file so the
  *     workers never interleave partial lines.
  *   • safe & revertible — dry-run by default; `--apply` writes each source in ONE
- *     transaction behind an optimistic guard, and appends a change log that
- *     `--revert <log>` replays.
+ *     transaction behind an optimistic guard. The change log — the `--revert`
+ *     source — records only the updates that actually COMMITTED (written right
+ *     after each source's transaction), so a guarded revert can never restore a
+ *     row the sweep did not itself change. In dry-run the change log is the
+ *     preview of what `--apply` would write.
  *   • self-proving on coverage — reports scanned vs. in-scope; `--verify-log`
  *     writes a per-document ledger.
  *
@@ -174,7 +177,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
 
 // ── per-document classification ──────────────────────────────────────────────
 
-const ISO_CODE = /^[a-z]{2,3}$/;
+const ISO_CODE = /^[a-z]{2}$/; // ISO 639-1 (2-letter) — the documents.language contract
 
 interface DocRow {
   id: string;
@@ -262,16 +265,16 @@ function snippetOf(content: string, n: number): string {
     .trim();
 }
 
-/** Re-derive labels for one source via the LLM detector. Streams each document's
- *  changelog/CSV lines through the serialized appenders as it completes (live +
- *  crash-safe: a source's changelog is fully flushed before it is applied). PURE
- *  of DB writes — computes the proposed changes only. */
+/** Re-derive labels for one source via the LLM detector. Streams each scanned
+ *  document's CSV row through the serialized appender as it completes (live audit
+ *  of every doc). PURE of DB writes — computes the proposed changes only; the
+ *  change log (revert source) is written by the caller AFTER the source's updates
+ *  commit, so it records only rows the sweep actually changed. */
 async function analyzeSource(
   entry: SourceEntry,
   args: SweepArgs,
   deps: SweepDeps,
-  ts: string,
-  writers: { changelog: SerialAppender; csv: SerialAppender },
+  csvWriter: SerialAppender,
 ): Promise<SourceReport> {
   const { client } = deps;
   const declared = entry.languages;
@@ -310,13 +313,10 @@ async function analyzeSource(
         ${args.limit ? client`limit ${args.limit}` : client``}`;
 
   // Detect every document through the concurrency pool. Each worker streams its
-  // own changelog/CSV lines via the serialized appenders as it finishes.
+  // own CSV row via the serialized appender as it finishes (live per-doc audit).
   const results = await mapPool(rows, args.concurrency, async (row): Promise<DocResult> => {
     const result = await classifyDoc(row, args, deps, declared);
-    await writers.csv.append(csvLine(entry.key, result) + "\n");
-    if (result.changed && !result.anomaly) {
-      await writers.changelog.append(changelogLine(entry.key, result, ts) + "\n");
-    }
+    await csvWriter.append(csvLine(entry.key, result) + "\n");
     return result;
   });
 
@@ -473,7 +473,9 @@ const csvEsc = (v: string) => {
   return `"${safe.replace(/"/g, '""')}"`;
 };
 
-/** One JSONL change-log line for a changed document (the revert source). */
+/** One JSONL change-log line. In `--apply` runs the caller emits these only for
+ *  rows that actually COMMITTED (the revert source); in dry-run, for the proposed
+ *  changes (a preview). */
 function changelogLine(sourceKey: string, r: DocResult, ts: string): string {
   return JSON.stringify({
     ts,
@@ -490,16 +492,19 @@ function changelogLine(sourceKey: string, r: DocResult, ts: string): string {
   });
 }
 
-/** One CSV row for a scanned document (every doc, not just the changes). */
+/** One CSV row for a scanned document (every doc, not just the changes). Every
+ *  textual field is escaped — `detected` in particular is provider-derived, so it
+ *  is neutralised against CSV formula-injection even though the ISO guard should
+ *  already constrain it; only the numeric/boolean columns are emitted raw. */
 function csvLine(sourceKey: string, r: DocResult): string {
   return [
-    sourceKey,
+    csvEsc(sourceKey),
     csvEsc(r.url),
-    r.old ?? "",
-    r.new ?? "",
-    r.reason,
-    r.res.basis,
-    r.res.detected,
+    csvEsc(r.old ?? ""),
+    csvEsc(r.new ?? ""),
+    csvEsc(r.reason),
+    csvEsc(r.res.basis),
+    csvEsc(r.res.detected),
     r.res.confidence.toFixed(3),
     String(r.contentLen),
     r.changed ? "1" : "0",
@@ -719,47 +724,64 @@ function buildReport(
 
 const REVIEW_INSTRUCTION =
   "You are auditing an automated language-relabelling run for another engineer. " +
-  "You are given a compact summary of proposed changes to a document's stored " +
-  "`language` column, each with the detector's new language, its confidence, and " +
-  "a short EVIDENCE quote from the document. Flag ONLY changes that look wrong or " +
-  "suspicious — e.g. an EVIDENCE quote whose actual language does not match the " +
-  "proposed code, or a language implausible for the source. Be concise: a few " +
-  "bullet points naming the suspicious rows (by url), then a final verdict line " +
-  "`VERDICT: PASS` (nothing suspicious) or `VERDICT: NEEDS-REVIEW` (list them). " +
-  "Low jargon; this is read by a busy human and by an agent.";
+  "Each row is `old → new @confidence | evidence | url`; the PROPOSED label is " +
+  "`new` — the code AFTER the arrow — and `evidence` is a short quote from the " +
+  "document. Flag ONLY rows where the PROPOSED (`new`) code disagrees with the " +
+  "language of the evidence quote, or is implausible for the source. Be concise: a " +
+  "few bullet points naming the suspicious rows (by url), then a final line that is " +
+  "exactly `VERDICT: PASS` (nothing suspicious) or `VERDICT: NEEDS-REVIEW`. Low " +
+  "jargon; this is read by a busy human and by an agent.";
 
-/** A compact, agent-readable digest of the run for the reviewer to audit. */
-function buildReviewInput(reports: SourceReport[]): string {
+/** Cap on rows sent to the reviewer, so the prompt stays bounded on a huge sweep. */
+const REVIEW_MAX_ROWS = 400;
+
+function reviewRow(r: DocResult): string {
+  const url = r.url.replace(/^https?:\/\//, "");
+  return (
+    `- ${r.old ?? "∅"} → ${r.new} @${r.res.confidence.toFixed(2)} | ` +
+    `${(r.res.evidence || r.snippet).slice(0, 140)} | ${url}`
+  );
+}
+
+/**
+ * A compact, agent-readable digest of the run for the reviewer to audit. Returns
+ * the prompt AND the number of changes actually included (`audited`) so the caller
+ * never over-claims coverage: relabels (the riskiest — an existing label changed)
+ * are audited first, fills take the remaining budget, and anything past the cap is
+ * explicitly reported as not-shown.
+ */
+function buildReviewInput(reports: SourceReport[]): { input: string; audited: number } {
   const all = reports.flatMap((r) => r.results);
   const relabels = all.filter((r) => r.reason === "relabel");
   const fills = all.filter((r) => r.reason === "filled");
   const nulls = all.filter((r) => r.new === null);
+  const total = relabels.length + fills.length;
+
+  const shownRelabels = relabels.slice(0, REVIEW_MAX_ROWS);
+  const fillBudget = Math.max(0, REVIEW_MAX_ROWS - shownRelabels.length);
+  const shownFills = fills.slice(0, fillBudget);
+  const audited = shownRelabels.length + shownFills.length;
+
   const L: string[] = [];
   L.push(
     `Run summary: ${relabels.length} relabelled, ${fills.length} filled from null, ` +
-      `${nulls.length} left null, across ${reports.length} source(s).`,
+      `${nulls.length} left null, across ${reports.length} source(s). ` +
+      `Auditing ${audited} of ${total} change(s) below` +
+      (audited < total ? " (relabels prioritised; the rest are in the CSV)." : "."),
   );
   L.push("");
   L.push(`RELABELS (old → new @confidence | evidence | url):`);
-  for (const r of relabels.slice(0, 60)) {
-    const url = r.url.replace(/^https?:\/\//, "");
-    L.push(
-      `- ${r.old ?? "∅"} → ${r.new} @${r.res.confidence.toFixed(2)} | ` +
-        `${(r.res.evidence || r.snippet).slice(0, 140)} | ${url}`,
-    );
+  shownRelabels.forEach((r) => L.push(reviewRow(r)));
+  if (relabels.length > shownRelabels.length) {
+    L.push(`  …and ${relabels.length - shownRelabels.length} more relabels (not shown).`);
   }
-  if (relabels.length > 60) L.push(`  …and ${relabels.length - 60} more relabels.`);
   L.push("");
   L.push(`FILLS (null → new @confidence | evidence | url):`);
-  for (const r of fills.slice(0, 30)) {
-    const url = r.url.replace(/^https?:\/\//, "");
-    L.push(
-      `- ∅ → ${r.new} @${r.res.confidence.toFixed(2)} | ` +
-        `${(r.res.evidence || r.snippet).slice(0, 140)} | ${url}`,
-    );
+  shownFills.forEach((r) => L.push(reviewRow(r)));
+  if (fills.length > shownFills.length) {
+    L.push(`  …and ${fills.length - shownFills.length} more fills (not shown).`);
   }
-  if (fills.length > 30) L.push(`  …and ${fills.length - 30} more fills.`);
-  return L.join("\n");
+  return { input: L.join("\n"), audited };
 }
 
 // ── revert (I/O) ─────────────────────────────────────────────────────────────
@@ -840,26 +862,46 @@ export async function runSweep(parsed: SweepArgs, deps: SweepDeps): Promise<void
       : null,
   };
 
-  // Seed the files, then stream per-document rows into them as workers finish.
+  // Seed the files, then stream per-document CSV rows in as workers finish. The
+  // CSV is the full per-doc audit; the changelog (revert source) is written per
+  // source, AFTER that source's updates commit, so it lists only committed rows.
   await writeFile(files.changelog, "", "utf8");
   await writeFile(files.csv, CSV_HEADER + "\n", "utf8");
-  const writers = {
-    changelog: new SerialAppender(files.changelog),
-    csv: new SerialAppender(files.csv),
-  };
+  const csvWriter = new SerialAppender(files.csv);
 
   const reports: SourceReport[] = [];
   let changelogCount = 0;
   for (const entry of entries) {
     process.stdout.write(`sweeping ${entry.key} … `);
-    const rep = await analyzeSource(entry, parsed, deps, ts, writers);
-    // All of this source's lines are flushed (each append awaited) before apply.
-    await Promise.all([writers.changelog.drain(), writers.csv.drain()]);
+    const rep = await analyzeSource(entry, parsed, deps, csvWriter);
+    await csvWriter.drain(); // all of this source's CSV rows flushed
 
-    const clCount = rep.results.filter((r) => r.changed && !r.anomaly).length;
-    changelogCount += clCount;
-
-    if (parsed.apply) await applySource(rep, deps);
+    if (parsed.apply) {
+      await applySource(rep, deps); // sets r.applied on each committed row
+      // Revert source = COMMITTED rows only. A row the guard skipped (it moved
+      // under us) is NOT logged, so a later `--revert` can never restore a value
+      // the sweep did not itself write. Written right after the commit.
+      const committed = rep.results.filter((r) => r.applied);
+      if (committed.length) {
+        await appendFile(
+          files.changelog,
+          committed.map((r) => changelogLine(entry.key, r, ts)).join("\n") + "\n",
+          "utf8",
+        );
+      }
+      changelogCount += committed.length;
+    } else {
+      // Dry-run: the changelog is the PREVIEW of what `--apply` would write.
+      const proposed = rep.results.filter((r) => r.changed && !r.anomaly);
+      if (proposed.length) {
+        await appendFile(
+          files.changelog,
+          proposed.map((r) => changelogLine(entry.key, r, ts)).join("\n") + "\n",
+          "utf8",
+        );
+      }
+      changelogCount += proposed.length;
+    }
 
     const ch = rep.results.filter((r) => r.changed).length;
     console.log(
@@ -888,20 +930,26 @@ export async function runSweep(parsed: SweepArgs, deps: SweepDeps): Promise<void
       } else {
         try {
           process.stdout.write("llm-review: auditing proposed changes … ");
-          const verdict = await deps.reviewer.review(
-            REVIEW_INSTRUCTION,
-            buildReviewInput(reports),
-          );
+          const { input, audited } = buildReviewInput(reports);
+          const verdict = await deps.reviewer.review(REVIEW_INSTRUCTION, input);
           reviewFile = path.join(outDir, `review-${scope}-${ts}.md`);
+          const coverage =
+            audited < changed.length
+              ? `${audited} of ${changed.length} change(s) audited (sampled — see the CSV for the full set)`
+              : `${changed.length} change(s) audited`;
           await writeFile(
             reviewFile,
             `# Language sweep — LLM review\n\n` +
-              `_Model: \`${deps.reviewer.model}\` · ${ts} · ${changed.length} change(s) audited._\n\n` +
+              `_Model: \`${deps.reviewer.model}\` · ${ts} · ${coverage}._\n\n` +
               verdict + "\n",
             "utf8",
           );
-          const pass = /VERDICT:\s*PASS/i.test(verdict);
-          console.log(pass ? "PASS" : "NEEDS-REVIEW (see file)");
+          // Judge the FINAL verdict line only — a body that mentions both strings
+          // (e.g. "not PASS but NEEDS-REVIEW") must not read as PASS.
+          const finalVerdict = [
+            ...verdict.matchAll(/^VERDICT:\s*(PASS|NEEDS-REVIEW)\s*$/gim),
+          ].at(-1)?.[1]?.toUpperCase();
+          console.log(finalVerdict === "PASS" ? "PASS" : "NEEDS-REVIEW (see file)");
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           console.warn(`\n⚠️ llm-review failed (${msg.slice(0, 120)}) — logs are unaffected.`);

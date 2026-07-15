@@ -33,8 +33,9 @@ const DEFAULT_RETRY_BASE_DELAY_MS = 500; // 500ms → 1s → 2s → 4s → 8s �
 const RETRY_MAX_DELAY_MS = 8_000; // ceiling so a high maxAttempts can't wait minutes.
 const DEFAULT_MAX_OUTPUT_TOKENS = 200; // a code + confidence + short quote is tiny.
 
-/** A valid ISO 639-1/639-3-shaped code (matches `documents.language`). */
-const ISO_CODE = /^[a-z]{2,3}$/;
+/** A valid ISO 639-1 code (two lowercase letters) — the `documents.language`
+ *  contract. A three-letter 639-3 code (`eng`) is deliberately NOT accepted. */
+const ISO_CODE = /^[a-z]{2}$/;
 
 const SYSTEM_PROMPT =
   "You are a precise language identifier. Identify the single DOMINANT natural " +
@@ -160,12 +161,29 @@ export function parseDetection(content: string): DetectedLanguage {
     }
   }
 
+  // Confidence is a trust signal for a WRITE, so it must be well-formed when the
+  // model commits to a language: a response that can't format a number in [0,1]
+  // is malformed and is rejected (a hard, non-retryable failure → the sweep logs
+  // the doc as an anomaly and leaves it untouched, never applying a bogus verdict).
+  // An abstain (`language === null`) carries confidence 0 by definition.
   const rawConf = rec.confidence;
-  let confidence = typeof rawConf === "number" && Number.isFinite(rawConf) ? rawConf : 0;
-  if (confidence < 0) confidence = 0;
-  if (confidence > 1) confidence = 1;
-  if (language === null) confidence = 0;
+  if (language !== null) {
+    if (
+      typeof rawConf !== "number" ||
+      !Number.isFinite(rawConf) ||
+      rawConf < 0 ||
+      rawConf > 1
+    ) {
+      throw new Error(
+        `OpenRouter language detection: language '${language}' with malformed ` +
+          `confidence ${JSON.stringify(rawConf)} (expected a number in [0, 1])`,
+      );
+    }
+  }
+  const confidence = language === null ? 0 : (rawConf as number);
 
+  // Evidence is display-only (report + review), never part of the write decision,
+  // so a missing quote is tolerated rather than failing an otherwise-valid verdict.
   const evidence = typeof rec.evidence === "string" ? rec.evidence.slice(0, 240) : "";
 
   return { language, confidence, evidence };

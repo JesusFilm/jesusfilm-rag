@@ -33,17 +33,25 @@ describe("parseDetection — strict on structure, lenient on the language value"
     expect(r).toMatchObject({ language: "es", confidence: 0.8 });
   });
 
-  it("normalises a non-ISO / unknown language to an honest abstain", () => {
-    for (const lang of ["unknown", "und", "english", "zz9"]) {
+  it("normalises a non-ISO / 639-3 / unknown language to an honest abstain", () => {
+    // "eng" (639-3) and "english" are rejected — only 2-letter 639-1 is accepted.
+    for (const lang of ["unknown", "und", "english", "eng", "zz9"]) {
       const r = parseDetection(`{"language":"${lang}","confidence":0.9,"evidence":"x"}`);
       expect(r.language).toBeNull();
       expect(r.confidence).toBe(0); // abstain ⇒ zeroed confidence
     }
   });
 
-  it("clamps confidence into [0,1]", () => {
-    expect(parseDetection('{"language":"en","confidence":5}').confidence).toBe(1);
-    expect(parseDetection('{"language":"en","confidence":-2}').confidence).toBe(0);
+  it("rejects a committed language with a malformed / out-of-range confidence", () => {
+    // A verdict that names a language must carry a well-formed confidence in [0,1];
+    // anything else is a malformed response (rejected, not silently clamped).
+    for (const conf of ["5", "-2", '"high"', "null"]) {
+      expect(() =>
+        parseDetection(`{"language":"en","confidence":${conf},"evidence":"x"}`),
+      ).toThrow(/malformed\s+confidence/);
+    }
+    // A valid boundary confidence is accepted.
+    expect(parseDetection('{"language":"en","confidence":1,"evidence":"x"}').confidence).toBe(1);
   });
 
   it("throws on a non-JSON body (a hard, non-retryable failure)", () => {
@@ -88,7 +96,9 @@ describe("OpenRouterLanguageDetector.detect", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(chatResponse("rate limited", 429))
-      .mockResolvedValueOnce(chatResponse('{"language":"en","confidence":0.9}'));
+      .mockResolvedValueOnce(
+        chatResponse('{"language":"en","confidence":0.9,"evidence":"Hello world"}'),
+      );
     vi.stubGlobal("fetch", fetchMock);
 
     const r = await make().detect("Hello world, this is English.", { declared: ["en"] });

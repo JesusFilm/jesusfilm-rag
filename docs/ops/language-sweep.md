@@ -53,9 +53,11 @@ cost checkpoint — a full-corpus run is cents to a few dollars at the default m
   the workers never interleave partial lines. A per-document detector failure (after
   retries) is a logged **anomaly** — that row is left untouched, never a crashed run.
 - **Safe & revertible.** `--apply` writes each source in one transaction behind an
-  optimistic guard. The change log is streamed **per document, before its source
-  commits**, so a crash mid-`--all` still leaves a guarded, revertible log.
-  `--revert` replays it; the guard makes a second revert a no-op.
+  optimistic guard. The change log — the `--revert` source — records only the rows
+  that actually **committed** (written right after each source's transaction), so a
+  guarded revert can never restore a value the sweep did not itself write. `--revert`
+  replays it; the guard makes a second revert a no-op. (In dry-run the change log is
+  the preview of what `--apply` would write.)
 
 ## Modes & options
 

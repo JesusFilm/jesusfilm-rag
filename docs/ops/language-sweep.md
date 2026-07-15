@@ -60,9 +60,10 @@ Dry-run is the default: nothing is written until you add `--apply`.
 
 ## Where the logs go
 
-Each run writes four local files — a human `report-*.md`, the full `changes-*.csv`,
-the `changelog-*.jsonl` (the revert source), and (with `--verify-log`) a
-`verify-*.jsonl` coverage ledger. **These are local run logs, not committed
+Each run writes four local files — a human `report-*.md`, a `results-*.csv` with
+**every scanned document** (filter `changed=1` for just the corrections), the
+`changelog-*.jsonl` of changes only (the revert source), and (with `--verify-log`)
+a `verify-*.jsonl` coverage ledger. **These are local run logs, not committed
 artifacts.** The output directory is resolved in this order:
 
 1. the `--out-dir <dir>` flag, if given;

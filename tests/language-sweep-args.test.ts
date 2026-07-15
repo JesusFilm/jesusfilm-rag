@@ -38,6 +38,12 @@ describe("parseArgs — the sweep CLI contract", () => {
     });
   });
 
+  it("parses a bare (dry-run) revert command", () => {
+    expect(parseArgs(["--revert", "log.jsonl"])).toEqual({
+      kind: "revert", changelog: "log.jsonl", apply: false,
+    });
+  });
+
   describe("rejects invalid combinations", () => {
     const cases: Array<[string, string[]]> = [
       ["unknown flag", ["--source", "x", "--bogus"]],
@@ -50,6 +56,10 @@ describe("parseArgs — the sweep CLI contract", () => {
       ["zero limit", ["--source", "x", "--limit", "0"]],
       ["revert + source", ["--revert", "l.jsonl", "--source", "x"]],
       ["revert + all", ["--revert", "l.jsonl", "--all"]],
+      ["revert + mode", ["--revert", "l.jsonl", "--mode", "blanks"]],
+      ["revert + limit", ["--revert", "l.jsonl", "--limit", "5"]],
+      ["revert + verify-log", ["--revert", "l.jsonl", "--verify-log"]],
+      ["revert + out-dir", ["--revert", "l.jsonl", "--out-dir", "/tmp/x"]],
       ["flag value that looks like a flag", ["--source", "--all"]],
     ];
     for (const [name, argv] of cases) {

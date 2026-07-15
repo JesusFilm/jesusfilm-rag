@@ -122,10 +122,15 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     }
   }
 
-  // Revert is its own command; it ignores sweep flags.
+  // Revert is its own command: it accepts ONLY --revert and an optional --apply.
+  // Any sweep-only option (--source/--all/--mode/--limit/--out-dir/--verify-log …)
+  // would be silently ignored otherwise, hiding an operator typo — so reject it.
   if (opts["--revert"] !== undefined) {
-    if (flags.has("--all") || opts["--source"] !== undefined) {
-      throw new Error("--revert cannot be combined with --source/--all");
+    const stray =
+      Object.keys(opts).find((k) => k !== "--revert") ??
+      [...flags].find((f) => f !== "--apply");
+    if (stray) {
+      throw new Error(`--revert takes only an optional --apply; remove ${stray}`);
     }
     return {
       kind: "revert",
@@ -387,8 +392,16 @@ function countBy<T, K extends string>(items: T[], key: (t: T) => K): Record<K, n
   return out;
 }
 
-const CSV_HEADER = "source,url,old,new,reason,basis,detected,confidence,content_len,snippet";
-const csvEsc = (v: string) => `"${v.replace(/"/g, '""')}"`;
+const CSV_HEADER =
+  "source,url,old,new,reason,basis,detected,confidence,content_len,changed,anomaly,snippet";
+/** Quote a CSV field, neutralising spreadsheet formula injection. `url`/`snippet`
+ *  carry remotely-acquired text; a cell beginning with = + - @ (or a leading tab/CR)
+ *  can execute as a formula when opened in Excel/Sheets, so prefix a single quote
+ *  before quoting. The other columns are constrained codes/enums that can't. */
+const csvEsc = (v: string) => {
+  const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
 
 /** JSONL change-log lines for ONE source's proposed changes — the revert source.
  *  Written per-source BEFORE that source is applied, so a crash mid-`--all`
@@ -414,24 +427,28 @@ function changelogLines(rep: SourceReport, ts: string): string[] {
     );
 }
 
-/** CSV rows for ONE source's changes (no header). */
+/** CSV rows for ONE source (no header) — EVERY scanned document, not just the
+ *  changes, so the report's "see the CSV" pointers for the review/null/anomaly
+ *  tables are truthful and nothing (e.g. a missing-raw doc that still has a label)
+ *  silently vanishes from the audit. Filter `changed=1` for just the corrections;
+ *  the revert source stays the changes-only changelog. */
 function csvLines(rep: SourceReport): string[] {
-  return rep.results
-    .filter((r) => r.changed && !r.anomaly)
-    .map((r) =>
-      [
-        rep.key,
-        csvEsc(r.url),
-        r.old ?? "",
-        r.new ?? "",
-        r.reason,
-        r.res.basis,
-        r.res.detected,
-        r.res.confidence.toFixed(3),
-        String(r.contentLen),
-        csvEsc(r.snippet),
-      ].join(","),
-    );
+  return rep.results.map((r) =>
+    [
+      rep.key,
+      csvEsc(r.url),
+      r.old ?? "",
+      r.new ?? "",
+      r.reason,
+      r.res.basis,
+      r.res.detected,
+      r.res.confidence.toFixed(3),
+      String(r.contentLen),
+      r.changed ? "1" : "0",
+      csvEsc(r.anomaly ?? ""),
+      csvEsc(r.snippet),
+    ].join(","),
+  );
 }
 
 /** Per-document iteration ledger — proves every scanned doc was re-derived. */
@@ -479,6 +496,11 @@ function buildReport(
   const relabels = all.filter((r) => r.reason === "relabel");
   const fills = all.filter((r) => r.reason === "filled");
   const nulls = all.filter((r) => r.new === null); // still-null + missing-raw
+  // Anomalies left unchanged: no raw snapshot, or an invalid proposed code. These
+  // are surfaced as their OWN section — a missing-raw doc that still carries a
+  // label is neither a null nor a normal review row, so without this it would show
+  // only as a count and disappear from the human findings.
+  const anomalies = all.filter((r) => r.anomaly);
   // Eyeball list: fills that used a weak fallback, plus kept-but-disagreeing docs.
   const review = all.filter(
     (r) => r.review && r.reason !== "still-null" && !r.anomaly,
@@ -595,7 +617,7 @@ function buildReport(
     L.push(
       `Every in-scope document was visited, but ⚠️ **${totalMissingRaw}** had no raw ` +
         `snapshot to re-derive from and were left untouched (a data gap, not a limit — ` +
-        `listed in the null section below).`,
+        `listed under *Left unchanged* below).`,
     );
   } else {
     L.push(
@@ -608,6 +630,21 @@ function buildReport(
     L.push(`Full per-document iteration ledger: \`${files.verifyLog}\`.`);
   }
   L.push("");
+
+  // Anomalies — docs the sweep deliberately left alone (no raw snapshot, or an
+  // invalid proposed code). Listed even when they still carry a label, so they are
+  // never invisible in the human findings (they also all appear in the CSV).
+  if (anomalies.length > 0) {
+    L.push(`## ⚠️ Left unchanged — needs a human`);
+    L.push("");
+    L.push(
+      `**${anomalies.length}** document(s) were kept exactly as-is because they could not ` +
+        `be re-derived (no raw snapshot) or produced an invalid language code. Their ` +
+        `existing label (shown under *old → new*, unchanged) was never touched:`,
+    );
+    L.push("");
+    L.push(sampleTable(anomalies, args.sampleLimit));
+  }
 
   // THE EXCEPTION — nulls, highlighted at the end as requested.
   L.push(`## ⚠️ Left null — the exception`);
@@ -632,8 +669,11 @@ function buildReport(
   // Revert / full record.
   L.push(`## Revert & full record`);
   L.push("");
-  L.push(`- Full list of every change: \`${files.csv}\``);
-  L.push(`- Machine change log (revert source): \`${files.changelog}\``);
+  L.push(
+    `- Every scanned document — changes, kept, null and gaps (filter \`changed=1\` ` +
+      `for just the corrections): \`${files.csv}\``,
+  );
+  L.push(`- Machine change log, changes only (revert source): \`${files.changelog}\``);
   L.push(
     `- Undo everything this run applied: \`tsx scripts/language-sweep.ts --revert ${files.changelog} --apply\``,
   );
@@ -749,7 +789,7 @@ async function main(): Promise<void> {
     await mkdir(outDir, { recursive: true });
     const files = {
       report: path.join(outDir, `report-${scope}-${ts}.md`),
-      csv: path.join(outDir, `changes-${scope}-${ts}.csv`),
+      csv: path.join(outDir, `results-${scope}-${ts}.csv`),
       changelog: path.join(outDir, `changelog-${scope}-${ts}.jsonl`),
       verifyLog: parsed.verifyLog
         ? path.join(outDir, `verify-${scope}-${ts}.jsonl`)
@@ -793,9 +833,10 @@ async function main(): Promise<void> {
     const report = buildReport(reports, parsed, ts, files);
     await writeFile(files.report, report, "utf8");
 
+    const totalScanned = reports.reduce((a, r) => a + r.scanned, 0);
     console.log(`\nreport:    ${files.report}`);
-    console.log(`changes:   ${files.csv} (${changelogCount} rows)`);
-    console.log(`changelog: ${files.changelog}`);
+    console.log(`results:   ${files.csv} (${totalScanned} scanned, ${changelogCount} changed)`);
+    console.log(`changelog: ${files.changelog} (${changelogCount} rows, revert source)`);
     if (files.verifyLog) console.log(`verify:    ${files.verifyLog}`);
     if (!parsed.apply && changelogCount > 0) {
       console.log(`\ndry-run: re-run with --apply to write these ${changelogCount} change(s).`);

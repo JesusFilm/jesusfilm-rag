@@ -114,6 +114,46 @@ describe("OpenRouterLanguageDetector.detect", () => {
   });
 });
 
+describe("detect — system prompt scores the body, not the chrome (#94 guard)", () => {
+  /** Capture the system message actually sent to the chat endpoint. */
+  async function capturedSystemPrompt(): Promise<string> {
+    const fetchMock = vi.fn().mockResolvedValue(
+      chatResponse('{"language":"en","confidence":0.9,"evidence":"x"}'),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await new OpenRouterLanguageDetector({ apiKey: "test-key" }).detect(
+      "Some English body text long enough to send.",
+      { declared: ["en", "es"] },
+    );
+    const [, init] = fetchMock.mock.calls[0];
+    const body = JSON.parse((init as RequestInit).body as string) as {
+      messages: { role: string; content: string }[];
+    };
+    return body.messages.find((m) => m.role === "system")!.content;
+  }
+
+  it("directs the model at the MAIN BODY and to IGNORE site chrome", async () => {
+    const p = await capturedSystemPrompt();
+    // The core guardrail: judge the body, ignore chrome.
+    expect(p).toMatch(/main (content|body)/i);
+    expect(p).toMatch(/ignore.*chrome/i);
+    // Names the specific boilerplate that fooled the cru sweep (footer/breadcrumb).
+    expect(p).toMatch(/footer/i);
+    expect(p).toMatch(/breadcrumb/i);
+    // Body wins when chrome disagrees, and the evidence quote comes FROM the body.
+    expect(p).toMatch(/\bbody\b[^.]*\bwins\b/i);
+    expect(p).toMatch(/evidence[^.]*from the main body/i);
+  });
+
+  it("no longer rests the verdict on the 'single DOMINANT' framing that fooled it", async () => {
+    const p = await capturedSystemPrompt();
+    // Regression guard: the pre-#94 wording asked for the single dominant language
+    // of the whole document, which let a Spanish footer/breadcrumb relabel an
+    // English article. That framing must not come back.
+    expect(p).not.toMatch(/single DOMINANT natural/i);
+  });
+});
+
 describe("isRetryableLangDetectError", () => {
   it("treats timeouts and network drops as retryable, parse errors as not", () => {
     expect(isRetryableLangDetectError({ name: "AbortError" })).toBe(true);

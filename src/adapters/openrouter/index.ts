@@ -9,3 +9,12 @@ export {
   type OpenRouterEmbedderOptions,
   type EmbedRetryInfo,
 } from "./openrouter-embedder.js";
+export {
+  OpenRouterLanguageDetector,
+  OpenRouterReviewer,
+  isRetryableLangDetectError,
+  parseDetection,
+  type OpenRouterLanguageDetectorOptions,
+  type OpenRouterReviewerOptions,
+  type LangDetectRetryInfo,
+} from "./openrouter-language-detector.js";

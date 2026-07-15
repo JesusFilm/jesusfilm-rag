@@ -27,6 +27,7 @@
     "status:add-lang": "tsx scripts/source-status.ts add-lang",
     "status:check": "tsx scripts/source-status.ts check",
     "lang:sweep": "tsx scripts/language-sweep.ts",
+    "lang:sweep:production": "tsx scripts/language-sweep-production.ts",
     "dashboard:data": "tsx scripts/dashboard-data.ts",
     "dashboard:build": "tsx scripts/dashboard-compile.ts",
     "dashboard:verify": "tsx scripts/dashboard-verify.ts",

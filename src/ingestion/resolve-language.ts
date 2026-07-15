@@ -50,6 +50,7 @@ import { decideLanguage } from "./decide-language.js";
 import type { LanguageDecision } from "./decide-language.js";
 import { detectLanguage } from "./detect-language.js";
 import { DETECTION_FLOOR_CHARS } from "./decide-language.js";
+import type { DetectedLanguage } from "@/contracts/index.js";
 
 /** How a document's resolved label was arrived at (drives report grouping). */
 export type ResolutionBasis =
@@ -73,6 +74,10 @@ export interface LanguageResolution {
   warning?: string;
   /** Plain-language reason for any fallback or null — printed in the report. */
   note?: string;
+  /** A short verbatim quote the verdict rests on — populated by the LLM detector
+   *  (`resolveFromLlm`), motivating the change in the report + agent review.
+   *  Empty for the pure tinyld ladder, which has no per-doc evidence quote. */
+  evidence?: string;
 }
 
 /** True only for a fallback that a human should eyeball (basis 2 & 3). */
@@ -261,4 +266,59 @@ export function resolveLanguage(
     contentLength: content.length,
     declared: opts.declared,
   });
+}
+
+/**
+ * Map an LLM detector verdict (`DetectedLanguage`, from the `LanguageDetector`
+ * port) into the sweep's `LanguageResolution` — the LLM path for #84, replacing
+ * the tinyld ladder in `resolveLanguage`. Pure: takes the already-fetched
+ * detection so every branch is unit-testable without hitting the network.
+ *
+ * The decisive difference from `resolveFromSignals`: **there is NO length floor.**
+ * tinyld needs the 500-char floor because it is confidently wrong on sparse text;
+ * the LLM is accurate on short prose and honestly ABSTAINS (returns `null`) when
+ * it can't tell, so its own abstention is the safety valve the floor used to be.
+ * A non-null verdict is therefore authoritative (`basis: "detected"`) at any
+ * length — this is what lets the sweep relabel a short French page stamped `en`,
+ * exactly the case #73/#84 exist to fix. `decideSweep` still guarantees a weak
+ * signal never blanks a label, so trusting the verdict can only add information.
+ */
+export function resolveFromLlm(
+  det: DetectedLanguage,
+  opts: { declared: readonly string[] },
+): LanguageResolution {
+  // Confident verdict — authoritative regardless of length (the #84 fix).
+  if (det.language !== null) {
+    const outOfSet =
+      opts.declared.length > 0 && !opts.declared.includes(det.language);
+    return {
+      language: det.language,
+      basis: "detected",
+      detected: det.language,
+      confidence: det.confidence,
+      evidence: det.evidence,
+      ...(outOfSet && {
+        warning:
+          `LLM detected '${det.language}' (confidence ${det.confidence.toFixed(2)}) ` +
+          `outside the declared set [${opts.declared.join(", ")}] — content wins; ` +
+          `the registry declaration may be incomplete`,
+      }),
+    };
+  }
+
+  // The model genuinely could not determine a language → the documented
+  // exception, left null (never a guess). `decideSweep` keeps any existing label.
+  return {
+    language: null,
+    basis: "unresolved-null",
+    detected: "",
+    confidence: 0,
+    evidence: det.evidence,
+    note:
+      opts.declared.length === 0
+        ? `the language detector could not determine a language and the source ` +
+          `declares none to fall back to — left null`
+        : `the language detector could not confidently determine a language for a ` +
+          `[${opts.declared.join(", ")}] source — left null for review`,
+  };
 }

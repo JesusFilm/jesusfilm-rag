@@ -104,6 +104,50 @@ export interface Embedder {
   readonly dimensions: number;
 }
 
+/** One document's detected language, from the async `LanguageDetector` port. */
+export interface DetectedLanguage {
+  /** ISO 639-1 code (`en`, `es`, `fr`, `zh`), or null when genuinely undeterminable. */
+  language: string | null;
+  /** Detector confidence in `[0, 1]`; `0` when it abstains. */
+  confidence: number;
+  /** A short quoted snippet the verdict rests on — for the report + human review. */
+  evidence: string;
+}
+
+export interface LanguageDetector {
+  /**
+   * Detect the dominant language of one document's CLEANED text — the LLM
+   * escalation ADR-0006/0007 reserved behind a port for the corrective sweep,
+   * accurate regardless of length (unlike the pure tinyld primitive, which is
+   * confidently wrong on short prose). The pure per-doc detector stays in
+   * `ingestion`; this is the I/O port, constructed only in main.ts.
+   *
+   * `declared` is the source's declared/expected language set — a hint only;
+   * content wins. A hard provider failure THROWS (the sweep marks per-doc and
+   * re-runs to resume); `language: null` is a genuine can't-tell, not an error.
+   */
+  detect(
+    text: string,
+    opts: { declared: readonly string[] },
+  ): Promise<DetectedLanguage>;
+
+  /** The detector's model identifier, for logs/reports (e.g. the OpenRouter slug). */
+  readonly model: string;
+}
+
+export interface LlmReviewer {
+  /**
+   * Free-form LLM pass over an agent-facing summary — used by the language
+   * sweep's optional `--llm-review` to sanity-check the proposed relabels (the
+   * "an agent processes the work with a quick LLM pass" step). `instruction` is
+   * the system prompt; `content` the material to audit; returns the raw text
+   * verdict. Constructed only in main.ts.
+   */
+  review(instruction: string, content: string): Promise<string>;
+  /** The reviewer's model identifier, for the report header. */
+  readonly model: string;
+}
+
 export interface DedupRecord {
   contentHash: string;
   /**

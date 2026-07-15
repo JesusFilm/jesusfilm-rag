@@ -7,6 +7,12 @@ import { z } from "zod";
 // the env default, so EMBED_MODEL_ID can be omitted.
 const DEFAULT_EMBED_MODEL_ID = "qwen/qwen3-embedding-8b";
 
+// Default language-detection model for the corrective sweep (#84) — a cheap,
+// capable chat model reached over OpenRouter. The LanguageDetector adapter owns
+// the canonical client; this is only the env default, so LANG_DETECT_MODEL_ID
+// can be omitted. Swap it (e.g. to a local Ollama model) via the env var.
+const DEFAULT_LANG_DETECT_MODEL_ID = "google/gemini-2.5-flash-lite";
+
 /**
  * Load `.env` from the repo root if present. We deliberately do NOT use
  * dotenv as a dependency — the file format is simple enough and we want zero
@@ -92,6 +98,16 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true" || v === "1"),
+  // Language-detection model for the corrective sweep (LanguageDetector port),
+  // reached over OpenRouter with the same OPENROUTER_API_KEY. Consumed in main.ts.
+  LANG_DETECT_MODEL_ID: z.string().min(1).default(DEFAULT_LANG_DETECT_MODEL_ID),
+  // Chat-completions endpoint base URL for language detection. Defaults to
+  // OpenRouter (the adapter owns the default); point at a self-hosted `/v1`
+  // (e.g. Ollama) to run a local model instead. Consumed by the adapter (main.ts).
+  LANG_DETECT_BASE_URL: z.string().url().optional(),
+  // Per-call detect attempts (initial try + retries) before a document is flagged
+  // as an anomaly; mirrors EMBED_MAX_ATTEMPTS. Default 10 (~47s of backoff).
+  LANG_DETECT_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
   PORT: z.coerce.number().int().positive().default(8080), // Railway injects PORT
   // JSON map of bearer token → allowed source keys (["*"] = all). Parsed by the
   // serving adapter (src/serving/http/auth.ts); required only by `pnpm serve`.

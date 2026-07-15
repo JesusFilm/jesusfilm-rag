@@ -26,9 +26,12 @@ export type NormalizeOutcome =
 /**
  * Collapse intra-line whitespace and blank-line runs while keeping single blank
  * lines as paragraph separators (the chunker splits on `\n\s*\n`). Idempotent on
- * already-tidy extraction output.
+ * already-tidy extraction output. Exported so the #73 language-sweep can
+ * reconstruct the exact cleaned content ingest would produce from a stored
+ * `raw_documents.raw_content` snapshot — the sweep re-derives labels by replaying
+ * this same normalization, never a re-implementation of it.
  */
-function cleanText(raw: string): string {
+export function cleanText(raw: string): string {
   return raw
     .replace(/\r\n?/g, "\n")
     .replace(/[^\S\n]+/g, " ") // collapse spaces/tabs, keep newlines

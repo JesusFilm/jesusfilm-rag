@@ -15,3 +15,9 @@ eval/results-*.md
 # Dashboard: the raw prod read is a regenerable intermediate (run dashboard:data).
 # The curated dashboard/compiled-data.json + dashboard/index.html ARE committed.
 dashboard/prod-status-data.json
+
+# language-sweep generated per-run logs — NEVER committed. Default output dir is
+# <cwd>/reports (override with --out-dir or $LANGUAGE_SWEEP_OUT_DIR).
+/reports/
+sweep-out/
+sim-run.sh

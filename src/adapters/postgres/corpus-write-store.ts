@@ -104,7 +104,6 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
       const docMutable = {
         url: doc.canonicalUrl,
         title: doc.title,
-        language: doc.language,
         category: doc.category,
         contentHash: doc.contentHash,
         chunkCount: embedded.length,
@@ -116,11 +115,22 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
         .values({
           sourceId: src.id,
           canonicalUrl: doc.canonicalUrl,
+          language: doc.language,
           ...docMutable,
         })
         .onConflictDoUpdate({
           target: [documents.sourceId, documents.canonicalUrl],
-          set: docMutable,
+          set: {
+            ...docMutable,
+            // On re-ingest NEVER null out an established language (ADR-0008): a
+            // fresh decision of `null` (e.g. a re-embed of a below-floor doc,
+            // where decideLanguage abstains) must not clobber a label a human or
+            // the #73 sweep already set. A confident NEW detection still wins;
+            // only null is prevented from overwriting. Mirrors the sweep's
+            // never-blank policy (resolve-language.ts). This is why `language`
+            // alone is `coalesce`'d and not a plain overwrite — do not "simplify".
+            language: sql`coalesce(${doc.language}::text, ${documents.language})`,
+          },
         })
         .returning({ id: documents.id });
 

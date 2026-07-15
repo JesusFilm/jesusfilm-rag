@@ -99,6 +99,22 @@ describe("applyMutation — add-source / add-lang", () => {
   });
 });
 
+describe("applyMutation — remove-source", () => {
+  it("removes a source entirely, leaving the others and the header intact", () => {
+    const doc = loadDoc(FIXTURE);
+    applyMutation(doc, { kind: "add-source", key: "bar", name: "Bar", lang: "en", sliceFile: "docs/slices/bar.md" }, TODAY);
+    applyMutation(doc, { kind: "remove-source", key: "foo" }, TODAY);
+    const reparsed = validateDoc(loadDoc(doc.toString()));
+    expect(Object.keys(reparsed.sources)).toEqual(["bar"]);
+    expect(doc.toString()).toContain("must survive every write"); // header comment preserved
+  });
+
+  it("throws on an unknown source key (loud, not a silent no-op)", () => {
+    const doc = loadDoc(FIXTURE);
+    expect(() => applyMutation(doc, { kind: "remove-source", key: "nope" }, TODAY)).toThrow();
+  });
+});
+
 describe("parseArgv", () => {
   it("parses a multi-op set", () => {
     expect(
@@ -130,7 +146,13 @@ describe("parseArgv", () => {
     expect(parseArgv(["add-lang", "--source", "bar", "--lang", "es", "--scope", "pilot"])).toEqual({
       kind: "add-lang", source: "bar", lang: "es", scope: "pilot",
     });
+    expect(parseArgv(["remove-source", "--key", "bar"])).toEqual({ kind: "remove-source", key: "bar" });
     expect(parseArgv(["check"])).toEqual({ kind: "check" });
+  });
+
+  it("rejects remove-source with a missing key or stray positional", () => {
+    expect(() => parseArgv(["remove-source"])).toThrow();
+    expect(() => parseArgv(["remove-source", "--key", "bar", "oops"])).toThrow();
   });
 
   it("rejects an invalid stage state or status enum", () => {

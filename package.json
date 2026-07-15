@@ -25,6 +25,7 @@
     "status:set": "tsx scripts/source-status.ts set",
     "status:add-source": "tsx scripts/source-status.ts add-source",
     "status:add-lang": "tsx scripts/source-status.ts add-lang",
+    "status:remove-source": "tsx scripts/source-status.ts remove-source",
     "status:check": "tsx scripts/source-status.ts check",
     "lang:sweep": "tsx scripts/language-sweep.ts",
     "lang:sweep:production": "tsx scripts/language-sweep-production.ts",

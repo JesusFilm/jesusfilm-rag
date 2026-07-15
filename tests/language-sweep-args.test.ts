@@ -11,7 +11,7 @@ describe("parseArgs — the sweep CLI contract", () => {
       limit: null,
       sampleChars: 240,
       sampleLimit: 15,
-      outDir: "sweep-out",
+      outDir: null, // resolved at run time: --out-dir > env > <cwd>/reports
       verifyLog: false,
     });
   });

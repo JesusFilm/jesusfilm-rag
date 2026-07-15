@@ -74,20 +74,38 @@ describe("resolveFromSignals — the pure fallback ladder", () => {
     expect(isFallback(r.basis)).toBe(true);
   });
 
-  it("4. multilingual + too short → null (the documented exception)", () => {
+  it("3. multilingual + BELOW the floor but IN-set → labelled, not null (#73 point 1)", () => {
+    // A short cru page the detector reads as English at max confidence: the
+    // detection floor no longer forces a null when the call is inside the set.
+    const r = resolveFromSignals(
+      signals({
+        contentLength: 180,
+        declared: ["en", "es", "fr"],
+        detected: "en",
+        confidence: 1,
+      }),
+    );
+    expect(r).toMatchObject({ language: "en", basis: "declared-primary" });
+    expect(r.note).toContain("below the");
+    expect(r.note).toContain("labelled rather than left null");
+  });
+
+  it("4. multilingual + short + OUT-of-set → null (the confidently-wrong guard)", () => {
+    // Hindi at max confidence on a 200-char page: out of the declared set = the
+    // exact confidently-wrong failure the floor guards against → left null.
     const r = resolveFromSignals(
       signals({
         contentLength: 200,
         declared: ["en", "es"],
-        detected: "de",
+        detected: "hi",
         confidence: 1,
       }),
     );
     expect(r).toMatchObject({ language: null, basis: "unresolved-null" });
-    expect(r.note).toContain("below the");
+    expect(r.note).toContain("outside the declared set");
   });
 
-  it("4. multilingual + enough prose but OUT-of-set lean → null (no guessing)", () => {
+  it("4. multilingual + long + OUT-of-set lean → null (no guessing)", () => {
     const r = resolveFromSignals(
       signals({
         contentLength: 1500,
@@ -100,6 +118,14 @@ describe("resolveFromSignals — the pure fallback ladder", () => {
     expect(r.note).toContain("outside the declared set");
   });
 
+  it("4. multilingual + undetectable content → null", () => {
+    const r = resolveFromSignals(
+      signals({ contentLength: 40, declared: ["en", "es"], detected: "", confidence: 0 }),
+    );
+    expect(r).toMatchObject({ language: null, basis: "unresolved-null" });
+    expect(r.note).toContain("undetectable");
+  });
+
   it("4. no declared languages + abstain → null, never a fabricated guess", () => {
     const r = resolveFromSignals(
       signals({ contentLength: 50, declared: [], detected: "", confidence: 0 }),
@@ -107,8 +133,9 @@ describe("resolveFromSignals — the pure fallback ladder", () => {
     expect(r).toMatchObject({ language: null, basis: "unresolved-null" });
   });
 
-  it("uses exactly the floor constant as the boundary (>= floor counts as enough)", () => {
-    // At the floor with a multilingual in-set lean → resolves (declared-primary).
+  it("the floor no longer gates an IN-set call — only its note wording changes", () => {
+    // At the floor and one char below it, an in-set detection resolves either way;
+    // the floor only decides how the note reads (ambiguous-prose vs short-page).
     const atFloor = resolveFromSignals(
       signals({
         contentLength: DETECTION_FLOOR_CHARS,
@@ -118,7 +145,7 @@ describe("resolveFromSignals — the pure fallback ladder", () => {
       }),
     );
     expect(atFloor.basis).toBe("declared-primary");
-    // One char below the floor → too short → null.
+    expect(atFloor.note).toContain("dominant language");
     const belowFloor = resolveFromSignals(
       signals({
         contentLength: DETECTION_FLOOR_CHARS - 1,
@@ -127,7 +154,8 @@ describe("resolveFromSignals — the pure fallback ladder", () => {
         confidence: 0.6,
       }),
     );
-    expect(belowFloor.basis).toBe("unresolved-null");
+    expect(belowFloor.basis).toBe("declared-primary");
+    expect(belowFloor.note).toContain("below the");
   });
 });
 

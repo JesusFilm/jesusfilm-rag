@@ -39,8 +39,11 @@
  *   --limit <n>        cap documents scanned per source (testing)
  *   --sample-chars <n> content snippet length in the report (default 240)
  *   --sample-limit <n> max example rows per class in the markdown (default 25)
- *   --out-dir <dir>    where report/changelog/csv land (default ./sweep-out)
  *   --verify-log       also write a per-document iteration ledger (coverage proof)
+ *   --out-dir <dir>    where the per-run logs land. Precedence:
+ *                        --out-dir flag  >  $LANGUAGE_SWEEP_OUT_DIR env  >  <cwd>/reports
+ *                      These are LOCAL run logs, not committed artifacts (the
+ *                      default under the working directory is git-ignored).
  *   --help
  *
  * Pure arg parsing (`parseArgs`) is exported and unit-tested
@@ -69,9 +72,13 @@ export interface SweepArgs {
   limit: number | null;
   sampleChars: number;
   sampleLimit: number;
-  outDir: string;
+  /** Output dir from `--out-dir`, or null to resolve from env/default at run time. */
+  outDir: string | null;
   verifyLog: boolean;
 }
+
+/** Env var that sets the default output directory (overridden by `--out-dir`). */
+export const OUT_DIR_ENV = "LANGUAGE_SWEEP_OUT_DIR";
 
 export interface RevertArgs {
   kind: "revert";
@@ -159,7 +166,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     limit: opts["--limit"] !== undefined ? num("--limit", 0) : null,
     sampleChars: num("--sample-chars", 240),
     sampleLimit: num("--sample-limit", 15),
-    outDir: opts["--out-dir"] ?? "sweep-out",
+    outDir: opts["--out-dir"] ?? null,
     verifyLog: flags.has("--verify-log"),
   };
 }
@@ -691,7 +698,8 @@ const HELP = `language-sweep — re-derive documents.language across a source (i
   --apply          write changes (default: dry-run)
   --limit <n>      cap docs/source (testing)     --verify-log    per-doc ledger
   --sample-chars   snippet length (240)          --sample-limit  rows/class (25)
-  --out-dir <dir>  outputs dir (./sweep-out)     --help
+  --out-dir <dir>  logs dir (flag > $LANGUAGE_SWEEP_OUT_DIR > <cwd>/reports)
+  --help
 `;
 
 async function main(): Promise<void> {
@@ -732,13 +740,19 @@ async function main(): Promise<void> {
 
     const ts = new Date().toISOString().replace(/[:.]/g, "-");
     const scope = parsed.sources === "all" ? "all" : parsed.sources;
-    await mkdir(parsed.outDir, { recursive: true });
+    // Output dir precedence: --out-dir flag > $LANGUAGE_SWEEP_OUT_DIR env >
+    // <cwd>/reports. These are per-run local logs (report/changelog/csv/ledger),
+    // NOT committed artifacts — the default lives under the working directory and
+    // is git-ignored.
+    const outDir =
+      parsed.outDir ?? process.env[OUT_DIR_ENV] ?? path.join(process.cwd(), "reports");
+    await mkdir(outDir, { recursive: true });
     const files = {
-      report: path.join(parsed.outDir, `report-${scope}-${ts}.md`),
-      csv: path.join(parsed.outDir, `changes-${scope}-${ts}.csv`),
-      changelog: path.join(parsed.outDir, `changelog-${scope}-${ts}.jsonl`),
+      report: path.join(outDir, `report-${scope}-${ts}.md`),
+      csv: path.join(outDir, `changes-${scope}-${ts}.csv`),
+      changelog: path.join(outDir, `changelog-${scope}-${ts}.jsonl`),
       verifyLog: parsed.verifyLog
-        ? path.join(parsed.outDir, `verify-${scope}-${ts}.jsonl`)
+        ? path.join(outDir, `verify-${scope}-${ts}.jsonl`)
         : null,
     };
 

@@ -25,17 +25,21 @@
  *                               SHORT foreign page on a monolingual source — #73's
  *                               known blind spot — which is why every fallback is
  *                               sampled into the report for a human to eyeball.)
- *   3. `declared-primary`     — decideLanguage abstained on the GATE (there was
- *                               enough prose, ≥ floor, it was just ambiguous) on a
- *                               MULTI-language source, and the detector's leaning
- *                               candidate is inside the declared set. Take that
- *                               dominant-language lean. Reported for review.
- *   4. `unresolved-null`      — a multi-language source with too little text
- *                               (< floor) or a lean OUTSIDE the declared set. Here
- *                               guessing would re-introduce the exact `languages[0]`
- *                               mislabel #73 exists to fix, so we honestly leave
- *                               `null`. THIS is the documented exception, surfaced
- *                               and highlighted at the end of every report.
+ *   3. `declared-primary`     — decideLanguage abstained (below the gate OR below
+ *                               the floor) on a MULTI-language source, but the
+ *                               detector's dominant candidate is INSIDE the declared
+ *                               set. Take it — even on a short page. The floor
+ *                               guards against confidently-wrong short text, but
+ *                               every observed such case was OUT-of-set (Hindi on an
+ *                               English listing); an in-set call is the best evidence
+ *                               and a real label beats a null (#73). Reported for review.
+ *   4. `unresolved-null`      — a multi-language source whose detection is OUT of the
+ *                               declared set or undetectable (any length). These are
+ *                               the genuine misfires; guessing would re-introduce the
+ *                               exact `languages[0]` mislabel #73 exists to fix, so we
+ *                               honestly leave `null` (LLM-escalation candidates). THIS
+ *                               is the documented exception, highlighted at the end of
+ *                               every report.
  *
  * Pure: no I/O. The ladder itself (`resolveFromSignals`) is separated from the
  * detector calls so every branch is deterministically unit-testable without
@@ -125,27 +129,35 @@ export function resolveFromSignals(sig: ResolveSignals): LanguageResolution {
     };
   }
 
-  // 3. Multi-language source, but there was enough prose (≥ floor) and the
-  //    detector's dominant candidate is inside the declared set → take the lean.
-  if (
-    declared.length > 1 &&
-    aboveFloor &&
-    detected !== "" &&
-    declared.includes(detected)
-  ) {
+  // 3. Multi-language source, detector's dominant candidate is inside the
+  //    declared set → take it. This fires BELOW the detection floor too. The
+  //    floor exists because short/sparse non-prose can be confidently WRONG — but
+  //    every observed confidently-wrong case landed on an OUT-of-set language
+  //    (Hindi on a 251-char English listing). An IN-set call is the detector's
+  //    best available evidence, and for a corrective sweep a real label beats a
+  //    null (#73: "if the detector concluded English, mark it — regardless of the
+  //    floor"). The out-of-set / undetectable below-floor cases still fall through
+  //    to null below, where the genuine misfires live.
+  if (declared.length > 1 && detected !== "" && declared.includes(detected)) {
     return {
       language: detected,
       basis: "declared-primary",
       detected,
       confidence,
-      note:
-        `ambiguous multi-language content; detector leans '${detected}' ` +
-        `(confidence ${confidence.toFixed(2)}) and it is within the declared ` +
-        `set [${declared.join(", ")}] — took the dominant language`,
+      note: aboveFloor
+        ? `ambiguous multi-language content; detector leans '${detected}' ` +
+          `(confidence ${confidence.toFixed(2)}), within the declared set ` +
+          `[${declared.join(", ")}] — took the dominant language`
+        : `short page (${contentLength} chars, below the ${DETECTION_FLOOR_CHARS}-char ` +
+          `floor) but the detector reads '${detected}' (confidence ${confidence.toFixed(2)}), ` +
+          `within the declared set [${declared.join(", ")}] — labelled rather than left null`,
     };
   }
 
-  // 4. Multi-language source we cannot resolve safely → the documented exception.
+  // 4. Cannot resolve safely → the documented exception. For a multi-language
+  //    source this is now ONLY an out-of-set or undetectable call (any length):
+  //    the suspicious cases where the detector likely misfired on sparse text —
+  //    left null rather than mislabelled (the LLM-escalation candidates, #73).
   return {
     language: null,
     basis: "unresolved-null",
@@ -154,11 +166,12 @@ export function resolveFromSignals(sig: ResolveSignals): LanguageResolution {
     note:
       declared.length === 0
         ? `undetectable and the source declares no language to fall back to — left null`
-        : `multi-language source [${declared.join(", ")}] with ` +
-          (aboveFloor
-            ? `a leaning candidate '${detected || "?"}' outside the declared set`
-            : `only ${contentLength} chars (below the ${DETECTION_FLOOR_CHARS}-char floor)`) +
-          ` — cannot label safely without guessing, left null for review`,
+        : detected === ""
+          ? `multi-language source [${declared.join(", ")}] and the content is ` +
+            `undetectable — left null for review`
+          : `multi-language source [${declared.join(", ")}]; the detector's best guess ` +
+            `'${detected}' is outside the declared set — a likely misfire on sparse text, ` +
+            `left null rather than mislabelled (LLM-escalation candidate)`,
   };
 }
 

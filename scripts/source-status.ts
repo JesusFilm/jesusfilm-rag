@@ -10,6 +10,7 @@
  *   pnpm status:set  --source <key> --lang <code> --scope "<text>"     # --clear-scope
  *   pnpm status:add-source --key <key> --name "<name>" --lang <code> --slice-file <path>
  *   pnpm status:add-lang   --source <key> --lang <code> [--scope "<text>"]
+ *   pnpm status:remove-source --key <key>   # retire a superseded source entirely
  *   pnpm status:check       # validate the committed file (CI gate)
  *
  * Guarantees (the reason this exists):
@@ -59,7 +60,8 @@ export type SetOp =
 export type Mutation =
   | { kind: "set"; source: string; lang: string; ops: SetOp[] }
   | { kind: "add-source"; key: string; name: string; lang: string; sliceFile: string }
-  | { kind: "add-lang"; source: string; lang: string; scope?: string };
+  | { kind: "add-lang"; source: string; lang: string; scope?: string }
+  | { kind: "remove-source"; key: string };
 
 export type Command = Mutation | { kind: "check" };
 
@@ -111,6 +113,15 @@ export function applyMutation(doc: Document, m: Mutation, today: string): void {
       }
       doc.setIn(["sources", m.source, "languages", m.lang], buildLangEntry(doc, m.scope));
       deriveAndStamp(doc, m.source, today);
+      break;
+    }
+    case "remove-source": {
+      // Retire a source entirely (e.g. superseded by a whole-domain source). No
+      // derive/stamp — the row is gone. requireSource makes removing an unknown
+      // key a loud error rather than a silent no-op; the resulting doc is still
+      // schema-validated by main() before the file is written.
+      requireSource(doc, m.key);
+      doc.deleteIn(["sources", m.key]);
       break;
     }
   }
@@ -213,8 +224,14 @@ export function parseArgv(argv: string[]): Command {
       if (typeof f.scope === "string") cmd.scope = f.scope;
       return cmd;
     }
+    case "remove-source": {
+      const f = collectFlags(rest, ["key"]);
+      return { kind: "remove-source", key: req(f, "key") };
+    }
     default:
-      throw new Error(`unknown subcommand '${sub ?? ""}' — expected set | add-source | add-lang | check`);
+      throw new Error(
+        `unknown subcommand '${sub ?? ""}' — expected set | add-source | add-lang | remove-source | check`,
+      );
   }
 }
 
@@ -340,8 +357,10 @@ async function main(argv: string[]): Promise<void> {
     fail(e);
   }
   await writeFile(FILE, doc.toString());
-  const target = cmd.kind === "add-source" ? cmd.key : cmd.source;
-  console.log(`✔ updated '${target}' in docs/source-status.yaml`);
+  const target =
+    cmd.kind === "add-source" || cmd.kind === "remove-source" ? cmd.key : cmd.source;
+  const verb = cmd.kind === "remove-source" ? "removed" : "updated";
+  console.log(`✔ ${verb} '${target}' in docs/source-status.yaml`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

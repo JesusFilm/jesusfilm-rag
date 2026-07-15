@@ -49,19 +49,6 @@ sources:
     slice_file: docs/slices/starting-with-god.md
     last_updated: 2026-05-25
 
-  cru-10-basic-steps:
-    name: Cru — 10 Basic Steps
-    status: deferred
-    languages:
-      en:
-        status: deferred
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
-        note: "superseded by 'cru' (one domain = one source, slice #7): registry key +
-          local DB rows deleted; prod rows remain until the slice-7 prod cutover
-          replaces them"
-    slice_file: docs/slices/cru-10-basic-steps.md
-    last_updated: 2026-07-13
-
   jesusfilm-org:
     name: Jesus Film Project
     status: done
@@ -127,8 +114,8 @@ sources:
         status: in-progress
         stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
         scope: us-latinos (1 page)
-        note: "ingested locally on the qwen embedder (PR #57); not yet embedded in
-          the prod index, so it shows 0 documents here — retrieve/evaluate pending;
+        note: "ingested locally on the qwen embedder (PR #57); not yet embedded in the
+          prod index, so it shows 0 documents here — retrieve/evaluate pending;
           1 sitemap-discoverable es page"
     slice_file: docs/slices/familylife.md
     last_updated: 2026-07-02

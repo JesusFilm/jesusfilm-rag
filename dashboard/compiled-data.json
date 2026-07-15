@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-14",
+  "generated_at": "2026-07-15",
   "sources": [
     {
       "source": "Cru",
@@ -48,18 +48,6 @@
       "embedded_doc_count": 1,
       "row_status": "done",
       "note": null
-    },
-    {
-      "source": "Cru — 10 Basic Steps",
-      "key": "cru-10-basic-steps",
-      "host": "www.cru.org",
-      "language": "en",
-      "acquire": true,
-      "ingest": true,
-      "evaluate": true,
-      "embedded_doc_count": 11,
-      "row_status": "deferred",
-      "note": "superseded by 'cru' (one domain = one source, slice #7): registry key + local DB rows deleted; prod rows remain until the slice-7 prod cutover replaces them"
     },
     {
       "source": "EveryStudent",
@@ -142,6 +130,18 @@
       "ingest": true,
       "evaluate": true,
       "embedded_doc_count": 4515,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "thelife",
+      "key": "thelife",
+      "host": "thelife.com",
+      "language": "fr",
+      "acquire": true,
+      "ingest": false,
+      "evaluate": false,
+      "embedded_doc_count": 0,
       "row_status": "done",
       "note": null
     },

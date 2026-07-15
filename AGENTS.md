@@ -8,6 +8,7 @@ orchestrates and verifies rather than free-hands the work.
 |-------|------|-------------|
 | `/slice` | Drives one source through acquire → ingest → retrieve → spot-check, resumably | `pnpm acquire`/`index`/`query`, `status:*` |
 | `/walkthrough` | Read-only code-flow explainer with diagrams | — |
+| `/adr` | Records an architecture decision from the current change (template, index, citation, commit) | — |
 | `/status-dashboard` | Refreshes the public status dashboard from prod and opens a PR | `pnpm dashboard:data`/`build`/`verify` |
 
 ## Status dashboard refresh (`/status-dashboard`)

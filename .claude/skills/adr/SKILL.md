@@ -1,6 +1,6 @@
 ---
 name: adr
-description: "Draft (or complete) an Architecture Decision Record for a decision made in the current change, following this repo's docs/decisions/ template. Surveys the working diff, picks the next NNNN, writes Context/Decision/Alternatives-rejected/Consequences, marks Status + Related (detecting any superseded ADR), updates the Locked-decisions index in architecture.md, cites the ADR at the code seam it governs, and commits with a commitlint-safe message. Invoke /adr after accepting an ADR checkpoint (AGENT.md), or /adr <one-line decision> to start one directly."
+description: "Draft (or complete) an Architecture Decision Record for a decision made in the current change, following this repo's docs/decisions/ template. Surveys the working diff, picks the next NNNN, writes Context/Decision/Alternatives-rejected/Consequences, marks Status + Related (detecting any superseded ADR), updates the Locked-decisions index in architecture.md, cites the ADR at the code seam it governs, and commits with a commitlint-safe message. Invoke /adr after accepting an ADR checkpoint (AGENTS.md), or /adr <one-line decision> to start one directly."
 allowed-tools: "Bash(git *) Bash(grep *) Bash(rg *) Bash(ls *) Bash(cat *) Bash(date *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 disable-model-invocation: true
 ---
@@ -16,7 +16,7 @@ stays in `architecture.md`.
 ## When to use
 
 - Right after the engineer accepts an **ADR checkpoint** (the protocol in
-  `AGENT.md`), or
+  `AGENTS.md`), or
 - `/adr <one-line decision>` to record a decision directly, or
 - `/adr` to complete/repair an ADR you started.
 

@@ -13,10 +13,10 @@ table until they do — extraction is incremental, not a big-bang refactor.
 ## When to raise an ADR checkpoint (agents)
 
 An agent should not wait to be asked. When a change trips one of these, **pause and
-raise an ADR checkpoint** (the format + behaviour is in `AGENT.md` → *ADR
+raise an ADR checkpoint** (the format + behaviour is in `AGENTS.md` → *ADR
 checkpoint*), then let the engineer decide draft / defer / skip:
 
-- **Amends or contradicts** an existing ADR, an `AGENT.md` convention, or a stated
+- **Amends or contradicts** an existing ADR, an `AGENTS.md` convention, or a stated
   invariant in `architecture.md` (grep tell: the code you're touching cites `ADR-`).
 - **Data-shape or write-path** change: `src/db/schema.ts`, a migration, how a corpus
   column is written/updated, or a dedup/idempotency rule.

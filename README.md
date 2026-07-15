@@ -111,7 +111,7 @@ The pipeline is being built out per [`docs/architecture.md`](./docs/architecture
 
 Operational rules that **must** be followed when an agent works in this repo:
 
-- **Read `AGENT.md` first**, then `docs/architecture.md` §5 for the boundary law.
+- **Read `AGENTS.md` first**, then `docs/architecture.md` §5 for the boundary law.
 - **Boundaries are enforced, not advisory** — `dependency-cruiser` + eslint caps fail the build on a cross-context import, an adapter touched outside `main.ts`, or an oversized file. Do not work around them; fix the design.
 - **Only Ingestion writes corpus rows.** Never have an MCP tool, ad-hoc script, or agent task write to Postgres directly.
 - **Only public content enters the corpus.** A restricted source does not belong here — stop and ask.

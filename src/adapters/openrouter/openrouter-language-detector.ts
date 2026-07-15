@@ -37,17 +37,35 @@ const DEFAULT_MAX_OUTPUT_TOKENS = 200; // a code + confidence + short quote is t
  *  contract. A three-letter 639-3 code (`eng`) is deliberately NOT accepted. */
 const ISO_CODE = /^[a-z]{2}$/;
 
+// Scores the MAIN BODY, not the page chrome. Scraped pages are frequently
+// bilingual — an English article framed by a Spanish nav/breadcrumb/footer (and
+// vice-versa) — and the sweep feeds the model the front slice of cleaned text,
+// which leads with that chrome. The earlier "single DOMINANT language" wording
+// let the model rest its verdict on a salient boilerplate quote (a Spanish
+// footer "©2025 Cru… derechos reservados", a "Comparte el evangelio" breadcrumb)
+// and relabel an English article `es`. This prompt names chrome explicitly and
+// requires the verdict — and its evidence quote — to come from the body. (#94)
 const SYSTEM_PROMPT =
-  "You are a precise language identifier. Identify the single DOMINANT natural " +
-  "language of the document the user provides. Reply with ONLY a JSON object of " +
-  'the exact shape {"language": string|null, "confidence": number, "evidence": ' +
-  'string}. "language" is a lowercase ISO 639-1 code (e.g. "en", "es", "fr", ' +
-  '"zh"), or null ONLY if the text is genuinely undeterminable (empty, pure ' +
-  'markup/numbers, or an even mix with no dominant language). "confidence" is a ' +
-  "number from 0 to 1. \"evidence\" is a SHORT verbatim quote (<=120 chars) from " +
-  "the document that the verdict rests on. The source may DECLARE an expected " +
-  "language set, given only as a hint — the actual content always wins. Never " +
-  "explain; return only the JSON object.";
+  "You are a precise language identifier. Identify the language of the document's " +
+  "MAIN CONTENT — the primary article body, the substantive prose the page is " +
+  "actually about. A web page is often bilingual: the main content is in one " +
+  "language while the surrounding site CHROME is in another. You must IGNORE the " +
+  "chrome and judge only the body. Chrome means: navigation and menus, " +
+  "breadcrumbs, page header, footer, copyright and legal notices (e.g. " +
+  "\"© 2025 …, all rights reserved\"), cookie/consent banners, share and social " +
+  "buttons, related-links and \"read next\" lists, and any short repeated " +
+  "template/boilerplate text. If the chrome is in a different language from the " +
+  "body, the BODY wins — never label a page by its footer, breadcrumb, or menu. " +
+  "Reply with ONLY a JSON object of the exact shape {\"language\": string|null, " +
+  '"confidence": number, "evidence": string}. "language" is a lowercase ISO ' +
+  '639-1 code (e.g. "en", "es", "fr", "zh") for the MAIN BODY, or null ONLY if ' +
+  "there is no real body to judge (empty, pure markup/numbers, or the body " +
+  "itself is a genuine even mix with no dominant language — a foreign footer " +
+  'does NOT make a page a mix). "confidence" is a number from 0 to 1. ' +
+  '"evidence" is a SHORT verbatim quote (<=120 chars) taken FROM THE MAIN BODY ' +
+  "(never from chrome) that the verdict rests on. The source may DECLARE an " +
+  "expected language set, given only as a hint — the actual body content always " +
+  "wins. Never explain; return only the JSON object.";
 
 export interface OpenRouterLanguageDetectorOptions {
   apiKey: string;

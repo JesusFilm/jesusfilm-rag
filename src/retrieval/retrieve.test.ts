@@ -34,6 +34,10 @@ function chunk(
 ): FakeIndexedChunk {
   return {
     chunkId: p.chunkId,
+    // Defaults to a per-chunk document so existing dedup cases (which key on
+    // contentHash, not documentId) are unaffected; the #79 cases below pass an
+    // explicit shared documentId to model many chunks of ONE article.
+    documentId: p.documentId ?? `doc-${p.chunkId}`,
     text: p.text ?? `text ${p.chunkId}`,
     ord: p.ord ?? 0,
     tags: p.tags ?? [],
@@ -126,6 +130,7 @@ describe("createRetriever.search", () => {
         return base.vectorSearch(v, f, k);
       },
       fetchById: (id: string) => base.fetchById(id),
+      fetchDocumentTexts: (ids: string[]) => base.fetchDocumentTexts(ids),
     };
     await createRetriever({ embedder: new VecEmbedder(Q), search: spy }).search(
       "q",
@@ -166,6 +171,120 @@ describe("3-key dedup (invariant 5) — at most one chunk per distinct document"
       chunk({ chunkId: "b", contentHash: "h2", canonicalUrl: "u/b", ord: 1, title: "B", text: "beta", embedding: [1, 0, 0] }),
     ]).search("q");
     expect(out.map((r) => r.chunkId)).toEqual(["a", "b"]);
+  });
+});
+
+describe("full-document retrieval — the buried-answer fix (issue #79)", () => {
+  // A cru-shaped article: chunk 0 is a lead-in anecdote that best matches the
+  // query; chunk 1 buries the actual answer. Both are chunks of ONE document
+  // (shared documentId + contentHash), so the 3-key dedup returns exactly one —
+  // the anecdote — and chunk-only retrieval never surfaces the answer.
+  function buriedAnswerDoc() {
+    // Source-agnostic shape (cru is the issue's example; the bug isn't cru-specific).
+    const doc = {
+      documentId: "d-bible",
+      contentHash: "doc-bible",
+      canonicalUrl: "u/bible",
+      sourceKey: "cru",
+      sourceName: "Cru",
+      title: "How to study the Bible effectively",
+    };
+    return [
+      chunk({
+        ...doc,
+        chunkId: "anecdote",
+        ord: 0,
+        text: "Admiral Byrd sat alone through the Antarctic winter, and it changed him.",
+        embedding: [1, 0, 0], // cosine 1.0 — wins the ranking
+      }),
+      chunk({
+        ...doc,
+        chunkId: "answer",
+        ord: 1,
+        text: "To study the Bible on your own, start with a single book and read it slowly.",
+        embedding: [0.8, 0.6, 0], // cosine 0.8 — above cutoff, but dedup drops it
+      }),
+    ];
+  }
+
+  it("chunk-only (default) surfaces the anecdote and never the buried answer", async () => {
+    const out = await retriever(buriedAnswerDoc()).search("how do I study the Bible on my own?");
+    expect(out.map((r) => r.chunkId)).toEqual(["anecdote"]); // one chunk per doc
+    expect(out[0].text).toContain("Admiral Byrd");
+    expect(out[0].text).not.toContain("start with a single book"); // the answer is buried
+    expect(out[0].document).toBeUndefined(); // no full doc on the default path
+  });
+
+  it("returns the FULL document — including the buried answer — when includeDocument is set", async () => {
+    const out = await retriever(buriedAnswerDoc()).search(
+      "how do I study the Bible on my own?",
+      { includeDocument: true },
+    );
+    expect(out.map((r) => r.chunkId)).toEqual(["anecdote"]); // ranking is unchanged
+    expect(out[0].document).toBeDefined();
+    expect(out[0].document).toContain("Admiral Byrd"); // the lead-in
+    expect(out[0].document).toContain("start with a single book"); // AND the answer chunk 1 buried
+    expect(out[0].text).toBe(
+      "Admiral Byrd sat alone through the Antarctic winter, and it changed him.",
+    ); // `text` still the matched chunk (the ranking evidence)
+  });
+
+  it("attaches each hit its OWN document across multiple hits (no cross-wiring)", async () => {
+    // Two distinct documents, each with a buried second chunk. The winners are
+    // the two lead chunks; each result must carry ITS OWN reassembled document —
+    // a regression that mis-indexed winners[i].documentId would swap them.
+    const out = await retriever([
+      chunk({ chunkId: "a0", documentId: "dA", contentHash: "hA", canonicalUrl: "u/a", ord: 0, text: "alpha lead", embedding: [1, 0, 0] }),
+      chunk({ chunkId: "a1", documentId: "dA", contentHash: "hA", canonicalUrl: "u/a", ord: 1, text: "alpha buried", embedding: [0, 0, 1] }), // below cutoff, dropped from ranking
+      chunk({ chunkId: "b0", documentId: "dB", contentHash: "hB", canonicalUrl: "u/b", ord: 0, text: "beta lead", embedding: [0.9, 0.1, 0] }),
+      chunk({ chunkId: "b1", documentId: "dB", contentHash: "hB", canonicalUrl: "u/b", ord: 1, text: "beta buried", embedding: [0, 1, 0] }), // below cutoff, dropped from ranking
+    ]).search("q", { includeDocument: true });
+
+    expect(out.map((r) => r.chunkId)).toEqual(["a0", "b0"]); // two distinct docs ranked
+    expect(out[0].document).toBe("alpha lead\n\nalpha buried"); // dA's chunks only
+    expect(out[1].document).toBe("beta lead\n\nbeta buried"); // dB's chunks only
+  });
+
+  it("reassembles overlapping chunks verbatim — the documented stutter, not de-overlapped (ADR-0011)", async () => {
+    // Real chunks overlap ~50 tokens (chunk.ts), so chunk 1 repeats chunk 0's
+    // tail. Reassembly is a plain ord-order join and deliberately does NOT
+    // de-overlap, so the boundary phrase appears twice. Lock that documented
+    // behavior so a future ord/overlap regression can't pass silently.
+    const out = await retriever([
+      chunk({ chunkId: "o0", documentId: "dOv", contentHash: "hOv", canonicalUrl: "u/ov", ord: 0, text: "the answer is found later in the article", embedding: [1, 0, 0] }),
+      chunk({ chunkId: "o1", documentId: "dOv", contentHash: "hOv", canonicalUrl: "u/ov", ord: 1, text: "later in the article the method is spelled out in full", embedding: [0, 0, 1] }),
+    ]).search("q", { includeDocument: true });
+
+    expect(out[0].document).toBe(
+      "the answer is found later in the article\n\n" +
+        "later in the article the method is spelled out in full",
+    );
+    // The overlap phrase survives twice (front of chunk 1 == tail of chunk 0).
+    expect(out[0].document!.split("later in the article").length - 1).toBe(2);
+  });
+
+  it("omits `document` when the batch cannot resolve it (TOCTOU), rather than mislabeling the chunk", async () => {
+    // A concurrent re-ingest can delete-then-insert a document between the
+    // vectorSearch and the fetchDocumentTexts call, so the batch returns nothing
+    // for a winner. `document` must be OMITTED (undefined), never set to the
+    // matched chunk — else a consumer can't tell it apart from a 1-chunk doc.
+    const base = new FakeCorpusSearchStore([
+      chunk({ chunkId: "x", documentId: "dX", embedding: [1, 0, 0] }),
+    ]);
+    const raced: CorpusSearchStore = {
+      vectorSearch: (v, f, k) => base.vectorSearch(v, f, k),
+      fetchById: (id) => base.fetchById(id),
+      fetchDocumentTexts: async () => new Map(), // doc vanished mid-request
+      embeddingModels: () => base.embeddingModels(),
+    };
+    const out = await createRetriever({
+      embedder: new VecEmbedder(Q),
+      search: raced,
+    }).search("q", { includeDocument: true });
+
+    expect(out).toHaveLength(1);
+    expect(out[0].document).toBeUndefined(); // omitted, NOT out[0].text
+    expect(out[0].text).toBe("text x"); // the matched chunk is still present as `text`
   });
 });
 

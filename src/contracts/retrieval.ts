@@ -24,6 +24,7 @@ export interface SearchFilter {
 /** A raw scored row from the search store, pre dedup + citation assembly. */
 export interface ScoredRow {
   chunkId: string;
+  documentId: string; // the parent document — keys full-document reassembly (issue #79)
   score: number;
   text: string;
   ord: number;

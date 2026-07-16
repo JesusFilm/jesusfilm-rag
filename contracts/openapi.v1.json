@@ -133,6 +133,9 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1
+          },
+          "includeDocument": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -160,6 +163,9 @@
           },
           "citation": {
             "$ref": "#/components/schemas/Citation"
+          },
+          "document": {
+            "type": "string"
           }
         },
         "required": [

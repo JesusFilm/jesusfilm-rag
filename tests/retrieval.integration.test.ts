@@ -239,6 +239,47 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
   });
 
   /**
+   * Issue #79 end-to-end through the real store: a two-chunk document whose
+   * lead-in chunk wins the ranking but whose answer sits in a later chunk. The
+   * 3-key dedup returns one chunk; `includeDocument` must reassemble the whole
+   * body (both chunks, `ord` order) from the real `fetchDocumentTexts` SQL.
+   *
+   * Seeds a fresh sentinel doc; runs before the swarm test below (which floods
+   * the source with 60 rows). Cleaned up by afterAll's cascade like every row.
+   */
+  it("reassembles the full document from all its chunks when includeDocument is set (#79)", async () => {
+    const writeStore = new PostgresCorpusWriteStore(db);
+    await writeStore.replaceDocument(doc("buried", "hash-buried"), [
+      { ...chunk("a long lead-in anecdote about Antarctica", oneHot(0)), ord: 0 },
+      { ...chunk("the actual answer the reader came for", cosTo0(0.2)), ord: 1 },
+    ]);
+
+    const retriever = createRetriever({
+      embedder: new StubEmbedder(oneHot(0)), // matches chunk 0 (cosine 1.0)
+      search: new PostgresCorpusSearchStore(db),
+    });
+
+    const hits = await retriever.search("probe", {
+      allowedSourceKeys: [TEST_KEY],
+      includeDocument: true,
+    });
+    const buried = hits.find((h) => h.citation.url === `${URL_PREFIX}buried`);
+
+    expect(buried).toBeDefined();
+    // `text` is still the matched lead-in chunk (the ranking evidence)…
+    expect(buried?.text).toBe("a long lead-in anecdote about Antarctica");
+    // …and `document` carries the whole body, including the later answer chunk.
+    expect(buried?.document).toBe(
+      "a long lead-in anecdote about Antarctica\n\n" +
+        "the actual answer the reader came for",
+    );
+
+    // The default path (no flag) still omits the field — no payload regression.
+    const plain = await retriever.search("probe", { allowedSourceKeys: [TEST_KEY] });
+    expect(plain.find((h) => h.citation.url === `${URL_PREFIX}buried`)?.document).toBeUndefined();
+  });
+
+  /**
    * FOLLOW-UP J #17, production form (hit by the 2026-07-02 multilingual eval):
    * a filtered search whose in-scope rows live behind a wall of out-of-scope
    * neighbors starves HNSW's candidate window and returns ZERO rows even though

@@ -193,6 +193,18 @@ export interface CorpusSearchStore {
   ): Promise<ScoredRow[]>;
   fetchById(chunkId: string): Promise<ScoredRow | null>;
   /**
+   * Full reassembled text per document id — every chunk of that document
+   * concatenated in `ord` order. Retrieval calls this ONLY when a query opts in
+   * (`policy.includeDocument`), for the final topK document ids, in ONE batched
+   * query. The batching + opt-in are the payload/cost lens (issue #79): a
+   * 100-chunk document is ~50k tokens, so the full body is fetched on demand and
+   * never on the default path. Returns a Map keyed by document id; an id with no
+   * chunks is simply absent (Retrieval falls back to the matched chunk's text).
+   * Chunks overlap by ~50 tokens, so the reassembly repeats each boundary once —
+   * complete but not deduplicated (char offsets are best-effort; see chunk.ts).
+   */
+  fetchDocumentTexts(documentIds: string[]): Promise<Map<string, string>>;
+  /**
    * Distinct `embedding_model` values currently in the corpus. Retrieval uses
    * this to guard against a query/corpus model mismatch — querying a corpus
    * embedded with one model using an embedder configured for another produces

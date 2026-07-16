@@ -28,6 +28,7 @@ import { assertQueryDimensions, toVectorLiteral } from "./vector.js";
  */
 const scoredColumns = {
   chunkId: chunks.id,
+  documentId: chunks.documentId,
   text: chunks.text,
   ord: chunks.ord,
   tags: chunks.tags,
@@ -110,6 +111,35 @@ export class PostgresCorpusSearchStore implements CorpusSearchStore {
       .where(where ? and(where, matches) : matches)
       .orderBy(desc(rank))
       .limit(k);
+  }
+
+  /**
+   * Full document text per id — the document's chunks concatenated in `ord`
+   * order (issue #79). ONE `document_id IN (...)` query for the whole batch (the
+   * final topK), ordered so each document's chunks arrive contiguous and
+   * in-order. Chunks overlap ~50 tokens, so a boundary phrase repeats once; the
+   * body is complete, which is what "answer buried past the lead-in" needs. Only
+   * reads `chunks` (already this context's table) — no new join, no raw_documents
+   * (that is Acquisition's, off-limits here).
+   */
+  async fetchDocumentTexts(
+    documentIds: string[],
+  ): Promise<Map<string, string>> {
+    if (documentIds.length === 0) return new Map();
+    const rows = await this.db
+      .select({ documentId: chunks.documentId, text: chunks.text })
+      .from(chunks)
+      .where(inArray(chunks.documentId, documentIds))
+      .orderBy(chunks.documentId, chunks.ord);
+    const parts = new Map<string, string[]>();
+    for (const row of rows) {
+      const bucket = parts.get(row.documentId);
+      if (bucket) bucket.push(row.text);
+      else parts.set(row.documentId, [row.text]);
+    }
+    return new Map(
+      [...parts].map(([id, texts]) => [id, texts.join("\n\n")]),
+    );
   }
 
   async fetchById(chunkId: string): Promise<ScoredRow | null> {

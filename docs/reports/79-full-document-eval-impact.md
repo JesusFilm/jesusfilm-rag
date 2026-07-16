@@ -30,7 +30,7 @@ Same 96 golden cases, same corpus, `top_k=10`, whole-corpus retrieval.
 | precision@1 | 0.677 | 0.677 | **0.000** |
 
 - **Before:** run `2026-07-16T03:45:12Z → 03:46:43Z` on `302371f` (clean base). Exit 0.
-- **After:** run `2026-07-16T04:17:23Z → 04:19:24Z` on **committed HEAD `f64beb1`** (clean working tree — `git status` empty). Exit 0. Its retrieval runtime is the feature commit `8111ffb`; the commits after it add only tests + docs (no runtime change). *(An earlier after-run on the uncommitted working tree — logged `302371f-dirty` — produced the same numbers; this clean-HEAD re-run replaces it so the provenance ties to a real pushed commit.)*
+- **After:** run `2026-07-16T04:17:23Z → 04:19:24Z` on **committed HEAD `f64beb1`** (clean working tree — `git status` empty). Exit 0. Its retrieval runtime is the feature commit `8111ffb`; later commits touch only tests, docs, and the opt-in `includeDocument` branch — the **default** retrieval path the eval exercises is unchanged, so this result stands. *(An earlier after-run on the uncommitted working tree — logged `302371f-dirty` — produced the same numbers; this clean-HEAD re-run replaces it so the provenance ties to a real pushed commit.)*
 - **Depth check:** a line-diff of the full eval output (metrics **+** per-source coverage **+** per-language coverage) is **identical** before vs after; a diff of all **96 per-case** `rank`/`coverage` lines is **identical**. Not one case moved.
 
 Per-source and per-language coverage (unchanged before→after):

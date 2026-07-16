@@ -35,7 +35,7 @@ Same 96 golden cases, same corpus, `top_k=10`, whole-corpus retrieval.
 
 Per-source and per-language coverage (unchanged before→after):
 
-```
+```text
 cru                n=29  recall=0.828  coverage=0.576
 familylife         n=23  recall=0.913  coverage=0.745
 jesusfilm-org      n=30  recall=0.667  coverage=0.537

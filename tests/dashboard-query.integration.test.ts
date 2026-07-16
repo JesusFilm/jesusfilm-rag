@@ -47,7 +47,9 @@ describe.skipIf(!dbUp)("fetchProdStatus (integration, real Postgres)", () => {
       // raw_documents staging row — so a sentinel source is transiently
       // ingested-but-not-acquired. The invariant is about real corpus, not test
       // fixtures; the two files share the DB, so scope the assertion to real keys.
-      const realIngested = data.ingested.filter((row) => !row.key.startsWith("__it__"));
+      const realIngested = data.ingested.filter(
+        (row) => !row.key.startsWith("__it__/"),
+      );
       for (const row of realIngested) expect(acquired.has(row.key)).toBe(true);
       for (const row of data.ingested) expect(Number.isInteger(row.embedded_doc_count)).toBe(true);
     } finally {

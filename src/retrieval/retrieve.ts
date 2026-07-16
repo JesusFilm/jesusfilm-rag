@@ -209,10 +209,14 @@ export function createRetriever(deps: RetrieveDeps): Retriever {
       );
       return results.map((result, i) => {
         const document = docTexts.get(winners[i].documentId);
-        // A winning chunk always belongs to a document with ≥1 chunk, so the
-        // batch resolves it; fall back to the matched chunk if a store returns
-        // nothing rather than dropping the field the consumer asked for.
-        return { ...result, document: document ?? result.text };
+        // A winning chunk's document always has >= 1 chunk, so the batch
+        // resolves it. The lone exception is a TOCTOU: a concurrent re-ingest
+        // (replaceDocument deletes-then-inserts in one tx) landing between
+        // vectorSearch and this fetch leaves the rows momentarily gone. Omit
+        // `document` in that case rather than substituting the matched chunk —
+        // absence is honest; a single chunk presented AS the whole document
+        // would be indistinguishable from a genuinely one-chunk document.
+        return document === undefined ? result : { ...result, document };
       });
     },
   };

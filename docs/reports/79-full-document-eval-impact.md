@@ -21,7 +21,7 @@ The honest nuance, stated plainly: the eval suite is **structurally blind** to t
 
 Same 96 golden cases, same corpus, `top_k=10`, whole-corpus retrieval.
 
-| Metric | Before (`302371f`) | After (`8111ffb`) | Δ |
+| Metric | Before (`302371f`) | After (`f64beb1`) | Δ |
 |--------|-------------------:|------------------:|:---:|
 | recall@3 | 0.938 | 0.938 | **0.000** |
 | recall@10 | 1.000 | 1.000 | **0.000** |
@@ -30,8 +30,8 @@ Same 96 golden cases, same corpus, `top_k=10`, whole-corpus retrieval.
 | precision@1 | 0.677 | 0.677 | **0.000** |
 
 - **Before:** run `2026-07-16T03:45:12Z → 03:46:43Z` on `302371f` (clean base). Exit 0.
-- **After:** run finished `2026-07-16T03:56:16Z` on the fix working tree. Exit 0.
-- **Depth check:** a line-diff of the full eval output (metrics **+** per-source coverage **+** per-language coverage) is **identical**; a diff of all **96 per-case** `rank`/`coverage` lines is **identical**. Not one case moved.
+- **After:** run `2026-07-16T04:17:23Z → 04:19:24Z` on **committed HEAD `f64beb1`** (clean working tree — `git status` empty). Exit 0. Its retrieval runtime is the feature commit `8111ffb`; the commits after it add only tests + docs (no runtime change). *(An earlier after-run on the uncommitted working tree — logged `302371f-dirty` — produced the same numbers; this clean-HEAD re-run replaces it so the provenance ties to a real pushed commit.)*
+- **Depth check:** a line-diff of the full eval output (metrics **+** per-source coverage **+** per-language coverage) is **identical** before vs after; a diff of all **96 per-case** `rank`/`coverage` lines is **identical**. Not one case moved.
 
 Per-source and per-language coverage (unchanged before→after):
 
@@ -68,7 +68,7 @@ So the eval — a **document-level** retrieval measure — is invariant to it by
 
 ## 6. Gates & full suite
 
-- **Full suite:** `pnpm test` → **383 passed (34 files)**, run **3× consecutively** (`03:54:30–34Z`), all green — the fixed cross-file integration race is deterministic.
+- **Full suite:** `pnpm test` → **383 passed (34 files)**, run **3× consecutively** (start stamps `03:54:30 / :32 / :34Z`; each run ~1.5s — vitest is fast and the integration tests are few/quick, so three back-to-back runs fit a ~5s window), all green — the fixed cross-file integration race is deterministic. (Raw log retained.) *(This count predates the review-driven multi-hit test added afterward; the current suite is 384.)*
 - `pnpm typecheck` ✓ · `pnpm lint` ✓ · `pnpm depcruise` ✓ (no boundary violations) · `pnpm db:check` ✓ (schema/migrations in sync; no schema change) · `pnpm gen:contract` regenerated `contracts/openapi.v1.json` and the drift test passes.
 
 ## 7. Local DB cleanup (bound honored)
@@ -78,7 +78,7 @@ The only writes were the integration test's scoped sentinel source (`__it__/retr
 ## 8. Reproduction
 
 ```bash
-git checkout 302371f && pnpm eval            # before
-git checkout feat/retrieval-full-document && pnpm eval   # after (identical)
-pnpm test                                    # 383 pass; integration proves the real-store fix
+git checkout 302371f && pnpm eval   # before
+git checkout f64beb1 && pnpm eval   # after (identical — the logged clean-HEAD run)
+pnpm test                           # integration test proves the real-store fix
 ```

@@ -39,8 +39,9 @@ export const retrievalPolicySchema = z
     preferSourceKey: z.string().optional(),
     language: z.string().optional(),
     category: z.string().optional(),
-    // 1..50 — the engine caps candidate fan-out at 50, so a larger topK can
-    // never return more; bounding it keeps the contract honest + rejects abuse.
+    // 1..50 — bounds the response size and rejects abuse. (The engine over-
+    // fetches candidates — topK*3, capped at MAX_CANDIDATES=500 — so it can
+    // still fill topK after the minScore cutoff + 3-key dedup; see retrieve.ts.)
     topK: z.number().int().positive().max(50).optional(), // default 5 (engine-applied)
     minScore: z.number().min(0).max(1).optional(), // default 0.37 (engine-applied)
     // Opt in to full-document text on each result (issue #79). Default (absent /
@@ -62,10 +63,12 @@ export const rankedResultSchema = z
     ord: z.number().int(),
     tags: z.array(z.string()),
     citation: citationSchema,
-    // The whole source document, present ONLY when the request set
-    // `includeDocument: true` (issue #79). `text` stays the matched chunk; this
-    // is the full body so a consumer can answer from content the chunk buried.
-    // Additive + optional → same major version; the default response is unchanged.
+    // The source document's full text — its chunks concatenated in `ord` order —
+    // present ONLY when the request set `includeDocument: true` (issue #79).
+    // `text` stays the matched chunk; this carries the whole body so a consumer
+    // can answer from content the chunk buried. Chunks overlap ~50 tokens, so
+    // each boundary phrase repeats once: complete, but not de-overlapped
+    // (ADR-0011). Additive + optional → same major version; default unchanged.
     document: z.string().optional(),
   })
   .strict();

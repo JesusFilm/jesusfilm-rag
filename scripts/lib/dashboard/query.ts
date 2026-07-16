@@ -88,9 +88,13 @@ export function shapeProdStatus(
         embedded_doc_count: count,
       });
   }
-  const unclassified = [...unclassifiedByKey.values()].sort(
-    (a, b) => b.embedded_doc_count - a.embedded_doc_count || a.key.localeCompare(b.key),
-  );
+  // Only surface non-empty tallies. The SQL's inner joins already guarantee a
+  // count >= 1, but shapeProdStatus is pure and its input type permits 0, and
+  // prodUnclassifiedRowSchema requires positive() — so drop any 0 here rather
+  // than letting prodReadSchema.parse() throw on it.
+  const unclassified = [...unclassifiedByKey.values()]
+    .filter((u) => u.embedded_doc_count > 0)
+    .sort((a, b) => b.embedded_doc_count - a.embedded_doc_count || a.key.localeCompare(b.key));
 
   const acquired_keys = [...new Set(acquiredRows.map((r) => r.key))].sort();
   return prodReadSchema.parse({ ingested, acquired_keys, unclassified });

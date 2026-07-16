@@ -30,6 +30,14 @@ describe("shapeProdStatus (pure)", () => {
   it("produces a schema-valid ProdRead", () => {
     expect(() => prodReadSchema.parse(shapeProdStatus([], []))).not.toThrow();
   });
+
+  it("omits a zero-count null-language row (schema requires positive; don't throw on 0)", () => {
+    const out = shapeProdStatus(
+      [{ key: "z", name: "Z", host: null, language: null, embedded_doc_count: 0 }],
+      [],
+    );
+    expect(out.unclassified).toEqual([]);
+  });
 });
 
 describe("fetchProdStatus (fake postgres client — no DB, no network)", () => {

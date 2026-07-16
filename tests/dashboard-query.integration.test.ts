@@ -39,9 +39,16 @@ describe.skipIf(!dbUp)("fetchProdStatus (integration, real Postgres)", () => {
       const data = await fetchProdStatus(sql);
       expect(() => prodReadSchema.parse(data)).not.toThrow();
       // Every ingested key must also be an acquired key (you can't embed what you
-      // never staged) — a structural invariant of the pipeline.
+      // never staged) — a structural invariant of the real pipeline.
       const acquired = new Set(data.acquired_keys);
-      for (const row of data.ingested) expect(acquired.has(row.key)).toBe(true);
+      // Exclude integration sentinel sources (`__it__/*`). A sibling integration
+      // file (retrieval.integration) runs concurrently against this same DB and
+      // writes documents straight through the Ingestion write path with no
+      // raw_documents staging row — so a sentinel source is transiently
+      // ingested-but-not-acquired. The invariant is about real corpus, not test
+      // fixtures; the two files share the DB, so scope the assertion to real keys.
+      const realIngested = data.ingested.filter((row) => !row.key.startsWith("__it__"));
+      for (const row of realIngested) expect(acquired.has(row.key)).toBe(true);
       for (const row of data.ingested) expect(Number.isInteger(row.embedded_doc_count)).toBe(true);
     } finally {
       await sql.end({ timeout: 2 });

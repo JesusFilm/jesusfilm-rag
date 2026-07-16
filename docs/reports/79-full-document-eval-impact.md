@@ -4,7 +4,7 @@
 - **Issue:** [#79](https://github.com/JesusFilm/jesusfilm-rag/issues/79) — retrieval returns one chunk per doc; cru articles bury the answer behind a lead-in anecdote
 - **Branch:** `feat/retrieval-full-document`
 - **Base:** `origin/main` @ `302371f`
-- **Commits:** `b1d2492` (test isolation), `8111ffb` (feature), `a0c8f1c` (ADR-0011)
+- **Commits:** `b1d2492` (test isolation), `8111ffb` (feature), `a0c8f1c` (ADR-0011), `f64beb1` (this report), `eeb151f` (adversarial-review fixes)
 - **Environment:** local replica Postgres (`localhost:5434`, pgvector), corpus of **8 sources / 11,437 documents / 33,104 chunks**, embed model `qwen/qwen3-embedding-8b`. **Production was never touched** (read-only local retrieval + a self-cleaning sentinel source for the integration test).
 
 ## Verdict
@@ -21,7 +21,7 @@ The honest nuance, stated plainly: the eval suite is **structurally blind** to t
 
 Same 96 golden cases, same corpus, `top_k=10`, whole-corpus retrieval.
 
-| Metric | Before (`302371f`) | After (`f64beb1`) | Δ |
+| Metric | Before (`302371f`) | After (`4cae9f6`) | Δ |
 |--------|-------------------:|------------------:|:---:|
 | recall@3 | 0.938 | 0.938 | **0.000** |
 | recall@10 | 1.000 | 1.000 | **0.000** |
@@ -30,7 +30,7 @@ Same 96 golden cases, same corpus, `top_k=10`, whole-corpus retrieval.
 | precision@1 | 0.677 | 0.677 | **0.000** |
 
 - **Before:** run `2026-07-16T03:45:12Z → 03:46:43Z` on `302371f` (clean base). Exit 0.
-- **After:** run `2026-07-16T04:17:23Z → 04:19:24Z` on **committed HEAD `f64beb1`** (clean working tree — `git status` empty). Exit 0. Its retrieval runtime is the feature commit `8111ffb`; later commits touch only tests, docs, and the opt-in `includeDocument` branch — the **default** retrieval path the eval exercises is unchanged, so this result stands. *(An earlier after-run on the uncommitted working tree — logged `302371f-dirty` — produced the same numbers; this clean-HEAD re-run replaces it so the provenance ties to a real pushed commit.)*
+- **After:** run `2026-07-16T04:30:30Z → 04:31:47Z` on **committed HEAD `4cae9f6`** (the final feature + review-fixes commit; clean working tree). Exit 0. *(Two earlier after-runs — one on the uncommitted tree logged `302371f-dirty`, one on `f64beb1` — produced the exact same numbers; this run on the final HEAD is the one of record. Only a docs-only provenance commit sits on top of it.)*
 - **Depth check:** a line-diff of the full eval output (metrics **+** per-source coverage **+** per-language coverage) is **identical** before vs after; a diff of all **96 per-case** `rank`/`coverage` lines is **identical**. Not one case moved.
 
 Per-source and per-language coverage (unchanged before→after):
@@ -79,6 +79,6 @@ The only writes were the integration test's scoped sentinel source (`__it__/retr
 
 ```bash
 git checkout 302371f && pnpm eval   # before
-git checkout f64beb1 && pnpm eval   # after (identical — the logged clean-HEAD run)
+git checkout 4cae9f6 && pnpm eval   # after (identical — the logged final-HEAD run)
 pnpm test                           # integration test proves the real-store fix
 ```

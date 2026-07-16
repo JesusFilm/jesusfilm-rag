@@ -9,11 +9,11 @@ import { shapeProdStatus, fetchProdStatus } from "../scripts/lib/dashboard/query
 import { prodReadSchema } from "../scripts/lib/dashboard/types.js";
 
 describe("shapeProdStatus (pure)", () => {
-  it("coerces bigint-string counts, drops null-language rows, dedupes acquired keys", () => {
+  it("coerces bigint-string counts, tallies null-language rows into unclassified, dedupes acquired keys", () => {
     const out = shapeProdStatus(
       [
         { key: "thelife", name: "thelife", host: "thelife.com", language: "en", embedded_doc_count: "4485" },
-        { key: "x", name: "X", host: null, language: null, embedded_doc_count: "10" }, // dropped (null lang)
+        { key: "x", name: "X", host: null, language: null, embedded_doc_count: "10" }, // → unclassified (null lang)
       ],
       [{ key: "thelife" }, { key: "thelife" }, { key: "thelife-fr" }],
     );
@@ -21,11 +21,22 @@ describe("shapeProdStatus (pure)", () => {
       { key: "thelife", name: "thelife", host: "thelife.com", language: "en", embedded_doc_count: 4485 },
     ]);
     expect(typeof out.ingested[0].embedded_doc_count).toBe("number");
+    // The null-language row is surfaced per source, not dropped (#86).
+    expect(out.unclassified).toEqual([{ key: "x", name: "X", host: null, embedded_doc_count: 10 }]);
+    expect(typeof out.unclassified[0].embedded_doc_count).toBe("number");
     expect(out.acquired_keys).toEqual(["thelife", "thelife-fr"]);
   });
 
   it("produces a schema-valid ProdRead", () => {
     expect(() => prodReadSchema.parse(shapeProdStatus([], []))).not.toThrow();
+  });
+
+  it("omits a zero-count null-language row (schema requires positive; don't throw on 0)", () => {
+    const out = shapeProdStatus(
+      [{ key: "z", name: "Z", host: null, language: null, embedded_doc_count: 0 }],
+      [],
+    );
+    expect(out.unclassified).toEqual([]);
   });
 });
 
@@ -45,6 +56,7 @@ describe("fetchProdStatus (fake postgres client — no DB, no network)", () => {
         { key: "thelife", name: "thelife", host: "thelife.com", language: "en", embedded_doc_count: 2 },
       ],
       acquired_keys: ["thelife", "thelife-fr"],
+      unclassified: [],
     });
     expect(unsafe).toHaveBeenCalledTimes(2);
   });

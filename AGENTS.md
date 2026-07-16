@@ -79,7 +79,9 @@ orchestrates and verifies rather than free-hands the work.
 Regenerates the public GitHub Pages dashboard — the source of truth for which
 sources × languages exist in the RAG index and where each sits on the
 **acquire → ingest → evaluate** journey — then opens a PR for an engineer to
-merge. Full runbook: `docs/ops/dashboard.md`. Skill: `.claude/skills/status-dashboard/SKILL.md`.
+merge. A secondary **"Unclassified documents"** table tallies any embedded docs
+with no detected language per source, so the index total is never silently
+under-reported (#86). Full runbook: `docs/ops/dashboard.md`. Skill: `.claude/skills/status-dashboard/SKILL.md`.
 
 End-to-end flow the skill performs:
 

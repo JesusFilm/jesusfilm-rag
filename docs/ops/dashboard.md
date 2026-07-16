@@ -28,6 +28,32 @@ So `es` is **acquired** (the shared key is present) but **not ingested** (no
 `es` documents have embeddings) — exactly what the dashboard shows. Language
 variants on separate domains (`thelife-fr`, `thelife-zh`) are their own keys.
 
+## Unclassified documents — the secondary table (#86)
+
+A document that is embedded and retrievable but whose language could not be
+detected carries `documents.language = NULL`. These are **not** dropped —
+dropping them silently under-reports the index (they are in it and retrievable).
+Instead `shapeProdStatus` tallies them **per source** (into `prod-status-data.json`'s
+`unclassified` list), and the page renders them below the main grid in a separate
+**"Unclassified documents"** table: source + count only, with **no**
+acquire/ingest/evaluate flags or stage — a null-language row is a *count*, not a
+(source × language) coverage cell, so it deliberately omits the lifecycle columns.
+
+Two consequences make the page honest:
+
+- The unclassified count is **folded into the headline "embedded documents" stat**,
+  so that figure is the true index size (per-language rows + unclassified), not an
+  under-count.
+- A language-detection regression — a source suddenly accruing null-language docs —
+  becomes **visible on the page** instead of something you only catch by querying
+  prod by hand.
+
+When a refresh finds none (the healthy state — the language sweep, ADR-0009, keeps
+this near-zero), the section renders a one-line reassurance ("Every embedded
+document has a detected language — nothing unclassified.") rather than an empty
+table. The tally is carried through the schemas as an optional field with a
+default of `[]`, so exports/compiled artifacts written before #86 still parse.
+
 ## Pipeline
 
 ```
@@ -53,7 +79,8 @@ prod-status-data.json + docs/source-status.yaml + src/registry
 - `scripts/dashboard-verify.ts` (`pnpm dashboard:verify`) — the **merge gate**:
   fails unless every `compiled-data.json` row appears in `index.html`, matched per
   (`data-key`, `data-language`) within that row's own `<tr>` (so a dropped
-  shared-key row can't slip through).
+  shared-key row can't slip through). The **unclassified** rows are gated the same
+  way, keyed by `data-unclassified-key`, so a dropped tally is caught too.
 
 ## Credentials (doppler, local-only)
 

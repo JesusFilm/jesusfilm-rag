@@ -49,25 +49,55 @@ export interface RawAcquiredRow {
 
 /**
  * Shape + validate raw driver rows into ProdStatusData. Pure. Coerces the
- * postgres `count()` (bigint → string) to a number, drops ingested rows with a
- * null language (can't place them on a per-language dashboard), and dedupes
- * acquired keys.
+ * postgres `count()` (bigint → string) to a number and dedupes acquired keys.
+ *
+ * Rows with a null/empty language are NOT dropped — they are embedded and
+ * retrievable, just unattributed to a language. Dropping them silently
+ * under-reports the index (#86), so they are tallied per source into
+ * `unclassified` and surfaced separately by the dashboard.
  */
 export function shapeProdStatus(
   ingestedRows: RawIngestedRow[],
   acquiredRows: RawAcquiredRow[],
 ): ProdRead {
-  const ingested = ingestedRows
-    .filter((r) => r.language != null && r.language !== "")
-    .map((r) => ({
-      key: r.key,
-      name: r.name,
-      host: r.host ?? null,
-      language: r.language as string,
-      embedded_doc_count: Number(r.embedded_doc_count),
-    }));
+  const hasLanguage = (r: RawIngestedRow): boolean =>
+    r.language != null && r.language !== "";
+
+  const ingested = ingestedRows.filter(hasLanguage).map((r) => ({
+    key: r.key,
+    name: r.name,
+    host: r.host ?? null,
+    language: r.language as string,
+    embedded_doc_count: Number(r.embedded_doc_count),
+  }));
+
+  // Tally null-language rows per source. INGESTED_SQL groups by language, so a
+  // source contributes at most one null row today; summing keeps it correct if
+  // that ever changes.
+  const unclassifiedByKey = new Map<string, ProdRead["unclassified"][number]>();
+  for (const r of ingestedRows) {
+    if (hasLanguage(r)) continue;
+    const count = Number(r.embedded_doc_count);
+    const prev = unclassifiedByKey.get(r.key);
+    if (prev) prev.embedded_doc_count += count;
+    else
+      unclassifiedByKey.set(r.key, {
+        key: r.key,
+        name: r.name,
+        host: r.host ?? null,
+        embedded_doc_count: count,
+      });
+  }
+  // Only surface non-empty tallies. The SQL's inner joins already guarantee a
+  // count >= 1, but shapeProdStatus is pure and its input type permits 0, and
+  // prodUnclassifiedRowSchema requires positive() — so drop any 0 here rather
+  // than letting prodReadSchema.parse() throw on it.
+  const unclassified = [...unclassifiedByKey.values()]
+    .filter((u) => u.embedded_doc_count > 0)
+    .sort((a, b) => b.embedded_doc_count - a.embedded_doc_count || a.key.localeCompare(b.key));
+
   const acquired_keys = [...new Set(acquiredRows.map((r) => r.key))].sort();
-  return prodReadSchema.parse({ ingested, acquired_keys });
+  return prodReadSchema.parse({ ingested, acquired_keys, unclassified });
 }
 
 /** Run both reads against an open postgres client and shape the result. */

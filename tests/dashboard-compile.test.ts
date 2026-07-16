@@ -66,6 +66,7 @@ const prod: ProdStatusData = {
     { key: "familylife", name: "FamilyLife", host: "www.familylife.com", language: "en", embedded_doc_count: 2239 },
   ],
   acquired_keys: ["jesusfilm-org", "thelife", "thelife-fr", "thelife-zh", "familylife"],
+  unclassified: [],
 };
 
 function build() {
@@ -190,5 +191,52 @@ describe("renderHtml + assertHtmlContainsData (the merge-gate contract)", () => 
     const misses = assertHtmlContainsData(html, data);
     expect(misses.length).toBeGreaterThan(0);
     expect(misses.join(" ")).toContain("Jesus Film Project");
+  });
+});
+
+describe("unclassified documents — the secondary table (#86)", () => {
+  const TEMPLATE = `<!doctype html><html><body>
+    <table><tbody><!-- DASHBOARD_ROWS --></tbody></table>
+    <section><!-- DASHBOARD_UNCLASSIFIED --></section>
+    <p><!-- DASHBOARD_GENERATED_AT --></p><!-- DASHBOARD_SUMMARY -->
+  </body></html>`;
+
+  const prodWithUnclassified: ProdStatusData = {
+    ...prod,
+    unclassified: [{ key: "cru", name: "Cru", host: "www.cru.org", embedded_doc_count: 190 }],
+  };
+
+  function buildWith() {
+    return buildCompiledData({ prod: prodWithUnclassified, yaml, registry, generatedAt: "2026-06-29" });
+  }
+
+  it("compiles an unclassified row, falling back to the prod name/host when not in the registry", () => {
+    expect(buildWith().unclassified).toEqual([
+      { source: "Cru", key: "cru", host: "www.cru.org", embedded_doc_count: 190 },
+    ]);
+  });
+
+  it("renders the secondary table and the merge gate protects the row", () => {
+    const data = buildWith();
+    const html = renderHtml(TEMPLATE, data);
+    expect(html).toContain('data-unclassified-key="cru"');
+    expect(html).toContain("190");
+    expect(assertHtmlContainsData(html, data)).toEqual([]);
+  });
+
+  it("the gate catches a dropped unclassified tally", () => {
+    const data = buildWith();
+    const html = renderHtml(TEMPLATE, data).replace(/<tr data-unclassified-key="cru"[\s\S]*?<\/tr>/, "");
+    expect(assertHtmlContainsData(html, data).join(" ")).toContain("unclassified/cru");
+  });
+
+  it("folds unclassified docs into the headline total (349+4485+2239+190 = 7,263)", () => {
+    expect(renderHtml(TEMPLATE, buildWith())).toContain("7,263");
+  });
+
+  it("with nothing unclassified, renders the reassurance and emits no tally row", () => {
+    const html = renderHtml(TEMPLATE, build());
+    expect(html).toContain("nothing unclassified");
+    expect(html).not.toContain("data-unclassified-key");
   });
 });

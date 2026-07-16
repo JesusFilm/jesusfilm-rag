@@ -5,7 +5,7 @@ allowed-tools: "Bash(doppler run*) Bash(doppler setup*) Bash(doppler configure g
 disable-model-invocation: true
 ---
 
-<!-- version: 1 -->
+<!-- version: 2 -->
 
 # status-dashboard — refresh the public RAG status page, open a PR
 
@@ -13,6 +13,12 @@ Regenerates the public dashboard that is the **source of truth** for what the
 JesusFilm RAG vector database contains: every source, the languages it has
 content for, where each sits on the journey (**acquire → ingest → evaluate**),
 and the embedded document counts. Built for Miheret and other stakeholders.
+
+The main grid is one row per **source × language**. Below it, a secondary
+**"Unclassified documents"** table lists any embedded docs whose language could
+not be detected (`documents.language = NULL`), tallied per source (count only, no
+lifecycle flags) so the index total is never silently under-reported — see
+"The secondary Unclassified-documents table" below and `docs/ops/dashboard.md` (#86).
 
 The page is a single static HTML file deployed to GitHub Pages. This skill
 refreshes its data from production, proves the page renders that data, and opens
@@ -95,6 +101,22 @@ prod-status-data.json + docs/source-status.yaml + registry
 the engineer's shipped-via-PR signal that source-quality evaluation happened. The
 prod eval script is a non-gating sanity check and is deliberately not consulted.
 
+### The secondary "Unclassified documents" table (#86)
+
+The build emits a second table under the main grid for embedded docs whose
+language could not be detected (`documents.language = NULL`), tallied per source
+by `shapeProdStatus` into `prod-status-data.json`'s `unclassified` list. You do
+**not** author or maintain it — the pipeline produces it; just know it exists so
+the browser-verify step checks it (above) and you can explain it:
+
+- It has **only** a source column and a count — no acquire/ingest/evaluate flags,
+  no stage. A null-language row is a count, not a (source × language) cell.
+- Its total is **included in the headline "embedded documents" stat**, so the
+  figure is the true index size. A non-zero table means a language-detection gap
+  worth a look (usually drained by the ADR-0009 language sweep).
+- When there are none (the healthy state), the section is a one-line reassurance,
+  not an empty table — so a clean refresh looks intentionally clean, not broken.
+
 ---
 
 ## Steps
@@ -139,10 +161,17 @@ prod eval script is a non-gating sanity check and is deliberately not consulted.
    ```
    Navigate to `http://localhost:8137/index.html` with the Playwright browser
    tools and assert via `browser_evaluate`: the `<h1>` reads "JesusFilm RAG";
-   `document.querySelectorAll('tbody tr').length` equals `compiled-data.json`'s
-   `sources.length`; and a spot-check of a couple of source names + a doc count
-   from the JSON appear in `document.body.innerText`. Then `browser_close` and
-   stop the server with `kill "$SERVER_PID"`. Also run the headless gate as belt-and-suspenders:
+   the **main** grid row count —
+   `document.querySelectorAll('table:not(.unclassified-table) tbody tr').length` —
+   equals `compiled-data.json`'s `sources.length` (scope the selector to the main
+   table so the secondary "Unclassified documents" table's rows are not counted);
+   the **unclassified** row count —
+   `document.querySelectorAll('.unclassified-table tbody tr').length` — equals the
+   JSON's `unclassified.length` (which is `0` when the page shows the "nothing
+   unclassified" reassurance line, and the `.unclassified-table` is absent); and a
+   spot-check of a couple of source names + a doc count from the JSON appear in
+   `document.body.innerText`. Then `browser_close` and stop the server with
+   `kill "$SERVER_PID"`. Also run the headless gate as belt-and-suspenders:
    ```bash
    pnpm dashboard:verify   # must print "contains all N compiled row(s)"
    ```

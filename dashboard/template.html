@@ -277,6 +277,41 @@
         white-space: nowrap;
       }
 
+      /* ── Unclassified documents (secondary table, #86) ──────────────────── */
+      .unclassified {
+        margin-top: var(--space-7);
+      }
+      .section-title {
+        font-family: var(--font-sans);
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: -0.01em;
+        margin: 0 0 var(--space-2);
+        color: var(--fg);
+      }
+      .section-note {
+        font-family: var(--font-serif);
+        font-size: 15px;
+        color: var(--fg-secondary);
+        margin: 0 0 var(--space-4);
+        max-width: 70ch;
+      }
+      .unclassified-table {
+        min-width: 420px;
+      }
+      .unclassified-none {
+        font-size: 14px;
+        color: var(--fg-secondary);
+        margin: 0;
+        padding: var(--space-3) 0 0;
+      }
+      .unclassified-none::before {
+        content: "✓";
+        color: var(--navy);
+        font-weight: 700;
+        margin-right: var(--space-2);
+      }
+
       /* ── Legend / footer ────────────────────────────────────────────────── */
       .legend {
         margin-top: var(--space-6);
@@ -352,6 +387,8 @@
           </tbody>
         </table>
       </div>
+
+      <section class="unclassified"><!-- DASHBOARD_UNCLASSIFIED --></section>
 
       <div class="legend">
         <dl>

@@ -111,6 +111,7 @@ describe("merge gate matches per (data-key, data-language) — dropped shared-ke
       { key: "familylife", name: "FamilyLife", host: "www.familylife.com", language: "en", embedded_doc_count: 2239 },
     ],
     acquired_keys: ["familylife"],
+    unclassified: [],
   };
   const TEMPLATE = `<table><tbody><!-- DASHBOARD_ROWS --></tbody></table><p><!-- DASHBOARD_GENERATED_AT --></p><!-- DASHBOARD_SUMMARY -->`;
 

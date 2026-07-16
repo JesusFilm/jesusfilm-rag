@@ -27,6 +27,21 @@ export const prodIngestedRowSchema = z
   .strict();
 export type ProdIngestedRow = z.infer<typeof prodIngestedRowSchema>;
 
+/** One source's tally of embedded documents with NO detected language
+ *  (`documents.language IS NULL`). These are in the index and retrievable —
+ *  just unattributed to a language — so they are surfaced separately rather
+ *  than dropped, which would silently under-report the index (#86). Only
+ *  sources with at least one such document appear. */
+export const prodUnclassifiedRowSchema = z
+  .object({
+    key: z.string().min(1), // canonical registry/source key (sources.key)
+    name: z.string().min(1), // prod-observed display name (sources.name)
+    host: z.string().nullable(), // sources.domain — bare host, may be null
+    embedded_doc_count: z.number().int().positive(), // > 0: only listed when non-empty
+  })
+  .strict();
+export type ProdUnclassifiedRow = z.infer<typeof prodUnclassifiedRowSchema>;
+
 /** The raw DB read result — exactly what `fetchProdStatus`/`shapeProdStatus`
  *  produce, with no timestamp (those are pure data-shaping). */
 export const prodReadSchema = z
@@ -36,6 +51,9 @@ export const prodReadSchema = z
     // here means "raw documents captured" — acquire is true for every canonical
     // (source × language) row whose key appears in this set.
     acquired_keys: z.array(z.string().min(1)),
+    // Per-source tally of embedded docs with no detected language (#86).
+    // Optional + default `[]` so exports written before this field still parse.
+    unclassified: z.array(prodUnclassifiedRowSchema).default([]),
   })
   .strict();
 export type ProdRead = z.infer<typeof prodReadSchema>;
@@ -74,12 +92,28 @@ export const compiledRowSchema = z
   .strict();
 export type CompiledRow = z.infer<typeof compiledRowSchema>;
 
+/** One compiled "unclassified documents" row — a source with embedded docs that
+ *  have no detected language. No lifecycle flags/stage: it is a count, not a
+ *  (source × language) coverage cell (#86). */
+export const compiledUnclassifiedRowSchema = z
+  .object({
+    source: z.string().min(1), // display name
+    key: z.string().min(1), // canonical key (stable join id / sort)
+    host: z.string().nullable(), // bare host URL, or null when unknown
+    embedded_doc_count: z.number().int().positive(),
+  })
+  .strict();
+export type CompiledUnclassifiedRow = z.infer<typeof compiledUnclassifiedRowSchema>;
+
 /** The curated data source that feeds the HTML (committed; the CI merge gate
  *  asserts the compiled HTML contains every row below). */
 export const compiledDataSchema = z
   .object({
     generated_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD"),
     sources: z.array(compiledRowSchema),
+    // Sources with embedded docs that have no detected language (#86). Optional
+    // + default `[]` so compiled artifacts written before this field still parse.
+    unclassified: z.array(compiledUnclassifiedRowSchema).default([]),
   })
   .strict();
 export type CompiledData = z.infer<typeof compiledDataSchema>;

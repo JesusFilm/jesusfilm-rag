@@ -34,6 +34,10 @@ function chunk(
 ): FakeIndexedChunk {
   return {
     chunkId: p.chunkId,
+    // Defaults to a per-chunk document so existing dedup cases (which key on
+    // contentHash, not documentId) are unaffected; the #79 cases below pass an
+    // explicit shared documentId to model many chunks of ONE article.
+    documentId: p.documentId ?? `doc-${p.chunkId}`,
     text: p.text ?? `text ${p.chunkId}`,
     ord: p.ord ?? 0,
     tags: p.tags ?? [],
@@ -126,6 +130,7 @@ describe("createRetriever.search", () => {
         return base.vectorSearch(v, f, k);
       },
       fetchById: (id: string) => base.fetchById(id),
+      fetchDocumentTexts: (ids: string[]) => base.fetchDocumentTexts(ids),
     };
     await createRetriever({ embedder: new VecEmbedder(Q), search: spy }).search(
       "q",
@@ -166,6 +171,67 @@ describe("3-key dedup (invariant 5) — at most one chunk per distinct document"
       chunk({ chunkId: "b", contentHash: "h2", canonicalUrl: "u/b", ord: 1, title: "B", text: "beta", embedding: [1, 0, 0] }),
     ]).search("q");
     expect(out.map((r) => r.chunkId)).toEqual(["a", "b"]);
+  });
+});
+
+describe("full-document retrieval — the buried-answer fix (issue #79)", () => {
+  // A cru-shaped article: chunk 0 is a lead-in anecdote that best matches the
+  // query; chunk 1 buries the actual answer. Both are chunks of ONE document
+  // (shared documentId + contentHash), so the 3-key dedup returns exactly one —
+  // the anecdote — and chunk-only retrieval never surfaces the answer.
+  function buriedAnswerDoc() {
+    return [
+      chunk({
+        chunkId: "anecdote",
+        documentId: "d-bible",
+        contentHash: "doc-bible",
+        canonicalUrl: "u/bible",
+        ord: 0,
+        title: "How to study the Bible effectively",
+        text: "Admiral Byrd sat alone through the Antarctic winter, and it changed him.",
+        embedding: [1, 0, 0], // cosine 1.0 — wins the ranking
+      }),
+      chunk({
+        chunkId: "answer",
+        documentId: "d-bible",
+        contentHash: "doc-bible",
+        canonicalUrl: "u/bible",
+        ord: 1,
+        title: "How to study the Bible effectively",
+        text: "To study the Bible on your own, start with a single book and read it slowly.",
+        embedding: [0.8, 0.6, 0], // cosine 0.8 — above cutoff, but dedup drops it
+      }),
+    ];
+  }
+
+  it("chunk-only (default) surfaces the anecdote and never the buried answer", async () => {
+    const out = await retriever(buriedAnswerDoc()).search("how do I study the Bible on my own?");
+    expect(out.map((r) => r.chunkId)).toEqual(["anecdote"]); // one chunk per doc
+    expect(out[0].text).toContain("Admiral Byrd");
+    expect(out[0].text).not.toContain("start with a single book"); // the answer is buried
+    expect(out[0].document).toBeUndefined(); // no full doc on the default path
+  });
+
+  it("returns the FULL document — including the buried answer — when includeDocument is set", async () => {
+    const out = await retriever(buriedAnswerDoc()).search(
+      "how do I study the Bible on my own?",
+      { includeDocument: true },
+    );
+    expect(out.map((r) => r.chunkId)).toEqual(["anecdote"]); // ranking is unchanged
+    expect(out[0].document).toBeDefined();
+    expect(out[0].document).toContain("Admiral Byrd"); // the lead-in
+    expect(out[0].document).toContain("start with a single book"); // AND the answer chunk 1 buried
+    expect(out[0].text).toBe(
+      "Admiral Byrd sat alone through the Antarctic winter, and it changed him.",
+    ); // `text` still the matched chunk (the ranking evidence)
+  });
+
+  it("assembles every hit's document from all its chunks, in ord order", async () => {
+    const out = await retriever(buriedAnswerDoc()).search("q", { includeDocument: true });
+    expect(out[0].document).toBe(
+      "Admiral Byrd sat alone through the Antarctic winter, and it changed him.\n\n" +
+        "To study the Bible on your own, start with a single book and read it slowly.",
+    );
   });
 });
 

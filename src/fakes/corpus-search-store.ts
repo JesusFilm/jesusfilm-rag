@@ -43,6 +43,7 @@ function matchesFilter(chunk: FakeIndexedChunk, filter: SearchFilter): boolean {
 function toScoredRow(chunk: FakeIndexedChunk, score: number): ScoredRow {
   return {
     chunkId: chunk.chunkId,
+    documentId: chunk.documentId,
     score,
     text: chunk.text,
     ord: chunk.ord,
@@ -100,6 +101,26 @@ export class FakeCorpusSearchStore implements CorpusSearchStore {
   async fetchById(chunkId: string): Promise<ScoredRow | null> {
     const chunk = this.chunks.find((c) => c.chunkId === chunkId);
     return chunk ? toScoredRow(chunk, 1) : null;
+  }
+
+  /** Full document text per id: seeded chunks grouped by documentId, `ord`-ordered, joined. */
+  async fetchDocumentTexts(
+    documentIds: string[],
+  ): Promise<Map<string, string>> {
+    const want = new Set(documentIds);
+    const byDoc = new Map<string, FakeIndexedChunk[]>();
+    for (const c of this.chunks) {
+      if (!want.has(c.documentId)) continue;
+      const bucket = byDoc.get(c.documentId);
+      if (bucket) bucket.push(c);
+      else byDoc.set(c.documentId, [c]);
+    }
+    return new Map(
+      [...byDoc].map(([id, cs]) => [
+        id,
+        [...cs].sort((a, b) => a.ord - b.ord).map((c) => c.text).join("\n\n"),
+      ]),
+    );
   }
 
   async embeddingModels(): Promise<string[]> {

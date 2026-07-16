@@ -120,6 +120,7 @@ describe("FakeCorpusSearchStore", () => {
     const vecs = (await embedder.embed(texts)) as number[][];
     const rows: FakeIndexedChunk[] = texts.map((text, i) => ({
       chunkId: `chunk-${i}`,
+      documentId: `doc-${i}`,
       text,
       ord: i,
       tags: [],

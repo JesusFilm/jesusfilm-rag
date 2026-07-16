@@ -43,6 +43,13 @@ export const retrievalPolicySchema = z
     // never return more; bounding it keeps the contract honest + rejects abuse.
     topK: z.number().int().positive().max(50).optional(), // default 5 (engine-applied)
     minScore: z.number().min(0).max(1).optional(), // default 0.37 (engine-applied)
+    // Opt in to full-document text on each result (issue #79). Default (absent /
+    // false) returns the matched chunk only — the historical, byte-identical
+    // behaviour. When true, each RankedResult also carries `document` (the whole
+    // source document, so a buried answer past a lead-in anecdote is present).
+    // Off by default because a large document is a large payload — the consumer
+    // decides when to pay it ("mechanism, not policy", architecture §1).
+    includeDocument: z.boolean().optional(), // default false (engine-applied)
   })
   .strict();
 
@@ -51,10 +58,15 @@ export const rankedResultSchema = z
   .object({
     chunkId: z.string(),
     score: z.number(), // cosine 0..1
-    text: z.string(),
+    text: z.string(), // the matched chunk — the ranking evidence (why this doc hit)
     ord: z.number().int(),
     tags: z.array(z.string()),
     citation: citationSchema,
+    // The whole source document, present ONLY when the request set
+    // `includeDocument: true` (issue #79). `text` stays the matched chunk; this
+    // is the full body so a consumer can answer from content the chunk buried.
+    // Additive + optional → same major version; the default response is unchanged.
+    document: z.string().optional(),
   })
   .strict();
 

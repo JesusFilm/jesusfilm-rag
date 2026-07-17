@@ -216,8 +216,10 @@ crowding, FOLLOW-UP I [#15](https://github.com/JesusFilm/jesusfilm-rag/issues/15
 
 **Production status:** prod is now **fully on `qwen/qwen3-embedding-8b`** — the
 prod re-embed + serving cutover ([`docs/ops/prod-reembed.md`](./ops/prod-reembed.md))
-**completed and was verified 2026-07-08**. Corpus is **100% qwen**: 9,044 docs /
-24,719 chunks, 0 pending, 0 left on 3-small. Serving cutover: Railway service vars
+**completed and was verified 2026-07-08**. Corpus at that verification (historical
+**pre-cru snapshot**): **100% qwen**, 9,044 docs / 24,719 chunks, 0 pending, 0 left on
+3-small. (The slice-#7 cru cutover 2026-07-14/15 + language sweep have since grown prod
+to **11,477 docs** — all post-verification additions ingested directly on qwen.) Serving cutover: Railway service vars
 `EMBED_MODEL_ID` + `EMBED_QUERY_INSTRUCTION` set, Doppler `forge-rag/prd` renamed
 the parked key to plain `EMBED_QUERY_INSTRUCTION`, and the `jfrag-retrieve`
 catalogue model default flipped to qwen. Post-cutover verify (read-only) passed:

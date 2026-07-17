@@ -21,9 +21,11 @@ superseded `cru-10-basic-steps` docs stayed duplicated (#85) until their transac
 removal 2026-07-15 (PR #93: 11 docs / 35 chunks deleted, zero unique content lost,
 `cru` intact at 2,444). The prod language sweep (LLM detector, ADR-0009, PRs
 #92/#95/#96) then drained unclassified docs **190 → 0** and relabelled the phantom
-`vi` doc → `es` (#84). **Prod now: 11,477 docs, 100% `qwen/qwen3-embedding-8b`**
-(whole-corpus re-embed + serving cutover verified 2026-07-08 — see sources.md
-"Embedding model swap"). ⚠️ **Known gap: no `eval:production` has run since the cru
+`vi` doc → `es` (#84). **Prod now: 11,477 docs, 100% `qwen/qwen3-embedding-8b`.**
+(Timeline: the re-embed + serving cutover was verified 2026-07-08 on the then-9,044-doc
+**pre-cru** corpus — see sources.md "Embedding model swap"; the cru cutover 2026-07-14/15
+and the language sweep grew prod to 11,477, with everything added since ingested directly
+on qwen.) ⚠️ **Known gap: no `eval:production` has run since the cru
 cutover** — cru's prod "Evaluated" rests on the local slice-#7 eval; the last prod
 eval (2026-07-08, post-qwen) had zero English misses.
 

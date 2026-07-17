@@ -5,15 +5,29 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-14 — **slice #7 (Cru consolidated) is DONE** on `slice/cru`
-(not yet merged); merge decision + prod cutover are next_
+_Last updated: 2026-07-17 — **slice #7 MERGED (PR #80) + prod cutover COMPLETE**;
+prod is 100% qwen3 at **11,477 docs**; `cru-10-basic-steps` removed from prod (PR #93)_
 
 ## You are here
 
-**Slice #7 (Cru consolidated, `cru`) is DONE 2026-07-14** — all 4 stages green on
-`slice/cru`, **not yet merged**. One whole-domain source (en+es+fr) superseding
-`cru-10-basic-steps` and the short-lived `cru-es` (one domain = one source,
-ADR-0006). **2,444 docs / 8,497 qwen3 chunks**, queryable in three languages.
+**Slice #7 (Cru consolidated, `cru`) is DONE and MERGED to `main`** (PR #80,
+2026-07-14). One whole-domain source (en+es+fr) superseding `cru-10-basic-steps`
+and the short-lived `cru-es` (one domain = one source, ADR-0006). **2,444 docs /
+8,497 qwen3 chunks**, queryable in three languages.
+
+**Prod cutover is COMPLETE.** `cru` was ingested + embedded in prod 2026-07-14
+(dashboard PR #87: index 9,044 → 11,488). The cutover initially only ADDED — the 11
+superseded `cru-10-basic-steps` docs stayed duplicated (#85) until their transactional
+removal 2026-07-15 (PR #93: 11 docs / 35 chunks deleted, zero unique content lost,
+`cru` intact at 2,444). The prod language sweep (LLM detector, ADR-0009, PRs
+#92/#95/#96) then drained unclassified docs **190 → 0** and relabelled the phantom
+`vi` doc → `es` (#84). **Prod now: 11,477 docs, 100% `qwen/qwen3-embedding-8b`.**
+(Timeline: the re-embed + serving cutover was verified 2026-07-08 on the then-9,044-doc
+**pre-cru** corpus — see sources.md "Embedding model swap"; the cru cutover 2026-07-14/15
+and the language sweep grew prod to 11,477, with everything added since ingested directly
+on qwen.) ⚠️ **Known gap: no `eval:production` has run since the cru
+cutover** — cru's prod "Evaluated" rests on the local slice-#7 eval; the last prod
+eval (2026-07-08, post-qwen) had zero English misses.
 
 **Stage 4 (eval) used a 3-lens LLM judge panel** (theologian / pastor / mature
 Christian) instead of a hand-curated pass. Every proposed credit was scored on
@@ -23,8 +37,9 @@ OFF-QUESTION**: orthodox docs answering a question nobody asked. A soundness-onl
 rubric would have auto-accepted every one into the answer keys and quietly
 corrupted the eval. 73 credits approved; suite **82 → 96 cases** (+6 en cru-native,
 **+8 es — the first Spanish cases in the suite**). Prompt preserved at
-`docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md` (candidate for
-promotion into `.claude/skills/golden`).
+`docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md` — **promoted into
+`.claude/skills/golden` v3 as Guardrail #6** (two-axis relevance ⊥ soundness;
+shipped with PR #80).
 
 **Final eval @ 96 cases / 9 sources:** recall@3 **0.938** · recall@10 **1.000** ·
 coverage **0.689** · MRR 0.814 · P@1 0.677. **cru per-source recall 0.125 → 0.828,
@@ -57,7 +72,9 @@ sample of 151 of ~11,500 docs, not an audit.
   §11 FOLLOW-UP N): retrieval returns **one chunk per doc** and cru articles open with
   long lead-in anecdotes → **40 of 151 docs judged `answer_buried`** (right doc, useless
   snippet); compounded by **1,375 cru chunks (16.2%) beginning with the junk string
-  `0 100 0`** (AEM artifact, no other source has it).
+  `0 100 0`** (AEM artifact, no other source has it). **#79 CLOSED 2026-07-16** — opt-in
+  `includeDocument` full-document-per-hit shipped (PR #97, ADR-0011); the extraction-side
+  `0 100 0` junk-strip (needs a cru re-ingest) and lead-in detection remain open candidates.
 - **Still unfiled:** Cru's Spanish corpus is **machine-translated to near-unreadability**
   — an acquire-side quality ceiling, not a soundness problem (do not file it as one).
 
@@ -97,19 +114,19 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Operator decides.** Slice #7 is closed; nothing is mid-flight.
+**Operator decides.** Slice #7 is fully landed (merged + prod cutover + duplicate
+cleanup + language sweep); nothing is mid-flight.
 
-1. **Merge slice #7** — open a PR from `slice/cru` to `main`. Then the **prod cutover**
-   (`docs/ops/prod-ingest.md`, #29): prod is still serving the 11 `cru-10-basic-steps`
-   rows and must be replaced by the 2,444-doc `cru` source.
-2. **Promote the judge panel into a skill.** The two-axis (relevance ⊥ soundness) gate
-   caught 73 sound-but-off-question credits that a hand pass would have waved through,
-   and cut operator review from 151 items to 91 ranked ones. It belongs in
-   `.claude/skills/golden` (or a sibling) so every future Stage 4 runs this way.
-   Prompt: `docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`.
-3. **The chunking finding** (see "You are here") is the strongest engine lead we have:
-   one chunk per doc + long lead-in anecdotes = right document, useless snippet. This
-   plausibly subsumes the "register gap" and much of FOLLOW-UP I #15.
+1. **Certify prod post-cutover** — run `pnpm eval:production` against the post-cutover
+   corpus (11,477 docs). cru's prod "Evaluated" currently rests on the local slice-#7
+   eval; the last recorded prod eval (2026-07-08) predates the cru cutover.
+2. **Content soundness #78** — 18 docs below 0.75 soundness (14 cru, **3 thelife ⚠️
+   already live in prod**, 1 familylife); prosperity-drift pattern. Remediation
+   decisions pending.
+3. **Retrieval-quality leads** — #76 (negation blindness) and #75 (HNSW drops best
+   matches, worst for rare-language). #79 itself is closed (PR #97, ADR-0011); the cru
+   `0 100 0` junk-strip (extraction-side, needs a cru re-ingest) is the remaining
+   chunk-quality lead.
 4. **FOLLOW-UP I #15** (`maxPerSource` / MMR) and **FOLLOW-UP E #6** (`excludedSourceKeys`)
    remain unblocked consumer-layer work.
 5. **Next source slice** — GotQuestions / KnowGod / Issues I Face.
@@ -284,8 +301,9 @@ high word counts confirm real content, not an anti-bot page.)
   shape — `seeds`+`allow`/`block`/`articleHints`+`contentSelectors`+`sitemaps`;
   trigger = first large source) and **FOLLOW-UP G** (Cloudflare/JS-walled sources —
   EveryStudent confirmed walled; bypass options listed). For small curated scopes
-  (like `cru-10-basic-steps`, 12 ready-made URLs) the current hand-listed `seedPaths`
-  code is still fine; neither follow-up is taken in slice #2.
+  (like the since-retired `cru-10-basic-steps`, 12 ready-made URLs — absorbed into
+  whole-domain `cru` in slice #7) the hand-listed `seedPaths` code is still fine;
+  neither follow-up was taken in slice #2.
 
 ## Done
 

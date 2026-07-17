@@ -12,6 +12,12 @@ strategic, futureproofing, parity-with-Forge decision. Decision is now made on e
 benchmark evidence (see **DECISION** block). The embedder-adapter code (commit `e4876ca`)
 stands — it's the model-agnostic mechanism to run Qwen either way._
 
+_**LEDGER CLOSED (2026-07-17): everything below is resolved.** The swap shipped (PR #57,
+ADR-0005); the **prod re-embed ran 2026-07-06→08 and the serving cutover was verified
+2026-07-08** — prod is 100% qwen (see `docs/sources.md` "Embedding model swap" and
+`docs/ops/prod-reembed.md`). D6/D7/D8 are checked off below with dated closure notes.
+Kept for the historical record; nothing here is pending._
+
 ---
 
 ## DECISION (2026-07-02) — Adopt Qwen3-Embedding-8B @1536. Evidence conclusive.
@@ -223,8 +229,10 @@ Report the new cutoff in this file before I change the default. **Not gating the
 just don't want a silent honesty regression.
 
 **Your call:**
-- [ ] Re-confirm/re-derive minScore post-swap, report before changing (recommended)
-- Notes: ____________________
+- [x] Re-confirm/re-derive minScore post-swap, report before changing (recommended)
+- Notes: CLOSED 2026-07-17 (work done 2026-07-08→14). **minScore held at 0.37 — no
+  change made.** Re-confirmed under qwen incl. per-language negatives (#39 P1), and
+  again in Spanish during slice #7 (es negatives ≤ 0.308; es positive band 0.622–0.739).
 
 ---
 
@@ -240,9 +248,13 @@ adapter, the destructive-`--force` finding (needs blue/green per #5), and the lo
 result as the go/no-go evidence. I'll draft and show you before filing.
 
 **Your call:**
-- [ ] Create the sub-issue after I draft it (recommended)
+- [x] Create the sub-issue after I draft it (recommended)
 - [ ] You'll track it elsewhere: ____________________
-- Notes: ____________________
+- Notes: CLOSED 2026-07-17 — OVERTAKEN BY EVENTS: no sub-issue was needed. The prod
+  re-embed itself ran 2026-07-06→08 on the hosted OpenRouter qwen path (resumable
+  `--force` #62; retries 4→10 #65) and was **verified 2026-07-08** (whole-corpus
+  `eval:production`, zero English misses; runbook `docs/ops/prod-reembed.md`).
+  On-prem vLLM serving remains tracked by #41.
 
 ---
 
@@ -278,10 +290,13 @@ ranking should cost it recall@3 / coverage / MRR that qwen recovers.
    English-floor re-embed on a swap that doesn't earn its keep.
 
 **Your call:**
-- [ ] Mixed cheap-pass corpus + read recall@3/coverage/MRR (recommended; I'm proceeding)
+- [x] Mixed cheap-pass corpus + read recall@3/coverage/MRR (recommended; I'm proceeding)
 - [ ] Chinese-only, accept saturation risk: ____________________
 - [ ] Other: ____________________
-- Notes: ____________________
+- Notes: CLOSED 2026-07-17 — MOOT: the manual A/B was superseded by the DECISION
+  (2026-07-02, external benchmarks). Qwen shipped (PR #57) and the real zh eval landed
+  **recall@10 1.000 / coverage 0.892** (thelife-zh, 2026-07-03) — the "subtle win"
+  concern did not materialize.
 
 ---
 

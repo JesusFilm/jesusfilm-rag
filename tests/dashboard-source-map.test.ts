@@ -247,9 +247,10 @@ describe("renderHtml — the ledger page", () => {
     expect(html).toContain("~2.9k");
   });
 
-  it("keeps the unclassified reassurance when nothing is unclassified", () => {
+  it("renders no unclassified section at all when nothing is unclassified", () => {
     const html = renderHtml(TEMPLATE, build());
-    expect(html).toContain("nothing unclassified");
+    expect(html).not.toContain("Unclassified documents");
+    expect(html).not.toContain("data-unclassified-key");
   });
 
   it("still renders the secondary unclassified table when prod reports null-language docs (#86)", () => {

@@ -361,37 +361,10 @@
       .unclassified-table {
         min-width: 420px;
       }
-      .unclassified-none {
-        font-size: 14px;
-        color: var(--fg-secondary);
-        margin: 0;
-        padding: var(--space-3) 0 0;
-      }
-      .unclassified-none::before {
-        content: "✓";
-        color: var(--navy);
-        font-weight: 700;
-        margin-right: var(--space-2);
-      }
 
-      /* ── Legend / footer ────────────────────────────────────────────────── */
+      /* ── Legend (the chip key, between the stats and the ledger) ────────── */
       .legend {
-        margin-top: var(--space-6);
-        font-size: 14px;
-        color: var(--fg-secondary);
-      }
-      .legend .chips {
-        margin-top: var(--space-3);
-      }
-      footer {
-        margin-top: var(--space-7);
-        padding-top: var(--space-4);
-        border-top: 1px solid var(--border);
-        font-size: 13px;
-        color: var(--fg-secondary);
-      }
-      footer a {
-        color: var(--red);
+        margin: 0 0 var(--space-5);
       }
 
       @media (max-width: 640px) {
@@ -413,13 +386,22 @@
         <p class="eyebrow">JesusFilm RAG</p>
         <h1><span class="brand">JesusFilm</span> RAG</h1>
         <p class="subtitle">
-          Every source we know of — what is retrievable in production, what is
-          blocked, and what is documented for future ingestion.
+          Sources in production, blocked, and planned for ingestion.
         </p>
         <p class="updated">Updated 2026-07-16</p>
       </header>
 
       <section class="summary"><div class="stat"><span class="stat-value">8</span><span class="stat-label">sources in prod</span></div><div class="stat"><span class="stat-value">4</span><span class="stat-label">languages live</span></div><div class="stat"><span class="stat-value">11,477</span><span class="stat-label">embedded documents</span></div><div class="stat"><span class="stat-value">1</span><span class="stat-label">blocked</span></div><div class="stat"><span class="stat-value">8</span><span class="stat-label">proposed</span></div></section>
+
+      <div class="legend">
+        <div class="chips">
+          <span class="chip chip-evaluated"><span class="n">evaluated</span></span>
+          <span class="chip chip-ingested"><span class="g">◐</span><span class="n">ingested, eval pending</span></span>
+          <span class="chip chip-acquired"><span class="g">○</span><span class="n">acquired only</span></span>
+          <span class="chip chip-blocked"><span class="g">✕</span><span class="n">blocked</span></span>
+          <span class="chip chip-proposed"><span class="g">⋯</span><span class="n">proposed / documented only</span></span>
+        </div>
+      </div>
 
       <div class="table-scroll">
         <table>
@@ -462,33 +444,7 @@
         </table>
       </div>
 
-      <section class="unclassified"><p class="unclassified-none">Every embedded document has a detected language — nothing unclassified.</p></section>
-
-      <div class="legend">
-        <p>
-          A chip is one language (or pending group): label + embedded documents,
-          colored by the furthest stage it reached — the glyph carries the state
-          too, so it is never color alone. Proposed rows are documented for
-          future ingestion and have nothing in the index yet; sizes there are
-          estimates, not guarantees.
-        </p>
-        <div class="chips">
-          <span class="chip chip-evaluated"><span class="n">evaluated</span></span>
-          <span class="chip chip-ingested"><span class="g">◐</span><span class="n">ingested, eval pending</span></span>
-          <span class="chip chip-acquired"><span class="g">○</span><span class="n">acquired only</span></span>
-          <span class="chip chip-blocked"><span class="g">✕</span><span class="n">blocked</span></span>
-          <span class="chip chip-proposed"><span class="g">⋯</span><span class="n">proposed / documented only</span></span>
-        </div>
-      </div>
-
-      <footer>
-        Generated from the production database,
-        <code>docs/source-status.yaml</code>, and the curated
-        <code>docs/source-map.yaml</code> by the <code>status-dashboard</code>
-        skill. "Docs in prod" counts reflect embedded documents in the live
-        index; proposed/blocked sizes are estimates from recon and the
-        jesusfilm-ai registry.
-      </footer>
+      <section class="unclassified"></section>
     </div>
   </body>
 </html>

@@ -6,7 +6,7 @@
     <title>JesusFilm RAG — source &amp; language coverage</title>
     <meta
       name="description"
-      content="Which sources and languages are available in the JesusFilm RAG retrieval index, and where each sits on the path to production."
+      content="Every source known to the JesusFilm RAG project — what is retrievable in production, what is blocked, and what is documented for future ingestion."
     />
     <!--
       Styling follows the Jesus Film Project design system (colors_and_type.css):
@@ -17,6 +17,12 @@
       NOTE: Inter is the JFP brand typeface, used here intentionally; the anti-
       slop "avoid Inter as a lazy default" rule is satisfied by it being a
       deliberate brand decision, not a fallback.
+
+      Layout (issue #100): a source LEDGER — one row per source, languages as
+      stage-colored chips (label + count only; stage = color + one glyph, never
+      color alone), grouped In production / Blocked / Proposed / Retired. Chips
+      wrap with the viewport, so a many-language source stays one row. The
+      secondary "Unclassified documents" table (#86) remains below the ledger.
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -51,7 +57,7 @@
         --space-6: 32px;
         --space-7: 48px;
         --radius: 4px;
-        --container: 1080px;
+        --container: 1180px;
       }
 
       * {
@@ -107,7 +113,7 @@
         font-size: 18px;
         color: var(--fg-secondary);
         margin: var(--space-3) 0 0;
-        max-width: 60ch;
+        max-width: 62ch;
       }
       .updated {
         font-size: 13px;
@@ -143,7 +149,7 @@
         margin-top: var(--space-1);
       }
 
-      /* ── Table ──────────────────────────────────────────────────────────── */
+      /* ── Ledger table ───────────────────────────────────────────────────── */
       .table-scroll {
         overflow-x: auto;
         border: 1px solid var(--border);
@@ -152,7 +158,7 @@
       table {
         border-collapse: collapse;
         width: 100%;
-        min-width: 720px;
+        min-width: 940px;
       }
       thead th {
         font-size: 11px;
@@ -168,9 +174,6 @@
       }
       thead th.col-count {
         text-align: right;
-      }
-      thead th.col-flag {
-        text-align: center;
       }
       tbody td {
         padding: var(--space-3) var(--space-4);
@@ -195,35 +198,51 @@
         color: var(--fg-secondary);
         font-family: var(--font-mono);
       }
-      .lang {
+      .col-count {
+        text-align: right;
         font-family: var(--font-mono);
         font-size: 14px;
-        text-transform: uppercase;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .col-missing {
+        font-size: 13px;
         color: var(--fg);
+        max-width: 42ch;
+      }
+      .col-missing em {
+        color: var(--fg-secondary);
+      }
+      .method {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--fg);
+        background: var(--warm-white);
+        border-radius: var(--radius);
+        padding: 1px 7px;
+        white-space: nowrap;
       }
 
-      .col-flag {
-        text-align: center;
-        width: 84px;
+      /* group separator rows */
+      .group-row td {
+        background: var(--warm-white);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-secondary);
+        padding: var(--space-2) var(--space-4);
+        border-bottom: 1px solid var(--border);
       }
-      .flag {
-        font-size: 15px;
-        line-height: 1;
+      tr.row-documented.state-retired td {
+        color: var(--fg-secondary);
       }
-      .flag-off {
-        color: var(--warm-gray-1);
-      }
-      /* progressive lifecycle colour, all within the brand palette (no green) */
-      td.col-flag:nth-of-type(3) .flag-on {
-        color: var(--soft-black);
-      }
-      td.col-flag:nth-of-type(4) .flag-on {
-        color: var(--navy);
-      }
-      td.col-flag:nth-of-type(5) .flag-on {
-        color: var(--red);
+      tr.row-documented.state-retired .source-name {
+        color: var(--fg-secondary);
       }
 
+      /* ── State pills (progressive lifecycle, brand palette — no green) ──── */
       .stage {
         display: inline-block;
         font-size: 12px;
@@ -254,27 +273,70 @@
         border-color: rgba(145, 33, 74, 0.4);
         background: rgba(145, 33, 74, 0.06);
       }
-      /* Deferred sits off the acquired → ingested → evaluated progression
-         (the row is superseded), so it recedes rather than taking a hue. */
-      .stage-deferred {
+      .stage-proposed {
+        color: var(--navy);
+        border-color: rgba(66, 74, 102, 0.35);
+        background: var(--white);
+      }
+      .stage-not-started,
+      .stage-retired {
         color: var(--soft-black);
         border-color: var(--warm-gray-1);
         background: var(--gray-2);
       }
-      .note {
-        display: block;
-        font-size: 12px;
-        color: var(--fg-secondary);
-        margin-top: var(--space-1);
-        font-style: italic;
-      }
 
-      .col-count {
-        text-align: right;
+      /* ── Language chips: label + count only; stage = color + one glyph ──── */
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 5px;
         font-family: var(--font-mono);
-        font-size: 14px;
-        font-variant-numeric: tabular-nums;
+        font-size: 12px;
+        line-height: 1;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
         white-space: nowrap;
+      }
+      .chip .g {
+        font-weight: 700;
+      }
+      .chip .l {
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .chip .n {
+        font-variant-numeric: tabular-nums;
+      }
+      .chip-evaluated {
+        color: var(--red);
+        border-color: rgba(239, 51, 64, 0.45);
+        background: rgba(239, 51, 64, 0.06);
+      }
+      .chip-ingested {
+        color: var(--navy);
+        border-color: rgba(66, 74, 102, 0.45);
+        background: rgba(66, 74, 102, 0.06);
+      }
+      .chip-acquired {
+        color: var(--soft-black);
+        border-color: var(--warm-gray-1);
+        background: var(--warm-white);
+      }
+      .chip-blocked {
+        color: var(--maroon);
+        border-color: rgba(145, 33, 74, 0.5);
+        background: rgba(145, 33, 74, 0.06);
+      }
+      .chip-proposed {
+        color: var(--fg-secondary);
+        border-style: dashed;
+        background: var(--white);
       }
 
       /* ── Unclassified documents (secondary table, #86) ──────────────────── */
@@ -318,18 +380,8 @@
         font-size: 14px;
         color: var(--fg-secondary);
       }
-      .legend dl {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: var(--space-2) var(--space-4);
-        margin: var(--space-3) 0 0;
-      }
-      .legend dt {
-        font-weight: 700;
-        color: var(--fg);
-      }
-      .legend dd {
-        margin: 0;
+      .legend .chips {
+        margin-top: var(--space-3);
       }
       footer {
         margin-top: var(--space-7);
@@ -361,8 +413,8 @@
         <p class="eyebrow">JesusFilm RAG</p>
         <h1><span class="brand">JesusFilm</span> RAG</h1>
         <p class="subtitle">
-          Sources and languages available in the JesusFilm RAG retrieval index,
-          and where each source sits on the path to production.
+          Every source we know of — what is retrievable in production, what is
+          blocked, and what is documented for future ingestion.
         </p>
         <p class="updated">Updated <!-- DASHBOARD_GENERATED_AT --></p>
       </header>
@@ -374,12 +426,10 @@
           <thead>
             <tr>
               <th class="col-source" scope="col">Source</th>
-              <th class="col-lang" scope="col">Lang</th>
-              <th class="col-flag" scope="col">Acquire</th>
-              <th class="col-flag" scope="col">Ingest</th>
-              <th class="col-flag" scope="col">Evaluate</th>
-              <th class="col-stage" scope="col">Stage</th>
-              <th class="col-count" scope="col">Documents</th>
+              <th class="col-state" scope="col">State</th>
+              <th class="col-langs" scope="col">Languages</th>
+              <th class="col-count" scope="col">Docs in prod</th>
+              <th class="col-missing" scope="col">Missing / next step</th>
             </tr>
           </thead>
           <tbody>
@@ -391,21 +441,29 @@
       <section class="unclassified"><!-- DASHBOARD_UNCLASSIFIED --></section>
 
       <div class="legend">
-        <dl>
-          <dt>Acquire</dt>
-          <dd>Raw documents for this source &amp; language have been captured into the pipeline.</dd>
-          <dt>Ingest</dt>
-          <dd>Content is normalized, chunked, and embedded — actually retrievable in production.</dd>
-          <dt>Evaluate</dt>
-          <dd>Retrieval quality has been reviewed and the evaluation shipped — the source is fully vetted.</dd>
-        </dl>
+        <p>
+          A chip is one language (or pending group): label + embedded documents,
+          colored by the furthest stage it reached — the glyph carries the state
+          too, so it is never color alone. Proposed rows are documented for
+          future ingestion and have nothing in the index yet; sizes there are
+          estimates, not guarantees.
+        </p>
+        <div class="chips">
+          <span class="chip chip-evaluated"><span class="l">xx</span><span class="n">evaluated</span></span>
+          <span class="chip chip-ingested"><span class="g">◐</span><span class="l">xx</span><span class="n">ingested, eval pending</span></span>
+          <span class="chip chip-acquired"><span class="g">○</span><span class="l">xx</span><span class="n">acquired only</span></span>
+          <span class="chip chip-blocked"><span class="g">✕</span><span class="l">xx</span><span class="n">blocked</span></span>
+          <span class="chip chip-proposed"><span class="g">⋯</span><span class="n">proposed / documented only</span></span>
+        </div>
       </div>
 
       <footer>
-        Generated from the production database and
-        <code>docs/source-status.yaml</code> by the
-        <code>status-dashboard</code> skill. Counts reflect embedded documents in
-        the live index.
+        Generated from the production database,
+        <code>docs/source-status.yaml</code>, and the curated
+        <code>docs/source-map.yaml</code> by the <code>status-dashboard</code>
+        skill. "Docs in prod" counts reflect embedded documents in the live
+        index; proposed/blocked sizes are estimates from recon and the
+        jesusfilm-ai registry.
       </footer>
     </div>
   </body>

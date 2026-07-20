@@ -6,7 +6,7 @@
     <title>JesusFilm RAG — source &amp; language coverage</title>
     <meta
       name="description"
-      content="Which sources and languages are available in the JesusFilm RAG retrieval index, and where each sits on the path to production."
+      content="Every source known to the JesusFilm RAG project — what is retrievable in production, what is blocked, and what is documented for future ingestion."
     />
     <!--
       Styling follows the Jesus Film Project design system (colors_and_type.css):
@@ -17,6 +17,12 @@
       NOTE: Inter is the JFP brand typeface, used here intentionally; the anti-
       slop "avoid Inter as a lazy default" rule is satisfied by it being a
       deliberate brand decision, not a fallback.
+
+      Layout (issue #100): a source LEDGER — one row per source, languages as
+      stage-colored chips (label + count only; stage = color + one glyph, never
+      color alone), grouped In production / Blocked / Proposed / Retired. Chips
+      wrap with the viewport, so a many-language source stays one row. The
+      secondary "Unclassified documents" table (#86) remains below the ledger.
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -51,7 +57,7 @@
         --space-6: 32px;
         --space-7: 48px;
         --radius: 4px;
-        --container: 1080px;
+        --container: 1180px;
       }
 
       * {
@@ -107,7 +113,7 @@
         font-size: 18px;
         color: var(--fg-secondary);
         margin: var(--space-3) 0 0;
-        max-width: 60ch;
+        max-width: 62ch;
       }
       .updated {
         font-size: 13px;
@@ -143,7 +149,7 @@
         margin-top: var(--space-1);
       }
 
-      /* ── Table ──────────────────────────────────────────────────────────── */
+      /* ── Ledger table ───────────────────────────────────────────────────── */
       .table-scroll {
         overflow-x: auto;
         border: 1px solid var(--border);
@@ -152,7 +158,7 @@
       table {
         border-collapse: collapse;
         width: 100%;
-        min-width: 720px;
+        min-width: 940px;
       }
       thead th {
         font-size: 11px;
@@ -168,9 +174,6 @@
       }
       thead th.col-count {
         text-align: right;
-      }
-      thead th.col-flag {
-        text-align: center;
       }
       tbody td {
         padding: var(--space-3) var(--space-4);
@@ -195,35 +198,51 @@
         color: var(--fg-secondary);
         font-family: var(--font-mono);
       }
-      .lang {
+      .col-count {
+        text-align: right;
         font-family: var(--font-mono);
         font-size: 14px;
-        text-transform: uppercase;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .col-missing {
+        font-size: 13px;
         color: var(--fg);
+        max-width: 42ch;
+      }
+      .col-missing em {
+        color: var(--fg-secondary);
+      }
+      .method {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--fg);
+        background: var(--warm-white);
+        border-radius: var(--radius);
+        padding: 1px 7px;
+        white-space: nowrap;
       }
 
-      .col-flag {
-        text-align: center;
-        width: 84px;
+      /* group separator rows */
+      .group-row td {
+        background: var(--warm-white);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-secondary);
+        padding: var(--space-2) var(--space-4);
+        border-bottom: 1px solid var(--border);
       }
-      .flag {
-        font-size: 15px;
-        line-height: 1;
+      tr.row-documented.state-retired td {
+        color: var(--fg-secondary);
       }
-      .flag-off {
-        color: var(--warm-gray-1);
-      }
-      /* progressive lifecycle colour, all within the brand palette (no green) */
-      td.col-flag:nth-of-type(3) .flag-on {
-        color: var(--soft-black);
-      }
-      td.col-flag:nth-of-type(4) .flag-on {
-        color: var(--navy);
-      }
-      td.col-flag:nth-of-type(5) .flag-on {
-        color: var(--red);
+      tr.row-documented.state-retired .source-name {
+        color: var(--fg-secondary);
       }
 
+      /* ── State pills (progressive lifecycle, brand palette — no green) ──── */
       .stage {
         display: inline-block;
         font-size: 12px;
@@ -254,27 +273,70 @@
         border-color: rgba(145, 33, 74, 0.4);
         background: rgba(145, 33, 74, 0.06);
       }
-      /* Deferred sits off the acquired → ingested → evaluated progression
-         (the row is superseded), so it recedes rather than taking a hue. */
-      .stage-deferred {
+      .stage-proposed {
+        color: var(--navy);
+        border-color: rgba(66, 74, 102, 0.35);
+        background: var(--white);
+      }
+      .stage-not-started,
+      .stage-retired {
         color: var(--soft-black);
         border-color: var(--warm-gray-1);
         background: var(--gray-2);
       }
-      .note {
-        display: block;
-        font-size: 12px;
-        color: var(--fg-secondary);
-        margin-top: var(--space-1);
-        font-style: italic;
-      }
 
-      .col-count {
-        text-align: right;
+      /* ── Language chips: label + count only; stage = color + one glyph ──── */
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 5px;
         font-family: var(--font-mono);
-        font-size: 14px;
-        font-variant-numeric: tabular-nums;
+        font-size: 12px;
+        line-height: 1;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
         white-space: nowrap;
+      }
+      .chip .g {
+        font-weight: 700;
+      }
+      .chip .l {
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .chip .n {
+        font-variant-numeric: tabular-nums;
+      }
+      .chip-evaluated {
+        color: var(--red);
+        border-color: rgba(239, 51, 64, 0.45);
+        background: rgba(239, 51, 64, 0.06);
+      }
+      .chip-ingested {
+        color: var(--navy);
+        border-color: rgba(66, 74, 102, 0.45);
+        background: rgba(66, 74, 102, 0.06);
+      }
+      .chip-acquired {
+        color: var(--soft-black);
+        border-color: var(--warm-gray-1);
+        background: var(--warm-white);
+      }
+      .chip-blocked {
+        color: var(--maroon);
+        border-color: rgba(145, 33, 74, 0.5);
+        background: rgba(145, 33, 74, 0.06);
+      }
+      .chip-proposed {
+        color: var(--fg-secondary);
+        border-style: dashed;
+        background: var(--white);
       }
 
       /* ── Unclassified documents (secondary table, #86) ──────────────────── */
@@ -318,18 +380,8 @@
         font-size: 14px;
         color: var(--fg-secondary);
       }
-      .legend dl {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: var(--space-2) var(--space-4);
-        margin: var(--space-3) 0 0;
-      }
-      .legend dt {
-        font-weight: 700;
-        color: var(--fg);
-      }
-      .legend dd {
-        margin: 0;
+      .legend .chips {
+        margin-top: var(--space-3);
       }
       footer {
         margin-top: var(--space-7);
@@ -361,41 +413,51 @@
         <p class="eyebrow">JesusFilm RAG</p>
         <h1><span class="brand">JesusFilm</span> RAG</h1>
         <p class="subtitle">
-          Sources and languages available in the JesusFilm RAG retrieval index,
-          and where each source sits on the path to production.
+          Every source we know of — what is retrievable in production, what is
+          blocked, and what is documented for future ingestion.
         </p>
         <p class="updated">Updated 2026-07-16</p>
       </header>
 
-      <section class="summary"><div class="stat"><span class="stat-value">9</span><span class="stat-label">sources</span></div><div class="stat"><span class="stat-value">4</span><span class="stat-label">languages</span></div><div class="stat"><span class="stat-value">12/13</span><span class="stat-label">rows with content</span></div><div class="stat"><span class="stat-value">10</span><span class="stat-label">evaluated</span></div><div class="stat"><span class="stat-value">11,477</span><span class="stat-label">embedded documents</span></div></section>
+      <section class="summary"><div class="stat"><span class="stat-value">8</span><span class="stat-label">sources in prod</span></div><div class="stat"><span class="stat-value">4</span><span class="stat-label">languages live</span></div><div class="stat"><span class="stat-value">11,477</span><span class="stat-label">embedded documents</span></div><div class="stat"><span class="stat-value">1</span><span class="stat-label">blocked</span></div><div class="stat"><span class="stat-value">8</span><span class="stat-label">proposed</span></div></section>
 
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
               <th class="col-source" scope="col">Source</th>
-              <th class="col-lang" scope="col">Lang</th>
-              <th class="col-flag" scope="col">Acquire</th>
-              <th class="col-flag" scope="col">Ingest</th>
-              <th class="col-flag" scope="col">Evaluate</th>
-              <th class="col-stage" scope="col">Stage</th>
-              <th class="col-count" scope="col">Documents</th>
+              <th class="col-state" scope="col">State</th>
+              <th class="col-langs" scope="col">Languages</th>
+              <th class="col-count" scope="col">Docs in prod</th>
+              <th class="col-missing" scope="col">Missing / next step</th>
             </tr>
           </thead>
           <tbody>
-<tr data-key="cru" data-language="en" class="status-done"><td class="col-source"><span class="source-name">Cru</span><span class="source-host">www.cru.org</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">1,949</td></tr>
-<tr data-key="cru" data-language="es" class="status-done"><td class="col-source"><span class="source-name">Cru</span><span class="source-host">www.cru.org</span></td><td class="col-lang"><span class="lang">es</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">494</td></tr>
-<tr data-key="cru" data-language="fr" class="status-done"><td class="col-source"><span class="source-name">Cru</span><span class="source-host">www.cru.org</span></td><td class="col-lang"><span class="lang">fr</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span><span class="note">no golden case authored: the sole fr doc is a marketing piece about Google search behaviour, and at n=1 recall@10 is 1.000 by construction — a case would measure nothing. fr retrieval verified in Stage 3 (--language fr returns it rank 1 @ 0.763); thelife-fr carries the real French eval (10 cases).</span></td><td class="col-count">1</td></tr>
-<tr data-key="everystudent" data-language="en" class="status-blocked"><td class="col-source"><span class="source-name">EveryStudent</span><span class="source-host">—</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-off" aria-label="no">—</span></td><td class="col-flag"><span class="flag flag-off" aria-label="no">—</span></td><td class="col-flag"><span class="flag flag-off" aria-label="no">—</span></td><td class="col-stage"><span class="stage stage-blocked">Blocked</span><span class="note">Cloudflare JS managed challenge on all content pages — needs a JS-capable fetcher (see FOLLOW-UP G / #8).</span></td><td class="col-count">0</td></tr>
-<tr data-key="familylife" data-language="en" class="status-done"><td class="col-source"><span class="source-name">FamilyLife</span><span class="source-host">www.familylife.com</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">2,240</td></tr>
-<tr data-key="familylife" data-language="es" class="status-in-progress"><td class="col-source"><span class="source-name">FamilyLife</span><span class="source-host">www.familylife.com</span></td><td class="col-lang"><span class="lang">es</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-off" aria-label="no">—</span></td><td class="col-stage"><span class="stage stage-ingested">Ingested</span><span class="note">ingested locally on the qwen embedder (PR #57); not yet embedded in the prod index, so it shows 0 documents here — retrieve/evaluate pending; 1 sitemap-discoverable es page</span></td><td class="col-count">1</td></tr>
-<tr data-key="jesusfilm-org" data-language="en" class="status-done"><td class="col-source"><span class="source-name">Jesus Film Project</span><span class="source-host">www.jesusfilm.org</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">350</td></tr>
-<tr data-key="sightline-ministry" data-language="en" class="status-done"><td class="col-source"><span class="source-name">Sightline Ministry</span><span class="source-host">sightlineministry.org</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">1,399</td></tr>
-<tr data-key="starting-with-god" data-language="en" class="status-done"><td class="col-source"><span class="source-name">Starting With God</span><span class="source-host">www.startingwithgod.com</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">40</td></tr>
-<tr data-key="thelife" data-language="en" class="status-done"><td class="col-source"><span class="source-name">thelife</span><span class="source-host">thelife.com</span></td><td class="col-lang"><span class="lang">en</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">4,513</td></tr>
-<tr data-key="thelife" data-language="fr" class="status-done"><td class="col-source"><span class="source-name">thelife</span><span class="source-host">thelife.com</span></td><td class="col-lang"><span class="lang">fr</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-off" aria-label="no">—</span></td><td class="col-stage"><span class="stage stage-ingested">Ingested</span></td><td class="col-count">2</td></tr>
-<tr data-key="thelife-zh" data-language="zh" class="status-done"><td class="col-source"><span class="source-name">thelife — Chinese (UWOTA)</span><span class="source-host">uwota.com</span></td><td class="col-lang"><span class="lang">zh</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">332</td></tr>
-<tr data-key="thelife-fr" data-language="fr" class="status-done"><td class="col-source"><span class="source-name">thelife — French (La Vie J'en Parle)</span><span class="source-host">laviejenparle.com</span></td><td class="col-lang"><span class="lang">fr</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-flag"><span class="flag flag-on" aria-label="yes">●</span></td><td class="col-stage"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-count">156</td></tr>
+<tr class="group-row"><td colspan="5">In production</td></tr>
+<tr data-key="thelife" class="row-production state-evaluated"><td class="col-source"><span class="source-name">thelife</span><span class="source-host">thelife.com</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="thelife" data-language="en"><span class="l">en</span><span class="n">4,513</span></span><span class="chip chip-ingested" data-key="thelife" data-language="fr"><span class="g">◐</span><span class="l">fr</span><span class="n">2</span></span><span class="chip chip-blocked" data-key="thelife" data-pending-label="fa"><span class="g">✕</span><span class="l">fa</span><span class="n">~2.9k</span></span></div></td><td class="col-count">4,515</td><td class="col-missing">fa = shagerdan.com (Persian sibling, ~2,946 sitemap URLs) behind the same Cloudflare wall as EveryStudent — Firecrawl stealth scrape or a Cru IP allowlist would unblock (#8).</td></tr>
+<tr data-key="cru" class="row-production state-evaluated"><td class="col-source"><span class="source-name">Cru</span><span class="source-host">www.cru.org</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="cru" data-language="en"><span class="l">en</span><span class="n">1,949</span></span><span class="chip chip-evaluated" data-key="cru" data-language="es"><span class="l">es</span><span class="n">494</span></span><span class="chip chip-evaluated" data-key="cru" data-language="fr"><span class="l">fr</span><span class="n">1</span></span></div></td><td class="col-count">2,444</td><td class="col-missing">Complete for the crawled scope — whole domain, en+es+fr. The sole fr doc is a marketing piece; eval deliberately not cased at n=1.</td></tr>
+<tr data-key="familylife" class="row-production state-evaluated"><td class="col-source"><span class="source-name">FamilyLife</span><span class="source-host">www.familylife.com</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="familylife" data-language="en"><span class="l">en</span><span class="n">2,240</span></span><span class="chip chip-ingested" data-key="familylife" data-language="es"><span class="g">◐</span><span class="l">es</span><span class="n">1</span></span></div></td><td class="col-count">2,241</td><td class="col-missing">Posts only — jfa's crawl policy allowed 9,994 of 13,869 discovered pages; ~7,600 sub-brand pages (Art of Marriage, Blended, …) are unseeded. The Spanish deep sections are JS-rendered and sitemap-invisible (#8).</td></tr>
+<tr data-key="sightline-ministry" class="row-production state-evaluated"><td class="col-source"><span class="source-name">Sightline Ministry</span><span class="source-host">sightlineministry.org</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="sightline-ministry" data-language="en"><span class="l">en</span><span class="n">1,399</span></span></div></td><td class="col-count">1,399</td><td class="col-missing"><em>—</em></td></tr>
+<tr data-key="jesusfilm-org" class="row-production state-evaluated"><td class="col-source"><span class="source-name">Jesus Film Project</span><span class="source-host">www.jesusfilm.org</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="jesusfilm-org" data-language="en"><span class="l">en</span><span class="n">350</span></span></div></td><td class="col-count">350</td><td class="col-missing">Blog only — the /about/ leadership scope (~40 pages, catalogued by jfa) would close the org-identity gap (&quot;who is Jesus Film?&quot; questions).</td></tr>
+<tr data-key="thelife-zh" class="row-production state-evaluated"><td class="col-source"><span class="source-name">thelife — Chinese (UWOTA)</span><span class="source-host">uwota.com</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="thelife-zh" data-language="zh"><span class="l">zh</span><span class="n">332</span></span></div></td><td class="col-count">332</td><td class="col-missing"><em>—</em></td></tr>
+<tr data-key="thelife-fr" class="row-production state-evaluated"><td class="col-source"><span class="source-name">thelife — French (La Vie J'en Parle)</span><span class="source-host">laviejenparle.com</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="thelife-fr" data-language="fr"><span class="l">fr</span><span class="n">156</span></span></div></td><td class="col-count">156</td><td class="col-missing"><em>—</em></td></tr>
+<tr data-key="starting-with-god" class="row-production state-evaluated"><td class="col-source"><span class="source-name">Starting With God</span><span class="source-host">www.startingwithgod.com</span></td><td class="col-state"><span class="stage stage-evaluated">Evaluated</span></td><td class="col-langs"><div class="chips"><span class="chip chip-evaluated" data-key="starting-with-god" data-language="en"><span class="l">en</span><span class="n">40</span></span><span class="chip chip-proposed" data-key="starting-with-god" data-pending-label="31 sibling domains"><span class="g">⋯</span><span class="l">31 sibling domains</span><span class="n">~2–3k</span></span></div></td><td class="col-count">40</td><td class="col-missing">31 sibling language domains (jfa manifest) not started — each is a different CMS, so per-source selector recon is the real cost (#43).</td></tr>
+<tr class="group-row"><td colspan="5">Blocked</td></tr>
+<tr data-key="everystudent" class="row-blocked state-blocked"><td class="col-source"><span class="source-name">EveryStudent</span><span class="source-host">www.everystudent.com</span></td><td class="col-state"><span class="stage stage-blocked">Blocked</span></td><td class="col-langs"><div class="chips"><span class="chip chip-blocked" data-key="everystudent" data-language="en"><span class="g">✕</span><span class="l">en</span></span><span class="chip chip-proposed" data-key="everystudent" data-pending-label="51 sibling domains"><span class="g">⋯</span><span class="l">51 sibling domains</span><span class="n">≤15k</span></span></div></td><td class="col-count">0</td><td class="col-missing">English flagship behind a Cloudflare JS managed challenge (homepage 200 is a false positive) — unblock via Firecrawl, jfa's reviewed-archive scripts (its proven path; it never beat the wall either), or a Cru IP allowlist. The 51 sibling language domains are largely NOT walled (jfa canary fetched 46/46 with plain HTTP).</td></tr>
+<tr class="group-row"><td colspan="5">Proposed — documented, not started</td></tr>
+<tr data-documented-key="arclight" class="row-documented state-proposed"><td class="col-source"><span class="source-name">Arclight video metadata</span><span class="source-host">api.arclight.org</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">7 langs</span><span class="n">metadata</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">api</span> Video metadata API (jfa ingested 46 chunks) — API client work, not scraping.</td></tr>
+<tr data-documented-key="curated-references" class="row-documented state-proposed"><td class="col-source"><span class="source-name">Curated references</span><span class="source-host">youtube.com</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en</span><span class="n">curated</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">manual</span> jfa had a staged YouTube/article JSON review format; needs a curation owner.</td></tr>
+<tr data-documented-key="gotquestions" class="row-documented state-proposed"><td class="col-source"><span class="source-name">GotQuestions</span><span class="source-host">www.gotquestions.org</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en</span><span class="n">1.5k–100k+</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">plain scrape</span> No bot wall — jfa ingested 342 chunks at a 1,500-page cap. The open decision is crawl scope: the full site is 100k+ Q&amp;As.</td></tr>
+<tr data-documented-key="joshua-project" class="row-documented state-proposed"><td class="col-source"><span class="source-name">Joshua Project</span><span class="source-host">joshuaproject.net</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en</span><span class="n">data set</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">manual</span> People-group data import, not article scraping.</td></tr>
+<tr data-documented-key="knowgod" class="row-documented state-proposed"><td class="col-source"><span class="source-name">KnowGod / GodTools</span><span class="source-host">knowgod.com</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en es fr +</span><span class="n">~200</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">api</span> jfa ingested via the GodTools content API — no scraping needed; port the API path instead of crawling the Angular shell.</td></tr>
+<tr data-documented-key="nextstep-support" class="row-documented state-proposed"><td class="col-source"><span class="source-name">NextStep support docs</span><span class="source-host">support.nextstep.is</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en</span><span class="n">small</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">plain scrape</span> Help Scout docs; jfa marked them &quot;explicitly not for doctrine&quot; — low priority.</td></tr>
+<tr data-documented-key="victorybeyondthecup" class="row-documented state-proposed"><td class="col-source"><span class="source-name">Victory Beyond the Cup</span><span class="source-host">victorybeyondthecup.com</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en es fr pt</span><span class="n">~120</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">render scrape</span> Framer JS shell — needs browser rendering; jfa had a working scraper (199 chunks across 4 languages).</td></tr>
+<tr data-documented-key="victory-host-kit" class="row-documented state-proposed"><td class="col-source"><span class="source-name">Victory host kit</span><span class="source-host">drive.google.com</span></td><td class="col-state"><span class="stage stage-proposed">Proposed</span></td><td class="col-langs"><div class="chips"><span class="chip chip-proposed"><span class="g">⋯</span><span class="l">en</span><span class="n">14 files</span></span></div></td><td class="col-count">0</td><td class="col-missing"><span class="method">manual</span> Reviewed Google Drive archive — jfa's registry carries the 14 file IDs and an import script.</td></tr>
+<tr class="group-row"><td colspan="5">Retired</td></tr>
+<tr data-documented-key="issuesiface" class="row-documented state-retired"><td class="col-source"><span class="source-name">IssuesIFace</span><span class="source-host">issuesiface.com</span></td><td class="col-state"><span class="stage stage-retired">Retired</span></td><td class="col-langs"><div class="chips"></div></td><td class="col-count">—</td><td class="col-missing"><span class="method">plain scrape</span> Rejected — unstable host (www 404s, 403/challenge); jfa discarded it as a product decision.</td></tr>
+<tr data-documented-key="nextstep" class="row-documented state-retired"><td class="col-source"><span class="source-name">NextStep</span><span class="source-host">nextstep.is</span></td><td class="col-state"><span class="stage stage-retired">Retired</span></td><td class="col-langs"><div class="chips"></div></td><td class="col-count">—</td><td class="col-missing"><span class="method">plain scrape</span> Deferred — thin product-marketing pages, not a seeker-Q&amp;A corpus; possible seasonal-exclusion test fixture later.</td></tr>
+<tr data-documented-key="nextstep-football2026" class="row-documented state-retired"><td class="col-source"><span class="source-name">NextStep Football 2026</span><span class="source-host">football2026.nextstep.is</span></td><td class="col-state"><span class="stage stage-retired">Retired</span></td><td class="col-langs"><div class="chips"></div></td><td class="col-count">—</td><td class="col-missing"><span class="method">plain scrape</span> Deferred — seasonal campaign subdomain; same reasoning as NextStep.</td></tr>
+<tr data-documented-key="powertochange" class="row-documented state-retired"><td class="col-source"><span class="source-name">Power to Change</span><span class="source-host">powertochange.com</span></td><td class="col-state"><span class="stage stage-retired">Retired</span></td><td class="col-langs"><div class="chips"></div></td><td class="col-count">—</td><td class="col-missing"><span class="method">plain scrape</span> Superseded — decommissioned; every content URL 301s to thelife.com, which we ingested instead.</td></tr>
           </tbody>
         </table>
       </div>
@@ -403,21 +465,29 @@
       <section class="unclassified"><p class="unclassified-none">Every embedded document has a detected language — nothing unclassified.</p></section>
 
       <div class="legend">
-        <dl>
-          <dt>Acquire</dt>
-          <dd>Raw documents for this source &amp; language have been captured into the pipeline.</dd>
-          <dt>Ingest</dt>
-          <dd>Content is normalized, chunked, and embedded — actually retrievable in production.</dd>
-          <dt>Evaluate</dt>
-          <dd>Retrieval quality has been reviewed and the evaluation shipped — the source is fully vetted.</dd>
-        </dl>
+        <p>
+          A chip is one language (or pending group): label + embedded documents,
+          colored by the furthest stage it reached — the glyph carries the state
+          too, so it is never color alone. Proposed rows are documented for
+          future ingestion and have nothing in the index yet; sizes there are
+          estimates, not guarantees.
+        </p>
+        <div class="chips">
+          <span class="chip chip-evaluated"><span class="l">xx</span><span class="n">evaluated</span></span>
+          <span class="chip chip-ingested"><span class="g">◐</span><span class="l">xx</span><span class="n">ingested, eval pending</span></span>
+          <span class="chip chip-acquired"><span class="g">○</span><span class="l">xx</span><span class="n">acquired only</span></span>
+          <span class="chip chip-blocked"><span class="g">✕</span><span class="l">xx</span><span class="n">blocked</span></span>
+          <span class="chip chip-proposed"><span class="g">⋯</span><span class="n">proposed / documented only</span></span>
+        </div>
       </div>
 
       <footer>
-        Generated from the production database and
-        <code>docs/source-status.yaml</code> by the
-        <code>status-dashboard</code> skill. Counts reflect embedded documents in
-        the live index.
+        Generated from the production database,
+        <code>docs/source-status.yaml</code>, and the curated
+        <code>docs/source-map.yaml</code> by the <code>status-dashboard</code>
+        skill. "Docs in prod" counts reflect embedded documents in the live
+        index; proposed/blocked sizes are estimates from recon and the
+        jesusfilm-ai registry.
       </footer>
     </div>
   </body>

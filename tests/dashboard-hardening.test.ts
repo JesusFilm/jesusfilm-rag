@@ -125,12 +125,14 @@ describe("merge gate matches per (data-key, data-language) — dropped shared-ke
     expect(assertHtmlContainsData(html, data)).toEqual([]);
   });
 
-  it("catches a dropped familylife/es row even though familylife/en (same key) and 0-counts remain", () => {
+  it("catches a dropped familylife/es chip even though familylife/en (same key) and counts remain", () => {
     const { data, html } = compiledAndHtml();
-    // Surgically remove only the es row's <tr>…</tr>; the en row (same data-key,
-    // same source name "FamilyLife") and the '0' count both still exist globally.
-    const broken = html.replace(/<tr data-key="familylife" data-language="es"[\s\S]*?<\/tr>/, "");
-    expect(broken).toContain('data-language="en"'); // en row still there
+    // Surgically remove only the es chip from the familylife source row; the en
+    // chip (same data-key, same source name "FamilyLife") and every count still
+    // exist globally — only a within-row chip check can notice (CodeRabbit #2,
+    // carried over from the per-cell-row era to the ledger's chips).
+    const broken = html.replace(/<span class="chip[^"]*" data-key="familylife" data-language="es"[\s\S]*?<\/span><\/span>/, "");
+    expect(broken).toContain('data-language="en"'); // en chip still there
     const misses = assertHtmlContainsData(broken, data);
     expect(misses.length).toBeGreaterThan(0);
     expect(misses.join(" ")).toContain("familylife/es");

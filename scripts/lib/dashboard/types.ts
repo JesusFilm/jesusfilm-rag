@@ -105,12 +105,110 @@ export const compiledUnclassifiedRowSchema = z
   .strict();
 export type CompiledUnclassifiedRow = z.infer<typeof compiledUnclassifiedRowSchema>;
 
+// ── Source map (docs/source-map.yaml, issue #100) ────────────────────────────
+// Hand-curated companion to the /slice-maintained source-status.yaml: per-source
+// gap notes + pending (not-yet-pipeline) language chips for sources already on
+// the dashboard, and the documented-only sources (proposed / retired) known from
+// the jesusfilm-ai registry but never acquired here.
+
+/** A chip for work that exists only as knowledge — a blocked sibling domain, a
+ *  planned language group — attached to a pipeline source's row. */
+export const sourceMapPendingChipSchema = z
+  .object({
+    label: z.string().min(1), // language code or short group label ("51 sibling domains")
+    state: z.enum(["blocked", "proposed"]),
+    detail: z.string().nullable().default(null), // short annotation ("~2.9k")
+  })
+  .strict();
+
+export const sourceMapGapSchema = z
+  .object({
+    host: z.string().nullable().default(null), // display host fallback (registry/prod may have none)
+    missing: z.string().nullable().default(null), // the "Missing / next step" column text
+    pending: z.array(sourceMapPendingChipSchema).default([]),
+  })
+  .strict();
+
+/** A source we know about (jfa registry) but have never acquired: proposed for
+ *  future ingestion, or deliberately retired. */
+export const sourceMapDocumentedSchema = z
+  .object({
+    name: z.string().min(1),
+    host: z.string().nullable().default(null),
+    state: z.enum(["proposed", "retired"]),
+    method: z.string().min(1), // plain scrape | render scrape | api | manual
+    languages: z.string().min(1), // display label ("en", "en es fr pt", "50+ langs")
+    est_size: z.string().min(1), // display label ("~120", "1.5k–100k+", "14 files")
+    note: z.string().min(1),
+  })
+  .strict();
+
+export const sourceMapSchema = z
+  .object({
+    gaps: z.record(z.string(), sourceMapGapSchema).default({}),
+    documented: z.record(z.string(), sourceMapDocumentedSchema).default({}),
+  })
+  .strict();
+/** Input shape (defaults not yet applied) — what the YAML file/tests provide. */
+export type SourceMap = z.input<typeof sourceMapSchema>;
+export type ParsedSourceMap = z.infer<typeof sourceMapSchema>;
+
+// ── Compiled ledger shapes (issue #100) ──────────────────────────────────────
+
+/** One language chip inside a source row: label + count, nothing else. State is
+ *  the furthest stage that language reached (or blocked/proposed for pending). */
+export const compiledChipSchema = z
+  .object({
+    label: z.string().min(1),
+    language: z.string().nullable(), // real language code for pipeline cells; null for pending chips
+    state: z.enum(["evaluated", "ingested", "acquired", "blocked", "proposed"]),
+    embedded_doc_count: z.number().int().nonnegative().nullable(), // null unless ingested
+    detail: z.string().nullable(),
+  })
+  .strict();
+export type CompiledChip = z.infer<typeof compiledChipSchema>;
+
+/** One ledger row — exactly one SOURCE, its languages folded into chips. */
+export const compiledSourceRowSchema = z
+  .object({
+    source: z.string().min(1),
+    key: z.string().min(1),
+    host: z.string().nullable(),
+    state: z.enum(["evaluated", "ingested", "acquired", "blocked", "not-started"]),
+    group: z.enum(["production", "blocked", "pipeline"]),
+    languages: z.array(compiledChipSchema),
+    docs_in_prod: z.number().int().nonnegative(),
+    missing: z.string().nullable(),
+  })
+  .strict();
+export type CompiledSourceRow = z.infer<typeof compiledSourceRowSchema>;
+
+/** One documented-only row: a known source that never entered the pipeline. */
+export const compiledDocumentedRowSchema = z
+  .object({
+    source: z.string().min(1),
+    key: z.string().min(1),
+    host: z.string().nullable(),
+    state: z.enum(["proposed", "retired"]),
+    method: z.string().min(1),
+    languages: z.string().min(1),
+    est_size: z.string().min(1),
+    note: z.string().min(1),
+  })
+  .strict();
+export type CompiledDocumentedRow = z.infer<typeof compiledDocumentedRowSchema>;
+
 /** The curated data source that feeds the HTML (committed; the CI merge gate
  *  asserts the compiled HTML contains every row below). */
 export const compiledDataSchema = z
   .object({
     generated_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD"),
     sources: z.array(compiledRowSchema),
+    // The rendered ledger: one row per source with language chips, plus the
+    // documented-only (proposed/retired) sources (#100). Default `[]` so
+    // compiled artifacts written before these fields still parse.
+    source_rows: z.array(compiledSourceRowSchema).default([]),
+    documented: z.array(compiledDocumentedRowSchema).default([]),
     // Sources with embedded docs that have no detected language (#86). Optional
     // + default `[]` so compiled artifacts written before this field still parse.
     unclassified: z.array(compiledUnclassifiedRowSchema).default([]),

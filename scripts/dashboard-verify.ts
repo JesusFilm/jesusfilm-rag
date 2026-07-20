@@ -28,7 +28,9 @@ async function main(): Promise<void> {
     for (const m of misses) console.error(`   - ${m}`);
     process.exit(1);
   }
-  console.log(`✔ dashboard/index.html contains all ${data.sources.length} compiled row(s)`);
+  console.log(
+    `✔ dashboard/index.html contains all ${data.source_rows.length} source row(s), ${data.documented.length} documented row(s), ${data.unclassified.length} unclassified row(s)`,
+  );
 }
 
 main().catch((e: unknown) => {

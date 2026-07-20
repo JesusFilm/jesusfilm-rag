@@ -14,7 +14,10 @@ JesusFilm RAG vector database contains: every source, the languages it has
 content for, where each sits on the journey (**acquire → ingest → evaluate**),
 and the embedded document counts. Built for Miheret and other stakeholders.
 
-The main grid is one row per **source × language**. Below it, a secondary
+The main grid is a **source ledger** (issue #100): one row per **source**, its
+languages folded into stage-colored chips (label + count), grouped In production
+/ Blocked / Proposed / Retired. Proposed/retired rows and per-source gap notes
+come from the hand-curated `docs/source-map.yaml`. Below it, a secondary
 **"Unclassified documents"** table lists any embedded docs whose language could
 not be detected (`documents.language = NULL`), tallied per source (count only, no
 lifecycle flags) so the index total is never silently under-reported — see
@@ -161,10 +164,12 @@ the browser-verify step checks it (above) and you can explain it:
    ```
    Navigate to `http://localhost:8137/index.html` with the Playwright browser
    tools and assert via `browser_evaluate`: the `<h1>` reads "JesusFilm RAG";
-   the **main** grid row count —
-   `document.querySelectorAll('table:not(.unclassified-table) tbody tr').length` —
-   equals `compiled-data.json`'s `sources.length` (scope the selector to the main
-   table so the secondary "Unclassified documents" table's rows are not counted);
+   the **ledger** row counts —
+   `document.querySelectorAll('tbody tr[data-key]').length` equals
+   `compiled-data.json`'s `source_rows.length`, and
+   `document.querySelectorAll('tbody tr[data-documented-key]').length` equals
+   its `documented.length` (group separator `<tr class="group-row">` rows carry
+   neither attribute and are not counted);
    the **unclassified** row count —
    `document.querySelectorAll('.unclassified-table tbody tr').length` — equals the
    JSON's `unclassified.length` (which is `0` when the page shows the "nothing

@@ -14,6 +14,7 @@ import { allSources } from "@/registry/index.js";
 import { buildCompiledData, renderHtml } from "./lib/dashboard/compile.js";
 import {
   prodStatusDataSchema,
+  sourceMapSchema,
   type RegistrySource,
   type YamlSources,
 } from "./lib/dashboard/types.js";
@@ -21,6 +22,7 @@ import {
 const ROOT = path.resolve(import.meta.dirname, "..");
 const PROD_JSON = path.join(ROOT, "dashboard", "prod-status-data.json");
 const YAML_FILE = path.join(ROOT, "docs", "source-status.yaml");
+const SOURCE_MAP_FILE = path.join(ROOT, "docs", "source-map.yaml");
 const TEMPLATE = path.join(ROOT, "dashboard", "template.html");
 const COMPILED_JSON = path.join(ROOT, "dashboard", "compiled-data.json");
 const INDEX_HTML = path.join(ROOT, "dashboard", "index.html");
@@ -69,19 +71,26 @@ function projectRegistry(): RegistrySource[] {
 async function main(): Promise<void> {
   const prod = prodStatusDataSchema.parse(JSON.parse(await readFile(PROD_JSON, "utf8")));
   const yaml = projectYaml(await readFile(YAML_FILE, "utf8"));
+  const sourceMap = sourceMapSchema.parse(parse(await readFile(SOURCE_MAP_FILE, "utf8")));
   const registry = projectRegistry();
   const template = await readFile(TEMPLATE, "utf8");
 
   // generated_at comes from the prod read (prod.fetched_at), NOT the build clock,
   // so rebuilding the same export reproduces identical output (CodeRabbit #1).
-  const compiled = buildCompiledData({ prod, yaml, registry, generatedAt: prod.fetched_at });
+  const compiled = buildCompiledData({
+    prod,
+    yaml,
+    registry,
+    sourceMap,
+    generatedAt: prod.fetched_at,
+  });
   const html = renderHtml(template, compiled);
 
   await writeFile(COMPILED_JSON, JSON.stringify(compiled, null, 2) + "\n", "utf8");
   await writeFile(INDEX_HTML, html, "utf8");
 
   console.log(
-    `✔ compiled ${compiled.sources.length} source×language row(s) → ${path.relative(process.cwd(), COMPILED_JSON)} + ${path.relative(process.cwd(), INDEX_HTML)}`,
+    `✔ compiled ${compiled.source_rows.length} source row(s) (${compiled.sources.length} source×language cell(s), ${compiled.documented.length} documented) → ${path.relative(process.cwd(), COMPILED_JSON)} + ${path.relative(process.cwd(), INDEX_HTML)}`,
   );
 }
 

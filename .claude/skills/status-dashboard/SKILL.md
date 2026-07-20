@@ -178,7 +178,7 @@ the browser-verify step checks it (above) and you can explain it:
    `document.body.innerText`. Then `browser_close` and stop the server with
    `kill "$SERVER_PID"`. Also run the headless gate as belt-and-suspenders:
    ```bash
-   pnpm dashboard:verify   # must print "contains all N compiled row(s)"
+   pnpm dashboard:verify   # must print "contains all N source row(s), M documented row(s), K unclassified row(s)"
    ```
 
 5. **Confirm no secret leaked before committing.** `git diff` (the build just wrote

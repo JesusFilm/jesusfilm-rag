@@ -117,8 +117,8 @@ the browser-verify step checks it (above) and you can explain it:
 - Its total is **included in the headline "embedded documents" stat**, so the
   figure is the true index size. A non-zero table means a language-detection gap
   worth a look (usually drained by the ADR-0009 language sweep).
-- When there are none (the healthy state), the section is a one-line reassurance,
-  not an empty table — so a clean refresh looks intentionally clean, not broken.
+- When there are none (the healthy state), the section renders nothing at all —
+  the table appears only once there are unclassified documents to show.
 
 ---
 
@@ -172,8 +172,8 @@ the browser-verify step checks it (above) and you can explain it:
    neither attribute and are not counted);
    the **unclassified** row count —
    `document.querySelectorAll('.unclassified-table tbody tr').length` — equals the
-   JSON's `unclassified.length` (which is `0` when the page shows the "nothing
-   unclassified" reassurance line, and the `.unclassified-table` is absent); and a
+   JSON's `unclassified.length` (which is `0` when the section renders empty and
+   the `.unclassified-table` is absent); and a
    spot-check of a couple of source names + a doc count from the JSON appear in
    `document.body.innerText`. Then `browser_close` and stop the server with
    `kill "$SERVER_PID"`. Also run the headless gate as belt-and-suspenders:

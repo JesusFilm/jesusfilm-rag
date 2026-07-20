@@ -234,9 +234,10 @@ describe("unclassified documents — the secondary table (#86)", () => {
     expect(renderHtml(TEMPLATE, buildWith())).toContain("7,263");
   });
 
-  it("with nothing unclassified, renders the reassurance and emits no tally row", () => {
+  it("with nothing unclassified, renders an empty section (no reassurance, no table)", () => {
     const html = renderHtml(TEMPLATE, build());
-    expect(html).toContain("nothing unclassified");
+    expect(html).not.toContain("nothing unclassified");
+    expect(html).not.toContain("Unclassified documents");
     expect(html).not.toContain("data-unclassified-key");
   });
 });

@@ -301,4 +301,21 @@ describe("assertHtmlContainsData — the merge gate on the new shape", () => {
     const html = renderHtml(TEMPLATE, data).replace(/<tr data-key="thelife"[\s\S]*?<\/tr>/, "");
     expect(assertHtmlContainsData(html, data).join(" ")).toContain("thelife");
   });
+
+  it("catches a pending chip whose detail annotation was dropped", () => {
+    const data = build();
+    // "~2.9k" is the fa pending chip's detail and appears nowhere else.
+    const html = renderHtml(TEMPLATE, data).replace("~2.9k", "");
+    const misses = assertHtmlContainsData(html, data);
+    expect(misses.join(" ")).toContain("thelife/fa");
+    expect(misses.join(" ")).toContain("detail");
+  });
+
+  it("catches a documented row whose est_size / note drifted from the HTML", () => {
+    const data = build();
+    const sized = renderHtml(TEMPLATE, data).replace("1.5k–100k+", "");
+    expect(assertHtmlContainsData(sized, data).join(" ")).toContain("documented/gotquestions");
+    const noted = renderHtml(TEMPLATE, data).replace("crawl scope", "different text");
+    expect(assertHtmlContainsData(noted, data).join(" ")).toContain("documented/gotquestions");
+  });
 });

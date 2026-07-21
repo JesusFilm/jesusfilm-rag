@@ -9,8 +9,9 @@
  *   pnpm acquire:production --source thelife-fr --resume    # skip already-staged (resumable)
  *   pnpm acquire:production --source thelife-fr --dry-run   # resolve + count only, no writes
  *
- * Mirrors scripts/acquire.ts's body, but defers all @/* imports until AFTER
- * the credential prompt + installCreds() so the env loader in src/env.ts (which
+ * The engine is the shared scripts/lib/acquire-core.ts (imported statically —
+ * it reads no env); the env-reading `@/main` is dynamic-imported AFTER the
+ * credential prompt + installCreds() so the env loader in src/env.ts (which
  * runs on first import) cannot prefer a stale .env value over what we prompted.
  */
 import {
@@ -18,23 +19,12 @@ import {
   installCreds,
   extractProdRunFlags,
 } from "./lib/prompt-prod-creds.js";
-
-interface Args {
-  all: boolean;
-  source?: string;
-  dryRun: boolean;
-  resume: boolean;
-}
-
-function parseArgs(argv: string[]): Args {
-  const i = argv.indexOf("--source");
-  return {
-    all: argv.includes("--all"),
-    source: i >= 0 ? argv[i + 1] : undefined,
-    dryRun: argv.includes("--dry-run"),
-    resume: argv.includes("--resume"),
-  };
-}
+import {
+  parseArgs,
+  resolveEntries,
+  runAcquire,
+  type AcquireArgs,
+} from "./lib/acquire-core.js";
 
 async function main(): Promise<void> {
   const { flags: runFlags, rest, error } = extractProdRunFlags(
@@ -44,14 +34,22 @@ async function main(): Promise<void> {
     console.error(`error: ${error}`);
     process.exit(2);
   }
-  const args = parseArgs(rest);
-  if (!args.all && !args.source) {
-    console.error(
-      "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume] " +
-        "[--non-interactive [--expect-host <substr>]]",
-    );
+  const usage =
+    "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume] " +
+    "[--non-interactive [--expect-host <substr>]]";
+  let args: AcquireArgs;
+  try {
+    args = parseArgs(rest);
+  } catch (e) {
+    console.error(`acquire:production: ${(e as Error).message}\n${usage}`);
     process.exit(2);
   }
+  if (!args.all && !args.source) {
+    console.error(usage);
+    process.exit(2);
+  }
+  // Registry-only, env-free — an unknown key fails here, before the prompt.
+  const entries = resolveEntries(args, "acquire:production");
   const scope = args.all
     ? "--all (every registered source)"
     : `--source ${args.source}`;
@@ -77,60 +75,18 @@ async function main(): Promise<void> {
 
   installCreds(creds);
 
-  // Dynamic imports — must happen AFTER installCreds() so @/env.js sees our
-  // prompted values first. The loader is first-write-wins, so a stale
-  // DATABASE_URL in .env / .env.local cannot overwrite us.
+  // Dynamic import — AFTER installCreds() so @/env.js sees our prompted values
+  // first. The loader is first-write-wins, so a stale DATABASE_URL in
+  // .env / .env.local cannot overwrite us.
   const { wire } = await import("@/main.js");
-  const { acquireSource } = await import("@/acquisition/index.js");
-  const { allSources, getSource } = await import("@/registry/index.js");
-
-  let entries;
-  if (args.all) {
-    entries = allSources();
-  } else {
-    const entry = getSource(args.source!);
-    if (!entry) {
-      const known = allSources()
-        .map((s) => s.key)
-        .join(", ");
-      console.error(
-        `acquire:production: unknown source '${args.source}'. Known: ${known}`,
-      );
-      process.exit(1);
-    }
-    entries = [entry];
-  }
 
   const wiring = wire();
   try {
-    for (const entry of entries) {
-      const plan = entry.crawl.sitemaps?.length
-        ? `discovery via ${entry.crawl.sitemaps.length} sitemap(s)`
-        : `${(entry.crawl.seedPaths ?? []).length} seed pages`;
-      console.log(
-        `\n▶ acquiring ${entry.name} (${entry.key}) — ${plan}, ` +
-          `${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}`,
-      );
-      const summary = await acquireSource(
-        { fetcher: wiring.fetcher, store: wiring.rawDocumentStore },
-        entry,
-        { onProgress: (line) => console.log(line), dryRun: args.dryRun, resume: args.resume },
-      );
-      if (args.dryRun) {
-        console.log(
-          `✔ ${summary.sourceKey}: DRY RUN — ${summary.resolved} URL(s) resolved (nothing fetched)`,
-        );
-        continue;
-      }
-      const skips =
-        Object.entries(summary.skipped)
-          .filter(([, n]) => n > 0)
-          .map(([reason, n]) => `${reason}:${n}`)
-          .join(", ") || "none";
-      console.log(
-        `✔ ${summary.sourceKey}: staged ${summary.written}/${summary.attempted} · skipped (${skips})`,
-      );
-    }
+    await runAcquire(
+      { fetcherFor: wiring.fetcherFor, store: wiring.rawDocumentStore },
+      entries,
+      { dryRun: args.dryRun, resume: args.resume },
+    );
   } finally {
     await wiring.shutdown();
   }

@@ -4,8 +4,31 @@
  * absolute same-origin URLs, and the policy bounds are coherent.
  */
 import { describe, expect, it } from "vitest";
-import { SOURCES, allSources, getSource, seedUrls } from "./index.js";
-import type { SourceEntry } from "./types.js";
+import {
+  SOURCES,
+  allSources,
+  getSource,
+  resolveFetchStrategy,
+  seedUrls,
+} from "./index.js";
+import type { CrawlPolicy, SourceEntry } from "./types.js";
+
+/** Minimal unregistered entry for fixture tests — only the crawl policy varies;
+ *  the identity fields are irrelevant to what these tests assert. */
+function fixtureEntry(key: string, crawl: CrawlPolicy): SourceEntry {
+  return {
+    key,
+    name: key,
+    domain: new URL(crawl.baseUrl).host,
+    trust: "partner",
+    ingestionMode: "html-scrape",
+    languages: ["en"],
+    defaultTags: [],
+    defaultCategory: null,
+    rights: null,
+    crawl,
+  };
+}
 
 describe("SourceRegistry", () => {
   it("resolves Starting With God by key and exposes its crawl policy", () => {
@@ -219,28 +242,17 @@ describe("SourceRegistry", () => {
   });
 
   it("seedUrls() is empty for a pure discovery source (URLs come from the sitemap)", () => {
-    const discovery: SourceEntry = {
-      key: "discovery-fixture",
-      name: "Discovery Fixture",
-      domain: "example.org",
-      trust: "trusted",
-      ingestionMode: "html-scrape",
-      languages: ["en"],
-      defaultTags: [],
-      defaultCategory: null,
-      rights: null,
-      crawl: {
-        baseUrl: "https://example.org",
-        sitemaps: ["/sitemap.xml"],
-        allow: ["^https://example\\.org/"],
-        articleHints: ["/article/"],
-        contentSelectors: ["main"],
-        stripSelectors: [],
-        requestDelayMs: 1000,
-        maxPages: 50,
-        minContentLength: 250,
-      },
-    };
+    const discovery = fixtureEntry("discovery-fixture", {
+      baseUrl: "https://example.org",
+      sitemaps: ["/sitemap.xml"],
+      allow: ["^https://example\\.org/"],
+      articleHints: ["/article/"],
+      contentSelectors: ["main"],
+      stripSelectors: [],
+      requestDelayMs: 1000,
+      maxPages: 50,
+      minContentLength: 250,
+    });
     expect(seedUrls(discovery)).toEqual([]);
   });
 
@@ -288,6 +300,29 @@ describe("SourceRegistry", () => {
     expect(kept("https://uwota.com/articles/tags/ren-sheng")).toBe(false);
     expect(kept("https://uwota.com/about")).toBe(false);
     expect(kept("https://uwota.com/")).toBe(false);
+  });
+
+  it("a walled source may declare fetchStrategy: 'firecrawl' and resolves to it", () => {
+    // Fixture, not a registered source: the everystudent slice registers the
+    // real entry. This locks that the CrawlPolicy type carries the field and
+    // resolveFetchStrategy reads it.
+    const walled = fixtureEntry("walled-fixture", {
+      baseUrl: "https://example.net",
+      seedPaths: ["/article.html"],
+      fetchStrategy: "firecrawl",
+      contentSelectors: ["main"],
+      stripSelectors: [],
+      requestDelayMs: 1000,
+      maxPages: 50,
+      minContentLength: 250,
+    });
+    expect(resolveFetchStrategy(walled)).toBe("firecrawl");
+  });
+
+  it("a source with no declared fetch strategy resolves to plain-http (the zero-config norm)", () => {
+    // One seed source and one discovery source — neither declares a strategy.
+    expect(resolveFetchStrategy(getSource("starting-with-god")!)).toBe("plain-http");
+    expect(resolveFetchStrategy(getSource("thelife")!)).toBe("plain-http");
   });
 
   it("splits sources by DOMAIN, not by language", () => {

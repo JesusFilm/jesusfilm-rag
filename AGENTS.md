@@ -4,7 +4,7 @@ A standalone, production-quality RAG over publicly accessible JesusFilm Project 
 
 **Core tenet — mechanism, not policy:** the RAG is a reliable, parameterized retrieval mechanism; all "what's good for this audience" weighting lives in the consumer; corpus heterogeneity is solved by ingest-time labeling (`category`/`tags`/`sourceKey`) and source-level on/off, **not** retrieve-time bias. The engine ranks on similarity + the declared `RetrievalPolicy` and returns deterministic, cited results. See [`docs/architecture.md`](./docs/architecture.md) §1 "Tenet: mechanism, not policy".
 
-**Design source of truth:** [`docs/architecture.md`](./docs/architecture.md). Read it before non-trivial work — especially §5 (Enforcement & dependency rules).
+**Design source of truth:** [`docs/architecture.md`](./docs/architecture.md). Read it before non-trivial work — especially §5 (Enforcement & dependency rules). The domain glossary — the ubiquitous language for naming in code, docs, and issues — is [`CONTEXT.md`](./CONTEXT.md) at the repo root.
 
 > **A note on the name.** This file — `AGENTS.md`, **plural** — is the whole-repo agent primer (the recognized cross-tool convention, auto-discovered by agent tooling). The **singular** per-context `AGENT.md` files under `src/*/` are a *different* thing: ~5-line boundary fences for one context each, defined by the Forge pattern in [`docs/architecture.md`](./docs/architecture.md) §5.7. **Plural = whole repo; singular = one context.**
 

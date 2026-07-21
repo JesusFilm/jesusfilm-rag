@@ -3,7 +3,7 @@
  * context (Acquisition) imports this for crawl policy; only `main.ts`/scripts
  * pick which source(s) to run. See docs/architecture.md §3 / §5.1.
  */
-import type { SourceEntry } from "./types.js";
+import type { FetchStrategy, SourceEntry } from "./types.js";
 import { startingWithGod } from "./starting-with-god.js";
 import { cru } from "./cru.js";
 import { jesusFilmOrg } from "./jesusfilm-org.js";
@@ -13,7 +13,7 @@ import { thelifeFr } from "./thelife-fr.js";
 import { thelifeZh } from "./thelife-zh.js";
 import { familylife } from "./familylife.js";
 
-export type { SourceEntry, CrawlPolicy } from "./types.js";
+export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
 /** Every registered source. **One domain = one source** (2026-07-09) — a source may hold
  *  several languages, and language is a per-document property decided at ingest, never
@@ -48,6 +48,14 @@ export function getSource(key: string): SourceEntry | undefined {
 /** All registered sources. */
 export function allSources(): readonly SourceEntry[] {
   return SOURCES;
+}
+
+/** The source's declared fetch strategy; absent means plain HTTP (the
+ *  zero-config norm — Firecrawl is strictly opt-in, per source, at slice time).
+ *  The single decision point for strategy selection: main.ts's fetcherFor()
+ *  builds the matching adapter from this, and nothing re-decides at runtime. */
+export function resolveFetchStrategy(entry: SourceEntry): FetchStrategy {
+  return entry.crawl.fetchStrategy ?? "plain-http";
 }
 
 /** Resolve a source's hand-listed seed paths into absolute URLs (against its

@@ -122,6 +122,12 @@ const envSchema = z.object({
   // Per-call detect attempts (initial try + retries) before a document is flagged
   // as an anomaly; mirrors EMBED_MAX_ATTEMPTS. Default 10 (~47s of backoff).
   LANG_DETECT_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
+  // Firecrawl scrape key — needed ONLY to acquire a source whose registry entry
+  // declares fetchStrategy: "firecrawl" (ADR-0012); plain-HTTP dev/CI never
+  // needs it. Presence is enforced at the moment main.ts's fetcherFor() builds
+  // the Firecrawl adapter, failing loud there. Local dev supplies the free-tier
+  // key via .env; production the hobby-tier key via Doppler.
+  FIRECRAWL_API_KEY: z.string().min(1).optional(),
   PORT: z.coerce.number().int().positive().default(8080), // Railway injects PORT
   // JSON map of bearer token → allowed source keys (["*"] = all). Parsed by the
   // serving adapter (src/serving/http/auth.ts); required only by `pnpm serve`.

@@ -30,6 +30,8 @@ import {
   PostgresRawDocumentStore,
 } from "@/adapters/postgres/index.js";
 import { HttpFetcher } from "@/adapters/http-fetch/index.js";
+import { FirecrawlFetcher } from "@/adapters/firecrawl/index.js";
+import { resolveFetchStrategy, type SourceEntry } from "@/registry/index.js";
 import {
   OpenRouterEmbedder,
   OpenRouterLanguageDetector,
@@ -37,7 +39,7 @@ import {
 } from "@/adapters/openrouter/index.js";
 import { createRetriever } from "@/retrieval/index.js";
 import { closeDb, getDb } from "@/db/index.js";
-import { getEnv } from "@/env.js";
+import { getEnv, type Env } from "@/env.js";
 
 /** The injected ports a runner needs, plus a shutdown hook for the DB pool. */
 export interface Wiring {
@@ -46,7 +48,13 @@ export interface Wiring {
   fetchStateStore: FetchStateStore;
   rawDocumentStore: RawDocumentStore;
   rawDocumentReader: RawDocumentReader;
-  fetcher: Fetcher;
+  /**
+   * The Fetcher for one source, per its declared fetch strategy (ADR-0012):
+   * plain HTTP unless the registry entry declares `fetchStrategy: "firecrawl"`.
+   * Static, per-source, for ALL its requests (sitemap discovery and content
+   * pages alike) — never a runtime fallback, never per-request mixing.
+   */
+  fetcherFor(entry: SourceEntry): Fetcher;
   /** Corpus/document embedder — the PATIENT retry policy (ingest runs). */
   embedder: Embedder;
   /** Query embedder — the FAST-FAIL retry policy (request-time retrieval). */
@@ -72,6 +80,44 @@ function retryReason(error: unknown): string {
     if (e.name) return e.name;
   }
   return "error";
+}
+
+/**
+ * Per-source Fetcher selection (ADR-0012), driven by the pure
+ * resolveFetchStrategy: plain HTTP unless the registry entry declares
+ * `fetchStrategy: "firecrawl"`. The Firecrawl adapter is built lazily — only
+ * when a source actually declares it — so the key is required exactly then and
+ * plain-HTTP runs never touch it. One instance serves every Firecrawl source
+ * (the adapter holds no per-source state).
+ */
+function makeFetcherFor(env: Env): (entry: SourceEntry) => Fetcher {
+  const httpFetcher = new HttpFetcher();
+  let firecrawlFetcher: Fetcher | null = null;
+  return (entry) => {
+    const strategy = resolveFetchStrategy(entry);
+    switch (strategy) {
+      case "plain-http":
+        return httpFetcher;
+      case "firecrawl":
+        if (!firecrawlFetcher) {
+          if (!env.FIRECRAWL_API_KEY) {
+            throw new Error(
+              `FIRECRAWL_API_KEY is not set, but source '${entry.key}' declares ` +
+                `fetchStrategy: "firecrawl". Set it in .env (local, free-tier key) ` +
+                `or Doppler (production, hobby-tier key) and re-run.`,
+            );
+          }
+          firecrawlFetcher = new FirecrawlFetcher({ apiKey: env.FIRECRAWL_API_KEY });
+        }
+        return firecrawlFetcher;
+      default: {
+        // Exhaustive: a new FetchStrategy member must be routed here explicitly,
+        // never silently sent to one of the existing fetchers.
+        const unhandled: never = strategy;
+        throw new Error(`unhandled fetch strategy '${String(unhandled)}' for source '${entry.key}'`);
+      }
+    }
+  };
 }
 
 /** Build the storage + HTTP + embedding adapters; injected into the contexts by the runners. */
@@ -155,7 +201,7 @@ export function wire(): Wiring {
     fetchStateStore: new PostgresFetchStateStore(db),
     rawDocumentStore: new PostgresRawDocumentStore(db),
     rawDocumentReader: new PostgresRawDocumentReader(db),
-    fetcher: new HttpFetcher(),
+    fetcherFor: makeFetcherFor(env),
     embedder,
     queryEmbedder,
     languageDetector,

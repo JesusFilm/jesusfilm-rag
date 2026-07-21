@@ -113,9 +113,24 @@ broken foundation.
    for a source (a genuine fork), not to ask "how do we handle languages?".
    *(slice: FamilyLife `es` was mislabeled `en` because language was sourced from
    `languages[0]` — see #68 / ADR-0006.)*
-4. Create the slice branch: `git checkout main && git pull --ff-only` (if a
+4. **Probe for a bot wall (mandatory — during unpack, BEFORE writing the crawl
+   policy).** Plain-HTTP-fetch one real content page (the recon UA). Classify the
+   source **walled** ONLY on the Cloudflare **block-page signature**: 403/503 status
+   AND the interstitial's markers (title "Attention Required! | Cloudflare",
+   "Enable JavaScript and cookies to continue", …). Do **NOT** key off the presence
+   of a `challenge-platform` script reference — successfully-served Cloudflare
+   pages carry it too, so it false-positives on CF-fronted-but-served sources
+   (thelife, cru). On detecting a wall, record `fetchStrategy: "firecrawl"` in the
+   new registry entry ([ADR-0012](../../../docs/decisions/0012-firecrawl-fetch-strategy-walled-sources.md))
+   — a deliberate, static, per-source choice; there is no runtime fallback, and the
+   strategy covers ALL the source's requests (sitemap discovery included). If a
+   walled source's sitemap can't be fetched cleanly through Firecrawl either, the
+   fallback is hand-listed `seedPaths` — a registry decision, not a runtime one.
+   A firecrawl source needs `FIRECRAWL_API_KEY` set when its acquire runs (loud
+   wiring error otherwise).
+5. Create the slice branch: `git checkout main && git pull --ff-only` (if a
    remote is configured; skip if not) `&& git checkout -b slice/<source-key>`.
-5. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
+6. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
    "Next action" at it and set the source's row in `sources.md` to `Acquiring`.
    Register the source in `docs/source-status.yaml` via the tool:
    `pnpm status:add-source --key <source-key> --name "<name>" --lang <code> --slice-file docs/slices/<source-key>.md`
@@ -123,7 +138,7 @@ broken foundation.
    derives `status` and stamps `last_updated`). Never hand-edit the YAML — the
    `*:production` scripts read it, and a stray edit makes engineers pick wrong
    keys (see `docs/ops/prod-ingest.md`).
-6. **Present the plan in plain language and get a go-ahead** (this is the first
+7. **Present the plan in plain language and get a go-ahead** (this is the first
    stage-boundary pause). Show the stages + sub-steps — **including the language
    plan (domains → source keys, declared languages, per-doc detection)** — as a
    short narrative, not a wall of detail. Then proceed to Step 3.

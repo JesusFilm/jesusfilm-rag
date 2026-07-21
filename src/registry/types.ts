@@ -7,6 +7,14 @@
 import type { IngestionMode, SourceTrust } from "@/contracts/index.js";
 
 /**
+ * How a source's bytes are obtained during acquisition — plain HTTP, or a
+ * rendered browser via Firecrawl (for walled sources whose content pages sit
+ * behind a JS bot wall plain HTTP cannot pass). A deliberate, per-source choice
+ * declared at slice time; never selected or switched at runtime. See ADR-0012.
+ */
+export type FetchStrategy = "plain-http" | "firecrawl";
+
+/**
  * How a source is crawled. Two modes, both valid:
  *
  *  - **Hand-listed** (slices #1–2): set `seedPaths` to the exact content pages.
@@ -23,6 +31,13 @@ import type { IngestionMode, SourceTrust } from "@/contracts/index.js";
 export interface CrawlPolicy {
   /** Origin used to resolve relative `seedPaths` / `sitemaps` into absolute URLs. */
   baseUrl: string;
+  /**
+   * Fetch strategy for EVERY request this source makes — sitemap discovery and
+   * content pages alike. Absent means `plain-http`, so plain HTTP stays the
+   * zero-config norm and Firecrawl is strictly opt-in. Registry-only: never
+   * persisted to the source row (acquisition is the sole consumer).
+   */
+  fetchStrategy?: FetchStrategy;
   /** Hand-listed content-page paths (relative to `baseUrl`) to acquire. Omit for a pure discovery crawl. */
   seedPaths?: string[];
   /**

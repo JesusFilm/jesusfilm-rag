@@ -112,7 +112,7 @@ async function main(): Promise<void> {
           `${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}`,
       );
       const summary = await acquireSource(
-        { fetcher: wiring.fetcher, store: wiring.rawDocumentStore },
+        { fetcher: wiring.fetcherFor(entry), store: wiring.rawDocumentStore },
         entry,
         { onProgress: (line) => console.log(line), dryRun: args.dryRun, resume: args.resume },
       );

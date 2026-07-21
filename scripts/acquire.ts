@@ -85,7 +85,7 @@ async function main(): Promise<void> {
         `\n▶ acquiring ${entry.name} (${entry.key}) — ${plan}, ${entry.crawl.requestDelayMs}ms delay, maxPages ${entry.crawl.maxPages}${mode ? ` [${mode}]` : ""}`,
       );
       const summary = await acquireSource(
-        { fetcher: wiring.fetcher, store: wiring.rawDocumentStore },
+        { fetcher: wiring.fetcherFor(entry), store: wiring.rawDocumentStore },
         entry,
         { onProgress: (line) => console.log(line), dryRun, resume },
       );

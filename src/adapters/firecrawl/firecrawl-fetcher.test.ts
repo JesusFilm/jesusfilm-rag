@@ -84,6 +84,25 @@ describe("FirecrawlFetcher", () => {
     ).rejects.toThrow(/insufficient credits/);
   });
 
+  it("throws when the scrape exceeds the timeout (a hung challenge never wedges the crawl)", async () => {
+    // A fetch that never settles until its abort signal fires — the adapter's
+    // timeout must be what breaks the wait.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        (_url: string, init?: RequestInit) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () =>
+              reject(new DOMException("The operation was aborted.", "AbortError")),
+            );
+          }),
+      ),
+    );
+    await expect(
+      new FirecrawlFetcher({ apiKey: "k", timeoutMs: 10 }).fetch("https://example.net/p"),
+    ).rejects.toThrow(/aborted/i);
+  });
+
   it("throws on a non-2xx Firecrawl API response", async () => {
     vi.stubGlobal(
       "fetch",

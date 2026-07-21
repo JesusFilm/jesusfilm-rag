@@ -24,16 +24,20 @@
  * aligned result array.
  *
  * Transient failures (request timeout, network drop, HTTP 429/5xx) are retried
- * per batch with exponential backoff up to `maxAttempts` (configurable; env
- * EMBED_MAX_ATTEMPTS, wired in main.ts). A single slow batch previously aborted
- * an entire index run — the AbortError crashes seen promoting thelife/sightline/
- * familylife to prod, where 4 consecutive blips on one batch exhausted the old
- * 4-attempt cap and threw away hours of a long run (see issue #64). The default
- * is now 10 attempts (~47s of cumulative retry per batch, backoff capped at 8s),
- * enough to ride out the observed transient OpenRouter blips while still failing
- * a genuinely-down provider in under a minute. Data-integrity errors (width/count
- * mismatch) and client errors (4xx other than 429) are NOT retried — a retry
- * can't fix them.
+ * per batch with exponential backoff up to `maxAttempts`. The class carries ONE
+ * policy per instance; main.ts wires TWO instances with opposite postures
+ * (docs/ops/embed-retry-policy.md):
+ *   - corpus/document embedding (ingest): patient — EMBED_MAX_ATTEMPTS,
+ *     default 10 (~47s of backoff, capped at 8s per delay), because one blip
+ *     aborting a long index run throws away hours (issue #64).
+ *   - query embedding (retrieval/serving): fast-fail — QUERY_EMBED_MAX_ATTEMPTS
+ *     (default 2) and QUERY_EMBED_TIMEOUT_MS (default 4s), because the caller
+ *     behind /v1/search has typically given up within seconds; long retries
+ *     serve nobody and read as phantom "embedding" activity in the serve logs.
+ * Each retry reports an `EmbedRetryInfo` whose `operation` names what is being
+ * embedded ("query" vs "documents") so log lines cannot be mistaken for a
+ * corpus embed job. Data-integrity errors (width/count mismatch) and client
+ * errors (4xx other than 429) are NOT retried — a retry can't fix them.
  */
 import type { Embedder } from "@/contracts/index.js";
 
@@ -76,7 +80,12 @@ export interface OpenRouterEmbedderOptions {
   truncateToDimensions?: boolean;
 }
 
+/** What an embed call is encoding — lets a retry log name the work precisely. */
+export type EmbedOperation = "query" | "documents";
+
 export interface EmbedRetryInfo {
+  /** Whether the retried batch embeds a search query or corpus documents. */
+  operation: EmbedOperation;
   /** The attempt that just failed (1-based). */
   attempt: number;
   /** Configured maximum number of attempts. */
@@ -180,7 +189,7 @@ export class OpenRouterEmbedder implements Embedder {
 
     for (let i = 0; i < pending.length; i += this.maxBatch) {
       const batch = pending.slice(i, i + this.maxBatch);
-      const vectors = await this.post(batch.map((b) => b.text));
+      const vectors = await this.post(batch.map((b) => b.text), "documents");
       batch.forEach((b, j) => {
         results[b.index] = vectors[j];
       });
@@ -203,12 +212,15 @@ export class OpenRouterEmbedder implements Embedder {
     const input = this.queryInstruction
       ? `Instruct: ${this.queryInstruction}\nQuery: ${cleaned}`
       : cleaned;
-    const [vec] = await this.post([input]);
+    const [vec] = await this.post([input], "query");
     return vec;
   }
 
   /** POST one batch, retrying transient failures with exponential backoff. */
-  private async post(inputs: string[]): Promise<number[][]> {
+  private async post(
+    inputs: string[],
+    operation: EmbedOperation,
+  ): Promise<number[][]> {
     for (let attempt = 1; ; attempt++) {
       try {
         return await this.postOnce(inputs);
@@ -218,7 +230,13 @@ export class OpenRouterEmbedder implements Embedder {
           this.retryBaseDelayMs * 2 ** (attempt - 1),
           RETRY_MAX_DELAY_MS,
         );
-        this.onRetry?.({ attempt, maxAttempts: this.maxAttempts, delayMs, error: err });
+        this.onRetry?.({
+          operation,
+          attempt,
+          maxAttempts: this.maxAttempts,
+          delayMs,
+          error: err,
+        });
         await sleep(delayMs);
       }
     }

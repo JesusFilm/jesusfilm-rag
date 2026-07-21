@@ -27,8 +27,11 @@ export function createApp(deps: AppDeps): Hono {
   // response-side drift guard below) returns a contract-shaped JSON 500 — never
   // Hono's default plain-text body — so a consumer that always JSON-parses the
   // response never chokes. Documented as 500 in contracts/openapi.v1.json.
+  // The log line states the request outcome — it is the terminal entry after
+  // any `[retrieval] event=query_embed_retry` lines, closing that story for a
+  // reader correlating these logs with a caller's failure.
   app.onError((err, c) => {
-    console.error("serve: unhandled error", err);
+    console.error("serve: request failed — returning 500 to the caller", err);
     return c.json({ error: "internal" }, 500);
   });
 

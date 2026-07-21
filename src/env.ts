@@ -79,11 +79,25 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   OPENROUTER_API_KEY: z.string().min(1),
   EMBED_MODEL_ID: z.string().min(1).default(DEFAULT_EMBED_MODEL_ID),
-  // Per-batch embed attempts (initial try + retries) before an index run fails;
-  // raise it for a flaky provider. Default 10 (1 try + 9 retries, ~47s of backoff)
-  // so a transient OpenRouter blip recovers instead of aborting a long ingest run
-  // — see issue #64. Consumed by the OpenRouter Embedder (main.ts).
+  // CORPUS embedding only (documents, via ingest): per-batch embed attempts
+  // (initial try + retries) before an index run fails; raise it for a flaky
+  // provider. Default 10 (1 try + 9 retries, ~47s of backoff) so a transient
+  // OpenRouter blip recovers instead of aborting a long ingest run — see issue
+  // #64. The QUERY side deliberately does NOT inherit this patience — see
+  // QUERY_EMBED_MAX_ATTEMPTS and docs/ops/embed-retry-policy.md. Consumed by
+  // the document embedder (main.ts).
   EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
+  // QUERY embedding only (a /v1/search or CLI query embedding the user's query
+  // text at request time): total attempts before retrieval fails. Default 2
+  // (1 try + 1 quick retry) — the consumer calling /v1/search has typically
+  // given up within seconds (forge's client defaults to a 5s budget), so the
+  // ingest-grade 10-attempt patience would hold a dead request for minutes and
+  // spam the serve logs with retry lines. See docs/ops/embed-retry-policy.md.
+  QUERY_EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(2),
+  // QUERY embedding only: per-attempt timeout on the OpenRouter embeddings
+  // call, in ms. Default 4000 — generous against a normal sub-second query
+  // embed, but an order of magnitude tighter than the document path's 30s.
+  QUERY_EMBED_TIMEOUT_MS: z.coerce.number().int().positive().default(4000),
   // Embeddings endpoint base URL. Defaults to OpenRouter; point at a self-hosted
   // vLLM `/v1` for on-prem serving. Consumed by the Embedder adapter (main.ts).
   EMBED_BASE_URL: z.string().url().optional(),

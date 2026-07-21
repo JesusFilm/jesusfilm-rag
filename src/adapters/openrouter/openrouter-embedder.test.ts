@@ -225,6 +225,26 @@ describe("OpenRouterEmbedder — retry/backoff", () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
+  it("names the operation in retry info: embed() = documents, embedQuery() = query", async () => {
+    // main.ts's retry loggers word their lines from this field — it is what
+    // stops a request-time query retry from reading as a corpus embed job.
+    const onRetry = vi.fn();
+    stubFetchSequence([fail(503), okWith(3), fail(503), okWith(3)]);
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      retryBaseDelayMs: 0,
+      onRetry,
+    });
+
+    await embedder.embed(["a document chunk"]);
+    await embedder.embedQuery("how do I pray?");
+
+    expect(onRetry).toHaveBeenCalledTimes(2);
+    expect(onRetry.mock.calls[0][0].operation).toBe("documents");
+    expect(onRetry.mock.calls[1][0].operation).toBe("query");
+  });
+
   it("gives up after maxAttempts, surfacing the last error, with doubling backoff", async () => {
     const onRetry = vi.fn();
     const spy = stubFetchSequence([fail(503, "Service Unavailable")]);

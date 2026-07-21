@@ -187,7 +187,7 @@ interface CorpusWriteStore { upsertSource(s); getDedup(sourceKey, canonicalUrl);
 interface CorpusSearchStore{ vectorSearch(queryVec, filter, k); keywordSearch?(q, filter, k); fetchById(id) }
 ```
 
-**Embedder adapter:** OpenRouter, model `openai/text-embedding-3-small`, 1536 dims, batch ≤ 100, dimension assertion on every response. Provider: https://openrouter.ai/openai/text-embedding-3-small.
+**Embedder adapter:** OpenRouter-compatible endpoint (`EMBED_BASE_URL`), default model `qwen/qwen3-embedding-8b` (ADR-0005; was `openai/text-embedding-3-small`, ADR-0002), 1536 dims, batch ≤ 100, dimension assertion on every response. The adapter carries one retry policy per instance; `main.ts` wires **two** instances — a patient corpus/document embedder for ingest runs (`EMBED_MAX_ATTEMPTS`, default 10) and a fast-fail query embedder for request-time retrieval (`QUERY_EMBED_MAX_ATTEMPTS`, default 2) — numbers, rationale, and log vocabulary in [ops/embed-retry-policy.md](./ops/embed-retry-policy.md).
 
 **Note (reconciled in build step 2):** the port (`src/contracts/ports.ts`) carries the final shape — `embed → (number[]|null)[]` + `readonly dimensions` (not the legacy `number[][]` + `dimensions()`). The `null`-per-empty-input is load-bearing (the dedup/skip path relies on it); `FakeEmbedder` adopts it, and the OpenRouter Embedder adapter (built in a later step) must too.
 

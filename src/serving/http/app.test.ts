@@ -182,6 +182,13 @@ describe("POST /v1/search — error handling", () => {
     expect(res.status).toBe(500);
     expect(res.headers.get("content-type")).toContain("application/json");
     expect(await res.json()).toEqual({ error: "internal" });
+    // The terminal log states the outcome — the closing entry after any
+    // query-embed retry lines when a reader correlates serve logs with a
+    // caller's failure.
+    expect(errSpy).toHaveBeenCalledWith(
+      "serve: request failed — returning 500 to the caller",
+      expect.any(Error),
+    );
     errSpy.mockRestore();
   });
 });

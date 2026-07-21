@@ -197,11 +197,14 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
   compute when a brief provider blip hit one batch 4 times in a row; each recovered
   on a plain manual re-run, confirming the failures were transient
   ([#64](https://github.com/JesusFilm/jesusfilm-rag/issues/64)). If a source still
-  aborts with repeated `⟳ embed attempt N/10 failed` lines, the provider is likely
-  genuinely degraded — check OpenRouter status and re-run later, or raise
+  aborts with repeated `⟳ corpus embed attempt N/10 failed` lines, the provider is
+  likely genuinely degraded — check OpenRouter status and re-run later, or raise
   `EMBED_MAX_ATTEMPTS` for that run. Data-integrity errors (vector width/count
   mismatch) and 4xx client errors (other than 429) are **not** retried — a retry
-  can't fix them, so they fail fast by design.
+  can't fix them, so they fail fast by design. This patience is **corpus-only**:
+  request-time query embedding (every `/v1/search`) runs a separate fast-fail
+  policy (`QUERY_EMBED_MAX_ATTEMPTS`, default 2) — both policies side by side in
+  [embed-retry-policy.md](./embed-retry-policy.md).
 - **Wrong environment.** The script's redacted-host preview is your last line
   of defence. If the host looks wrong, answer `N`. Never put prod values into
   `.env`/`.env.local` — the unsuffixed scripts will use them silently.

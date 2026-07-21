@@ -4,7 +4,13 @@
  * absolute same-origin URLs, and the policy bounds are coherent.
  */
 import { describe, expect, it } from "vitest";
-import { SOURCES, allSources, getSource, seedUrls } from "./index.js";
+import {
+  SOURCES,
+  allSources,
+  getSource,
+  resolveFetchStrategy,
+  seedUrls,
+} from "./index.js";
 import type { SourceEntry } from "./types.js";
 
 describe("SourceRegistry", () => {
@@ -288,6 +294,40 @@ describe("SourceRegistry", () => {
     expect(kept("https://uwota.com/articles/tags/ren-sheng")).toBe(false);
     expect(kept("https://uwota.com/about")).toBe(false);
     expect(kept("https://uwota.com/")).toBe(false);
+  });
+
+  it("a walled source may declare fetchStrategy: 'firecrawl' and resolves to it", () => {
+    // Fixture, not a registered source: the everystudent slice registers the
+    // real entry. This locks that the CrawlPolicy type carries the field and
+    // resolveFetchStrategy reads it.
+    const walled: SourceEntry = {
+      key: "walled-fixture",
+      name: "Walled Fixture",
+      domain: "example.net",
+      trust: "partner",
+      ingestionMode: "html-scrape",
+      languages: ["en"],
+      defaultTags: [],
+      defaultCategory: null,
+      rights: null,
+      crawl: {
+        baseUrl: "https://example.net",
+        seedPaths: ["/article.html"],
+        fetchStrategy: "firecrawl",
+        contentSelectors: ["main"],
+        stripSelectors: [],
+        requestDelayMs: 1000,
+        maxPages: 50,
+        minContentLength: 250,
+      },
+    };
+    expect(resolveFetchStrategy(walled)).toBe("firecrawl");
+  });
+
+  it("a source with no declared fetch strategy resolves to plain-http (the zero-config norm)", () => {
+    // One seed source and one discovery source — neither declares a strategy.
+    expect(resolveFetchStrategy(getSource("starting-with-god")!)).toBe("plain-http");
+    expect(resolveFetchStrategy(getSource("thelife")!)).toBe("plain-http");
   });
 
   it("splits sources by DOMAIN, not by language", () => {

@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-07-22
-- Issue/PR: #104 (implements the slot FOLLOW-UP G / [#8](https://github.com/JesusFilm/jesusfilm-rag/issues/8) closed as deferred)
+- Issue/PR: #104 (implements the slot that FOLLOW-UP G / [#8](https://github.com/JesusFilm/jesusfilm-rag/issues/8) had closed as deferred — this ADR ships it)
 - Related: ADR-0001 (ports boundary)
 
 ## Context

@@ -18,14 +18,20 @@ export interface AcquireArgs {
   resume: boolean;
 }
 
+/** Parse argv. Throws on `--all` + `--source` together (the sweep-CLI contract) —
+ *  silently letting `--all` win could stage every registered source. */
 export function parseArgs(argv: string[]): AcquireArgs {
   const i = argv.indexOf("--source");
-  return {
+  const args = {
     all: argv.includes("--all"),
     source: i >= 0 ? argv[i + 1] : undefined,
     dryRun: argv.includes("--dry-run"),
     resume: argv.includes("--resume"),
   };
+  if (args.all && args.source !== undefined) {
+    throw new Error("use exactly one of --source <key> or --all, not both");
+  }
+  return args;
 }
 
 /** The registry's source keys, for usage/error messages. */

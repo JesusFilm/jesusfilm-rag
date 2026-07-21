@@ -14,14 +14,25 @@
  */
 import "@/env.js";
 import { wire } from "@/main.js";
-import { knownKeys, parseArgs, resolveEntries, runAcquire } from "./lib/acquire-core.js";
+import {
+  knownKeys,
+  parseArgs,
+  resolveEntries,
+  runAcquire,
+  type AcquireArgs,
+} from "./lib/acquire-core.js";
 
 async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+  const usage = `usage: pnpm acquire --source <key> | --all [--dry-run] [--resume]\nknown sources: ${knownKeys()}`;
+  let args: AcquireArgs;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  } catch (e) {
+    console.error(`acquire: ${(e as Error).message}\n${usage}`);
+    process.exit(1);
+  }
   if (!args.all && !args.source) {
-    console.error(
-      `usage: pnpm acquire --source <key> | --all [--dry-run] [--resume]\nknown sources: ${knownKeys()}`,
-    );
+    console.error(usage);
     process.exit(1);
   }
   const entries = resolveEntries(args, "acquire");

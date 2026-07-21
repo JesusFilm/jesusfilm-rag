@@ -23,4 +23,13 @@ describe("parseArgs — the acquire CLI contract (shared by both runners)", () =
   it("leaves source undefined when --source has no value", () => {
     expect(parseArgs(["--source"]).source).toBeUndefined();
   });
+
+  it("rejects --all combined with --source (exactly one, never a silent winner)", () => {
+    expect(() => parseArgs(["--all", "--source", "thelife"])).toThrow(
+      /exactly one of --source <key> or --all/,
+    );
+    expect(() => parseArgs(["--source", "thelife", "--all"])).toThrow(
+      /exactly one of --source <key> or --all/,
+    );
+  });
 });

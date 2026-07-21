@@ -19,7 +19,12 @@ import {
   installCreds,
   extractProdRunFlags,
 } from "./lib/prompt-prod-creds.js";
-import { parseArgs, resolveEntries, runAcquire } from "./lib/acquire-core.js";
+import {
+  parseArgs,
+  resolveEntries,
+  runAcquire,
+  type AcquireArgs,
+} from "./lib/acquire-core.js";
 
 async function main(): Promise<void> {
   const { flags: runFlags, rest, error } = extractProdRunFlags(
@@ -29,12 +34,18 @@ async function main(): Promise<void> {
     console.error(`error: ${error}`);
     process.exit(2);
   }
-  const args = parseArgs(rest);
+  const usage =
+    "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume] " +
+    "[--non-interactive [--expect-host <substr>]]";
+  let args: AcquireArgs;
+  try {
+    args = parseArgs(rest);
+  } catch (e) {
+    console.error(`acquire:production: ${(e as Error).message}\n${usage}`);
+    process.exit(2);
+  }
   if (!args.all && !args.source) {
-    console.error(
-      "usage: pnpm acquire:production --source <key> | --all [--dry-run] [--resume] " +
-        "[--non-interactive [--expect-host <substr>]]",
-    );
+    console.error(usage);
     process.exit(2);
   }
   // Registry-only, env-free — an unknown key fails here, before the prompt.

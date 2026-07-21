@@ -112,3 +112,12 @@ URL. The full secret-safety contract is in the skill — read it before running.
   `pnpm depcruise` gate structure.
 - `docs/source-status.yaml` is the asserted per-language tracker — mutate it only
   through `pnpm status:*` (the deterministic writer), never by hand.
+- **Ticketing: publish tickets as sub-issues of the spec issue.** When breaking
+  a spec into tickets (e.g. a `to-tickets` run), each ticket is a GitHub
+  **sub-issue** of the parent spec issue — the parent stays open until every
+  sub-issue lands, and blocking edges between tickets go in the ticket body.
+  All state a ticket's implementer needs lives on the sub-issue itself: put
+  anything not on `origin/main` — uncommitted drafts, design-session output
+  such as glossary wording, probe findings — directly in the sub-issue body.
+  Implementing agents start from fresh worktrees off `origin/main` and never
+  see the local working tree.

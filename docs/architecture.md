@@ -211,7 +211,7 @@ src/
   acquisition/  fetch · robots · http-cache · extraction → emits RawDocument
   ingestion/    normalize · chunk · embed · dedup · write
   retrieval/    query-embed · rank · cutoff · dedup · cite
-  adapters/     postgres/ · openrouter/ · http-fetch/   (concrete port implementations)
+  adapters/     postgres/ · openrouter/ · http-fetch/ · firecrawl/   (concrete port implementations)
   serving/      mcp/ · http/   (delivery adapter over an injected Retriever)
   fakes/        in-memory port doubles for fakes-only unit tests (imported only by *.test.ts)
   main.ts       composition root — the ONLY file that builds adapters and wires contexts

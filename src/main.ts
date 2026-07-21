@@ -94,18 +94,29 @@ function makeFetcherFor(env: Env): (entry: SourceEntry) => Fetcher {
   const httpFetcher = new HttpFetcher();
   let firecrawlFetcher: Fetcher | null = null;
   return (entry) => {
-    if (resolveFetchStrategy(entry) === "plain-http") return httpFetcher;
-    if (!firecrawlFetcher) {
-      if (!env.FIRECRAWL_API_KEY) {
-        throw new Error(
-          `FIRECRAWL_API_KEY is not set, but source '${entry.key}' declares ` +
-            `fetchStrategy: "firecrawl". Set it in .env (local, free-tier key) ` +
-            `or Doppler (production, hobby-tier key) and re-run.`,
-        );
+    const strategy = resolveFetchStrategy(entry);
+    switch (strategy) {
+      case "plain-http":
+        return httpFetcher;
+      case "firecrawl":
+        if (!firecrawlFetcher) {
+          if (!env.FIRECRAWL_API_KEY) {
+            throw new Error(
+              `FIRECRAWL_API_KEY is not set, but source '${entry.key}' declares ` +
+                `fetchStrategy: "firecrawl". Set it in .env (local, free-tier key) ` +
+                `or Doppler (production, hobby-tier key) and re-run.`,
+            );
+          }
+          firecrawlFetcher = new FirecrawlFetcher({ apiKey: env.FIRECRAWL_API_KEY });
+        }
+        return firecrawlFetcher;
+      default: {
+        // Exhaustive: a new FetchStrategy member must be routed here explicitly,
+        // never silently sent to one of the existing fetchers.
+        const unhandled: never = strategy;
+        throw new Error(`unhandled fetch strategy '${String(unhandled)}' for source '${entry.key}'`);
       }
-      firecrawlFetcher = new FirecrawlFetcher({ apiKey: env.FIRECRAWL_API_KEY });
     }
-    return firecrawlFetcher;
   };
 }
 

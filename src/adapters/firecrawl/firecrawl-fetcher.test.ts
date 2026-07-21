@@ -47,11 +47,13 @@ describe("FirecrawlFetcher", () => {
     expect(headers.authorization).toBe("Bearer fc-test-key");
     expect(headers["content-type"]).toBe("application/json");
     // rawHtml (our extraction stays the single owner of what counts as content)
-    // + maxAge 0 (a deliberate re-crawl means "the site now", never Firecrawl's copy).
+    // + maxAge 0 / storeInCache false (a deliberate re-crawl means "the site
+    // now", and our pages are never stored in Firecrawl's shared cache/index).
     expect(JSON.parse(init.body as string)).toEqual({
       url: "https://example.net/wires/loneliness.html",
       formats: ["rawHtml"],
       maxAge: 0,
+      storeInCache: false,
     });
   });
 
@@ -71,7 +73,7 @@ describe("FirecrawlFetcher", () => {
     );
     expect(out.notModified).toBe(false);
     const body = JSON.parse(spy.mock.calls[0][1]!.body as string) as Record<string, unknown>;
-    expect(Object.keys(body).sort()).toEqual(["formats", "maxAge", "url"]);
+    expect(Object.keys(body).sort()).toEqual(["formats", "maxAge", "storeInCache", "url"]);
   });
 
   it("throws when Firecrawl reports success: false (challenge unpassed, quota exhausted)", async () => {

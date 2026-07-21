@@ -58,7 +58,10 @@ export class FirecrawlFetcher implements Fetcher {
           authorization: `Bearer ${this.apiKey}`,
           "content-type": "application/json",
         },
-        body: JSON.stringify({ url, formats: ["rawHtml"], maxAge: 0 }),
+        // maxAge 0 disables cache READS (never serve Firecrawl's stale copy);
+        // storeInCache false disables cache WRITES (our pages are never stored
+        // in Firecrawl's shared index) — both are needed for "cache disabled".
+        body: JSON.stringify({ url, formats: ["rawHtml"], maxAge: 0, storeInCache: false }),
         signal: controller.signal,
       });
       if (!res.ok) {

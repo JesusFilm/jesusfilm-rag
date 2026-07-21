@@ -112,3 +112,9 @@ URL. The full secret-safety contract is in the skill — read it before running.
   `pnpm depcruise` gate structure.
 - `docs/source-status.yaml` is the asserted per-language tracker — mutate it only
   through `pnpm status:*` (the deterministic writer), never by hand.
+- **Ticketing: persist ticket state as comments on the GitHub issue.** When
+  breaking a spec into tickets (e.g. a `to-tickets` run), any state an
+  implementer needs that is not on `origin/main` — uncommitted drafts,
+  design-session output such as glossary wording, probe findings — must be
+  pinned as a comment on the ticket itself. Implementing agents start from
+  fresh worktrees off `origin/main` and never see the local working tree.

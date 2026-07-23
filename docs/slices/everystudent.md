@@ -38,7 +38,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 - [x] Correct the stale `blocked — needs a JS-capable fetcher` claims in this file, `sources.md`, and `source-status.yaml` (all predate #109); document the conditional `FIRECRAWL_API_KEY` in `.env.example`.   <!-- sha: efcafd5 + this -->
 - [x] **Cost-guard probe (3 credits, 1016 → 1013).** Both assumptions were wrong, in opposite directions — see "Decisions made". Rate re-confirmed at **1 credit/page** (3 pages, 3 credits).   <!-- sha: 0fde91a -->
 - [x] Add the `everystudent` `SourceEntry`: `fetchStrategy: "firecrawl"`, hand-listed `seedPaths` (**117**, lifted from #114 — **never re-map**), `.content4`/`.content4b` selectors + a chrome-tuned strip list. Wired into `SOURCES`; tests split into `everystudent.test.ts` (the §5.5 300-line cap, following `cru.test.ts`).   <!-- sha: 0fde91a -->
-- [x] Live `pnpm acquire --source everystudent` → **117/117 staged, zero skips**, 117 credits (1013 → 896) at a measured **1.00 cr/page**. All status 200, 0 null titles, 117 distinct URLs. Chars min 507 / avg 7,203 / max 22,711.   <!-- sha: 3fc1a1b -->
+- [x] Live `pnpm acquire --source everystudent` → **117/117 staged, zero skips**, 117 credits (1013 → 896) at a measured **1.00 cr/page**. All status 200, 0 null titles, 117 distinct URLs. Chars min 507 / avg 7,203 / max 22,711.   <!-- sha: 0673cf9 -->
 
 ### 2. Ingest → corpus tables
 
@@ -161,4 +161,4 @@ raw snapshot is the input from here on). Next concrete action: `pnpm index
 drains 0, and that `documents.language` reads `en` from per-document detection.
 Expect the 13 thin `/faq/*` docs to chunk to 1 each.
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: 3fc1a1b. Branch: slice/everystudent.
+Last commit: 0673cf9. Branch: slice/everystudent.

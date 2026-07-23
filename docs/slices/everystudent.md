@@ -42,7 +42,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 
 ### 2. Ingest → corpus tables
 
-- [ ] Live `pnpm index --source everystudent` → documents / chunks / embeddings (`qwen/qwen3-embedding-8b`); chunk counts sane; idempotent re-run drains 0; spot-check that `documents.language` reads `en` from per-document detection (not from the declared set).   <!-- sha: ________ -->
+- [x] Live `pnpm index --source everystudent` → **117 docs / 550 chunks / 550 embeddings** (`qwen/qwen3-embedding-8b`, 1:1, 0 chunk_count mismatches); idempotent re-run drains 0. Language detected per document: **108 `en` · 9 `null`** — see the Stage 2 evidence below.   <!-- sha: 4dd39ee -->
 
 ### 3. Retrieve → ranked results
 
@@ -104,9 +104,65 @@ tightened-wall risk did not materialise.
    not chased — re-crawling 117 pages to shave a breadcrumb is not worth 117
    credits.
 
+## Stage 2 evidence (Ingest — GREEN 2026-07-24)
+
+**117 docs / 550 chunks / 550 embeddings** (`qwen/qwen3-embedding-8b`, 1536d) —
+perfect 1:1, 0 `chunk_count` mismatches, idempotent re-run drains 0. Corpus now
+**9 sources / 11,554 docs / 33,654 chunks**. 76 transient OpenRouter embed
+timeouts all recovered inside the retry policy (#64); zero data loss.
+
+Chunks/doc avg 4.70 (min 1, max 15):
+
+| Section | Docs | Chunks | Avg |
+|---|---:|---:|---:|
+| `/wires/` | 47 | 251 | 5.34 |
+| `/features/` | 20 | 192 | 9.60 |
+| `/videos/` | 17 | 39 | 2.29 |
+| `/forum/` | 14 | 35 | 2.50 |
+| `/journeys/` | 4 | 17 | 4.25 |
+| `/faq/` | 13 | **13** | **1.00** |
+| 2 root articles | 2 | 3 | 1.50 |
+
+The Stage-1 prediction held exactly: **every `/faq/` doc chunks to 1.**
+
+### ⚠️ Finding — 9 docs unclassified, and they are the site's *best* articles
+
+`documents.language`: **108 `en`, 9 `null`** (7.7%). Counter-intuitively the 9
+are not the thin ones — they are among the **largest** (5.7k–26k chars) and
+include some of EveryStudent's flagship pieces: `/features/bible.html`,
+`/features/faith.html` (Beyond Blind Faith), `/wires/atheist.html` (How an
+Atheist Found God), `/wires/who-is-god.html`, `/wires/loneliness.html`,
+`/wires/jesus-in-islam.html`, `/forum/trinity.html`,
+`/features/martin-luther-king-jr.html`, `/features/whypick.html`.
+
+**Cause: the tinyld confidence gate, not the content.** All nine are plainly
+clean English prose; re-running the detector over their leading 2,000 chars
+returns `en` as the top candidate every time, at **0.605–0.771** — clustered
+just under `CONFIDENCE_GATE = 0.75` — with a spurious `hi` runner-up (0.12–0.29)
+that is a tinyld quirk, not anything in the text. `DETECTION_FLOOR_CHARS` is not
+involved (all are far above 500). So this is ADR-0007 working as designed: a
+`null` is an honest "not confidently detected", never a guess.
+
+**Why it still matters:** a `null`-language doc is excluded from
+`language:"en"` filtered searches (SQL three-valued logic) while staying
+retrievable unfiltered. Nine of this source's strongest apologetics articles are
+currently invisible to any language-scoped query — which is exactly the shape of
+query Stage 4 eval uses.
+
+**Context:** the rate itself is unremarkable — cru ingested at 7.8% null. But
+**every other source in the local corpus now reads 0.0%**, because the ADR-0009
+LLM sweep (`pnpm lang:sweep`, PRs #92/#95/#96) drained them 190 → 0.
+everystudent is simply the first source ingested since that sweep, so it is the
+lone outlier and the remedy is an existing, proven tool.
+
 ## Open question / blocker
 
-- none
+- **Run `pnpm lang:sweep` on `everystudent` before Stage 4?** Operator decision
+  at the Stage-2 boundary. Recommended: yes — it is the established remedy, it
+  costs a small LLM spend rather than any Firecrawl credits, and leaving 9
+  flagship docs unfilterable would distort the eval. Deferring is defensible
+  (they are retrievable unfiltered, and English-only eval cases may not scope by
+  language), but the distortion would be silent.
 
 ## Known caveat — not a blocker for this slice
 
@@ -154,11 +210,16 @@ sources like thelife and cru. Use `attention required` /
 
 ## Resume hint (for a cold start)
 
-At: **Stage 2 — Ingest.** Stage 1 is green: 117 rows sit in `raw_documents`
-pending ingest, and no further Firecrawl spend is needed for this source (the
-raw snapshot is the input from here on). Next concrete action: `pnpm index
---source everystudent`, then check chunk/embedding counts are 1:1, that a re-run
-drains 0, and that `documents.language` reads `en` from per-document detection.
-Expect the 13 thin `/faq/*` docs to chunk to 1 each.
+At: **Stage 3 — Retrieve.** Stages 1 and 2 are green; everystudent is live in
+the 9-source corpus (11,554 docs / 33,654 chunks) and no further Firecrawl spend
+is needed for this source ever. **One decision is open first** (see "Open
+question"): whether to run `pnpm lang:sweep` over everystudent to classify the 9
+`null`-language docs before eval.
+
+Next concrete action: `pnpm query` against seeker-axis topics this source owns
+(is there a God, loneliness, atheism, the Trinity, purpose) — confirm ranked
+cited hits from everystudent, check cross-source health (does it complement or
+bury the 8 existing sources?), and re-confirm `minScore 0.37` separates
+positives from off-topic negatives.
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: 0673cf9. Branch: slice/everystudent.
+Last commit: 4dd39ee. Branch: slice/everystudent.

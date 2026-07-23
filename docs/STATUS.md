@@ -5,10 +5,36 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-17 — **slice #7 MERGED (PR #80) + prod cutover COMPLETE**;
-prod is 100% qwen3 at **11,477 docs**; `cru-10-basic-steps` removed from prod (PR #93)_
+_Last updated: 2026-07-24 — **slice #8 (EveryStudent en) STARTED** on
+`slice/everystudent`, the first walled source; slice #7 MERGED (PR #80) + prod
+cutover COMPLETE; prod is 100% qwen3 at **11,477 docs**_
 
 ## You are here
+
+**Slice #8 (EveryStudent English, `everystudent`) is IN PROGRESS** on
+`slice/everystudent` — **the first slice to acquire a walled source.**
+everystudent.com sits behind a Cloudflare JS challenge our plain fetcher cannot
+pass, and has *tightened* since the 2026-05-25 probe (the homepage and
+`/sitemap.xml` now 403 too; only `robots.txt` answers). It is acquirable because
+ADR-0012 / #109 added `fetchStrategy: "firecrawl"`, verified working against
+this domain unmodified (#114). Scope is **the English domain only** — the Arabic
+(`everyarabstudent.com`) and French (`questions2vie.com`) banners are separate
+domains → separate keys → separate later slices (ADR-0006).
+
+Planned and costed in [#112](https://github.com/JesusFilm/jesusfilm-rag/issues/112):
+discovery is **already paid for** (#114's `/v2/map` inventory, 167 URLs at 1
+credit flat), so this is a hand-listed `seedPaths` crawl of **149 seeds** at a
+**measured 1 credit/page** — funded from the personal Firecrawl account (1,016
+credits confirmed live, cycle ends 2026-08-21). Prod promotion uses the #115
+bulk-copy path *after* Stage 4, never `acquire:production`.
+
+⚠️ **Local gate caveat:** `pnpm test` is 421/422 on the dev machine — the
+FOLLOW-UP J #17/#75 canary, data-dependent (green on an empty DB and in CI, red
+against the 33k-chunk local corpus). Noted, not fixed: English-only work cannot
+trip it, but **it must be investigated before the `ar`/`fr` slices**, which are
+exactly the case it warns about. See [docs/slices/everystudent.md](./slices/everystudent.md).
+
+---
 
 **Slice #7 (Cru consolidated, `cru`) is DONE and MERGED to `main`** (PR #80,
 2026-07-14). One whole-domain source (en+es+fr) superseding `cru-10-basic-steps`
@@ -114,8 +140,15 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Operator decides.** Slice #7 is fully landed (merged + prod cutover + duplicate
-cleanup + language sweep); nothing is mid-flight.
+**Drive slice #8 (`everystudent`) — resume with `/slice everystudent`.** At
+Stage 1: a ~2-credit probe to settle whether the 49 `/podcasts/` + `/videos/`
+URLs are prose or media stubs, then register the source and run the live crawl.
+See [docs/slices/everystudent.md](./slices/everystudent.md) for the resume hint.
+
+Queued behind it, in order: **`everystudent-ar`** then **`everystudent-fr`**
+(#112) — both gated on the #17/#75 canary investigation above.
+
+Still open, operator decides when:
 
 1. **Certify prod post-cutover** — run `pnpm eval:production` against the post-cutover
    corpus (11,477 docs). cru's prod "Evaluated" currently rests on the local slice-#7

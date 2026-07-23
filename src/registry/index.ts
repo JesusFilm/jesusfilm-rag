@@ -12,6 +12,7 @@ import { thelife } from "./thelife.js";
 import { thelifeFr } from "./thelife-fr.js";
 import { thelifeZh } from "./thelife-zh.js";
 import { familylife } from "./familylife.js";
+import { everystudent } from "./everystudent.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -23,6 +24,14 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *
  *  One non-English variant was investigated but NOT registered: thelife's Persian site
  *  (shagerdan.com) serves a Cloudflare 403 wall to non-JS fetchers (FOLLOW-UP G / #8).
+ *  That wall is now passable in principle — `everystudent` is the first registered
+ *  source to declare `fetchStrategy: "firecrawl"` (ADR-0012) — but shagerdan.com stays
+ *  unregistered until someone slices it and funds the credits.
+ *
+ *  EveryStudent spans three domains and is therefore three keys, of which only the
+ *  English one is registered so far: everystudent.com → `everystudent`;
+ *  everyarabstudent.com → `everystudent-ar` and questions2vie.com → `everystudent-fr`
+ *  follow as their own slices (#112).
  *
  *  A note once recorded here — that cru.org's Spanish locale had no real Spanish content —
  *  over-generalised from a single path. Only `/mx/es/.../10-pasos-basicos/` serves
@@ -38,6 +47,7 @@ export const SOURCES: readonly SourceEntry[] = [
   thelifeFr,
   thelifeZh,
   familylife,
+  everystudent,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

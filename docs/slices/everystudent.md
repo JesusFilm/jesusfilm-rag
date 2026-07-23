@@ -36,9 +36,9 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 ### 1. Acquire → raw_documents
 
 - [x] Correct the stale `blocked — needs a JS-capable fetcher` claims in this file, `sources.md`, and `source-status.yaml` (all predate #109); document the conditional `FIRECRAWL_API_KEY` in `.env.example`.   <!-- sha: efcafd5 + this -->
-- [ ] **Cost-guard probe (~2 credits).** Scrape one `/podcasts/` and one `/videos/` page to settle whether those 49 URLs are prose or media stubs, and re-confirm the 1 cr/page rate before committing to the full crawl. Record the answer under "Decisions made".   <!-- sha: ________ -->
-- [ ] Add the `everystudent` `SourceEntry`: `fetchStrategy: "firecrawl"`, hand-listed `seedPaths` (149, lifted from #114 — **never re-map**), `.content4`/`.content4b`/`.articletitle` selectors + strip list. Wire into `SOURCES`; extend `registry.test.ts`.   <!-- sha: ________ -->
-- [ ] Live `pnpm acquire --source everystudent` → rows in `raw_documents`. **Watch the credit delta over the first ~10 pages** — if the rate is 5 cr/page, Cloudflare has tightened, the total (~745) blows the budget, and we stop. Spot-read `raw_content` for real article prose.   <!-- sha: ________ -->
+- [x] **Cost-guard probe (3 credits, 1016 → 1013).** Both assumptions were wrong, in opposite directions — see "Decisions made". Rate re-confirmed at **1 credit/page** (3 pages, 3 credits).   <!-- sha: 51188fb -->
+- [x] Add the `everystudent` `SourceEntry`: `fetchStrategy: "firecrawl"`, hand-listed `seedPaths` (**117**, lifted from #114 — **never re-map**), `.content4`/`.content4b` selectors + a chrome-tuned strip list. Wired into `SOURCES`; tests split into `everystudent.test.ts` (the §5.5 300-line cap, following `cru.test.ts`).   <!-- sha: 51188fb -->
+- [ ] Live `pnpm acquire --source everystudent` → rows in `raw_documents`. **Watch the credit delta over the first ~10 pages** — if the rate is 5 cr/page, Cloudflare has tightened, the total (~585) blows the budget, and we stop. Spot-read `raw_content` for real article prose.   <!-- sha: ________ -->
 
 ### 2. Ingest → corpus tables
 
@@ -66,6 +66,10 @@ Firecrawl.
 - 2026-05-25 — **Seed sourcing = hand-curate.** Still true, for a new reason: #114 already paid to enumerate the site via `/v2/map`, so re-discovering it would cost credits for nothing.
 - 2026-07-24 — **Hand-listed `seedPaths`, not a sitemap discovery crawl.** `/sitemap.xml` is 403 to plain HTTP, and the 167-URL inventory from #114 is preserved. Discovery through Firecrawl would re-pay for knowledge we already hold.
 - 2026-07-24 — **149 seeds from the 167 mapped.** Dropped: the homepage, `/contact.php`, `/donate`, `/quiz`, `/sitemap.html`, the bare `/podcasts` index, 10 `/menus/*` index pages, and `/features/search.html` + `/podcasts/search.html`. Kept `/videos/jobsearch.html` (a real article that only *looks* like a search page). No robots-disallowed path appears in the mapped set.
+- 2026-07-24 — **`/podcasts/*` (32) DROPPED as duplicates — the probe's real finding.** The worry was that podcasts/videos were media stubs. They are not: both carry full transcripts. But a `/podcasts/` page is the *read-aloud of an article that already exists* — `/podcasts/loneliness.html` is "LISTEN TO ARTICLE: What to Do with Loneliness" and shares **93.8% of its 12-word shingles** with `/wires/loneliness.html`. 18 of the 32 share an exact article slug; most of the rest are renames (`whowas` ↔ `who-was-jesus`, `isthere` ↔ `is-there-a-god`, `political-views` ↔ `the-politics-of-jesus`). Keeping them would have spent 32 credits to add 32 near-duplicate documents that the doc-level content hash cannot collapse — the same near-duplicate problem slice #4 hit with Sightline's annually-republished devotionals. **149 → 117 seeds.**
+- 2026-07-24 — **`/videos/*` (17) KEPT.** Genuine unique testimony transcripts, not stubs: `/videos/lacey-sturm.html` is a ~4.1k-char first-person account with no article twin. ⚠️ The few with a `-video` suffix (`know-God-video`, `kindness-of-god-video`) may echo their article counterpart — not probed; check at Stage 4.
+- 2026-07-24 — **Strip list tuned beyond boilerplate.** `sitelevel_noindex` (the site's own no-index wrapper around share links + related-article cards) and `.fccell` (the "FEATURE CLOSE" CTA table — "I just asked Jesus into my life…" — appended verbatim to every article). Measured: −359 chars on an article, −275 on a video, articles now ending cleanly on their own last line. This is the slice-#2 accordion-TOC citation-quality problem fixed at the source rather than discovered at eval.
+- 2026-07-24 — **No `block` array.** It would be dead config: `block` filters *discovered* URLs and a seed-only source discovers none. robots.txt compliance is enforced by a test over `seedPaths` instead.
 - 2026-07-24 — **Funded from the personal Firecrawl account** (Free tier; 1,016 credits confirmed live, cycle ends 2026-08-21). ~149 credits for this domain, ~292–338 for all three — roughly 3× headroom, no upgrade (#116). Prod resolves its key via docker secret pull, never `.env`.
 
 ## Open question / blocker
@@ -118,10 +122,12 @@ sources like thelife and cru. Use `attention required` /
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — "Cost-guard probe (~2 credits)". Next concrete action: scrape one
-`/podcasts/` and one `/videos/` page through Firecrawl and read the extracted
-text — if they are media stubs rather than prose, drop those 49 URLs from the
-seed list before registering the source (149 → ~100). Then write the registry
-entry and run the live crawl.
-Last verify: green apart from the #17 canary @ 2026-07-24. Last commit: efcafd5.
-Branch: slice/everystudent.
+At: Stage 1 — "Live `pnpm acquire --source everystudent`". The source is
+registered and tested; **nothing has been crawled yet**. Next concrete action:
+run `pnpm acquire --source everystudent --dry-run` to confirm it resolves 117
+URLs, then the real run — reading the Firecrawl credit balance before and after
+the first ~10 pages. Expect ~117 credits from a balance of 1,013; **stop and
+re-plan if the rate is 5 cr/page** (a tightened Cloudflare), because ~585 would
+not fit the cycle's remaining budget.
+Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
+Last commit: 51188fb. Branch: slice/everystudent.

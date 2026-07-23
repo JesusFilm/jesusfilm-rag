@@ -38,7 +38,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 - [x] Correct the stale `blocked — needs a JS-capable fetcher` claims in this file, `sources.md`, and `source-status.yaml` (all predate #109); document the conditional `FIRECRAWL_API_KEY` in `.env.example`.   <!-- sha: efcafd5 + this -->
 - [x] **Cost-guard probe (3 credits, 1016 → 1013).** Both assumptions were wrong, in opposite directions — see "Decisions made". Rate re-confirmed at **1 credit/page** (3 pages, 3 credits).   <!-- sha: 0fde91a -->
 - [x] Add the `everystudent` `SourceEntry`: `fetchStrategy: "firecrawl"`, hand-listed `seedPaths` (**117**, lifted from #114 — **never re-map**), `.content4`/`.content4b` selectors + a chrome-tuned strip list. Wired into `SOURCES`; tests split into `everystudent.test.ts` (the §5.5 300-line cap, following `cru.test.ts`).   <!-- sha: 0fde91a -->
-- [ ] Live `pnpm acquire --source everystudent` → rows in `raw_documents`. **Watch the credit delta over the first ~10 pages** — if the rate is 5 cr/page, Cloudflare has tightened, the total (~585) blows the budget, and we stop. Spot-read `raw_content` for real article prose.   <!-- sha: ________ -->
+- [x] Live `pnpm acquire --source everystudent` → **117/117 staged, zero skips**, 117 credits (1013 → 896) at a measured **1.00 cr/page**. All status 200, 0 null titles, 117 distinct URLs. Chars min 507 / avg 7,203 / max 22,711.   <!-- sha: 3fc1a1b -->
 
 ### 2. Ingest → corpus tables
 
@@ -71,6 +71,38 @@ Firecrawl.
 - 2026-07-24 — **Strip list tuned beyond boilerplate.** `sitelevel_noindex` (the site's own no-index wrapper around share links + related-article cards) and `.fccell` (the "FEATURE CLOSE" CTA table — "I just asked Jesus into my life…" — appended verbatim to every article). Measured: −359 chars on an article, −275 on a video, articles now ending cleanly on their own last line. This is the slice-#2 accordion-TOC citation-quality problem fixed at the source rather than discovered at eval.
 - 2026-07-24 — **No `block` array.** It would be dead config: `block` filters *discovered* URLs and a seed-only source discovers none. robots.txt compliance is enforced by a test over `seedPaths` instead.
 - 2026-07-24 — **Funded from the personal Firecrawl account** (Free tier; 1,016 credits confirmed live, cycle ends 2026-08-21). ~117 credits for this domain (after the podcast drop), ~292–338 for all three — roughly 3× headroom, no upgrade (#116). Prod resolves its key via docker secret pull, never `.env`.
+
+## Stage 1 evidence (Acquire — GREEN 2026-07-24)
+
+`raw_documents` for `everystudent`: **117 rows / 117 distinct canonical_url**,
+all status 200, 0 null titles. Content chars min 507 · avg 7,203 · max 22,711.
+Spot-read across three page shapes returned real article prose, no Cloudflare
+interstitial. Cost: **117 credits, exactly 1.00/page** (1,013 → 896) — the
+tightened-wall risk did not materialise.
+
+| Section | Docs | Avg chars |
+|---|---:|---:|
+| `/wires/` | 47 | 8,371 |
+| `/features/` | 20 | 15,338 |
+| `/videos/` | 17 | 3,195 |
+| `/forum/` | 14 | 3,499 |
+| `/faq/` | 13 | **702** |
+| `/journeys/` | 4 | 6,660 |
+| 2 root articles | 2 | 1,735 |
+
+**Two things to carry into later stages:**
+
+1. **`/faq/*` is a thin band** — 13 docs averaging 702 chars (507 min). They
+   clear `minContentLength: 250` and are genuine Q&A answers, but each will
+   likely chunk to 1. Watch whether they earn top-10 slots at Stage 4 or just
+   dilute; do **not** pre-emptively drop them (slice #6's `/equip/` retention
+   decision was made on eval evidence, not a guess).
+2. **A little chrome survives extraction** — a leading breadcrumb ("Spiritual Qs
+   / FAQ", "Find God"), a "Listen to article | Share this article" line, and a
+   `▶` on video pages. All are bare `<p>`/text with no class to target, so no
+   selector can strip them; they are a few words at the head of chunk 0. Noted,
+   not chased — re-crawling 117 pages to shave a breadcrumb is not worth 117
+   credits.
 
 ## Open question / blocker
 
@@ -122,12 +154,11 @@ sources like thelife and cru. Use `attention required` /
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — "Live `pnpm acquire --source everystudent`". The source is
-registered and tested; **nothing has been crawled yet**. Next concrete action:
-run `pnpm acquire --source everystudent --dry-run` to confirm it resolves 117
-URLs, then the real run — reading the Firecrawl credit balance before and after
-the first ~10 pages. Expect ~117 credits from a balance of 1,013; **stop and
-re-plan if the rate is 5 cr/page** (a tightened Cloudflare), because ~585 would
-not fit the cycle's remaining budget.
+At: **Stage 2 — Ingest.** Stage 1 is green: 117 rows sit in `raw_documents`
+pending ingest, and no further Firecrawl spend is needed for this source (the
+raw snapshot is the input from here on). Next concrete action: `pnpm index
+--source everystudent`, then check chunk/embedding counts are 1:1, that a re-run
+drains 0, and that `documents.language` reads `en` from per-document detection.
+Expect the 13 thin `/faq/*` docs to chunk to 1 each.
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: 0fde91a. Branch: slice/everystudent.
+Last commit: 3fc1a1b. Branch: slice/everystudent.

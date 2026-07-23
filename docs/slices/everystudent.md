@@ -42,7 +42,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 
 ### 2. Ingest → corpus tables
 
-- [x] Live `pnpm index --source everystudent` → **117 docs / 550 chunks / 550 embeddings** (`qwen/qwen3-embedding-8b`, 1:1, 0 chunk_count mismatches); idempotent re-run drains 0. Language detected per document: **108 `en` · 9 `null`** — see the Stage 2 evidence below.   <!-- sha: 4dd39ee -->
+- [x] Live `pnpm index --source everystudent` → **117 docs / 550 chunks / 550 embeddings** (`qwen/qwen3-embedding-8b`, 1:1, 0 chunk_count mismatches); idempotent re-run drains 0. Language detected per document: **108 `en` · 9 `null`** — see the Stage 2 evidence below.   <!-- sha: 99e9696 -->
 
 ### 3. Retrieve → ranked results
 
@@ -222,4 +222,4 @@ cited hits from everystudent, check cross-source health (does it complement or
 bury the 8 existing sources?), and re-confirm `minScore 0.37` separates
 positives from off-topic negatives.
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: 4dd39ee. Branch: slice/everystudent.
+Last commit: 99e9696. Branch: slice/everystudent.

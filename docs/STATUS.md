@@ -5,34 +5,46 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-24 — **slice #8 (EveryStudent en) STARTED** on
-`slice/everystudent`, the first walled source; slice #7 MERGED (PR #80) + prod
-cutover COMPLETE; prod is 100% qwen3 at **11,477 docs**_
+_Last updated: 2026-07-24 — **slice #8 (EveryStudent en) DONE, all 4 stages
+green** on `slice/everystudent` (not yet merged); eval now **106 cases**; slice
+#7 MERGED (PR #80) + prod cutover COMPLETE; prod is 100% qwen3 at **11,477 docs**_
 
 ## You are here
 
-**Slice #8 (EveryStudent English, `everystudent`) is IN PROGRESS** on
-`slice/everystudent` — **the first slice to acquire a walled source.**
-everystudent.com sits behind a Cloudflare JS challenge our plain fetcher cannot
-pass, and has *tightened* since the 2026-05-25 probe (the homepage and
-`/sitemap.xml` now 403 too; only `robots.txt` answers). It is acquirable because
-ADR-0012 / #109 added `fetchStrategy: "firecrawl"`, verified working against
-this domain unmodified (#114). Scope is **the English domain only** — the Arabic
-(`everyarabstudent.com`) and French (`questions2vie.com`) banners are separate
-domains → separate keys → separate later slices (ADR-0006).
+**Slice #8 (EveryStudent English, `everystudent`) is DONE — all 4 stages green,
+Evaluated** on `slice/everystudent` (2026-07-24, **not yet merged**). The first
+walled source, acquired through Firecrawl (ADR-0012, #114): **117 docs / 550
+qwen3 chunks** at exactly 117 credits, queryable and evaluated in the 9-source
+space. Scope was the English domain only — `everystudent-ar` /
+`everystudent-fr` are separate keys, queued (ADR-0006, #112).
 
-Planned and costed in [#112](https://github.com/JesusFilm/jesusfilm-rag/issues/112):
-discovery is **already paid for** (#114's `/v2/map` inventory, 167 URLs at 1
-credit flat), so this is a hand-listed `seedPaths` crawl of **149 seeds** at a
-**measured 1 credit/page** — funded from the personal Firecrawl account (1,016
-credits confirmed live, cycle ends 2026-08-21). Prod promotion uses the #115
-bulk-copy path *after* Stage 4, never `acquire:production`.
+**Stage 4 was the first agent-driven `/golden` run (v4)** — the operator gated
+the fork, the spend, and the write instead of typing the command. A 3-lens
+judge panel (theologian / pastor / mature Christian) scored **230 (case, doc)
+pairs over 160 whole documents**, both axes gated ≥ 0.75 in code: **85 credits
+approved, 141 (61%) rejected as sound-but-off-question** (the tripwire, worse
+than slice #7's 48%), 0 soundness failures, 0 escalations (max spread 0.20 —
+the convergence caveat stands). qa-golden.yaml **96 → 106 cases** (+31
+gap-fixes on 14 prior cases, +10 everystudent-native cases on the
+seeker/apologetics axis).
 
-⚠️ **Local gate caveat:** `pnpm test` is 421/422 on the dev machine — the
-FOLLOW-UP J #17/#75 canary, data-dependent (green on an empty DB and in CI, red
-against the 33k-chunk local corpus). Noted, not fixed: English-only work cannot
-trip it, but **it must be investigated before the `ar`/`fr` slices**, which are
-exactly the case it warns about. See [docs/slices/everystudent.md](./slices/everystudent.md).
+**Final eval @ 106 cases / 9 sources:** recall@3 **0.953** · recall@10
+**1.000** · coverage **0.703** · MRR 0.828 · P@1 0.698. **everystudent n=22:
+recall 0.818 / coverage 0.739**, 9 of 10 native cases at rank 1. Every prior
+en source moved UP — cru 0.861/0.636, thelife 0.878/0.634, sightline
+0.783/0.563, **swg 0.458/0.375** (the feared displacement never materialized;
+two slice-#1 gap docs credited as side-effects). **minScore 0.37 holds**; note
+a resume-writing negative reached 0.505, the faith-adjacent band's closest
+approach yet to the 0.55+ positive cluster.
+
+⚠️ **Two recorded consequences to carry forward:** (1) the source's **9
+null-language docs are excluded from all eval credits** (operator fork
+decision — `caseLanguage()` has no unscoped pin, so crediting them would bake
+unreturnable expectations into en-scoped cases); the loneliness case therefore
+credits zero everystudent docs. They enter the keys only after a future
+`lang:sweep` + re-review. (2) `pnpm test` remains 425/426 — the FOLLOW-UP J
+#17/#75 canary, data-dependent (green in CI), **must be investigated before
+the `ar`/`fr` slices**. See [docs/slices/everystudent.md](./slices/everystudent.md).
 
 ---
 
@@ -140,13 +152,13 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Drive slice #8 (`everystudent`) — resume with `/slice everystudent`.** At
-Stage 1: a ~2-credit probe to settle whether the 49 `/podcasts/` + `/videos/`
-URLs are prose or media stubs, then register the source and run the live crawl.
-See [docs/slices/everystudent.md](./slices/everystudent.md) for the resume hint.
+**Operator decides:** (1) **merge `slice/everystudent` into `main`** (open a PR
+from the branch); (2) **prod promotion** via the #115 bulk-copy path — never
+`acquire:production` for this source; (3) next slice.
 
-Queued behind it, in order: **`everystudent-ar`** then **`everystudent-fr`**
-(#112) — both gated on the #17/#75 canary investigation above.
+Queued next as slices, in order: **`everystudent-ar`** then **`everystudent-fr`**
+(#112) — both gated on the **#17/#75 canary investigation**, which should be
+tackled first (they are exactly the rare-language-drowning case it warns about).
 
 Still open, operator decides when:
 

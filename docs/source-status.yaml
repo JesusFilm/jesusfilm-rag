@@ -122,11 +122,11 @@ sources:
 
   everystudent:
     name: EveryStudent
-    status: in-progress
+    status: done
     languages:
       en:
-        status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/everystudent.md
     last_updated: 2026-07-24
   cru:

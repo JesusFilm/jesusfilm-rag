@@ -1,6 +1,6 @@
 # Slice: EveryStudent — English (everystudent)
 
-_Branch: `slice/everystudent` · Started: 2026-05-25 (blocked) · Restarted: 2026-07-24 · Status: in-progress_
+_Branch: `slice/everystudent` · Started: 2026-05-25 (blocked) · Restarted: 2026-07-24 · Status: done_
 <!-- Status: in-progress | blocked | done | deferred (mirrors the RowStatus contract) -->
 
 ## Goal (architecture altitude)
@@ -50,9 +50,9 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 
 ### 4. Eval + spot-check
 
-- [ ] `/golden` content-grounded Stage 4: re-review existing cases' living `relevant` maps (expect prior-source numbers to MOVE — usually up), then author persona-diverse everystudent-native cases. Two-axis gating: relevance ⊥ biblical soundness, both at 0.75.   <!-- sha: ________ -->
-- [ ] Whole-corpus `pnpm eval` → per-source + per-language coverage; write `eval/results-YYYY-MM-DD.md`; re-confirm `minScore`.   <!-- sha: ________ -->
-- [ ] Spot-check representative queries; record results in `sources.md` (→ Evaluated).   <!-- sha: ________ -->
+- [x] `/golden` content-grounded Stage 4 (first agent-driven run, v4): probed all 68 en cases + drafted 10 native cases; **3-lens judge panel over 230 (case, doc) pairs / 160 whole documents**; both axes gated ≥ 0.75 in code; operator gated the fork (exclude the 9 null docs), the spend, and the write. **85 credits approved → qa-golden.yaml 96 → 106 cases** (31 gap-fixes on 14 prior cases + 10 everystudent-native cases, 54 multi-source credits).   <!-- sha: 12bc5b6 + this -->
+- [x] Whole-corpus `pnpm eval` @ 106 cases: recall@3 **0.953** · recall@10 **1.000** · coverage **0.703** · MRR 0.828 · P@1 0.698; everystudent n=22 recall 0.818 / coverage 0.739; 4 negatives re-confirm **minScore 0.37**. `eval/results-2026-07-24.md` (post-curation; the same-named pre-curation baseline lives at `9f53b36`).   <!-- sha: 12bc5b6 + this -->
+- [x] Spot-check: 9 of 10 native cases rank 1 (astrology rank 2); negatives 0-hit or the 0.37–0.51 faith-adjacent band. Recorded in `sources.md` (→ Evaluated).   <!-- sha: 12bc5b6 + this -->
 
 **Out of this slice:** prod promotion via the #115 bulk-copy path (acquire local
 → ingest + eval local → copy `raw_documents` with `id`/`ingested_at` omitted →
@@ -72,6 +72,9 @@ Firecrawl.
 - 2026-07-24 — **No `block` array.** It would be dead config: `block` filters *discovered* URLs and a seed-only source discovers none. robots.txt compliance is enforced by a test over `seedPaths` instead.
 - 2026-07-24 — **`lang:sweep` is periodic maintenance, NOT a per-slice step — the 9 nulls stay (operator).** A mislabel (or an honest blank) is accepted as the normal cost of never guessing; the sweep runs occasionally, when the corpus-wide null count grows large enough to be worth an LLM pass. It is explicitly not part of closing a slice. **Consequence to hold in mind at Stage 4:** these 9 docs are invisible to `language:"en"`-scoped queries, so keep everystudent eval cases unscoped by language (the source is monolingual, so nothing needs the filter) — otherwise the eval measures the gate, not retrieval.
 - 2026-07-24 — **Funded from the personal Firecrawl account** (Free tier; 1,016 credits confirmed live, cycle ends 2026-08-21). ~117 credits for this domain (after the podcast drop), ~292–338 for all three — roughly 3× headroom, no upgrade (#116). Prod resolves its key via docker secret pull, never `.env`.
+- 2026-07-24 — **The 9 null-language docs are EXCLUDED from all eval credits (operator, at the Stage-4 fork).** The Stage-2 plan ("keep everystudent cases unscoped") turned out mechanically impossible: `caseLanguage()` has no unscoped pin — any case whose relevant sources intersect to `{en}` runs `language:"en"`-scoped, so crediting a null doc bakes in a permanently unreturnable expectation. Options were sweep-now / exclude / credit-anyway; operator chose **exclude**, honoring the "sweep is periodic maintenance" decision. Measured cost: `es-seeker-loneliness` credits **zero** everystudent docs (the real answer, `/wires/loneliness.html`, is null), and the flagship apologetics docs stay out of the answer keys until a future `lang:sweep` + re-review.
+- 2026-07-24 — **Stage-4 candidate rules (operator-approved):** Part A = everystudent-scoped deep probe, score ≥ 0.58 ∪ already-in-top-10, nulls excluded → 107 pairs; Part B = whole-corpus en-scoped top-20 ≥ 0.55 + es-scoped ≥ 0.5 → 122 pairs. One surgical top-up (marcia-montenegro × astrology) after the panel exposed `/faq/astrology.html` as a redirect stub whose answer doc sat 0.002 under the floor.
+- 2026-07-24 — **Judge panel: 141 of 230 pairs (61%) rejected as sound-but-off-question** — the Guardrail-#6 tripwire, a higher rate than slice #7's 48%. **0 soundness failures** (lowest mean 0.68, on a rejected pair; no #78-grade findings). **0 escalations** — max panel spread 0.20 across 690 relevance scores, the known single-base-model convergence caveat; agreement was not read as corroboration.
 
 ## Stage 1 evidence (Acquire — GREEN 2026-07-24)
 
@@ -241,6 +244,64 @@ on one blip. Both are env-configurable, so the re-runs used
 A batch context borrowing an interactive latency budget looks like a real gap;
 file it at slice close.
 
+## Stage 4 evidence (Eval — GREEN 2026-07-24)
+
+**The pre-curation prediction held exactly:** gains came from crediting, not
+regression repair. Post-curation @ **106 cases / 9 sources** (`pnpm eval`,
+`eval/results-2026-07-24.md`):
+
+| Metric | Pre-curation | Post-curation |
+|---|---|---|
+| recall@3 | 0.938 | **0.953** |
+| recall@10 | 1.000 | **1.000** |
+| coverage | 0.681 | **0.703** |
+| MRR | 0.800 | 0.828 |
+| P@1 | 0.656 | 0.698 |
+
+**everystudent: n=0 → n=22, recall 0.818 / coverage 0.739.** All 10 native
+cases pass — 9 at rank 1, astrology at rank 2. The 4 everystudent recall
+misses are deep credits displaced by cross-source competition on shared
+topics (the FOLLOW-UP I mechanism, not a content failure).
+
+**Every prior en source moved UP, none down** (the slice-#5/#6 pattern
+re-confirmed at 9 sources): cru 0.828→0.861 recall / 0.576→0.636 coverage ·
+thelife 0.857→0.878 / 0.593→0.634 · sightline 0.756→0.783 / 0.541→0.563 ·
+**swg 0.409→0.458 / 0.318→0.375** — the feared everystudent-displaces-swg
+drop did not materialize; two swg docs (`/new-life/jesus.html`,
+`/new-life/connect.html`) were newly credited on everystudent-native cases,
+a slice-#1 curation gap closed as a side-effect. jf unchanged. Per-language:
+en n=78 coverage 0.644 (was 0.603), es/fr/zh untouched, **0 unscoped**.
+
+**minScore 0.37 holds at 9 sources.** Negatives: *"best exercises for lower
+back pain"* and *"what programming language should I learn first?"* → **0
+hits**; *"how do I train my puppy to stop biting?"* → 3 hits 0.373–0.442
+(familylife child-discipline adjacency); *"how do I write a resume with no
+work experience?"* → 5 hits 0.425–**0.505** (college/career docs). That 0.505
+is the closest a negative has come to the positive band (≥0.55) — the
+faith-adjacent band creeps up as life-practical content grows; watch it at
+the next source.
+
+**Curation-quality findings:**
+- **`/faq/*` stubs judged substanceless, as Stage 1 predicted** — the two
+  probed (`/faq/astrology.html`, `/faq/loneliness.html`) pose the question
+  and defer to a `/wires/` article; the panel rejected both as answers
+  (rel 0.47/0.57) while the `/wires/` targets were approved where labeled.
+- **`/faq/LGBTQ.html` REJECTED** (rel 0.45 / sound 0.73) despite being the
+  engine's rank-1 hit on `swg-skeptic-gods-love` — a deliberate, recorded
+  uncredited-top-hit; do not "fix" it by crediting at the next re-review
+  without re-judging.
+- `/journeys/then.html` (life after death) missed the Part-B candidate floor
+  by 0.02 for `es-seeker-fear-of-death` — a re-review candidate next slice.
+- The judge rubric used is preserved at
+  `docs/prompt-samples/2026-07-24-jfrag-slice8-judge-rubric.md`.
+
+### Negatives (cutoff calibration — live in this file, never qa-golden.yaml)
+
+1. "how do I train my puppy to stop biting?"
+2. "how do I write a resume with no work experience?"
+3. "best exercises for lower back pain"
+4. "what programming language should I learn first?"
+
 ## Open question / blocker
 
 - none open. _(The Stage-2 sweep question was DECIDED — see "Decisions made".)_
@@ -291,21 +352,13 @@ sources like thelife and cru. Use `attention required` /
 
 ## Resume hint (for a cold start)
 
-At: **Stage 4 — Eval, curation step.** Stages 1–3 green; the pre-curation
-baseline is captured above (96 cases, everystudent n=0). **The next action is
-the operator's:** `/golden` is `disable-model-invocation`, so it must be typed
-by hand — run **`/golden everystudent`**. Part A re-reviews the existing 96
-cases' living `relevant` maps for newly-relevant everystudent docs (expect
-prior-source numbers to MOVE, usually up); Part B drafts persona-diverse
-everystudent-native cases on the seeker/apologetics axis, which is this source's
-strength (it took ranks 1–2 on the atheist-to-faith query in Stage 3).
-
-Two rules for this source's cases: keep them **UNSCOPED by language** (the
-source is monolingual and 9 docs carry a null label, so a filter would measure
-the confidence gate, not retrieval), and judge the **document**, not the chunk.
-
-After curation, re-run with
-`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval` — the
-default query policy is fail-fast and aborts a 96-case batch on one blip.
-Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: see `git log`. Branch: slice/everystudent.
+**SLICE COMPLETE — all four stages green 2026-07-24.** everystudent is
+queryable and evaluated in the 9-source space (106 golden cases). Nothing to
+resume. Remaining operator decisions: (1) merge `slice/everystudent` into
+`main`; (2) prod promotion via the #115 bulk-copy path — **never
+`acquire:production`** for this source; (3) the queued `everystudent-ar` /
+`everystudent-fr` slices, both **gated on the #17/#75 canary investigation**;
+(4) a future `lang:sweep` + re-review to bring the 9 excluded null-language
+docs (incl. `/wires/loneliness.html`, `/wires/atheist.html`) into the answer
+keys. Last verify: green apart from the #17 canary @ 2026-07-24. Branch:
+slice/everystudent.

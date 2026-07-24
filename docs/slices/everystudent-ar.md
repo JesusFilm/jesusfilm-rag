@@ -61,9 +61,43 @@ two are **excluded from the eval** and otherwise left alone — no sweep, nothin
 to fix; the dashboard's null count is the record.
 
 ### 2. Ingest → corpus tables
-- [ ] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)
-- [ ] Verify: 1:1 counts, `documents.language = 'ar'` (invariant 6), idempotent re-run
-- [ ] Report the null-language count as evidence (expected: 2) — no sweep, no fix
+- [x] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)   <!-- sha: ________ -->
+- [x] Verify: 1:1 counts, `documents.language = 'ar'` (invariant 6), idempotent re-run   <!-- sha: ________ -->
+- [x] Report the null-language count as evidence (expected: 2) — no sweep, no fix   <!-- sha: ________ -->
+
+**Stage 2 evidence (2026-07-25).** Drained all **67 pending → 67 docs / 283
+chunks / 283 embeddings** (`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, **0
+`chunk_count` mismatches**, 67 distinct `canonical_url`, single embedding model.
+Chunks/doc avg 4.22 (min 1, max 16). By section: **`/a/` 61 docs / 272 chunks**
+(avg 4.46) · **`/v/` 4 / 9** (2.25) · **root 2 / 2** (1.00). Idempotent re-run
+drains **0**. **10 transient OpenRouter embed timeouts, all recovered inside the
+retry policy** (#64, same as slice #8) — longest chain was 3 attempts; no doc
+lost.
+
+**Language (invariant 6) — the offline pre-flight held exactly: 65 `ar` / 2
+`null`.** The two nulls are precisely the two predicted `/v/` testimony pages
+(`/v/gods-help.html`, `/v/personally.html`) — no new surprises at ingest. This is
+the **first Arabic in the corpus** and per-document detection labelled it
+correctly off the content, not the URL path or `<html lang>`. Null rate **3.0%**
+vs English's 7.7%. Per standing policy these two are excluded from the eval,
+left alone, and the dashboard's null count is the record — no sweep.
+
+**Extraction spot-read** (`/a/answer.html`, `ar`): chunk 0 opens with the short
+breadcrumb "معرفة الله" then the title "هل يستجيب اللـه لصلواتنا؟" and real
+article prose; chunk 2 is mid-body carrying Scripture footnote markers. Genuine
+article text, not nav.
+
+**Corpus now: 10 sources / 11,621 docs / 33,937 chunks** (11 null-language docs
+total — 9 everystudent en + these 2).
+
+**Latent finding (NOT on the live path, not this slice's to fix):** `chunks.search_tsv`
+is `to_tsvector('english', text)` and `keywordSearch` hardcodes
+`websearch_to_tsquery('english', …)`. Arabic (and the existing `zh`) get no
+useful stemming there. **`keywordSearch` has no caller in the retrieval context**
+— the Retriever is pure vector search (invariant 5) — so nothing on the live path
+is affected. It only becomes real if hybrid retrieval is ever wired; noted here
+so that work starts informed. Predates this slice (`thelife-zh` already sits in
+the same tsvector).
 
 ### 3. Retrieve → ranked results
 - [ ] An Arabic query returns ranked, cited hits from this source
@@ -132,12 +166,15 @@ to fix; the dashboard's null count is the record.
 
 ## Resume hint (for a cold start)
 
-At: Stage 2 — "Drain `raw_documents` → documents / chunks / chunk_embeddings".
-Acquire is DONE and green (67 rows staged, all pending ingest). Next concrete
-action: run `pnpm index --source everystudent-ar`, then check 1:1 counts,
-confirm `documents.language = 'ar'` on 65 and `null` on the 2 known `/v/` pages,
-and confirm an idempotent re-run drains 0. Report the null count as evidence and
-move on — the 2 nulls are excluded from the eval and need no sweep.
-Last verify: green @ 2026-07-25 (depcruise 100/0, lint clean, typecheck clean,
-db:check in sync, status:check valid, tests 432/432 — re-run WITH the new data).
+At: Stage 3 — "An Arabic query returns ranked, cited hits from this source".
+Acquire and Ingest are both DONE and green (67 docs / 283 chunks / 283 qwen3
+embeddings; 65 `ar` + 2 excluded nulls). Next concrete action: run `pnpm query`
+with a real Arabic question (e.g. "هل يستجيب الله لصلواتنا؟" — does God answer
+our prayers) and confirm ranked, cited hits come back from `everystudent-ar`;
+then confirm a `language:"ar"` filter returns ONLY Arabic and re-check that
+minScore 0.37 still separates positives from negatives at 10 sources. This is
+the first rare-language retrieval since the #17/#75 fixture repair, so the
+`iterative_scan = strict_order` mitigation is what's being exercised.
+Last verify: green @ 2026-07-25 WITH the new data (depcruise 100/0, lint clean,
+typecheck clean, db:check in sync, status:check valid, tests 432/432).
 Branch: `slice/everystudent-ar`.

@@ -5,18 +5,36 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) STARTED** on
-`slice/everystudent-ar`; the **#17/#75 canary is resolved — a fixture artifact,
+_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) Stages 1+2 GREEN**
+on `slice/everystudent-ar`; the **#17/#75 canary is resolved — a fixture artifact,
 not an engine fault**, gate now green at 432/432; slice #8 (EveryStudent en)
 MERGED (PR #119) and **live in prod**; prod is 100% qwen3_
 
 ## You are here
 
-**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS — Stage 1
-(Acquire) GREEN** on `slice/everystudent-ar` (2026-07-25). The second walled
-source (Firecrawl, ADR-0012) and the **first Arabic content in the corpus**.
-68 hand-listed seeds from #114's already-paid `/v2/map` inventory (84 URLs, minus
-11 `/m/*` menu indexes, 4 `/bible/**.pdf` and the homepage).
+**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS — Stages 1
+(Acquire) and 2 (Ingest) GREEN** on `slice/everystudent-ar` (2026-07-25). The
+second walled source (Firecrawl, ADR-0012) and the **first Arabic content in the
+corpus**. 68 hand-listed seeds from #114's already-paid `/v2/map` inventory (84
+URLs, minus 11 `/m/*` menu indexes, 4 `/bible/**.pdf` and the homepage).
+
+**Ingested (Stage 2): all 67 pending → 67 docs / 283 chunks / 283 embeddings**
+(`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, 0 `chunk_count` mismatches,
+single model, chunks/doc avg 4.22 (max 16); `/a/` 61 docs / 272 chunks · `/v/`
+4 / 9 · root 2 / 2. Idempotent re-run drains 0. 10 transient OpenRouter embed
+timeouts, all recovered inside the retry policy (#64, as slice #8). **The
+offline language pre-flight held EXACTLY at ingest: 65 `ar` / 2 `null`**, the
+nulls being precisely the two predicted `/v/` testimony pages — per-document
+detection (invariant 6) labelled the first Arabic in the corpus off the content,
+not the URL path. **Corpus now 10 sources / 11,621 docs / 33,937 chunks.** Gate
+re-run WITH the new data: green, 432/432.
+
+ⓘ **Latent finding, NOT on the live path:** `chunks.search_tsv` is
+`to_tsvector('english', …)` and `keywordSearch` hardcodes the `'english'`
+config, so Arabic (and the existing `zh`) get no useful stemming there.
+`keywordSearch` has **no caller** in the retrieval context — the Retriever is
+pure vector search (invariant 5) — so nothing live is affected. It only becomes
+real if hybrid retrieval is ever wired. Predates this slice.
 
 **Acquired 67/68** — the one skip is `/v/video7.html` (status 200, too-thin: a
 genuine media stub). 67 rows / 67 distinct URLs / 0 null titles / 0 non-200;
@@ -44,7 +62,7 @@ the survey query so a null can't reach a draft), and `docs/eval-approach.md`
 source. The accepted cost is named there: slice #8's null
 `/wires/loneliness.html` left that case with zero everystudent credits.
 
-**Next: Stage 2 (Ingest).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
+**Next: Stage 3 (Retrieve).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
 
 ⚠️ **The #17/#75 canary is CLOSED as a false alarm** (`55bfd7f`). `pnpm test` was
 425/426 for months and STATUS gated the `ar`/`fr` slices on investigating it.
@@ -210,9 +228,12 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Continue slice #9 (`everystudent-ar`)** — it is paused at Stage 1 on one
-question only: **go-ahead for the ~68-credit Firecrawl crawl** (896 credits
-remain, period ends 2026-08-21). Then acquire → ingest → retrieve → `/golden`.
+**Continue slice #9 (`everystudent-ar`) at Stage 3 (Retrieve).** Acquire and
+Ingest are both green — the Firecrawl spend is **done** (68 credits at exactly
+1.00/page; 828 remain, period ends 2026-08-21, so `everystudent-fr`'s ~87 still
+fits). Next: an Arabic query returning ranked cited hits, a `language:"ar"`
+filter returning only Arabic, and a minScore 0.37 re-check at 10 sources — then
+`/golden everystudent-ar`.
 
 The **#17/#75 gate on the `ar`/`fr` slices is lifted** — see "You are here". The
 rare-language mechanism those slices depend on is verified working; only the test

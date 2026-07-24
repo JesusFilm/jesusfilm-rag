@@ -350,15 +350,50 @@ into *successful* responses too, so it false-positives on CF-fronted-but-served
 sources like thelife and cru. Use `attention required` /
 `cf-browser-verification` / `just a moment` plus the status code.
 
+## Prod promotion (2026-07-24) — DONE via the #115 bulk-copy path
+
+everystudent is the **first source promoted to prod through `copy-raws.sh`**
+(the walled-source route; `acquire:production` was deliberately NOT run — it
+would re-pay Firecrawl). Mechanism + ops writeup: `docs/ops/copy-raws.md`; the
+5th-stage handoff now lives in the slice skill (v10).
+
+Sequence run against prod (`zephyr.proxy.rlwy.net`):
+
+1. **Copy** — `copy-raws.sh --source everystudent` copied **117 rows** local→prod.
+   Verified byte-identical: local and prod both `sum(length(raw_content)) =
+   842718`, `max 22711`, `min 507`. Rows landed `ingested_at IS NULL` (the
+   gotcha-fix — `id`/`ingested_at` omitted so prod regenerates the uuid and
+   leaves the row drainable).
+2. **Embed** — `index:production --source everystudent` drained all 117 pending
+   → **117 docs / 550 chunks / 550 embeddings**, an exact match of the local
+   corpus. (OpenRouter's embed endpoint was slow that day — every batch timed out
+   once then succeeded on retry; the patient corpus-embed policy rode it out.)
+3. **Certify** — `eval:production --source everystudent`: recall@10 **0.955**,
+   coverage 0.628; everystudent n=22 **recall 0.727 / coverage 0.648**, native
+   `es-*` cases mostly rank 1 (only `es-newcomer-astrology` missed). Record:
+   `eval/results-2026-07-24-everystudent-keep.md`.
+   - The ~0.09 recall gap vs this slice's local 0.818 is **corpus drift, not a
+     promotion defect**: prod carried ~40 more docs across thelife (+30),
+     sightline (+9), jf-org (+1) than the local corpus at run time, and those
+     extra neighbours compete in the shared cases. everystudent's own content is
+     identical on both sides.
+   - `eval:production` needed `QUERY_EMBED_MAX_ATTEMPTS=10 QUERY_EMBED_TIMEOUT_MS=15000`
+     to finish — the default fast-fail query-embed policy (#118) aborted the batch
+     on the first timeout during the provider-slow spell.
+
+**ADR checkpoint (from #115):** the bulk-copy path has now been run once, which
+was the condition for revisiting whether it earns an ADR. That call is now
+unblocked (deferred within this PR; not raised here).
+
 ## Resume hint (for a cold start)
 
-**SLICE COMPLETE — all four stages green 2026-07-24.** everystudent is
-queryable and evaluated in the 9-source space (106 golden cases). Nothing to
-resume. Remaining operator decisions: (1) merge `slice/everystudent` into
-`main`; (2) prod promotion via the #115 bulk-copy path — **never
-`acquire:production`** for this source; (3) the queued `everystudent-ar` /
-`everystudent-fr` slices, both **gated on the #17/#75 canary investigation**;
-(4) a future `lang:sweep` + re-review to bring the 9 excluded null-language
-docs (incl. `/wires/loneliness.html`, `/wires/atheist.html`) into the answer
-keys. Last verify: green apart from the #17 canary @ 2026-07-24. Branch:
-slice/everystudent.
+**SLICE COMPLETE + PROMOTED TO PROD 2026-07-24.** everystudent is queryable and
+evaluated in the 9-source space (106 golden cases) AND live in the prod corpus
+(117 docs / 550 chunks). Nothing to resume. Remaining operator decisions:
+(1) ~~merge~~ + ~~prod promotion~~ **DONE** (see "Prod promotion" above);
+(2) the queued `everystudent-ar` / `everystudent-fr` slices, both **gated on the
+#17/#75 canary investigation**; (3) a future `lang:sweep` + re-review to bring
+the 9 excluded null-language docs (incl. `/wires/loneliness.html`,
+`/wires/atheist.html`) into the answer keys. Last verify: green apart from the
+#17 canary @ 2026-07-24. Branch: slice/everystudent (merged); promotion on
+`ops/copy-raws`.

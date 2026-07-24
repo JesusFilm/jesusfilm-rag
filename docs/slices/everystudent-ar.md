@@ -23,8 +23,8 @@ separate key and a later slice (ADR-0006, #112).
 
 ### 1. Acquire → raw_documents
 - [x] Register `everystudent-ar` (walled, seed-only, 68 seeds) + fakes-only tests   <!-- sha: 04f2d20 -->
-- [x] Live Firecrawl crawl of the 68 seeds → `raw_documents` — **67/68 staged**   <!-- sha: ________ -->
-- [x] Verify: row count, Arabic article prose (not nav/boilerplate), selectors bound   <!-- sha: ________ -->
+- [x] Live Firecrawl crawl of the 68 seeds → `raw_documents` — **67/68 staged**   <!-- sha: 69573a5 -->
+- [x] Verify: row count, Arabic article prose (not nav/boilerplate), selectors bound   <!-- sha: 69573a5 -->
 
 **Stage 1 evidence (2026-07-25).** Staged **67 of 68** seeds; the single skip is
 `/v/video7.html` (status 200, too-thin — a genuine media stub under

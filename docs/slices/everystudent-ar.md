@@ -56,13 +56,14 @@ warnings** — the `languages: ["ar"]` declaration is correct. The 2 nulls are b
   - `/v/personally.html` → **`ur` at 0.716** — Urdu shares Arabic script, so this
     is script confusion rather than a content problem.
 Null rate **3.0%**, well under English's 7.7%, and the unpack-time prediction
-(Arabic script is largely unambiguous to tinyld) held. Per the recorded policy
-these get swept after ingest, before Stage 4 — never excluded from credits.
+(Arabic script is largely unambiguous to tinyld) held. Per standing policy these
+two are **excluded from the eval** and otherwise left alone — no sweep, nothing
+to fix; the dashboard's null count is the record.
 
 ### 2. Ingest → corpus tables
 - [ ] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)
 - [ ] Verify: 1:1 counts, `documents.language = 'ar'` (invariant 6), idempotent re-run
-- [ ] Sweep any null-language docs (`pnpm lang:sweep`) BEFORE Stage 4
+- [ ] Report the null-language count as evidence (expected: 2) — no sweep, no fix
 
 ### 3. Retrieve → ranked results
 - [ ] An Arabic query returns ranked, cited hits from this source
@@ -89,13 +90,18 @@ these get swept after ingest, before Stage 4 — never excluded from credits.
 - 2026-07-25 — **robots.txt is `Allow: /` with no disallows** (checked live),
   unlike everystudent.com which carries a real disallow list. Nothing dropped on
   robots grounds.
-- 2026-07-25 — **Null-language policy: sweep-after-ingest, never
-  exclude-from-credits.** Probed tinyld on Arabic prose: returns `ar` at
-  confidence **1.0 with no runner-up**, versus the 0.605–0.771 `en`/`hi`
-  confusion that produced slice #8's 9 nulls under the 0.75 gate. Nulls should be
-  ~zero; residual risk is the 500-char detection floor on thin docs. If any
-  appear, sweep them BEFORE Stage 4 — slice #8's excluded nulls were its flagship
-  docs and left a case with zero credits.
+- 2026-07-25 — **Null-language docs are EXCLUDED from the eval — standing
+  policy, not a decision this slice made.** Nulls are an expected, permanent
+  outcome in every source (honest ADR-0007 blanks); we cannot know their
+  language, so a `language:`-scoped expectation on one is unreturnable by
+  construction. They are never credited, they are never swept during a slice
+  (`pnpm lang:sweep` is a **prod** corrective tool), and they are not lost — the
+  dashboard carries a per-source null count. Recorded as a standing rule
+  2026-07-25 in `.claude/skills/slice` v11, `.claude/skills/golden` v6
+  (Guardrail #3a) and `docs/eval-approach.md`, because it had been re-asked at
+  every new source. For context, the risk here is small anyway: tinyld reads
+  Arabic prose at confidence **1.0 with no runner-up**, versus the 0.605–0.771
+  `en`/`hi` confusion behind slice #8's 9 nulls.
 - 2026-07-25 — **The #17/#75 canary was a fixture artifact, not an engine
   fault.** Sparse query vectors are not HNSW-reachable at corpus scale (a random
   *dense* vector at cosine 0.068 returns 15 rows; a one-hot at 0.113 returns 0,
@@ -130,8 +136,8 @@ At: Stage 2 — "Drain `raw_documents` → documents / chunks / chunk_embeddings
 Acquire is DONE and green (67 rows staged, all pending ingest). Next concrete
 action: run `pnpm index --source everystudent-ar`, then check 1:1 counts,
 confirm `documents.language = 'ar'` on 65 and `null` on the 2 known `/v/` pages,
-and confirm an idempotent re-run drains 0. Then `pnpm lang:sweep` for those 2
-BEFORE Stage 4.
+and confirm an idempotent re-run drains 0. Report the null count as evidence and
+move on — the 2 nulls are excluded from the eval and need no sweep.
 Last verify: green @ 2026-07-25 (depcruise 100/0, lint clean, typecheck clean,
 db:check in sync, status:check valid, tests 432/432 — re-run WITH the new data).
 Branch: `slice/everystudent-ar`.

@@ -4,7 +4,7 @@ description: "Author grounded golden eval cases for one ingested source, fast. S
 allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 ---
 
-<!-- version: 5 -->
+<!-- version: 6 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -73,6 +73,17 @@ The personas are the default balanced set; the operator may swap or add one.
    the question was derived from — never invent a path. Use the `canonical_url`
    pathname for `expected_doc_paths`.
 3. **Negatives must be plausibly-asked but genuinely off-topic for THIS source.**
+   **3a. NEVER credit a null-language document — no exceptions, no operator
+   question.** A doc whose `documents.language` is `null` has no known language
+   (an honest ADR-0007 blank), so a `language:`-scoped case can never return it
+   (SQL three-valued logic) and crediting it bakes a permanently unreturnable
+   expectation into the answer keys — coverage would measure the confidence gate
+   instead of retrieval. Drop nulls from the survey in §1 (`AND d.language IS NOT
+   NULL`) so they cannot reach a draft, and say how many you dropped. This is
+   settled policy (eval-approach.md → Multilingual eval, correction 3): do not
+   propose `pnpm lang:sweep` — that is a production corrective tool, never a step
+   in authoring an eval. Every source has some nulls; the dashboard counts them,
+   so they are visible, not lost.
 4. **The operator is the gate — and the gate is the WRITE, not the invocation.**
    This skill *proposes*; the operator approves, edits, or rejects. **Nothing
    reaches `eval/qa-golden.yaml` without an explicit approval turn** — not a
@@ -225,9 +236,16 @@ psql "$(grep -E '^DATABASE_URL=' .env | cut -d= -f2-)" -c "
     JOIN documents d ON d.source_id = s.id
     LEFT JOIN chunks c ON c.document_id = d.id
    WHERE s.key = '<source-key>'
+     AND d.language IS NOT NULL   -- Guardrail #3a: nulls are UNCREDITABLE
    GROUP BY d.id, d.title, d.canonical_url, d.category, d.language
    ORDER BY d.title;"
 ```
+
+The `d.language IS NOT NULL` filter is **load-bearing, not tidying** — it is what
+stops an uncreditable doc reaching a draft (Guardrail #3a). Run the same query
+without it once to get the null count, report that number alongside the digest
+("N docs excluded as null-language"), and move on — do not investigate them, do
+not propose a sweep.
 
 Present a compact digest so both you and the operator can see the source's real
 shape (titles, paths, categories, snippets).

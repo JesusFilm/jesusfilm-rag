@@ -281,18 +281,30 @@ re-scores already-curated cases, it does not author new ones.
 >    `language:` explicitly.** Such cases now surface under `(unscoped)` in the
 >    per-language report rather than being silently dropped — that state is a
 >    case-configuration bug, not a result.
-> 3. **There is deliberately no "unscoped" pin — and that makes null-language docs
->    UNCREDITABLE.** `caseLanguage()` offers scoped-or-derived only; any case whose
->    relevant sources intersect to one language runs language-filtered, and a doc
->    whose detected `language` is `null` (an honest ADR-0007 blank) can never be
->    returned by that filter (SQL three-valued logic). Crediting such a doc bakes a
->    **permanently unreturnable expectation** into the answer keys — coverage would
->    measure the confidence gate, not retrieval. Rule: **a null-language doc enters
->    a relevant set only after `pnpm lang:sweep` labels it and the case is
->    re-reviewed.** Decide sweep-vs-exclude at slice unpack, not at Stage 4.
->    (slice #8: everystudent's 9 nulls were its flagship apologetics docs; the
->    operator excluded them, and the loneliness case closed with zero everystudent
->    credits because the real answer, `/wires/loneliness.html`, is null.)
+> 3. **There is deliberately no "unscoped" pin — so null-language docs are
+>    EXCLUDED from the eval. Settled policy, not a per-source decision.**
+>    `caseLanguage()` offers scoped-or-derived only; any case whose relevant
+>    sources intersect to one language runs language-filtered, and a doc whose
+>    detected `language` is `null` (an honest ADR-0007 blank) can never be
+>    returned by that filter (SQL three-valued logic). Crediting one bakes a
+>    **permanently unreturnable expectation** into the answer keys — coverage
+>    would measure the confidence gate, not retrieval.
+>
+>    **The rule: a null-language doc never enters a `relevant` map.** Not after a
+>    sweep, not conditionally, not "unless it's important". We do not know what
+>    language it is — that is the whole point of the blank — so there is no
+>    language to scope a case to. Every source produces some nulls; this is
+>    normal and permanent, not a backlog item.
+>
+>    **Nothing is lost:** the dashboard carries a per-source null count, so the
+>    exclusion is visible rather than silent. **`pnpm lang:sweep` is a production
+>    corrective tool** — it is not part of authoring or repairing an eval, and it
+>    is never a step in a slice.
+>
+>    The accepted cost is real and worth naming: slice #8's `/wires/loneliness.html`
+>    is null, so that case closed with zero everystudent credits. That is the
+>    price of honest answer keys, not a reason to revisit. (Made a standing rule
+>    2026-07-25, after it had been re-asked at every new source.)
 
 ### Non-English — **human-in-the-loop**, one suite per language
 For each non-English source, author a suite with `/golden`

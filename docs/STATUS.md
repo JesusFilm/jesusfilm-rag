@@ -29,8 +29,20 @@ host**, confirming #112's shared-template claim.
 out-of-declared-set warnings.** Both nulls are `/v/` testimony pages rather than
 flagship articles — `/v/gods-help.html` at `ar` 0.718 (just under the 0.75 gate)
 and `/v/personally.html` at **`ur` 0.716** (Urdu shares Arabic script). **Null
-rate 3.0% vs English's 7.7%**; policy is sweep-before-Stage-4, never
-exclude-from-credits (slice #8's excluded nulls were its best docs).
+rate 3.0% vs English's 7.7%.**
+
+📌 **Standing policy set 2026-07-25 — null-language docs are EXCLUDED from the
+eval, permanently, and this is no longer a per-source question.** Every source
+produces some nulls (honest ADR-0007 blanks); we cannot know their language, so a
+`language:`-scoped expectation on one is unreturnable by construction. They are
+never credited, never swept during a slice (**`pnpm lang:sweep` is a production
+corrective tool only**), and not lost — the dashboard carries a per-source null
+count, and that count is the record. Written into `.claude/skills/slice` **v11**,
+`.claude/skills/golden` **v6** (Guardrail #3a, with `d.language IS NOT NULL` in
+the survey query so a null can't reach a draft), and `docs/eval-approach.md`
+(Multilingual eval, correction 3) — because it had been re-asked at every new
+source. The accepted cost is named there: slice #8's null
+`/wires/loneliness.html` left that case with zero everystudent credits.
 
 **Next: Stage 2 (Ingest).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
 
@@ -81,14 +93,16 @@ two slice-#1 gap docs credited as side-effects). **minScore 0.37 holds**; note
 a resume-writing negative reached 0.505, the faith-adjacent band's closest
 approach yet to the 0.55+ positive cluster.
 
-⚠️ **Two recorded consequences to carry forward:** (1) the source's **9
-null-language docs are excluded from all eval credits** (operator fork
-decision — `caseLanguage()` has no unscoped pin, so crediting them would bake
-unreturnable expectations into en-scoped cases); the loneliness case therefore
-credits zero everystudent docs. They enter the keys only after a future
-`lang:sweep` + re-review. (2) `pnpm test` remains 425/426 — the FOLLOW-UP J
-#17/#75 canary, data-dependent (green in CI), **must be investigated before
-the `ar`/`fr` slices**. See [docs/slices/everystudent.md](./slices/everystudent.md).
+✅ **Both slice-#8 carry-forwards are now CLOSED** (2026-07-25): (1) the source's
+**9 null-language docs are excluded from all eval credits** — and as of
+2026-07-25 that is the **standing rule for every source**, not a per-source
+decision, so they will NOT "enter the keys after a future `lang:sweep`"; they
+stay out permanently and the dashboard's null count is the record (see the
+standing-policy note above). The loneliness case crediting zero everystudent docs
+is the accepted price. (2) `pnpm test` **is now 432/432** — the FOLLOW-UP J
+#17/#75 canary was a stale test fixture, not an engine fault, and is fixed
+(`55bfd7f`); the gate it placed on the `ar`/`fr` slices is lifted.
+See [docs/slices/everystudent.md](./slices/everystudent.md).
 
 ---
 

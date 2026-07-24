@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 10 -->
+<!-- version: 11 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -109,18 +109,29 @@ broken foundation.
    3. **State that language is detected per document at ingest** from the content
       (`ingestion/detect-language.ts`). The skill never assumes one language per
       source and never trusts the URL path or `<html lang>` for the label.
-   4. **State the null-language policy — nulls are UNCREDITABLE in the eval until
-      swept.** Detection leaves honest `null`s (ADR-0007), and a null doc is both
-      invisible to `language:`-filtered serving AND impossible to credit in
-      qa-golden.yaml: `caseLanguage()` has no unscoped pin, so en-intersecting
-      cases run scoped and a null credit is a permanently unreturnable
-      expectation (eval-approach.md → Multilingual eval, correction 3). Decide
-      **sweep-after-ingest vs exclude-from-credits** here, at unpack — deferring
-      it costs a Stage-4 pause and can leave a source's best docs out of the
-      answer keys. *(slice #8: everystudent's 9 nulls were its flagship
-      apologetics pieces; "keep the cases unscoped" turned out mechanically
-      impossible, and the excluded `/wires/loneliness.html` left the native
-      loneliness case with zero everystudent credits.)*
+   4. **Null-language docs are EXPECTED, and they are EXCLUDED from the eval.
+      This is settled — do not re-open it, do not ask the operator, do not
+      propose a sweep.** Every source produces some `null`s; that is detection
+      being honest (ADR-0007), not a defect to fix before the slice can proceed.
+      The rule, in full:
+      - **Excluded from eval credits, always.** A null doc has no known
+        language, so a `language:`-scoped expectation on it is unreturnable by
+        construction (`caseLanguage()` has no unscoped pin; SQL three-valued
+        logic drops it). Crediting one would measure the confidence gate, not
+        retrieval. **Never** put a null-language doc in a `relevant` map.
+      - **They are not lost.** The dashboard carries a per-source null count, so
+        the exclusion is visible rather than silent. That count IS the record.
+      - **`pnpm lang:sweep` is a PROD corrective tool, not a slice step.** Never
+        run it, schedule it, or offer it as an option inside a slice. It does
+        not belong in a stage checklist, a resume hint, or a stage-boundary
+        summary.
+      Report the null count and which docs they are as Stage-2 evidence — one
+      line, as an observation. Then move on. *(This was asked of the operator at
+      every new source until 2026-07-25; it is a rule now precisely so it stops
+      being a question. Slice #8's cost — everystudent's excluded
+      `/wires/loneliness.html` leaving that case with zero everystudent credits —
+      is the accepted price of not baking unreturnable expectations into the
+      answer keys, not an argument for revisiting.)*
    Escalate to the operator **only** if detection confidence is *systematically* low
    for a source (a genuine fork), not to ask "how do we handle languages?".
    *(slice: FamilyLife `es` was mislabeled `en` because language was sourced from
@@ -364,7 +375,10 @@ The bar for "this sub-step is real":
     re-run is idempotent (delete-then-insert, no duplicate chunks). **For a
     multi-language source, spot-check that a non-primary-language document lands
     with the correct `documents.language`** (e.g. a FamilyLife `/us-latinos/` page
-    reads `es`, not `en`) — this is the invariant-6 detection working.
+    reads `es`, not `en`) — this is the invariant-6 detection working. Also
+    report the **null-language count** — as an observation, not a problem to
+    solve: nulls are expected, excluded from the eval, and surfaced on the
+    dashboard (see the language plan, §Step 2.3). No sweep, no operator question.
   - *Retrieve* — a real query returns ranked, cited hits from this source. **For a
     multi-language source, a `language:<code>` filter returns ONLY that language**
     (e.g. `language:"es"` returns Spanish and no English).

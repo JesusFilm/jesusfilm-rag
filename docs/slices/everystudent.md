@@ -194,6 +194,53 @@ full article that actually answers the question, by 0.003.
 everything below shifts up. This is the concrete cost of the 9 unclassified
 docs, and the reason it must not be mistaken for a retrieval bug at Stage 4.
 
+## Stage 4 pre-curation baseline (2026-07-24)
+
+`pnpm eval` @ **96 cases / 9 sources**, `eval/results-2026-07-24.md`.
+everystudent shows **n=0** — no case credits it yet; that is the curation work.
+
+| Metric | Slice #7 close | Pre-curation now |
+|---|---|---|
+| recall@3 | 0.938 | **0.938** |
+| recall@10 | 1.000 | **1.000** |
+| coverage | 0.689 | **0.681** |
+| MRR | 0.814 | 0.800 |
+| P@1 | 0.677 | 0.656 |
+
+**The near-absence of a dip is itself the finding.** Every prior slice took a
+real pre-curation hit from the living-relevant-set artifact (jesusfilm
+recall@10 0.85; thelife recall@3 0.71). Here it is essentially flat, because 117
+docs against 11,437 barely perturbs the ranking. everystudent is a small, dense
+source rather than a bulk one — so expect Stage 4's gains to come from
+**crediting genuinely-relevant everystudent docs on existing cases**, not from
+repairing a regression.
+
+**⚠️ `starting-with-god` is the weakest source: recall 0.409 / coverage 0.318.**
+Slice #1's founding source keeps being displaced from top-10 by larger sources on
+shared topics — the FOLLOW-UP I ([#15](https://github.com/JesusFilm/jesusfilm-rag/issues/15))
+`maxPerSource`/MMR pattern, sharpening since slice #4. everystudent competes on
+exactly swg's subject matter (basic gospel / seeker questions), so watch this
+number after curation: a further drop is mechanism, not content failure.
+
+**Fixed during this stage — a pre-existing silent bug.** The run reported one
+`(unscoped)` case, meaning it searched the whole multilingual corpus instead of
+being language-scoped. `tl-newcomer-decision`'s only relevant source is
+`thelife`, which declares `["en", "fr"]`, so `caseLanguage()` intersected to two
+languages and derived none. All five of its relevant docs are `en`; pinned
+`language: "en"`. **en n=67 + 1 unscoped → en n=68, 0 unscoped.** Dates to slice
+#5 and only became ambiguous once thelife declared French — exactly the trap the
+`/slice` playbook records after slice #7.
+
+**Eval aborts on a transient OpenRouter blip — worth a follow-up.** The first
+run died at case 18 of 96 (`AbortError`) because `pnpm eval` inherits the
+*serving* query-embed policy from [#103](https://github.com/JesusFilm/jesusfilm-rag/pull/103):
+`QUERY_EMBED_MAX_ATTEMPTS=2`, `QUERY_EMBED_TIMEOUT_MS=4000`. Fail-fast is right
+when a user waits on a search; for a 96-case batch it discards all completed work
+on one blip. Both are env-configurable, so the re-runs used
+`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000` — **no code change**.
+A batch context borrowing an interactive latency budget looks like a real gap;
+file it at slice close.
+
 ## Open question / blocker
 
 - none open. _(The Stage-2 sweep question was DECIDED — see "Decisions made".)_
@@ -244,15 +291,21 @@ sources like thelife and cru. Use `attention required` /
 
 ## Resume hint (for a cold start)
 
-At: **Stage 4 — Eval.** Stages 1–3 are green; everystudent is queryable in the
-9-source corpus (11,554 docs / 33,654 chunks) and ranks 1–2 on its own seeker
-topics. The golden suite is **96 cases with zero everystudent representation**,
-so expect the pre-curation run to show a DIP — that is the living-relevant-set
-artifact every prior slice hit, not a retrieval regression. Next concrete
-action: run `pnpm eval` for the pre-curation baseline, then `/golden` in
-content-grounded mode — Part A re-reviews existing cases' `relevant` maps
-(prior-source numbers should MOVE, usually up), Part B authors persona-diverse
-everystudent-native cases on the seeker/apologetics axis. Keep new cases
-UNSCOPED by language (see the sweep decision).
+At: **Stage 4 — Eval, curation step.** Stages 1–3 green; the pre-curation
+baseline is captured above (96 cases, everystudent n=0). **The next action is
+the operator's:** `/golden` is `disable-model-invocation`, so it must be typed
+by hand — run **`/golden everystudent`**. Part A re-reviews the existing 96
+cases' living `relevant` maps for newly-relevant everystudent docs (expect
+prior-source numbers to MOVE, usually up); Part B drafts persona-diverse
+everystudent-native cases on the seeker/apologetics axis, which is this source's
+strength (it took ranks 1–2 on the atheist-to-faith query in Stage 3).
+
+Two rules for this source's cases: keep them **UNSCOPED by language** (the
+source is monolingual and 9 docs carry a null label, so a filter would measure
+the confidence gate, not retrieval), and judge the **document**, not the chunk.
+
+After curation, re-run with
+`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval` — the
+default query policy is fail-fast and aborts a 96-case batch on one blip.
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: b988d0d. Branch: slice/everystudent.
+Last commit: see `git log`. Branch: slice/everystudent.

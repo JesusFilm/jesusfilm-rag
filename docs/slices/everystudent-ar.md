@@ -61,9 +61,9 @@ two are **excluded from the eval** and otherwise left alone — no sweep, nothin
 to fix; the dashboard's null count is the record.
 
 ### 2. Ingest → corpus tables
-- [x] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)   <!-- sha: ________ -->
-- [x] Verify: 1:1 counts, `documents.language = 'ar'` (invariant 6), idempotent re-run   <!-- sha: ________ -->
-- [x] Report the null-language count as evidence (expected: 2) — no sweep, no fix   <!-- sha: ________ -->
+- [x] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)   <!-- sha: 4219cb5 -->
+- [x] Verify: 1:1 counts, `documents.language = 'ar'` (invariant 6), idempotent re-run   <!-- sha: 4219cb5 -->
+- [x] Report the null-language count as evidence (expected: 2) — no sweep, no fix   <!-- sha: 4219cb5 -->
 
 **Stage 2 evidence (2026-07-25).** Drained all **67 pending → 67 docs / 283
 chunks / 283 embeddings** (`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, **0

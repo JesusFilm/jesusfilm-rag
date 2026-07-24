@@ -5,14 +5,44 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-24 — **slice #8 (EveryStudent en) DONE, all 4 stages
-green** on `slice/everystudent` (not yet merged); eval now **106 cases**; slice
-#7 MERGED (PR #80) + prod cutover COMPLETE; prod is 100% qwen3 at **11,477 docs**_
+_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) STARTED** on
+`slice/everystudent-ar`; the **#17/#75 canary is resolved — a fixture artifact,
+not an engine fault**, gate now green at 432/432; slice #8 (EveryStudent en)
+MERGED (PR #119) and **live in prod**; prod is 100% qwen3_
 
 ## You are here
 
-**Slice #8 (EveryStudent English, `everystudent`) is DONE — all 4 stages green,
-Evaluated** on `slice/everystudent` (2026-07-24, **not yet merged**). The first
+**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS** on
+`slice/everystudent-ar` (started 2026-07-25). The second walled source
+(Firecrawl, ADR-0012) and the **first Arabic content in the corpus**. Registry
+entry landed: 68 hand-listed seeds from #114's already-paid `/v2/map` inventory
+(84 URLs, minus 11 `/m/*` menu indexes, 4 `/bible/**.pdf` and the homepage).
+**Paused at Stage 1 awaiting the ~68-credit Firecrawl go-ahead** (896 remain,
+period ends 2026-08-21). See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
+
+⚠️ **The #17/#75 canary is CLOSED as a false alarm** (`55bfd7f`). `pnpm test` was
+425/426 for months and STATUS gated the `ar`/`fr` slices on investigating it.
+Diagnosis: **the test fixture, not the engine.** Sparse query vectors are not
+HNSW-reachable once the corpus is large — measured against the real index, a
+random *dense* unit vector at exact cosine 0.068 returns 15 rows while a one-hot
+at 0.113 returns **0**, and `hnsw.ef_search = 1000` does not rescue it. Real
+embeddings are always dense, so production was never affected; CI stayed green
+only because a fresh DB has a trivially small graph. The shipped
+`hnsw.iterative_scan = strict_order` mitigation was independently confirmed
+**load-bearing and working**: a real `en` query vector with a `language='zh'`
+filter returns 15 rows (top 0.5742) with it and **0 rows** without. Fixture
+rebuilt on deterministic dense vectors preserving the same geometry; still a real
+guard (removing the `SET LOCAL` turns it red). **Gate is now fully green for the
+first time since slice #6.**
+
+---
+
+**Slice #8 (EveryStudent English, `everystudent`) is DONE and MERGED** to `main`
+(PR #119, `7277471`, 2026-07-24) **and is live in prod** — the prod inventory
+reads `everystudent / en / 108 embedded docs` (108 + the 9 null-language docs =
+117). ⚠️ Issue #112's slice-run handoff still claims prod reads
+`acquire:false ingest:false`; **that handoff is stale**, the dashboard and prod
+DB are correct. The first
 walled source, acquired through Firecrawl (ADR-0012, #114): **117 docs / 550
 qwen3 chunks** at exactly 117 credits, queryable and evaluated in the 9-source
 space. Scope was the English domain only — `everystudent-ar` /
@@ -152,13 +182,15 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Operator decides:** (1) **merge `slice/everystudent` into `main`** (open a PR
-from the branch); (2) **prod promotion** via the #115 bulk-copy path — never
-`acquire:production` for this source; (3) next slice.
+**Continue slice #9 (`everystudent-ar`)** — it is paused at Stage 1 on one
+question only: **go-ahead for the ~68-credit Firecrawl crawl** (896 credits
+remain, period ends 2026-08-21). Then acquire → ingest → retrieve → `/golden`.
 
-Queued next as slices, in order: **`everystudent-ar`** then **`everystudent-fr`**
-(#112) — both gated on the **#17/#75 canary investigation**, which should be
-tackled first (they are exactly the rare-language-drowning case it warns about).
+The **#17/#75 gate on the `ar`/`fr` slices is lifted** — see "You are here". The
+rare-language mechanism those slices depend on is verified working; only the test
+fixture was broken.
+
+`everystudent-fr` (questions2vie.com, ~87 mapped URLs) follows as slice #10.
 
 Still open, operator decides when:
 

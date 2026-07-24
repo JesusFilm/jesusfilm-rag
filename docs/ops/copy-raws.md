@@ -29,7 +29,7 @@ source's rows copy local→prod as a single-table operation with no FK remapping
 `index:production` **only drains pending raws** (normalize → chunk → embed →
 write) — it never fetches. So the sequence is:
 
-```
+```text
 acquire (local, Firecrawl — the only paid fetch)
   → index locally → eval        # validate the source before prod sees it
   → copy-raws.sh → prod         # ingested_at reset to NULL (see gotcha)
@@ -163,10 +163,13 @@ a `sources.md` note.
   (everystudent, first promotion via this path) — hence this doc. Whether the
   path earns an ADR is the remaining open call, now unblocked.
 - **First live run — everystudent (English), 2026-07-24.** 117 `raw_documents`
-  copied local→prod (byte-identical: local and prod both `sum(length(raw_content))
-  = 842718`), then `index:production` embedded them to **117 docs / 550 chunks /
-  550 embeddings** — an exact match of the local corpus, confirming the copy +
-  gotcha-fix (rows landed `ingested_at IS NULL` and drained cleanly).
+  copied local→prod, verified identical by a **deterministic ordered row-level
+  digest** over all 11 copied columns — `md5(string_agg(md5(row) ORDER BY
+  canonical_url))` returned `867068cb…57c6` on **both** local and prod (117 rows),
+  proving row-for-row equality, not just matching aggregate totals. Then
+  `index:production` embedded them to **117 docs / 550 chunks / 550 embeddings** —
+  an exact match of the local corpus, confirming the copy + gotcha-fix (rows
+  landed `ingested_at IS NULL` and drained cleanly).
   `eval:production --source everystudent` certified it live: recall@10 0.955,
   everystudent n=22 recall 0.727 / coverage 0.648, native cases mostly rank 1
   (`eval/results-2026-07-24-everystudent-keep.md`). The ~0.09 gap vs the local

@@ -360,8 +360,10 @@ would re-pay Firecrawl). Mechanism + ops writeup: `docs/ops/copy-raws.md`; the
 Sequence run against prod (`zephyr.proxy.rlwy.net`):
 
 1. **Copy** — `copy-raws.sh --source everystudent` copied **117 rows** local→prod.
-   Verified byte-identical: local and prod both `sum(length(raw_content)) =
-   842718`, `max 22711`, `min 507`. Rows landed `ingested_at IS NULL` (the
+   Verified identical by a deterministic ordered row-level digest over all 11
+   copied columns — `md5(string_agg(md5(row) ORDER BY canonical_url))` returned
+   `867068cb…57c6` on both local and prod (117 rows), i.e. row-for-row equality,
+   not merely matching aggregate totals. Rows landed `ingested_at IS NULL` (the
    gotcha-fix — `id`/`ingested_at` omitted so prod regenerates the uuid and
    leaves the row drainable).
 2. **Embed** — `index:production --source everystudent` drained all 117 pending
@@ -392,8 +394,8 @@ evaluated in the 9-source space (106 golden cases) AND live in the prod corpus
 (117 docs / 550 chunks). Nothing to resume. Remaining operator decisions:
 (1) ~~merge~~ + ~~prod promotion~~ **DONE** (see "Prod promotion" above);
 (2) the queued `everystudent-ar` / `everystudent-fr` slices, both **gated on the
-#17/#75 canary investigation**; (3) a future `lang:sweep` + re-review to bring
-the 9 excluded null-language docs (incl. `/wires/loneliness.html`,
+`#17`/`#75` canary investigation**; (3) a future `lang:sweep` + re-review to
+bring the 9 excluded null-language docs (incl. `/wires/loneliness.html`,
 `/wires/atheist.html`) into the answer keys. Last verify: green apart from the
-#17 canary @ 2026-07-24. Branch: slice/everystudent (merged); promotion on
+`#17` canary @ 2026-07-24. Branch: slice/everystudent (merged); promotion on
 `ops/copy-raws`.

@@ -93,7 +93,7 @@ DRY_RUN=0
 FORCE=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --source)          SRC_KEY="${2:-}"; shift 2 ;;
+    --source)          SRC_KEY="${2:-}"; [ -z "$SRC_KEY" ] && die "--source needs a value" 2; shift 2 ;;
     --non-interactive|--yes|-y) NON_INTERACTIVE=1; shift ;;
     --expect-host)     EXPECT_HOST="${2:-}"; [ -z "$EXPECT_HOST" ] && die "--expect-host needs a value" 2; shift 2 ;;
     --dry-run)         DRY_RUN=1; shift ;;
@@ -134,8 +134,12 @@ DST_HOST="$(host_of "$DST_URL")"
 [ "$SRC_URL" = "$DST_URL" ] && die "source and target are the SAME database — refusing"
 
 if [ -n "$EXPECT_HOST" ]; then
+  # Exact host, or a dot-boundary subdomain — deliberately STRICTER than
+  # prompt-prod-creds.ts's substring match, so "rlwy.net" can't be satisfied by
+  # "evilrlwy.net" or "rlwy.net.attacker". Our real target zephyr.proxy.rlwy.net
+  # matches *.rlwy.net.
   case "$DST_HOST" in
-    *"$EXPECT_HOST"*) ;;
+    "$EXPECT_HOST" | *".$EXPECT_HOST") ;;
     *) die "--expect-host '$EXPECT_HOST' does not match target host '$DST_HOST'" ;;
   esac
 fi
@@ -194,13 +198,17 @@ psql "$SRC_URL" -qAtX -c \
 DST_AFTER="$(psql "$DST_URL" -tAX -c "SELECT count(*) FROM raw_documents WHERE source_key = '$SRC_KEY';")"
 DST_PENDING="$(psql "$DST_URL" -tAX -c "SELECT count(*) FROM raw_documents WHERE source_key = '$SRC_KEY' AND ingested_at IS NULL;")"
 
+# Always suggest a concrete host in the follow-up, even if --expect-host was
+# omitted (interactive runs) — index:production --non-interactive requires one.
+NEXT_HOST="${EXPECT_HOST:-$DST_HOST}"
+
 cat <<EOF
 
 ✓ copy complete.
    prod '$SRC_KEY' rows : $DST_EXISTING → $DST_AFTER
    pending (ingested_at IS NULL, ready for index:production) : $DST_PENDING
 
-Next:
+Next (embed the copied rows — the metered OpenRouter step, separate from this copy):
    doppler run --project forge-rag --config prd -- env JFRAG_ALLOW_PROD_WRITE=1 \\
-     pnpm index:production --non-interactive --expect-host $EXPECT_HOST --source $SRC_KEY
+     pnpm index:production --non-interactive --expect-host $NEXT_HOST --source $SRC_KEY
 EOF

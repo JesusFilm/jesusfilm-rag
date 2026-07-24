@@ -4,7 +4,7 @@ description: "Author grounded golden eval cases for one ingested source, fast. S
 allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 ---
 
-<!-- version: 4 -->
+<!-- version: 5 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -123,6 +123,17 @@ original only for the HTML review-surface detail, not for the rubric):
 5. **Surface only failures + escalations** to the operator, worst-first, with a one-sentence
    verdict each. Everything that passes is accepted without review — that is the point.
    (slice #7 cut operator review from 151 uniform cards to 91 ranked ones.)
+6. **Validate panel COVERAGE in code before gating.** Lens agents silently skip docs in
+   large batches (~4% in practice); the gate must hard-fail on any missing (doc × lens)
+   verdict and the holes get surgically re-judged — never gate over partial coverage.
+   (slice #8: 7 of 160 docs lacked a lens verdict on the first pass; the gate validator
+   caught all 7, two small fix-up agents merged them.)
+7. **A rejected redirect-stub points at a floor casualty.** When the panel rejects a page
+   for "poses the question, defers the answer to a linked article", check whether the
+   link target sat just under the candidate floor — and top up that one pair surgically
+   instead of dropping the case. (slice #8: `/faq/astrology.html` was rejected as a stub;
+   its target `/wires/marcia-montenegro.html` had missed the floor by 0.002 and was
+   approved 0.85 rel / 0.97 sound on re-judge.)
 
 **Honest caveat:** three personas on one base model converge far more than three humans.
 Slice #7's max panel disagreement was **0.25** against a 0.5 escalation threshold — **zero

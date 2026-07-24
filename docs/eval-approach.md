@@ -281,6 +281,18 @@ re-scores already-curated cases, it does not author new ones.
 >    `language:` explicitly.** Such cases now surface under `(unscoped)` in the
 >    per-language report rather than being silently dropped — that state is a
 >    case-configuration bug, not a result.
+> 3. **There is deliberately no "unscoped" pin — and that makes null-language docs
+>    UNCREDITABLE.** `caseLanguage()` offers scoped-or-derived only; any case whose
+>    relevant sources intersect to one language runs language-filtered, and a doc
+>    whose detected `language` is `null` (an honest ADR-0007 blank) can never be
+>    returned by that filter (SQL three-valued logic). Crediting such a doc bakes a
+>    **permanently unreturnable expectation** into the answer keys — coverage would
+>    measure the confidence gate, not retrieval. Rule: **a null-language doc enters
+>    a relevant set only after `pnpm lang:sweep` labels it and the case is
+>    re-reviewed.** Decide sweep-vs-exclude at slice unpack, not at Stage 4.
+>    (slice #8: everystudent's 9 nulls were its flagship apologetics docs; the
+>    operator excluded them, and the loneliness case closed with zero everystudent
+>    credits because the real answer, `/wires/loneliness.html`, is null.)
 
 ### Non-English — **human-in-the-loop**, one suite per language
 For each non-English source, author a suite with `/golden`

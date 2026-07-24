@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-16",
+  "generated_at": "2026-07-24",
   "sources": [
     {
       "source": "Cru",
@@ -40,14 +40,14 @@
     {
       "source": "EveryStudent",
       "key": "everystudent",
-      "host": null,
+      "host": "www.everystudent.com",
       "language": "en",
-      "acquire": false,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
-      "row_status": "blocked",
-      "note": "Cloudflare JS managed challenge on all content pages — needs a JS-capable fetcher (see FOLLOW-UP G / #8)."
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 108,
+      "row_status": "done",
+      "note": null
     },
     {
       "source": "FamilyLife",
@@ -321,6 +321,31 @@
       "missing": null
     },
     {
+      "source": "EveryStudent",
+      "key": "everystudent",
+      "host": "www.everystudent.com",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "en",
+          "language": "en",
+          "state": "evaluated",
+          "embedded_doc_count": 108,
+          "detail": null
+        },
+        {
+          "label": "51 sibling domains",
+          "language": null,
+          "state": "proposed",
+          "embedded_doc_count": null,
+          "detail": "≤15k"
+        }
+      ],
+      "docs_in_prod": 108,
+      "missing": "English flagship behind a Cloudflare JS managed challenge (homepage 200 is a false positive) — unblock via Firecrawl, jfa's reviewed-archive scripts (its proven path; it never beat the wall either), or a Cru IP allowlist. The 51 sibling language domains are largely NOT walled (jfa canary fetched 46/46 with plain HTTP)."
+    },
+    {
       "source": "Starting With God",
       "key": "starting-with-god",
       "host": "www.startingwithgod.com",
@@ -344,31 +369,6 @@
       ],
       "docs_in_prod": 40,
       "missing": "31 sibling language domains (jfa manifest) not started — each is a different CMS, so per-source selector recon is the real cost (#43)."
-    },
-    {
-      "source": "EveryStudent",
-      "key": "everystudent",
-      "host": "www.everystudent.com",
-      "state": "blocked",
-      "group": "blocked",
-      "languages": [
-        {
-          "label": "en",
-          "language": "en",
-          "state": "blocked",
-          "embedded_doc_count": null,
-          "detail": null
-        },
-        {
-          "label": "51 sibling domains",
-          "language": null,
-          "state": "proposed",
-          "embedded_doc_count": null,
-          "detail": "≤15k"
-        }
-      ],
-      "docs_in_prod": 0,
-      "missing": "English flagship behind a Cloudflare JS managed challenge (homepage 200 is a false positive) — unblock via Firecrawl, jfa's reviewed-archive scripts (its proven path; it never beat the wall either), or a Cru IP allowlist. The 51 sibling language domains are largely NOT walled (jfa canary fetched 46/46 with plain HTTP)."
     }
   ],
   "documented": [
@@ -493,5 +493,12 @@
       "note": "Superseded — decommissioned; every content URL 301s to thelife.com, which we ingested instead."
     }
   ],
-  "unclassified": []
+  "unclassified": [
+    {
+      "source": "EveryStudent",
+      "key": "everystudent",
+      "host": "www.everystudent.com",
+      "embedded_doc_count": 9
+    }
+  ]
 }

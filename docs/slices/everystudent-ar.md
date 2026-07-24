@@ -101,7 +101,7 @@ the same tsvector).
 
 ### 3. Retrieve → ranked results
 - [x] An Arabic query returns ranked, cited hits from this source   <!-- sha: ee60ecd -->
-- [x] `language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at 10 sources   <!-- sha: ________ -->
+- [x] `language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at 10 sources   <!-- sha: e1c9159 -->
 
 **Stage 3a evidence (2026-07-25) — Arabic is retrievable, and the space is
 genuinely cross-lingual.** Three real Arabic questions against the **whole

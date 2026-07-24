@@ -242,7 +242,7 @@ when a user waits on a search; for a 96-case batch it discards all completed wor
 on one blip. Both are env-configurable, so the re-runs used
 `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000` — **no code change**.
 A batch context borrowing an interactive latency budget looks like a real gap;
-file it at slice close.
+filed at slice close as [#118](https://github.com/JesusFilm/jesusfilm-rag/issues/118).
 
 ## Stage 4 evidence (Eval — GREEN 2026-07-24)
 

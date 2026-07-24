@@ -156,6 +156,6 @@ sources:
     languages:
       ar:
         status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
     slice_file: docs/slices/everystudent-ar.md
     last_updated: 2026-07-24

@@ -5,18 +5,51 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) Stages 1+2 GREEN**
-on `slice/everystudent-ar`; the **#17/#75 canary is resolved — a fixture artifact,
+_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) Stages 1+2+3 GREEN**
+on `slice/everystudent-ar`; Arabic is **queryable end-to-end** and minScore 0.37
+holds at 10 sources; the **#17/#75 canary is resolved — a fixture artifact,
 not an engine fault**, gate now green at 432/432; slice #8 (EveryStudent en)
 MERGED (PR #119) and **live in prod**; prod is 100% qwen3_
 
 ## You are here
 
 **Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS — Stages 1
-(Acquire) and 2 (Ingest) GREEN** on `slice/everystudent-ar` (2026-07-25). The
-second walled source (Firecrawl, ADR-0012) and the **first Arabic content in the
-corpus**. 68 hand-listed seeds from #114's already-paid `/v2/map` inventory (84
-URLs, minus 11 `/m/*` menu indexes, 4 `/bible/**.pdf` and the homepage).
+(Acquire), 2 (Ingest) and 3 (Retrieve) GREEN** on `slice/everystudent-ar`
+(2026-07-25). The second walled source (Firecrawl, ADR-0012) and the **first
+Arabic content in the corpus**. 68 hand-listed seeds from #114's already-paid
+`/v2/map` inventory (84 URLs, minus 11 `/m/*` menu indexes, 4 `/bible/**.pdf`
+and the homepage).
+
+**Retrieved (Stage 3): Arabic is queryable, and the corpus is genuinely
+cross-lingual.** Three real Arabic questions against the unfiltered 10-source
+space took **rank 1 on two of three** — "هل الله موجود؟" (does God exist) →
+`/a/isthere.html` **@ 0.732**, "كيف أتعامل مع القلق والخوف؟" → `/a/coronavirus.html`
+**@ 0.643** — all ranked and cited off real Arabic prose. The anxiety query
+returned **four languages in one top-5** (`ar` · `zh` · `fr` · `ar` · `en`), and
+"does God exist" surfaced `everystudent.com/features/is-there-a-god.html` at #5:
+**the English original of the very same article**, matched to its own Arabic
+translation across the language boundary. **`language:"ar"` is airtight** — an
+*English* question under `--language ar` returned 5 Arabic docs and nothing else,
+so the filter binds on the **document**, not the query language;
+`corpus-search-store.ts:62` is a strict `eq(documents.language, …)`, so other
+languages **and NULLs** are excluded by construction. Arabic is **0.56% of the
+corpus** (65 of 11,621), so those rank-1 results are the first live proof that
+the `iterative_scan = strict_order` mitigation carries a genuinely rare language
+post-#17/#75. **minScore 0.37 HOLDS at 10 sources — keep unchanged:** clean
+secular negatives ceiling **0.349** vs positive floor **0.538**. Two probes
+crossed and neither is encroachment — "write a CV" @ 0.466 is a **true positive**
+(`/a/jobinterviews.html` really exists) and "five pillars of Islam" @ **0.382**
+is by-design adjacency for a source written for Muslim readers, though at just
+**0.012 above the cutoff** it is the tightest faith-adjacent margin yet and the
+number to watch when `everystudent-fr` lands.
+
+ⓘ **Slice #8's flagged English near-miss is largely explained.** The
+resume-writing negative recorded at 0.505 as "the faith-adjacent band's closest
+approach yet" is **not a clean negative for this corpus** — hiring/career content
+exists across four sources (`familylife/…/now-hiring` 0.466, the Arabic
+job-interviews doc 0.416 cross-lingually, plus cru and everystudent pages).
+Different wording from slice #8's exact probe, so this doesn't disprove the 0.505
+reading — but the approach was toward **real documents**, not noise at the cutoff.
 
 **Ingested (Stage 2): all 67 pending → 67 docs / 283 chunks / 283 embeddings**
 (`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, 0 `chunk_count` mismatches,
@@ -62,7 +95,7 @@ the survey query so a null can't reach a draft), and `docs/eval-approach.md`
 source. The accepted cost is named there: slice #8's null
 `/wires/loneliness.html` left that case with zero everystudent credits.
 
-**Next: Stage 3 (Retrieve).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
+**Next: Stage 4 (`/golden everystudent-ar`).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
 
 ⚠️ **The #17/#75 canary is CLOSED as a false alarm** (`55bfd7f`). `pnpm test` was
 425/426 for months and STATUS gated the `ar`/`fr` slices on investigating it.
@@ -228,12 +261,19 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Continue slice #9 (`everystudent-ar`) at Stage 3 (Retrieve).** Acquire and
-Ingest are both green — the Firecrawl spend is **done** (68 credits at exactly
-1.00/page; 828 remain, period ends 2026-08-21, so `everystudent-fr`'s ~87 still
-fits). Next: an Arabic query returning ranked cited hits, a `language:"ar"`
-filter returning only Arabic, and a minScore 0.37 re-check at 10 sources — then
-`/golden everystudent-ar`.
+**Continue slice #9 (`everystudent-ar`) at Stage 4 — hand off to
+`/golden everystudent-ar`.** Acquire, Ingest and Retrieve are all green; the
+Firecrawl spend is **done** (68 credits at exactly 1.00/page; 828 remain, period
+ends 2026-08-21, so `everystudent-fr`'s ~87 still fits). `/golden` v4+ is
+**agent-invocable** — the slice does not pause for the operator to type it; the
+operator gates the *write* to `eval/qa-golden.yaml` and the judge-panel *spend*.
+Two Arabic-specific requirements carry into that handoff: **(1)** every case
+needs an `# EN:` question translation AND a translated `# RETRIEVED` block, since
+a reviewer who doesn't read Arabic can only check results against question if
+both are in English; **(2)** **pin `language: ar` on every case** — this is the
+only Arabic source and the corpus demonstrably retrieves cross-lingually, so an
+unpinned Arabic case would be scored against a corpus that legitimately answers
+it in Chinese. The 2 null-language `/v/` docs stay excluded.
 
 The **#17/#75 gate on the `ar`/`fr` slices is lifted** — see "You are here". The
 rare-language mechanism those slices depend on is verified working; only the test

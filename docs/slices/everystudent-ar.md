@@ -100,8 +100,8 @@ so that work starts informed. Predates this slice (`thelife-zh` already sits in
 the same tsvector).
 
 ### 3. Retrieve → ranked results
-- [x] An Arabic query returns ranked, cited hits from this source   <!-- sha: ________ -->
-- [ ] `language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at 10 sources
+- [x] An Arabic query returns ranked, cited hits from this source   <!-- sha: ee60ecd -->
+- [x] `language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at 10 sources   <!-- sha: ________ -->
 
 **Stage 3a evidence (2026-07-25) — Arabic is retrievable, and the space is
 genuinely cross-lingual.** Three real Arabic questions against the **whole
@@ -143,6 +143,66 @@ take rank 1 outright on two of three questions.
 
 One transient OpenRouter query-embed timeout on the first attempt, recovered on
 re-run — the same #64 class as ingest's 10, on the query path this time.
+
+**Stage 3b evidence (2026-07-25) — the `ar` filter is airtight and minScore 0.37
+holds at 10 sources.**
+
+*Filter.* `--language ar` returned **100% Arabic on every run**, including the
+decisive test: an **English** question (`"how can I find peace with God?"`)
+under the `ar` filter returned 5 Arabic `everystudent-ar` docs and nothing else
+— so the filter binds on the **document**, not on the query language, and
+composes correctly with cross-lingual retrieval. On `"من هو يسوع؟"` the three
+English Sightline docs that held ranks 1/3/5 unfiltered are gone, leaving 5/5
+Arabic. Rank-1 scores are **identical** filtered vs unfiltered (0.643 on the
+anxiety query), so the filter prunes without perturbing scoring.
+
+*Mechanism (not just the sample).* `corpus-search-store.ts:62` applies
+`eq(documents.language, filter.language)` — a strict SQL equality. Other
+languages **and** `NULL`s are excluded by construction under three-valued logic.
+This is the same mechanism the standing null-exclusion policy rests on, now
+confirmed on the live path: neither of the 2 null `/v/` docs can ever surface
+under a `language:` scope.
+
+*Corpus language distribution at 10 sources:* en 10,554 · es 500 · zh 332 ·
+fr 159 · **ar 65** · null 11 (= 11,621). Arabic is **0.56% of the corpus** —
+which is what makes the rank-1 results above meaningful for #17/#75: a genuinely
+rare language is not being lost in the HNSW graph.
+
+*minScore.* Re-derived from the Arabic score distribution per
+`docs/eval-approach.md` §4 (non-English negatives before changing the default):
+
+| Probe | Top score | Verdict |
+|---|---|---|
+| Positives (3 real questions) | **0.538 – 0.732** | — |
+| Cooking rice/pasta | 0.239 | clean reject |
+| World Cup schedule | 0.219 | clean reject |
+| Learning Python | 0.349 | clean reject (closest clean negative) |
+| Five pillars of Islam + dawn prayer | **0.382** | crosses — see below |
+| Writing a CV / job application | **0.466** | **not a negative** — see below |
+
+**Recommendation: keep minScore 0.37 unchanged.** The clean secular noise floor
+tops out at **0.349** and the positive floor is **0.538** — 0.37 sits inside a
+comfortable ~0.19 gap. Neither crossing is band encroachment:
+
+- **0.466 "write a CV" is a TRUE POSITIVE, not a false one.** The corpus really
+  contains `everyarabstudent.com/a/jobinterviews.html` ("The 10 most common job
+  interview questions"). A badly-chosen probe, not a cutoff failure.
+- **0.382 (five pillars / dawn prayer) is by-design adjacency.** The hits are
+  "Will worshipping any other god make a difference?" (0.382), "Knowing God
+  personally" (0.366), "Does God answer our prayers?" (0.357) — this source is
+  explicitly apologetics *written for Muslim readers*, so a question about
+  worship and prayer legitimately surfaces them. Worth knowing it sits only
+  0.012 above the cutoff; it is the tightest faith-adjacent margin recorded so
+  far and the number to watch when `everystudent-fr` lands.
+
+**Bonus: slice #8's flagged English near-miss is largely explained.** STATUS
+recorded a resume-writing negative reaching 0.505 as "the faith-adjacent band's
+closest approach yet". Re-probed here, that question is **not a clean negative
+for this corpus at all** — hiring/career content exists across four sources
+(`familylife/…/now-hiring` at 0.466, the Arabic job-interviews doc at 0.416,
+cru and everystudent job-themed pages). Wording differs from slice #8's exact
+probe, so this does not disprove the 0.505 reading — but it does mean the
+approach was toward *real* documents rather than noise creeping at the cutoff.
 
 ### 4. Spot-check + eval
 - [ ] `/golden everystudent-ar` — Arabic cases with English question translations
@@ -207,14 +267,22 @@ re-run — the same #64 class as ingest's 10, on the query path this time.
 
 ## Resume hint (for a cold start)
 
-At: Stage 3 — "`language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at
-10 sources". Stage 3a is DONE: unfiltered Arabic queries return ranked, cited
-`everystudent-ar` hits, taking rank 1 on 2 of 3 questions, and the space proved
-genuinely cross-lingual (one top-5 held ar/zh/fr/en). Next concrete action: run
-`pnpm query --language ar "<arabic question>"` and confirm **every** hit is
-Arabic (no en/zh/fr leakage), then run 2–3 negatives (a secular question and a
-faith-adjacent Islamic one) to confirm minScore **0.37** still separates
-positives from negatives now that the corpus is 10 sources / 11,621 docs.
-Last verify: green @ 2026-07-25 WITH the new data (depcruise 100/0, lint clean,
-typecheck clean, db:check in sync, status:check valid, tests 432/432).
+At: Stage 4 — "`/golden everystudent-ar`". **Stages 1, 2 and 3 are all DONE and
+green.** Arabic is queryable end-to-end: 67 docs / 283 qwen3 chunks, rank-1 hits
+on real Arabic questions, an airtight `language:"ar"` filter, and minScore 0.37
+re-confirmed at 10 sources (clean-negative ceiling 0.349 vs positive floor
+0.538). Next concrete action: hand off to **`/golden everystudent-ar`**
+directly — v4+ is agent-invocable, so do NOT pause for the operator to type it
+(they gate the *write* to `eval/qa-golden.yaml` and the judge-panel *spend*
+instead). Two Arabic-specific requirements carry into that handoff:
+**(1)** every case needs an `# EN:` question translation AND a translated
+`# RETRIEVED` block (`docs/eval-approach.md` Multilingual eval — a reviewer who
+does not read Arabic can only verify results against question if both are in
+English); **(2)** pin `language: ar` on every case, because `everystudent-ar` is
+the *only* Arabic source and the corpus retrieves cross-lingually — unpinned, an
+Arabic case gets scored against a corpus that legitimately answers it in Chinese.
+The 2 null-language `/v/` docs (`gods-help`, `personally`) are **excluded** and
+must never enter a `relevant` map.
+Last verify: green @ 2026-07-25 (depcruise 100/0, lint clean, typecheck clean,
+db:check in sync, status:check valid, tests 432/432).
 Branch: `slice/everystudent-ar`.

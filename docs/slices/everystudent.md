@@ -46,7 +46,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 
 ### 3. Retrieve → ranked results
 
-- [x] Live `pnpm query` → everystudent ranks **1–2 on its own seeker topics**, cross-source health preserved, `minScore 0.37` holds at 9 sources. No code changes. See the Stage 3 evidence below.   <!-- sha: 686e34f -->
+- [x] Live `pnpm query` → everystudent ranks **1–2 on its own seeker topics**, cross-source health preserved, `minScore 0.37` holds at 9 sources. No code changes. See the Stage 3 evidence below.   <!-- sha: b988d0d -->
 
 ### 4. Eval + spot-check
 
@@ -255,4 +255,4 @@ content-grounded mode — Part A re-reviews existing cases' `relevant` maps
 everystudent-native cases on the seeker/apologetics axis. Keep new cases
 UNSCOPED by language (see the sweep decision).
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: 686e34f. Branch: slice/everystudent.
+Last commit: b988d0d. Branch: slice/everystudent.

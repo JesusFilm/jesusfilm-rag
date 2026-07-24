@@ -97,6 +97,75 @@ function cosTo0(c: number): number[] {
   return v;
 }
 
+/**
+ * Deterministic DENSE unit vector — the fixture primitive for anything that must
+ * survive an HNSW graph walk.
+ *
+ * **Why dense (slice #9, 2026-07-25).** The swarm test below used to build its
+ * query and fixtures out of `oneHot`/`cosTo0` sparse vectors, and it started
+ * failing once the corpus passed ~33k chunks. Measured against the real index:
+ *
+ * | query vector          | HNSW rows | exact top cosine |
+ * |-----------------------|----------:|-----------------:|
+ * | random **dense** unit |    **15** |           0.0681 |
+ * | sparse (16 non-zero)  |         0 |           0.1117 |
+ * | one-hot (1 non-zero)  |         0 |           0.1134 |
+ *
+ * A dense vector *further* from the corpus is reachable; a sparse one *nearer*
+ * is not, and raising `hnsw.ef_search` to 1000 does not rescue it — so this is
+ * graph reachability, not window size. Sparse vectors are also unreachable
+ * during index *insertion*, so they never earn usable in-edges and stay islands.
+ * Real embeddings (and real query embeddings) are always dense, so this was
+ * purely a fixture artifact: the engine was never broken. `iterative_scan` is
+ * verified independently below.
+ *
+ * xorshift32 rather than Math.random so the fixture is byte-identical per run.
+ */
+function denseUnitVector(seed: number): number[] {
+  let s = seed >>> 0 || 1;
+  const v = new Array<number>(EMBEDDING_DIMENSIONS);
+  let norm = 0;
+  for (let i = 0; i < EMBEDDING_DIMENSIONS; i++) {
+    s ^= s << 13;
+    s >>>= 0;
+    s ^= s >>> 17;
+    s ^= s << 5;
+    s >>>= 0;
+    const x = s / 0xffffffff - 0.5;
+    v[i] = x;
+    norm += x * x;
+  }
+  norm = Math.sqrt(norm);
+  for (let i = 0; i < EMBEDDING_DIMENSIONS; i++) v[i] /= norm;
+  return v;
+}
+
+/**
+ * Dense unit vector at cosine exactly `c` to `anchor`, tilted toward `offset`.
+ * Gram-Schmidt strips the anchor component out of `offset` so the result lands
+ * in the anchor/offset plane at the requested angle. Two vectors built from the
+ * SAME offset are near each other; from different offsets they are ~orthogonal
+ * in the perpendicular component (random 1536-d directions have |cos| ~ 0.03).
+ */
+function atCosine(anchor: number[], offset: number[], c: number): number[] {
+  let dot = 0;
+  for (let i = 0; i < EMBEDDING_DIMENSIONS; i++) dot += offset[i] * anchor[i];
+  const perp = new Array<number>(EMBEDDING_DIMENSIONS);
+  let norm = 0;
+  for (let i = 0; i < EMBEDDING_DIMENSIONS; i++) {
+    const x = offset[i] - dot * anchor[i];
+    perp[i] = x;
+    norm += x * x;
+  }
+  norm = Math.sqrt(norm);
+  const s = Math.sqrt(1 - c * c);
+  const out = new Array<number>(EMBEDDING_DIMENSIONS);
+  for (let i = 0; i < EMBEDDING_DIMENSIONS; i++) {
+    out[i] = c * anchor[i] + (s * perp[i]) / norm;
+  }
+  return out;
+}
+
 function sentinelSource(): SourceRecord {
   return {
     key: TEST_KEY,
@@ -294,43 +363,43 @@ describe.skipIf(!dbUp)("Retrieval over the real Postgres store (integration)", (
    */
   it("finds in-language rows behind an out-of-language HNSW swarm (language filter must not starve)", async () => {
     const writeStore = new PostgresCorpusWriteStore(db);
+    // A DENSE anchor: the query, and the centre the fixture cluster orbits.
+    // Dense so the HNSW walk can actually reach this neighbourhood at real
+    // corpus size — see the denseUnitVector docstring for the measurements.
+    // Random 1536-d directions sit ~orthogonal to real content (top exact
+    // cosine ~0.07 across the whole corpus), far under the 0.37 cutoff, so no
+    // real row can gatecrash the assertions below.
+    const anchor = denseUnitVector(0x5eed);
     for (let i = 0; i < 60; i++) {
-      // Distinct unit vectors, each cosine ~.99 to oneHot(0): a tight English
-      // cluster that is strictly closer to the query than the zh needle.
-      const v = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
-      v[0] = 0.99;
-      v[2 + i] = Math.sqrt(1 - 0.99 * 0.99);
+      // Each cosine .99 to the anchor on its own offset direction: a tight
+      // English cluster strictly closer to the query than the zh needle.
+      const v = atCosine(anchor, denseUnitVector(1000 + i), 0.99);
       await writeStore.replaceDocument(doc(`swarm-${i}`, `hash-swarm-${i}`), [
         chunk(`english swarm passage ${i}`, v),
       ]);
     }
-    // The needle shares axis 2 with swarm-0, making it swarm-0's CLOSEST
+    // The needle reuses swarm-0's offset direction, making it swarm-0's CLOSEST
     // neighbor (cos .9946 > intra-swarm .9801) — a guaranteed HNSW edge into
-    // the swarm, so this tests window starvation, not graph reachability.
-    // (A needle merely *near* the swarm loses every edge-pruning contest to
-    // the tighter intra-swarm edges and becomes a one-way island the walk can
-    // never enter — verified empirically; that is the cosTo0-docstring
-    // pathology, a fixture artifact, not the production bug.) From the QUERY
-    // it is still rank 61 behind all 60 swarm members, so the default
+    // the swarm, so this tests window starvation, not graph reachability. From
+    // the QUERY it is still rank 61 behind all 60 swarm members, so the default
     // 40-candidate window never contains it.
-    const needleVec = new Array<number>(EMBEDDING_DIMENSIONS).fill(0);
-    needleVec[0] = 0.97;
-    needleVec[2] = Math.sqrt(1 - 0.97 * 0.97);
+    const needleVec = atCosine(anchor, denseUnitVector(1000), 0.97);
     await writeStore.replaceDocument(
       { ...doc("zh-needle", "hash-zh-needle"), language: "zh" },
       [chunk("中文内容", needleVec)],
     );
 
     const retriever = createRetriever({
-      embedder: new StubEmbedder(oneHot(0)),
+      embedder: new StubEmbedder(anchor),
       search: new PostgresCorpusSearchStore(db),
     });
 
     // Language-only filter — the exact shape that starved in the 2026-07-02
     // zh eval. (No allowedSourceKeys: source-scoping makes the planner drive
     // from the sentinel source and sidestep the hnsw window.) Real-corpus zh
-    // rows pass the filter too but score ≲.12 on a one-hot axis (see cosTo0
-    // docstring) — far below the .37 cutoff, so the needle is the only hit.
+    // rows pass the filter too but score ~0.07 against a random dense direction
+    // (see denseUnitVector) — far below the .37 cutoff, so the needle is the
+    // only hit.
     const hits = await retriever.search("probe", { language: "zh" });
 
     expect(hits.length).toBeGreaterThanOrEqual(1);

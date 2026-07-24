@@ -734,6 +734,13 @@ cases:
         - "/daily-devo/helping-babies-grow-up-3"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-newcomer-decision"
     question: "I think I just decided to trust Jesus — what now? What's the very next step?"
+    # Pinned 2026-07-24 (slice #8). `thelife` declares ["en", "fr"], and this is
+    # the case's ONLY relevant source, so caseLanguage() intersects to two
+    # languages, derives nothing, and the case silently searched the whole
+    # multilingual corpus — surfacing as the lone `(unscoped)` row. All five
+    # relevant docs are `en` (verified in the corpus). See docs/eval-approach.md
+    # → Multilingual eval.
+    language: "en"
     relevant:
       thelife:
         - "/yes"

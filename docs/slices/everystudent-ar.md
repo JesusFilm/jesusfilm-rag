@@ -100,8 +100,49 @@ so that work starts informed. Predates this slice (`thelife-zh` already sits in
 the same tsvector).
 
 ### 3. Retrieve → ranked results
-- [ ] An Arabic query returns ranked, cited hits from this source
+- [x] An Arabic query returns ranked, cited hits from this source   <!-- sha: ________ -->
 - [ ] `language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at 10 sources
+
+**Stage 3a evidence (2026-07-25) — Arabic is retrievable, and the space is
+genuinely cross-lingual.** Three real Arabic questions against the **whole
+10-source corpus**, no filters, `topK=5 minScore=0.37`, no code changes:
+
+| Question (ar) | Top everystudent-ar hit | Score / rank |
+|---|---|---|
+| من هو يسوع؟ (Who is Jesus?) | `/a/isjesus.html` | 0.609 @ **2** |
+| هل الله موجود؟ (Does God exist?) | `/a/isthere.html` | **0.732 @ 1** |
+| كيف أتعامل مع القلق والخوف؟ (anxiety/fear) | `/a/coronavirus.html` | **0.643 @ 1** |
+
+Every hit came back **ranked and cited** (title + canonical URL + source name),
+and the snippets are real Arabic article prose, not nav.
+
+**The headline finding: qwen3 retrieves ACROSS languages, unfiltered.** An Arabic
+question pulls back semantically-matching documents in whatever language holds
+the best answer:
+- *Who is Jesus?* → Sightline **English** at 1/3/5, Arabic at 2/4.
+- *Does God exist?* → Arabic sweeps **1–4**, and #5 is
+  `everystudent.com/features/is-there-a-god.html` — the **English original of the
+  very same article**, matched to its own Arabic translation across the language
+  boundary. Slice #8 and slice #9 content aligning is about as clean a
+  cross-lingual proof as the corpus can offer.
+- *Anxiety/fear* → **four languages in one top-5**: `ar` #1, **`zh` #2**
+  (thelife/UWOTA 克服恐惧 "Overcome Fear"), **`fr` #3** (laviejenparle
+  "Ce monstre que l'on appelle peur"), `ar` #4, `en` #5 — all genuinely on the
+  fear theme.
+
+This is the embedding model behaving correctly, not a defect — but it is exactly
+why `docs/eval-approach.md` requires **`language:` pinned on every case whose
+only relevant source is multilingual**. Unpinned, an Arabic case would be scored
+against a corpus that legitimately answers it in Chinese.
+
+**Rare-language retrieval works post-#17/#75.** This is the first Arabic
+retrieval since the canary repair, i.e. the first live exercise of the
+`hnsw.iterative_scan = strict_order` mitigation against a genuinely rare language
+(65 `ar` docs among 11,621). Arabic docs are not being lost in the graph — they
+take rank 1 outright on two of three questions.
+
+One transient OpenRouter query-embed timeout on the first attempt, recovered on
+re-run — the same #64 class as ingest's 10, on the query path this time.
 
 ### 4. Spot-check + eval
 - [ ] `/golden everystudent-ar` — Arabic cases with English question translations
@@ -166,15 +207,14 @@ the same tsvector).
 
 ## Resume hint (for a cold start)
 
-At: Stage 3 — "An Arabic query returns ranked, cited hits from this source".
-Acquire and Ingest are both DONE and green (67 docs / 283 chunks / 283 qwen3
-embeddings; 65 `ar` + 2 excluded nulls). Next concrete action: run `pnpm query`
-with a real Arabic question (e.g. "هل يستجيب الله لصلواتنا؟" — does God answer
-our prayers) and confirm ranked, cited hits come back from `everystudent-ar`;
-then confirm a `language:"ar"` filter returns ONLY Arabic and re-check that
-minScore 0.37 still separates positives from negatives at 10 sources. This is
-the first rare-language retrieval since the #17/#75 fixture repair, so the
-`iterative_scan = strict_order` mitigation is what's being exercised.
+At: Stage 3 — "`language:"ar"` returns ONLY Arabic; minScore 0.37 re-checked at
+10 sources". Stage 3a is DONE: unfiltered Arabic queries return ranked, cited
+`everystudent-ar` hits, taking rank 1 on 2 of 3 questions, and the space proved
+genuinely cross-lingual (one top-5 held ar/zh/fr/en). Next concrete action: run
+`pnpm query --language ar "<arabic question>"` and confirm **every** hit is
+Arabic (no en/zh/fr leakage), then run 2–3 negatives (a secular question and a
+faith-adjacent Islamic one) to confirm minScore **0.37** still separates
+positives from negatives now that the corpus is 10 sources / 11,621 docs.
 Last verify: green @ 2026-07-25 WITH the new data (depcruise 100/0, lint clean,
 typecheck clean, db:check in sync, status:check valid, tests 432/432).
 Branch: `slice/everystudent-ar`.

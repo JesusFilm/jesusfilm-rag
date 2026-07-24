@@ -51,7 +51,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 ### 4. Eval + spot-check
 
 - [x] `/golden` content-grounded Stage 4 (first agent-driven run, v4): probed all 68 en cases + drafted 10 native cases; **3-lens judge panel over 230 (case, doc) pairs / 160 whole documents**; both axes gated ≥ 0.75 in code; operator gated the fork (exclude the 9 null docs), the spend, and the write. **85 credits approved → qa-golden.yaml 96 → 106 cases** (31 gap-fixes on 14 prior cases + 10 everystudent-native cases, 54 multi-source credits).   <!-- sha: 12bc5b6 + this -->
-- [x] Whole-corpus `pnpm eval` @ 106 cases: recall@3 **0.953** · recall@10 **1.000** · coverage **0.703** · MRR 0.828 · P@1 0.698; everystudent n=22 recall 0.818 / coverage 0.739; 4 negatives re-confirm **minScore 0.37**. `eval/results-2026-07-24.md` (post-curation; the same-named pre-curation baseline lives at `9f53b36`).   <!-- sha: 12bc5b6 + this -->
+- [x] Whole-corpus `pnpm eval` @ 106 cases: recall@3 **0.953** · recall@10 **1.000** · coverage **0.703** · MRR 0.828 · P@1 0.698; everystudent n=22 recall 0.818 / coverage 0.739; 4 negatives re-confirm **minScore 0.37**. `eval/results-2026-07-24.md` is the post-curation run (results files are gitignored point-in-time artifacts; the durable pre-curation baseline is this file's "Stage 4 pre-curation baseline" section, committed at `9f53b36`).   <!-- sha: 12bc5b6 + this -->
 - [x] Spot-check: 9 of 10 native cases rank 1 (astrology rank 2); negatives 0-hit or the 0.37–0.51 faith-adjacent band. Recorded in `sources.md` (→ Evaluated).   <!-- sha: 12bc5b6 + this -->
 
 **Out of this slice:** prod promotion via the #115 bulk-copy path (acquire local

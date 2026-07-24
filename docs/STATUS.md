@@ -12,13 +12,27 @@ MERGED (PR #119) and **live in prod**; prod is 100% qwen3_
 
 ## You are here
 
-**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS** on
-`slice/everystudent-ar` (started 2026-07-25). The second walled source
-(Firecrawl, ADR-0012) and the **first Arabic content in the corpus**. Registry
-entry landed: 68 hand-listed seeds from #114's already-paid `/v2/map` inventory
-(84 URLs, minus 11 `/m/*` menu indexes, 4 `/bible/**.pdf` and the homepage).
-**Paused at Stage 1 awaiting the ~68-credit Firecrawl go-ahead** (896 remain,
-period ends 2026-08-21). See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
+**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS — Stage 1
+(Acquire) GREEN** on `slice/everystudent-ar` (2026-07-25). The second walled
+source (Firecrawl, ADR-0012) and the **first Arabic content in the corpus**.
+68 hand-listed seeds from #114's already-paid `/v2/map` inventory (84 URLs, minus
+11 `/m/*` menu indexes, 4 `/bible/**.pdf` and the homepage).
+
+**Acquired 67/68** — the one skip is `/v/video7.html` (status 200, too-thin: a
+genuine media stub). 67 rows / 67 distinct URLs / 0 null titles / 0 non-200;
+chars avg 6,442, max 23,906. **Cost exactly 68 credits at exactly 1.00/page**
+(896 → 828) — the 5-cr/page tightened-wall risk did not materialise, so
+`everystudent-fr`'s ~87 still fits this period. `.content4` **binds on this
+host**, confirming #112's shared-template claim.
+
+**Language pre-flight (offline, before ingest): 65 `ar` / 2 `null`, 0
+out-of-declared-set warnings.** Both nulls are `/v/` testimony pages rather than
+flagship articles — `/v/gods-help.html` at `ar` 0.718 (just under the 0.75 gate)
+and `/v/personally.html` at **`ur` 0.716** (Urdu shares Arabic script). **Null
+rate 3.0% vs English's 7.7%**; policy is sweep-before-Stage-4, never
+exclude-from-credits (slice #8's excluded nulls were its best docs).
+
+**Next: Stage 2 (Ingest).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
 
 ⚠️ **The #17/#75 canary is CLOSED as a false alarm** (`55bfd7f`). `pnpm test` was
 425/426 for months and STATUS gated the `ar`/`fr` slices on investigating it.

@@ -22,9 +22,42 @@ separate key and a later slice (ADR-0006, #112).
 - [x] Repair the #17/#75 canary — STATUS.md gated this slice on it   <!-- sha: 55bfd7f -->
 
 ### 1. Acquire → raw_documents
-- [x] Register `everystudent-ar` (walled, seed-only, 68 seeds) + fakes-only tests   <!-- sha: ________ -->
-- [ ] Live Firecrawl crawl of the 68 seeds → `raw_documents` (~68 credits)
-- [ ] Verify: row count, Arabic article prose (not nav/boilerplate), selectors bound
+- [x] Register `everystudent-ar` (walled, seed-only, 68 seeds) + fakes-only tests   <!-- sha: 04f2d20 -->
+- [x] Live Firecrawl crawl of the 68 seeds → `raw_documents` — **67/68 staged**   <!-- sha: ________ -->
+- [x] Verify: row count, Arabic article prose (not nav/boilerplate), selectors bound   <!-- sha: ________ -->
+
+**Stage 1 evidence (2026-07-25).** Staged **67 of 68** seeds; the single skip is
+`/v/video7.html` (status 200, too-thin — a genuine media stub under
+`minContentLength: 250`). 67 rows / 67 distinct `canonical_url` / 0 null-or-empty
+titles / 0 non-200 / 0 already-ingested. Chars min 1,239 · avg 6,442 · max
+23,906. Sections: **`/a/` 61** (avg 6,806 ch) · **`/v/` 4** (3,278) · **root 2**
+(1,661).
+
+**Cost: exactly 68 credits at exactly 1.00 cr/page** (896 → 828). The
+tightened-wall risk (5 cr/page, ~340 total) did not materialise — measured live
+at 1.10 cr/page over the first 10 pages and settling to 1.00 over all 68.
+
+**Extraction verified** on `/a/answer.html`: a short breadcrumb ("معرفة الله"),
+then title, subtitle, then clean article prose, closing on genuine Scripture
+footnotes (1 John 5:14, Isaiah 59:1-2, …). `.content4` DOES bind on this host —
+#112's shared-template claim holds. Residual chrome is a trailing "شارك مع أخرين"
+("Share with others"), a few words at the tail — the same class as the English
+sibling's leftover, noted and not re-crawled.
+
+**`/john.html` (1,473 ch) and `/pack.html` (1,849 ch) both cleared
+`minContentLength`** and are kept — the provisional call at unpack resolved in
+their favour without a wasted credit.
+
+**Language pre-flight (offline, free, before ingest):** `decideLanguage` over all
+67 staged bodies predicts **65 `ar` / 2 `null`**, and **0 out-of-declared-set
+warnings** — the `languages: ["ar"]` declaration is correct. The 2 nulls are both
+`/v/` testimony pages, NOT flagship articles:
+  - `/v/gods-help.html` → `ar` at **0.718**, just under the 0.75 gate;
+  - `/v/personally.html` → **`ur` at 0.716** — Urdu shares Arabic script, so this
+    is script confusion rather than a content problem.
+Null rate **3.0%**, well under English's 7.7%, and the unpack-time prediction
+(Arabic script is largely unambiguous to tinyld) held. Per the recorded policy
+these get swept after ingest, before Stage 4 — never excluded from credits.
 
 ### 2. Ingest → corpus tables
 - [ ] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)
@@ -73,8 +106,9 @@ separate key and a later slice (ADR-0006, #112).
 
 ## Open question / blocker
 
-- none — **awaiting operator go-ahead on the ~68-credit Firecrawl spend** before
-  the live crawl (896 credits remain; period ends 2026-08-21).
+- none. The Firecrawl spend was approved and is now **done** (68 credits, 828
+  remain — `everystudent-fr`'s ~87 still fits this period, which ends
+  2026-08-21).
 
 ## Notes carried in from #112 / the English slice
 
@@ -92,9 +126,12 @@ separate key and a later slice (ADR-0006, #112).
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — "Live Firecrawl crawl of the 68 seeds". Next concrete action: get
-the operator's go-ahead on ~68 Firecrawl credits, then run
-`pnpm acquire --source everystudent-ar` and verify the staged rows are real
-Arabic article prose.
+At: Stage 2 — "Drain `raw_documents` → documents / chunks / chunk_embeddings".
+Acquire is DONE and green (67 rows staged, all pending ingest). Next concrete
+action: run `pnpm index --source everystudent-ar`, then check 1:1 counts,
+confirm `documents.language = 'ar'` on 65 and `null` on the 2 known `/v/` pages,
+and confirm an idempotent re-run drains 0. Then `pnpm lang:sweep` for those 2
+BEFORE Stage 4.
 Last verify: green @ 2026-07-25 (depcruise 100/0, lint clean, typecheck clean,
-tests 432/432). Last commit: registry entry. Branch: `slice/everystudent-ar`.
+db:check in sync, status:check valid, tests 432/432 — re-run WITH the new data).
+Branch: `slice/everystudent-ar`.

@@ -46,7 +46,7 @@ Arabic (`everyarabstudent.com`) and French (`questions2vie.com`) banners are
 
 ### 3. Retrieve → ranked results
 
-- [ ] Live `pnpm query` → ranked, cited hits from everystudent; cross-source health (does it complement or displace the 8 existing sources on shared seeker topics?); confirm `minScore 0.37` still separates positives from negatives.   <!-- sha: ________ -->
+- [x] Live `pnpm query` → everystudent ranks **1–2 on its own seeker topics**, cross-source health preserved, `minScore 0.37` holds at 9 sources. No code changes. See the Stage 3 evidence below.   <!-- sha: 686e34f -->
 
 ### 4. Eval + spot-check
 
@@ -70,6 +70,7 @@ Firecrawl.
 - 2026-07-24 — **`/videos/*` (17) KEPT.** Genuine unique testimony transcripts, not stubs: `/videos/lacey-sturm.html` is a ~4.1k-char first-person account with no article twin. ⚠️ The few with a `-video` suffix (`know-God-video`, `kindness-of-god-video`) may echo their article counterpart — not probed; check at Stage 4.
 - 2026-07-24 — **Strip list tuned beyond boilerplate.** `sitelevel_noindex` (the site's own no-index wrapper around share links + related-article cards) and `.fccell` (the "FEATURE CLOSE" CTA table — "I just asked Jesus into my life…" — appended verbatim to every article). Measured: −359 chars on an article, −275 on a video, articles now ending cleanly on their own last line. This is the slice-#2 accordion-TOC citation-quality problem fixed at the source rather than discovered at eval.
 - 2026-07-24 — **No `block` array.** It would be dead config: `block` filters *discovered* URLs and a seed-only source discovers none. robots.txt compliance is enforced by a test over `seedPaths` instead.
+- 2026-07-24 — **`lang:sweep` is periodic maintenance, NOT a per-slice step — the 9 nulls stay (operator).** A mislabel (or an honest blank) is accepted as the normal cost of never guessing; the sweep runs occasionally, when the corpus-wide null count grows large enough to be worth an LLM pass. It is explicitly not part of closing a slice. **Consequence to hold in mind at Stage 4:** these 9 docs are invisible to `language:"en"`-scoped queries, so keep everystudent eval cases unscoped by language (the source is monolingual, so nothing needs the filter) — otherwise the eval measures the gate, not retrieval.
 - 2026-07-24 — **Funded from the personal Firecrawl account** (Free tier; 1,016 credits confirmed live, cycle ends 2026-08-21). ~117 credits for this domain (after the podcast drop), ~292–338 for all three — roughly 3× headroom, no upgrade (#116). Prod resolves its key via docker secret pull, never `.env`.
 
 ## Stage 1 evidence (Acquire — GREEN 2026-07-24)
@@ -155,14 +156,47 @@ LLM sweep (`pnpm lang:sweep`, PRs #92/#95/#96) drained them 190 → 0.
 everystudent is simply the first source ingested since that sweep, so it is the
 lone outlier and the remedy is an existing, proven tool.
 
+## Stage 3 evidence (Retrieve — GREEN 2026-07-24)
+
+Spot-retrieval against the 9-source space via `pnpm query`. **No code changes** —
+the Retrieval context absorbed a ninth source unmodified.
+
+**everystudent owns its axis, without burying anyone.**
+- *"how do I deal with loneliness?"* → everystudent `/wires/loneliness.html`
+  **rank 1 @ 0.723**, then cru 0.696, thelife 0.656 + 0.653. A clean win with the
+  incumbents still present.
+- *"how can an atheist come to believe in God?"* → everystudent takes **ranks 1
+  and 2** (0.709 / 0.701) with cru at 3 — the source's strongest genre.
+- *"is there a God?"* → cru 0.656, everystudent 0.653, everystudent 0.631,
+  sightline 0.611. Four-way spread across three sources; nothing crowded out.
+
+**Cross-source health preserved at 9 sources.** No query returned an
+everystudent-only page; cru, sightline and thelife all still surface where they
+legitimately answer.
+
+**`minScore 0.37` holds.** *"how to fix a leaking kitchen faucet"* → **0 hits**.
+*"best index funds for retirement"* → 1 hit @ 0.384, a Chinese thelife article
+about investing for children — a genuine topical match sitting just above the
+floor, the same faith-adjacent 0.38–0.44 band prior slices recorded. Not a
+cutoff failure.
+
+**Checked, and NOT a problem:** cru's *"Is There a God?"* (rank 1) and
+everystudent's *"Is There a God? Six Reasons…"* (rank 2) share a title and an
+author (Marilyn Adamson — EveryStudent's founder), which looked like a
+cross-source duplicate. It is not: the cru page is a **234-word stub** (223
+12-word shingles vs everystudent's 3,155) and the two share only **8.1%** of
+their text. Worth a Stage-4 look for a different reason — the stub out-ranks the
+full article that actually answers the question, by 0.003.
+
+**The null-language consequence, measured.** Unfiltered, `/wires/atheist.html`
+("How an Atheist Found God") is **rank 1 @ 0.709** for the atheist query. Adding
+`--language en` **removes it entirely** — the single best answer disappears and
+everything below shifts up. This is the concrete cost of the 9 unclassified
+docs, and the reason it must not be mistaken for a retrieval bug at Stage 4.
+
 ## Open question / blocker
 
-- **Run `pnpm lang:sweep` on `everystudent` before Stage 4?** Operator decision
-  at the Stage-2 boundary. Recommended: yes — it is the established remedy, it
-  costs a small LLM spend rather than any Firecrawl credits, and leaving 9
-  flagship docs unfilterable would distort the eval. Deferring is defensible
-  (they are retrievable unfiltered, and English-only eval cases may not scope by
-  language), but the distortion would be silent.
+- none open. _(The Stage-2 sweep question was DECIDED — see "Decisions made".)_
 
 ## Known caveat — not a blocker for this slice
 
@@ -210,16 +244,15 @@ sources like thelife and cru. Use `attention required` /
 
 ## Resume hint (for a cold start)
 
-At: **Stage 3 — Retrieve.** Stages 1 and 2 are green; everystudent is live in
-the 9-source corpus (11,554 docs / 33,654 chunks) and no further Firecrawl spend
-is needed for this source ever. **One decision is open first** (see "Open
-question"): whether to run `pnpm lang:sweep` over everystudent to classify the 9
-`null`-language docs before eval.
-
-Next concrete action: `pnpm query` against seeker-axis topics this source owns
-(is there a God, loneliness, atheism, the Trinity, purpose) — confirm ranked
-cited hits from everystudent, check cross-source health (does it complement or
-bury the 8 existing sources?), and re-confirm `minScore 0.37` separates
-positives from off-topic negatives.
+At: **Stage 4 — Eval.** Stages 1–3 are green; everystudent is queryable in the
+9-source corpus (11,554 docs / 33,654 chunks) and ranks 1–2 on its own seeker
+topics. The golden suite is **96 cases with zero everystudent representation**,
+so expect the pre-curation run to show a DIP — that is the living-relevant-set
+artifact every prior slice hit, not a retrieval regression. Next concrete
+action: run `pnpm eval` for the pre-curation baseline, then `/golden` in
+content-grounded mode — Part A re-reviews existing cases' `relevant` maps
+(prior-source numbers should MOVE, usually up), Part B authors persona-diverse
+everystudent-native cases on the seeker/apologetics axis. Keep new cases
+UNSCOPED by language (see the sweep decision).
 Last verify: green apart from the #17 canary (425/426) @ 2026-07-24.
-Last commit: 99e9696. Branch: slice/everystudent.
+Last commit: 686e34f. Branch: slice/everystudent.

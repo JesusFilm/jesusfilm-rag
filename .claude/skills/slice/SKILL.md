@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 9 -->
+<!-- version: 10 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -300,8 +300,37 @@ When all four stages are green and the spot-check looks good:
    Commit as `docs(skill): capture slice-N learnings — <one-line summary>` on
    the slice branch so lessons land alongside the work that produced them.
    Skip silently if there's genuinely nothing — don't manufacture lessons.
-6. Offer next steps — merge `slice/<source-key>` into `main`, and/or
-   `/slice <next-source>`. Do not merge or push without the operator's say-so.
+6. Offer next steps — merge `slice/<source-key>` into `main`, then **promote to
+   prod (Step 6)**, and/or `/slice <next-source>`. Do not merge or push without
+   the operator's say-so.
+
+### Step 6 — Promote to prod (the 5th stage)
+
+The four stages above prove the source **locally**. Getting it into the Railway
+prod corpus is a separate, operator-gated step that happens **after merge** (see
+`docs/ops/prod-ingest.md`). The slice's job is to hand off cleanly with the
+**right promotion path named** — and the path depends on whether the source is
+walled (the Step-2 bot-wall probe already decided this; a walled source carries
+`fetchStrategy: "firecrawl"`).
+
+- **Walled (Firecrawl) source → suggest `copy-raws.sh`, NOT `acquire:production`.**
+  Re-acquiring a walled source in prod re-scrapes it through Firecrawl and pays
+  the metered credit cost a **second** time. Instead copy the already-acquired
+  `raw_documents` local→prod and embed there — Firecrawl is billed once. Say this
+  explicitly in the completion handoff and point at `docs/ops/copy-raws.md`:
+  `bash scripts/copy-raws.sh --source <key>` → `pnpm index:production` →
+  `pnpm eval:production`. **Never suggest `acquire:production` for a walled source.**
+- **Non-walled source → the normal path (`acquire:production`), per
+  `docs/ops/prod-ingest.md`.** `copy-raws.sh` *works* for these too (it skips a
+  re-crawl) but re-fetching over plain HTTP is free, so there's no cost reason to
+  prefer it — **do NOT raise the copy-raws suggestion for a non-walled source.**
+
+This is a handoff, not something the slice executes: promotion is a deliberate,
+watched, money-spending, hard-to-reverse op. Name the path; let the operator run
+it. *(slice #8: everystudent was the first walled source; #115 specified the copy
+path but deliberately left it unwritten AND undocumented until run once — the gap
+that made "when do I actually do this?" ambiguous. Written + documented +
+run for everystudent in `ops/copy-raws`.)*
 
 ## The verify gate
 

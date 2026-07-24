@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 7 -->
+<!-- version: 9 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -109,6 +109,18 @@ broken foundation.
    3. **State that language is detected per document at ingest** from the content
       (`ingestion/detect-language.ts`). The skill never assumes one language per
       source and never trusts the URL path or `<html lang>` for the label.
+   4. **State the null-language policy — nulls are UNCREDITABLE in the eval until
+      swept.** Detection leaves honest `null`s (ADR-0007), and a null doc is both
+      invisible to `language:`-filtered serving AND impossible to credit in
+      qa-golden.yaml: `caseLanguage()` has no unscoped pin, so en-intersecting
+      cases run scoped and a null credit is a permanently unreturnable
+      expectation (eval-approach.md → Multilingual eval, correction 3). Decide
+      **sweep-after-ingest vs exclude-from-credits** here, at unpack — deferring
+      it costs a Stage-4 pause and can leave a source's best docs out of the
+      answer keys. *(slice #8: everystudent's 9 nulls were its flagship
+      apologetics pieces; "keep the cases unscoped" turned out mechanically
+      impossible, and the excluded `/wires/loneliness.html` left the native
+      loneliness case with zero everystudent credits.)*
    Escalate to the operator **only** if detection confidence is *systematically* low
    for a source (a genuine fork), not to ask "how do we handle languages?".
    *(slice: FamilyLife `es` was mislabeled `en` because language was sourced from
@@ -207,6 +219,18 @@ Pause and hand back to the operator, in plain language, when:
   presented with the actual chunk snippet, not just title + score. Title-only
   review is rubber-stamping, not curation. If `/golden` regresses to title
   lists, push back; rebuild the surface around real text.
+- **`/golden` ≥ v4 is agent-invocable — Stage 4 no longer needs the operator at
+  the keyboard.** Through v3 it carried `disable-model-invocation`, so a slice
+  stalled at Stage 4 waiting for a human to type `/golden`: friction with no
+  safety value, since the operator had already authorised the pipeline by
+  running `/slice`, and it punched a hole in the cold-start resume contract.
+  v4 drops the flag and moves the protection to where it belongs — the operator
+  gates the **write to `eval/qa-golden.yaml`** (golden Guardrail #4: draft →
+  present → stop → write only what came back approved) and the **fan-out spend**
+  (Guardrail #7: report N docs × 3 lenses and stop for a go-ahead before
+  judging). Hand off to `/golden <source-key>` directly; do not pause the slice
+  for a human to re-issue it. *(slice #8: the invocation gate was the only stage
+  boundary a fresh session could not cross unaided.)*
 - **Stage 4 curation: judge the DOCUMENT, not the chunk.** The relevant set credits
   **document paths**, so relevance must be judged on the whole document. Cru articles
   routinely open with a long lead-in anecdote, so judging chunk 0 rejects docs whose

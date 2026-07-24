@@ -53,6 +53,8 @@ cases:
       familylife:
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/anxiety-how-can-i-cope"
         - "/equip/anxiety-what-you-need-to-know"
+      everystudent:
+        - "/wires/anxiety.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "swg-seeker-failure"
     question: "I keep messing up and feel like God must be so disappointed in me. Is there any hope?"
     relevant:
@@ -82,6 +84,8 @@ cases:
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/help-for-the-suicidal"
         - "/articles/topics/life-issues/challenges/mental-and-emotional-issues/feeling-lost-in-the-middle-of-your-life"
         - "/articles/topics/marriage/marriage-challenges/drifting-apart/disappointed-in-marriage"  # re-credited 2026-07-02 (judge-approved, qwen)
+      everystudent:
+        - "/features/blues.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "swg-seeker-porn"
     question: "I can't stop looking at porn and I hate myself for it — is there any way out?"
     relevant:
@@ -99,6 +103,8 @@ cases:
         - "/doesnt-believing-in-god-require-faith"
         - "/faith-in-the-bible-not-thin-ice"
         - "/hope-not-wishful-thinking-for-christians"
+      everystudent:
+        - "/wires/how-to-believe-in-god.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "swg-skeptic-jesus-deity"
     question: "Did Jesus ever actually claim to be God, or did the church invent that later?"
     relevant:
@@ -119,6 +125,8 @@ cases:
         - "/god-became-man-incarnation"
         - "/jesus-just-man"
         - "/two-reasons-skeptics-believe-jesus-is-not-god"
+      everystudent:
+        - "/wires/jesus-god.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "swg-skeptic-gods-love"
     question: "If God supposedly loves everyone, how would I even know that's true and not just something Christians say?"
     relevant:
@@ -130,6 +138,9 @@ cases:
         - "/daily-devo/the-biggest-no-brainer-of-them-all"  # re-credited 2026-07-02 (judge-approved, qwen)
         - "/daily-devo/old-mrs-headstomper"  # re-credited 2026-07-02 (judge-approved, qwen)
         - "/daily-devo/one-gigantic-sign-from-god-2"  # re-credited 2026-07-02 (judge-approved, qwen)
+      everystudent:
+        - "/features/kindness.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/videos/kindness-of-god-video.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "swg-believer-assurance"
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
     relevant:
@@ -264,6 +275,8 @@ cases:
         - "/devotionals/plans-like-none-other"  # re-credited 2026-07-02 (judge-approved, qwen)
       familylife:
         - "/articles/topics/marriage/staying-married/communication/6-questions-to-ask-when-youre-making-a-big-decision-together"  # re-credited 2026-07-02 (judge-approved, qwen)
+      everystudent:
+        - "/wires/how-God-guides.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "cru-believer-bible-study"
     question: "Is there a practical method for studying the Bible on my own, instead of just reading randomly?"
     relevant:
@@ -314,6 +327,8 @@ cases:
       starting-with-god:
         - "/new-life/spirit-filled.html"
         - "/knowing-god/holy-spirit.html"
+      everystudent:
+        - "/forum/holy-spirit.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "cru-seeker-abundant-life"
     question: "Being a Christian honestly feels flat and rule-bound to me. Is there supposed to be more life to it than this?"
     relevant:
@@ -353,6 +368,10 @@ cases:
         - "/jesus-liar-lunatic-lord"
         - "/deity-of-christ-true-or-false"
         - "/jesus-better-than-good"
+      everystudent:
+        - "/features/is-there-a-god.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/features/religions-of-the-world.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/wires/religions.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "jf-newcomer-who-is-jesus"
     question: "I don't really know anything about Jesus — who was he and what did he actually do?"
     relevant:
@@ -377,6 +396,13 @@ cases:
       sightline-ministry:
         - "/why-need-jesus-as-savior"
         - "/god-became-man-incarnation"
+      everystudent:
+        - "/features/christmas.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/features/know-God.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/forum/why-believe-in-jesus.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/videos/know-God-video.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/wires/why-did-jesus-die.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/wires/will-God-forgive-me.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "jf-newcomer-great-commission"
     question: "Christians keep talking about being 'sent to make disciples of all nations' — where's that from and what does it mean?"
     relevant:
@@ -417,6 +443,8 @@ cases:
         - "/contradictions-skew-bible-truth"
         - "/disagreements-in-the-bible"
         - "/bible-human-error"
+      everystudent:
+        - "/forum/contradictions.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "jf-skeptic-intolerant"
     question: "Isn't it arrogant for Christians to claim Jesus is the only way? That seems intolerant."
     relevant:
@@ -514,6 +542,9 @@ cases:
         - "/what-is-the-design-argument-for-gods-existence"
         - "/what-is-the-moral-law-argument-for-gods-existence"
         - "/why-believe-in-god"
+      everystudent:
+        - "/faq/exists.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/features/is-there-a-god.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "sl-skeptic-suffering"
     question: "If God is real and good, why is there so much suffering and evil in the world?"
     relevant:
@@ -530,6 +561,11 @@ cases:
         - "/devotionals/is-god-still-good-when-tragedy-strikes"  # re-credited 2026-07-02 (judge-approved, qwen)
       familylife:
         - "/articles/topics/faith/essentials-faith/growing-in-your-faith/why-does-god-allow-suffering"  # re-credited 2026-07-02 (judge-approved, qwen)
+      everystudent:
+        - "/features/where-is-god.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/forum/why-do-we-worship-god.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/journeys/why.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/videos/is-god-good.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "sl-skeptic-science"
     question: "Hasn't science basically disproved religion? How can a thinking person believe in miracles?"
     relevant:
@@ -593,6 +629,10 @@ cases:
         - "/why-life-feels-so-meaningless"
         - "/feeling-purposeless-cause-cure"
         - "/jesus-christ-offers-meaning"
+      everystudent:
+        - "/features/real-life.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/journeys/now.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/wires/purpose-in-life.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "sl-believer-doubt"
     question: "I'm a Christian but I'm wracked with doubts and it scares me. Is doubting a sin?"
     relevant:
@@ -659,6 +699,11 @@ cases:
       sightline-ministry:
         - "/what-is-the-first-cause-argument-for-gods-existence"
         - "/god-caused-everything-caused-god"
+      everystudent:
+        - "/journeys/nothing.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/videos/existence.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/wires/created.html"  # credited 2026-07-24 (slice #8 judge panel)
+        - "/wires/universe.html"  # credited 2026-07-24 (slice #8 judge panel)
   - id: "tl-skeptic-hell"
     question: "If God is loving, why would he send anyone to hell?"
     relevant:
@@ -734,6 +779,13 @@ cases:
         - "/daily-devo/helping-babies-grow-up-3"  # re-credited 2026-07-02 (judge-approved, qwen)
   - id: "tl-newcomer-decision"
     question: "I think I just decided to trust Jesus — what now? What's the very next step?"
+    # Pinned 2026-07-24 (slice #8). `thelife` declares ["en", "fr"], and this is
+    # the case's ONLY relevant source, so caseLanguage() intersects to two
+    # languages, derives nothing, and the case silently searched the whole
+    # multilingual corpus — surfacing as the lone `(unscoped)` row. All five
+    # relevant docs are `en` (verified in the corpus). See docs/eval-approach.md
+    # → Multilingual eval.
+    language: "en"
     relevant:
       thelife:
         - "/yes"
@@ -1462,3 +1514,118 @@ cases:
         - "/daily-devo/love-and-hell-dont-mix-do-they-2"
       thelife:
         - "/is-hell-unjust"
+
+  # --- everystudent-native cases (slice #8, 2026-07-24; relevant sets
+  # corpus-grounded via deep-k probe + 3-lens judge panel, both axes >= 0.75) ---
+  - id: "es-seeker-loneliness"
+    question: "Everyone around me seems to have people, and I just feel invisible and completely alone — does God even see me?"
+    relevant:
+      cru:
+        - "/us/en/blog/life-and-relationships/emotions/hope-for-the-lonely-soul.html"
+        - "/us/en/train-and-grow/spiritual-growth/devotionals/todays-promise/10/14.html"
+      sightline-ministry:
+        - "/daily-devo/he-knows-just-how-you-feel"
+        - "/daily-devo/he-knows-just-how-you-feel-2"
+        - "/daily-devo/sometimes-i-feel-so-lonely"
+        - "/daily-devo/sometimes-i-feel-so-lonely-2"
+        - "/daily-devo/when-friends-go-away-2"
+      thelife:
+        - "/devotionals/near-the-broken"
+        - "/devotionals/no-longer-invisible"
+        - "/devotionals/seen-by-the-one-above"
+        - "/devotionals/you-are-never-alone"
+  - id: "es-seeker-self-hatred"
+    question: "I look in the mirror and hate the person staring back. Could God really love someone who can't stand themselves?"
+    relevant:
+      cru:
+        - "/us/en/train-and-grow/bible-studies/connections-investigative-bible-study/mirror-mirror-on-the-wall.html"
+      everystudent:
+        - "/wires/bullying.html"
+        - "/wires/self-esteem.html"
+      sightline-ministry:
+        - "/daily-devo/how-can-anyone-love-a-mess-like-this"
+        - "/daily-devo/how-can-anyone-love-a-mess-like-this-2"
+        - "/fully-forgiven-god-sees"
+        - "/fully-loved-god-sees"
+        - "/inspiration-see-yourself-as-loved-by-god"
+        - "/pesky-feelings-god-sees-you"
+        - "/three-lies-christians-believe-about-themselves"
+        - "/unmet-needs-god-sees-you"
+      thelife:
+        - "/devotionals/beautiful"
+        - "/devotionals/how-does-god-see-you"
+  - id: "es-seeker-fear-of-death"
+    question: "I lie awake at night terrified of dying. What actually happens to us when we die?"
+    relevant:
+      cru:
+        - "/us/en/train-and-grow/spiritual-growth/core-christian-beliefs/what-happens-when-you-die.html"
+      everystudent:
+        - "/wires/inevitable.html"
+      thelife:
+        - "/have-you-heard-about-henry"
+  - id: "es-newcomer-same-god"
+    question: "Do all religions basically worship the same God, just in different ways?"
+    relevant:
+      cru:
+        - "/us/en/train-and-grow/spiritual-growth/core-christian-beliefs/what-makes-christianity-different.html"
+      everystudent:
+        - "/faq/religions.html"
+        - "/features/religions-of-the-world.html"
+        - "/wires/elephant.html"
+      sightline-ministry:
+        - "/daily-devo/gods-way-or-the-highway"
+        - "/daily-devo/its-gods-way-or-the-highway"
+      thelife:
+        - "/devotionals/god-came-down"
+        - "/do-all-religions-lead-to-the-same-god"
+  - id: "es-newcomer-astrology"
+    question: "I check my horoscope every morning and I'm pretty into astrology — is there anything actually wrong with that?"
+    relevant:
+      everystudent:
+        - "/wires/marcia-montenegro.html"
+  - id: "es-skeptic-scientists"
+    question: "Name one serious scientist who actually believes in God. People who understand how the world works don't buy this stuff, right?"
+    relevant:
+      cru:
+        - "/us/en/how-to-know-god/my-story-a-life-changed/hugh-ross.html"
+      everystudent:
+        - "/wires/laws-of-nature.html"
+      sightline-ministry:
+        - "/christianity-science-bogus-feud"
+  - id: "es-seeker-muslim-background"
+    question: "I grew up Muslim and lately I can't stop wondering about who Jesus really is. What do Christians claim about him that Islam doesn't?"
+    relevant:
+      cru:
+        - "/us/en/how-to-know-god/is-jesus-god.html"
+        - "/us/en/train-and-grow/share-the-gospel/obstacles-to-faith/five-hurdles-between-muslims-and-the-gospel.html"
+        - "/us/en/train-and-grow/spiritual-growth/core-christian-beliefs/what-makes-christianity-different.html"
+      everystudent:
+        - "/wires/radical.html"
+      sightline-ministry:
+        - "/daily-devo/the-jesus-question"
+        - "/daily-devo/the-jesus-question-2"
+        - "/jesus-better-than-good"
+        - "/jesus-just-man"
+      starting-with-god:
+        - "/new-life/jesus.html"
+      thelife:
+        - "/seeking-god-face-to-face"
+  - id: "es-newcomer-reincarnation"
+    question: "Is reincarnation real? Do we keep coming back as someone else until we get it right?"
+    relevant:
+      everystudent:
+        - "/forum/reincarnation.html"
+  - id: "es-newcomer-denominations"
+    question: "I'm brand new to all this and confused — Catholic, Baptist, Pentecostal... how am I supposed to know which church is the right one?"
+    relevant:
+      cru:
+        - "/us/en/blog/life-and-relationships/your-community/choosing-church-home.html"
+      starting-with-god:
+        - "/new-life/connect.html"
+      thelife:
+        - "/how-to-choose-a-church"
+  - id: "es-skeptic-show-miracle"
+    question: "If God wants people to believe in him, why doesn't he just do an obvious miracle on live TV and settle it?"
+    relevant:
+      everystudent:
+        - "/forum/miracles2.html"

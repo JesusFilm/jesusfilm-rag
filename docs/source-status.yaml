@@ -122,15 +122,13 @@ sources:
 
   everystudent:
     name: EveryStudent
-    status: blocked
+    status: done
     languages:
       en:
-        status: blocked
-        stages: { acquire: red, ingest: pending, retrieve: pending, evaluate: pending }
-        blocker: "Cloudflare JS managed challenge on all content pages — needs a
-          JS-capable fetcher (see FOLLOW-UP G / #8)."
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/everystudent.md
-    last_updated: 2026-05-25
+    last_updated: 2026-07-24
   cru:
     name: Cru
     status: done

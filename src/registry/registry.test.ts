@@ -303,9 +303,9 @@ describe("SourceRegistry", () => {
   });
 
   it("a walled source may declare fetchStrategy: 'firecrawl' and resolves to it", () => {
-    // Fixture, not a registered source: the everystudent slice registers the
-    // real entry. This locks that the CrawlPolicy type carries the field and
-    // resolveFetchStrategy reads it.
+    // Fixture rather than the registered everystudent entry: this locks the
+    // TYPE-level contract (CrawlPolicy carries the field, resolveFetchStrategy
+    // reads it) independently of any one source's policy.
     const walled = fixtureEntry("walled-fixture", {
       baseUrl: "https://example.net",
       seedPaths: ["/article.html"],
@@ -339,5 +339,10 @@ describe("SourceRegistry", () => {
     expect(getSource("cru-10-basic-steps")).toBeUndefined();
     // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall.
     expect(getSource("thelife-fa")).toBeUndefined();
+    // EveryStudent's three banners are three DOMAINS, so three keys — the
+    // Arabic and French ones are later slices (#112), not languages of `everystudent`.
+    expect(getSource("everystudent")?.languages).toEqual(["en"]);
+    expect(getSource("everystudent-ar")).toBeUndefined();
+    expect(getSource("everystudent-fr")).toBeUndefined();
   });
 });

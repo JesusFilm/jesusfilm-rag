@@ -1,11 +1,10 @@
 ---
 name: golden
-description: "Author grounded golden eval cases for one ingested source, fast. Surveys what actually landed in the corpus for a source, then drafts persona-diverse candidate questions (each tied to a real document) plus off-topic negatives for cutoff calibration — for the operator to curate, not hand-write. Writes approved cases into eval/qa-golden.yaml. Invoke /golden to pick from the ingested sources by number, or /golden <key|name|partial> to target one directly."
+description: "Author grounded golden eval cases for one ingested source, fast. Surveys what actually landed in the corpus for a source, then drafts persona-diverse candidate questions (each tied to a real document) plus off-topic negatives for cutoff calibration — for the operator to curate, not hand-write. Writes approved cases into eval/qa-golden.yaml, and ONLY after the operator approves them. Invoke /golden to pick from the ingested sources by number, or /golden <key|name|partial> to target one directly; /slice hands off here at Stage 4."
 allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
-disable-model-invocation: true
 ---
 
-<!-- version: 3 -->
+<!-- version: 4 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -74,8 +73,19 @@ The personas are the default balanced set; the operator may swap or add one.
    the question was derived from — never invent a path. Use the `canonical_url`
    pathname for `expected_doc_paths`.
 3. **Negatives must be plausibly-asked but genuinely off-topic for THIS source.**
-4. **The operator is the gate.** This skill *proposes*; the operator approves,
-   edits, or rejects. Never write a case the operator hasn't confirmed.
+4. **The operator is the gate — and the gate is the WRITE, not the invocation.**
+   This skill *proposes*; the operator approves, edits, or rejects. **Nothing
+   reaches `eval/qa-golden.yaml` without an explicit approval turn** — not a
+   plan the operator nodded at, not "everything above", not an inference from
+   silence. Draft → present → **stop** → write only what came back approved.
+   Re-confirm after any edit round; approval of v1 is not approval of v2.
+
+   This is the load-bearing guarantee, so state it plainly: **the skill may be
+   invoked by an agent** (v4 dropped `disable-model-invocation` — `/slice`
+   Stage 4 hands off here, and a cold-start resume must not need a human at the
+   keyboard). What used to be protected by "a human typed the command" is now
+   protected by this guardrail and #7 below. Both must hold, or the answer keys
+   stop being the operator's.
 5. **Curate on content, never on titles.** Every candidate the operator judges
    MUST be presented with the actual chunk-text snippet (≥200 chars) and not
    just a title + score. A reviewer cannot judge whether `/devotionals/transform-
@@ -97,9 +107,10 @@ nobody asked. In slice #7, **73 of 151 proposed credits were exactly that** (mea
 keys and quietly corrupted the eval. That pairing is the **tripwire**; count it separately,
 never fold it into a generic fail.
 
-The working shape (prompt preserved at
-`docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`, candidate for promotion
-into this skill):
+The working shape (prompt preserved verbatim at
+`docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md`; its rubric is
+promoted below, and v4 promoted its COST clause into Guardrail #7 — read the
+original only for the HTML review-surface detail, not for the rubric):
 
 1. **Panel of 3 lenses** — theologian · pastor · mature Christian. **Separate agents**, or
    they anchor on each other and the spread is meaningless.
@@ -118,6 +129,24 @@ Slice #7's max panel disagreement was **0.25** against a 0.5 escalation threshol
 escalations fired**. Do not read agreement as corroboration. The axis that earned its keep
 was **soundness**, which found prosperity drift and genuinely harmful pastoral content that
 no relevance check could ever surface (→ issue #78).
+
+## Guardrail #7 — announce the fan-out cost BEFORE spending it (v4)
+
+The judge panel is the expensive part: **N docs × 3 lenses**, and a Stage-4 batch
+is routinely 150+ docs. Slice #7 ran 151 credits × 3 = 453 judgements in one pass.
+
+**Before fanning out, compute and report the estimate, then stop for a
+go-ahead:** how many candidate docs, × 3 lenses, and the rough output-token
+cost. Proceed only on an explicit yes. Volunteer a cheaper shape when the batch
+is large — judge the top-N by rank first, or split the run per case-group — so
+"too expensive" has an answer other than "don't run it".
+
+This exists because v4 made the skill agent-invocable. While a human had to type
+`/golden`, the typing *was* the spend approval; now nothing else is. Estimate
+first, spend second — the operator should never learn the size of a run from the
+bill. (The rule comes from the slice-#7 prompt's own COST clause, which asked
+for an estimate above ~1M output tokens; it was never promoted into this skill
+until now.)
 
 ## Two operating modes
 

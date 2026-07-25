@@ -6,8 +6,11 @@ Live "you are here" for the build. Stable design lives in
 whenever state changes; keep it to ~one screen.
 
 _Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) is DONE — all four
-stages GREEN**, `everystudent-ar` Evaluated on `slice/everystudent-ar` (not yet
-merged). Arabic enters the eval at **coverage 0.979 / recall@10 1.000**; whole
+stages GREEN and PROMOTED TO PROD**. `everystudent-ar` is live in the prod corpus
+(67 docs / 283 chunks via the bulk-copy path, prod eval identical to local) with
+**PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) open and not yet
+merged — so prod leads `main` on this source.** Arabic enters the eval at
+**coverage 0.979 / recall@10 1.000**; whole
 corpus @ 118 cases is **recall@10 1.000 · coverage 0.730**. Two findings filed:
 **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** (content
 soundness — one item is time-sensitive) and **FOLLOW-UP O** (eval retry posture).
@@ -321,14 +324,27 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 1. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) —
    specifically `/a/endingthe8th.html`.** Suicide and self-harm content presented
-   as cured by faith, with no professional help signposted. It is in the local
-   corpus now and **promotion ships it to prod**. Decide exclude-vs-accept before
-   the copy-raws step below, not after.
-2. **Merge slice #9** (open a PR from `slice/everystudent-ar`), then **promote**.
-   ⚠️ **This is a WALLED source — use the bulk-copy path, never
-   `acquire:production`**, which would re-pay Firecrawl for pages already bought:
-   `bash scripts/copy-raws.sh --source everystudent-ar` → `pnpm index:production`
-   → `pnpm eval:production`. See [docs/ops/copy-raws.md](./ops/copy-raws.md).
+   as cured by faith, with no professional help signposted.
+   ⚠️ **This item's framing has changed: the decision is now retroactive.** This
+   file previously said "decide exclude-vs-accept **before** the copy-raws step,
+   not after". **The promotion ran first** (operator-directed, 2026-07-25), so the
+   page is **live in prod today** and the choice is no longer "ship it or not" but
+   "leave it or pull it from prod" — a smaller, more urgent decision. The prod
+   smoke test makes it concrete: an anxiety question
+   ("كيف أتعامل مع القلق والخوف؟") returns it at **rank 4 @ 0.431**, so it is a
+   real retrieval result, not a latent risk. Retrieval is behaving correctly — the
+   document genuinely is topically relevant — so the fix is content-side (exclude
+   the doc, or get help signposting added), not engine-side.
+2. ~~**Merge slice #9**, then promote.~~ **Promotion is DONE (2026-07-25);
+   the PR is open at [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124)
+   and still needs merging.** `everystudent-ar` is live in prod: 67 docs / 283
+   chunks / 283 embeddings via the **bulk-copy path** (`copy-raws.sh`, zero extra
+   Firecrawl), both copy digests matched local↔prod, and `eval:production`
+   reproduced the local numbers exactly (coverage 0.979 / recall@10 1.000).
+   Dashboard refreshed in the same PR (10 sources / 5 languages / 11,661 docs).
+   **Note the inverted order vs slice #8**, which merged first and promoted after:
+   here prod leads `main` on this source until #124 merges. Details:
+   `docs/slices/everystudent-ar.md` → "Prod promotion".
 3. **`/slice everystudent-fr`** (questions2vie.com, ~87 mapped URLs) as slice #10.
    The Firecrawl budget fits: 828 credits remain and the period ends 2026-08-21.
    Watch the **0.382** five-pillars margin — 0.012 above the 0.37 cutoff, the

@@ -93,7 +93,7 @@ crediting it would measure the confidence gate rather than retrieval. They are
 corrective tool only**: never a step in a slice, never a route for a null doc
 back into `eval/qa-golden.yaml`, and never something to ask the operator about.
 See `docs/eval-approach.md` → Multilingual eval, correction 3;
-`.claude/skills/slice` v11; `.claude/skills/golden` v6 Guardrail #3a.
+`.claude/skills/slice` v12; `.claude/skills/golden` v7 Guardrail #3a.
 
 End-to-end flow the skill performs:
 

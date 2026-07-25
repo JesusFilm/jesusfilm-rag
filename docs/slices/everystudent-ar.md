@@ -206,8 +206,8 @@ approach was toward *real* documents rather than noise creeping at the cutoff.
 
 ### 4. Spot-check + eval
 - [x] `/golden everystudent-ar` — Arabic cases with English question translations
-      AND translated retrieved-set blocks; `language: ar` pinned on every case
-- [x] Whole-corpus eval; confirm no prior-source regression
+      AND translated retrieved-set blocks; `language: ar` pinned on every case   <!-- sha: 1b22945 -->
+- [x] Whole-corpus eval; confirm no prior-source regression   <!-- sha: 1b22945 -->
 
 **Stage 4 evidence (2026-07-25).**
 

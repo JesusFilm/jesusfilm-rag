@@ -152,10 +152,10 @@ sources:
     last_updated: 2026-07-14
   everystudent-ar:
     name: EveryStudent — Arabic (everyarabstudent.com)
-    status: in-progress
+    status: done
     languages:
       ar:
-        status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/everystudent-ar.md
-    last_updated: 2026-07-24
+    last_updated: 2026-07-25

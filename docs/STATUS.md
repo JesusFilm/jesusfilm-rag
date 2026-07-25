@@ -5,20 +5,76 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) Stages 1+2+3 GREEN**
-on `slice/everystudent-ar`; Arabic is **queryable end-to-end** and minScore 0.37
-holds at 10 sources; the **#17/#75 canary is resolved — a fixture artifact,
-not an engine fault**, gate now green at 432/432; slice #8 (EveryStudent en)
-MERGED (PR #119) and **live in prod**; prod is 100% qwen3_
+_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) is DONE — all four
+stages GREEN**, `everystudent-ar` Evaluated on `slice/everystudent-ar` (not yet
+merged). Arabic enters the eval at **coverage 0.979 / recall@10 1.000**; whole
+corpus @ 118 cases is **recall@10 1.000 · coverage 0.730**. Two findings filed:
+**[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** (content
+soundness — one item is time-sensitive) and **FOLLOW-UP O** (eval retry posture).
+The **#17/#75 canary is resolved**, gate green at 432/432; slice #8 MERGED
+(PR #119) and live in prod; prod is 100% qwen3_
 
 ## You are here
 
-**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is IN PROGRESS — Stages 1
-(Acquire), 2 (Ingest) and 3 (Retrieve) GREEN** on `slice/everystudent-ar`
-(2026-07-25). The second walled source (Firecrawl, ADR-0012) and the **first
-Arabic content in the corpus**. 68 hand-listed seeds from #114's already-paid
+**Slice #9 (EveryStudent Arabic, `everystudent-ar`) is DONE — all four stages
+green, source Evaluated** on `slice/everystudent-ar` (2026-07-25), **not yet
+merged**. The second walled source (Firecrawl, ADR-0012) and the **first Arabic
+content in the corpus**. 68 hand-listed seeds from #114's already-paid
 `/v2/map` inventory (84 URLs, minus 11 `/m/*` menu indexes, 4 `/bible/**.pdf`
 and the homepage).
+
+**Evaluated (Stage 4): 12 Arabic cases / 27 credits; qa-golden.yaml 106 → 118.**
+Arabic-scoped **recall@3 0.917 · recall@10 1.000 · coverage 0.979 · MRR 0.938 ·
+P@1 0.917** (11 of 12 at rank 1). **Whole-corpus @ 118 cases / 10 sources:
+recall@3 0.949 · recall@10 1.000 · coverage 0.730 · MRR 0.839 · P@1 0.720** —
+coverage/MRR/P@1 all UP on the 106-case baseline; recall@3 dipped 0.004 from one
+rank-4 case. **Per-language: `ar` 0.979** · en 0.641 · es 0.938 · fr 0.817 ·
+zh 0.867, **0 unscoped**. Every prior source unchanged.
+
+🔎 **Part A (re-review) was a provable NO-OP — the first time a new source
+*could not* disturb prior answer keys.** All 106 pre-existing cases resolve to a
+non-`ar` language (en 78 · fr 10 · zh 10 · es 8, 0 unscoped) and
+`corpus-search-store.ts:62` is a strict `eq(documents.language, …)`, so Arabic
+docs are **ineligible by construction**; confirmed empirically — zero Arabic docs
+appear anywhere in the 106-case results, and the metrics reproduced slice #8
+exactly across two runs. The cheap structural check (offline, seconds) now
+precedes the expensive re-review in `.claude/skills/slice` v12.
+
+⚠️ **`everystudent` 0.818 ↔ 0.773 is BOUNDARY JITTER, not a regression.** It
+traced to one credited doc — `everystudent/forum/contradictions.html` at **rank
+10, score 0.648, rank 11 at 0.647**. A 0.001 gap at the exact top-10 cutoff,
+flipped by float noise in the query embedding between sessions; both eval modes
+are individually reproducible, so it is neither HNSW nondeterminism nor the
+Arabic ingest. **At n≈20 one boundary doc is ~0.045 of per-source recall** —
+per-source numbers have been read as exact and are not (`eval-approach.md`).
+
+🔑 **DECISION — for a single-source language, gate answer-key entry on RELEVANCE
+only and FILE soundness.** The slice #7/#8 both-axes-at-0.75 rule assumes several
+sources compete on a question; with one source and `ar`-scoped cases it does not
+filter a key, it **deletes** it — both axes approved **6 of 52** credits leaving
+**9 of 14 cases empty**, versus **27 of 52** on relevance alone. It would also
+mark the engine wrong for returning the best document in the corpus
+(`/a/childraped.html`: relevance **0.91**, the panel's highest, soundness 0.52),
+and excluding a doc from a key never stopped the RAG serving it. Judge panel:
+**52 pairs × 3 lenses = 156 judgements, coverage complete, max spread 0.35 → 0
+escalations** (convergence caveat holds a third time).
+
+🚨 **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) — content
+soundness, mean 0.703 (lowest of any source).** False factual claims (complete
+Bible books "from 300 BC" in the flagship Muslim-readership article; "Athanasius
+367 BC"; an invented "11 to 14 soldiers" at the tomb), **modalism in the Trinity
+explainer**, and polemic against the very readership the site exists to reach
+(`/a/matter.html`, soundness 0.47, lists "the God of Islam" beside praying to a
+cactus). **Time-sensitive: `/a/endingthe8th.html`** carries graphic suicidal
+ideation and self-harm detail under "Jesus Christ is the cure for depression"
+with **no doctor, therapy or medication mentioned** — and it ships to prod with
+the source.
+
+ⓘ **FOLLOW-UP O filed — `pnpm eval` inherits the fast-fail QUERY retry posture**
+(`QUERY_EMBED_MAX_ATTEMPTS=2`, 4 s) built for `/v1/search` latency. A 118-case
+offline eval has no latency SLA and no resume, so one transient blip discards the
+run — it killed two runs, each after ~100 cases. Workaround (env only, serving
+path untouched): `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval`.
 
 **Retrieved (Stage 3): Arabic is queryable, and the corpus is genuinely
 cross-lingual.** Three real Arabic questions against the unfiltered 10-source
@@ -95,7 +151,7 @@ the survey query so a null can't reach a draft), and `docs/eval-approach.md`
 source. The accepted cost is named there: slice #8's null
 `/wires/loneliness.html` left that case with zero everystudent credits.
 
-**Next: Stage 4 (`/golden everystudent-ar`).** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
+**Slice #9 is complete.** See [docs/slices/everystudent-ar.md](./slices/everystudent-ar.md).
 
 ⚠️ **The #17/#75 canary is CLOSED as a false alarm** (`55bfd7f`). `pnpm test` was
 425/426 for months and STATUS gated the `ar`/`fr` slices on investigating it.
@@ -261,25 +317,27 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Continue slice #9 (`everystudent-ar`) at Stage 4 — hand off to
-`/golden everystudent-ar`.** Acquire, Ingest and Retrieve are all green; the
-Firecrawl spend is **done** (68 credits at exactly 1.00/page; 828 remain, period
-ends 2026-08-21, so `everystudent-fr`'s ~87 still fits). `/golden` v4+ is
-**agent-invocable** — the slice does not pause for the operator to type it; the
-operator gates the *write* to `eval/qa-golden.yaml` and the judge-panel *spend*.
-Two Arabic-specific requirements carry into that handoff: **(1)** every case
-needs an `# EN:` question translation AND a translated `# RETRIEVED` block, since
-a reviewer who doesn't read Arabic can only check results against question if
-both are in English; **(2)** **pin `language: ar` on every case** — this is the
-only Arabic source and the corpus demonstrably retrieves cross-lingually, so an
-unpinned Arabic case would be scored against a corpus that legitimately answers
-it in Chinese. The 2 null-language `/v/` docs stay excluded.
+**Operator decides between three, in this order of urgency:**
 
-The **#17/#75 gate on the `ar`/`fr` slices is lifted** — see "You are here". The
-rare-language mechanism those slices depend on is verified working; only the test
-fixture was broken.
+1. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) —
+   specifically `/a/endingthe8th.html`.** Suicide and self-harm content presented
+   as cured by faith, with no professional help signposted. It is in the local
+   corpus now and **promotion ships it to prod**. Decide exclude-vs-accept before
+   the copy-raws step below, not after.
+2. **Merge slice #9** (open a PR from `slice/everystudent-ar`), then **promote**.
+   ⚠️ **This is a WALLED source — use the bulk-copy path, never
+   `acquire:production`**, which would re-pay Firecrawl for pages already bought:
+   `bash scripts/copy-raws.sh --source everystudent-ar` → `pnpm index:production`
+   → `pnpm eval:production`. See [docs/ops/copy-raws.md](./ops/copy-raws.md).
+3. **`/slice everystudent-fr`** (questions2vie.com, ~87 mapped URLs) as slice #10.
+   The Firecrawl budget fits: 828 credits remain and the period ends 2026-08-21.
+   Watch the **0.382** five-pillars margin — 0.012 above the 0.37 cutoff, the
+   tightest faith-adjacent approach recorded, and French adds another
+   faith-adjacent surface.
 
-`everystudent-fr` (questions2vie.com, ~87 mapped URLs) follows as slice #10.
+The **#17/#75 gate on the `ar`/`fr` slices is lifted** — the rare-language
+mechanism those slices depend on is verified working; only the test fixture was
+broken, and Arabic at 0.56% of the corpus now demonstrates it live.
 
 Still open, operator decides when:
 

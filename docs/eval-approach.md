@@ -72,7 +72,29 @@ the multi-relevant model it is **derived from the relevant docs' sources**, not 
 an X doc appear in the returned set (X's coverage). That keeps the burial signal without pretending
 one source owns a shared question.
 
-## Status & open questions
+### ⚠️ Per-source numbers carry top-k BOUNDARY JITTER — do not read them as exact (slice #9)
+
+A per-source coverage/recall figure at small `n` can move between runs **with no
+change to the corpus, the model, or the engine**. The mechanism is mundane and
+worth knowing before you chase a phantom regression:
+
+Slice #9 saw `everystudent` read **0.818** in one run and **0.773** in another
+(n=22 — one case's worth). It was traced to a single credited doc,
+`everystudent/forum/contradictions.html`, sitting at **rank 10, score 0.648, with
+rank 11 at 0.647**. A **0.001** gap at the exact top-10 cutoff, flipped by
+last-bit differences in the query embedding between sessions. Both eval modes were
+individually reproducible (whole-corpus 4/5 twice; `--source` 5/5 twice), so this
+is *not* HNSW nondeterminism and *not* a retrieval fault — it is a doc balanced on
+the `topK` knife-edge.
+
+Practical rules:
+- **Before attributing a per-source move to a new source, check whether any Arabic
+  /new-source doc actually appears in the results at all.** If none do, the move
+  cannot be displacement.
+- At n≈20, one boundary doc is worth **~0.045** of per-source recall. Treat moves
+  of that order as noise unless a per-case diff names the case.
+- Diff **per-case** (`rank` + `cov=x/y`), not aggregates — that is what localises
+  it in one step.
 
 **Shipped (slice #2, v1 — `scripts/eval.ts`, `scripts/eval-metrics.ts`):** a `source` tag per
 case + `pnpm eval --source <key>` + a per-source breakdown. It groups *metrics by
@@ -305,6 +327,33 @@ re-scores already-curated cases, it does not author new ones.
 >    is null, so that case closed with zero everystudent credits. That is the
 >    price of honest answer keys, not a reason to revisit. (Made a standing rule
 >    2026-07-25, after it had been re-asked at every new source.)
+>
+> 4. **Correction 4 — the two-axis judge gate assumes a MULTI-SOURCE corpus. When
+>    a language has exactly ONE source, gate answer-key entry on RELEVANCE only
+>    and route soundness to a filed issue.** (slice #9, `everystudent-ar`.)
+>
+>    Guardrail #6 gates both relevance and biblical soundness at 0.75. That works
+>    when several sources compete on a question: striking a low-soundness doc
+>    leaves *other* credited docs standing, so the gate **filters** an answer key.
+>    With one source per language — and cases necessarily `language:`-scoped —
+>    there is nothing left to fall back on, so the same gate **deletes** the key.
+>    Measured on slice #9: both axes at 0.75 approved **6 of 52** credits and left
+>    **9 of 14 cases with zero**; relevance alone approved **27 of 52** and left 2.
+>
+>    There is a measurement argument underneath, and it is the real reason:
+>    **the eval measures retrieval.** `/a/childraped.html` scored relevance 0.91 —
+>    the highest pair in that panel — on soundness 0.52. Excluding it marks the
+>    engine WRONG for returning the single best-matching document in the corpus,
+>    inverting what coverage means. And striking a doc from an answer key **does
+>    not stop the RAG serving it**: if the concern is users receiving unsound
+>    content, the remedy is corpus-level (remove or flag the document), not
+>    answer-key-level. Using the key as a content filter buys no real protection
+>    while blinding the metric.
+>
+>    So: score soundness on every pair (it earns its keep — slice #9's panel found
+>    false factual claims, modalism, and suicide content with no help signposted →
+>    [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)), report the
+>    mean, and **file** it. Do not let it silently empty an answer key.
 
 ### Non-English — **human-in-the-loop**, one suite per language
 For each non-English source, author a suite with `/golden`

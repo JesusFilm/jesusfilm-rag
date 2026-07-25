@@ -1629,3 +1629,279 @@ cases:
     relevant:
       everystudent:
         - "/forum/miracles2.html"
+
+  # ---------------------------------------------------------------------------
+  # everystudent-ar (slice #9, 2026-07-25) — the corpus's FIRST Arabic cases.
+  #
+  # Every case pins `language: "ar"`. everystudent-ar declares ["ar"] alone, so
+  # caseLanguage() derives "ar" TODAY — but the moment a second source is
+  # credited on one of these questions the declared-language intersection empties
+  # and the case silently goes unscoped. Since qwen3 retrieves cross-lingually
+  # (an Arabic question legitimately returns zh/fr/en docs — slice #9 Stage 3),
+  # an unscoped Arabic case would be scored against a corpus that answers it in
+  # another language. The pin is what stops that.
+  #
+  # Credits were set by a 3-lens judge panel (theologian / pastor / mature
+  # Christian; 52 pairs x 3 = 156 judgements, full coverage, max spread 0.35 so
+  # ZERO escalations — the convergence caveat from slice #7 still stands).
+  # Entry is gated on RELEVANCE >= 0.75 only. Soundness was scored on every pair
+  # and deliberately NOT used to exclude: everystudent-ar is the only Arabic
+  # source and these cases are ar-scoped, so a soundness veto deletes the answer
+  # key rather than filtering it (9 of 14 cases would have been left with zero
+  # credits), and it would mark the engine wrong for returning the genuinely
+  # best-matching document. Mean soundness across the 52 pairs was 0.703 —
+  # systematically below every prior source; those findings are filed as a
+  # content issue instead. `rel=` on each path is the 3-lens mean.
+  #
+  # The 2 null-language docs (/v/gods-help.html, /v/personally.html) are
+  # excluded by standing policy and appear nowhere below.
+  # Dropped at curation: esar-believer-next-step (all 4 candidate docs address
+  # pre-believers — a real discipleship gap in this source) and
+  # esar-seeker-astrology (/a/strange.html is a testimony narrative, rel 0.71).
+  # ---------------------------------------------------------------------------
+
+  # EN: "My friends say the book Christians hold today isn't the one that came down from God, that it changed over the centuries. What's your answer to that?"
+  - id: "esar-skeptic-tahrif"
+    language: "ar"  # explicit: see the block note above
+    question: "أصدقائي يقولون إن الكتاب الذي بين أيدي المسيحيين اليوم غير الذي نزل من عند الله وأنه تبدّل عبر القرون. ما ردّكم على هذا؟"
+    relevant:
+      everystudent-ar:
+        - "/a/word2.html"  # rel=0.88
+        - "/a/word1.html"  # rel=0.87
+        - "/a/bible.html"  # rel=0.86
+        - "/a/jesusinislam.html"  # rel=0.85
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.745 /a/jesusinislam.html — EN: "Jesus in Islam — the six main questions about Jesus"
+  #   2. 0.726 /a/word2.html — EN: "The impossibility of the Bible being corrupted AFTER the 6th century AD"
+  #   3. 0.726 /a/word1.html — EN: "The impossibility of God's word being corrupted BEFORE the 6th century AD"
+  #   4. 0.560 /a/bible.html — EN: "Historical facts about the Bible — who wrote it down"
+  #   5. 0.497 /a/lamb.html — EN: "Do they worship a lamb, or God?"
+  #   6. 0.496 /a/mylife.html — EN: "He changed my life"
+  #   7. 0.484 /a/isthere.html — EN: "Does God exist? Six straightforward reasons"
+  #   8. 0.478 /a/difference.html — EN: "Christianity and the other world religions"
+  #   9. 0.472 /a/byondblind.html — EN: "A faith that is not blind — who is Christ?"
+  #  10. 0.463 /a/peaceofmind.html — EN: "Inner peace in a turbulent world"
+
+  # EN: "I can't grasp how God can be one and three at the same time. Isn't that a rational contradiction?"
+  - id: "esar-seeker-trinity"
+    language: "ar"  # explicit: see the block note above
+    question: "لا أستطيع أن أستوعب كيف يكون الله واحداً وثلاثة في الوقت نفسه. أليس هذا تناقضاً عقلياً؟"
+    relevant:
+      everystudent-ar:
+        - "/a/trinity.html"  # rel=0.84
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.744 /a/trinity.html — EN: "How do you explain the Trinity?"
+  #   2. 0.666 /a/jesusinislam.html — EN: "Jesus in Islam — the six main questions" (Trinity is buried as a sub-point of Q6; panel rel=0.55, not credited)
+  #   3. 0.587 /a/isjesus.html — EN: "Is Jesus Christ God?" (answers God-and-man, not one-and-three; panel rel=0.56, not credited)
+  #   4. 0.550 /a/where.html — EN: "Where is God? How did he enter our world's dimensions?"
+  #   5. 0.513 /a/whypick.html — EN: "Why choose the God of the Bible?"
+  #   6. 0.503 /a/r1.html — EN: "The blind men and the elephant — describing God"
+  #   7. 0.496 /a/whois.html — EN: "Who is God?"
+  #   8. 0.490 /a/bible.html — EN: "Historical facts about the Bible"
+  #   9. 0.489 /a/universe.html — EN: "Did God create the universe?"
+  #  10. 0.485 /a/searching.html — EN: "Searching for God in a world full of philosophies"
+
+  # EN: "If God is merciful and all-powerful, why does he let an innocent child be raped and not lift a finger?"
+  - id: "esar-skeptic-child-suffering"
+    language: "ar"  # explicit: see the block note above
+    question: "إذا كان الله رحيماً وقادراً على كل شيء، فلماذا يترك طفلاً بريئاً يُغتصب ولا يحرّك ساكناً؟"
+    relevant:
+      everystudent-ar:
+        - "/a/childraped.html"  # rel=0.91 — highest relevance in the whole panel; soundness 0.52, see the content issue
+        - "/a/why.html"  # rel=0.76
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.785 /a/childraped.html — EN: "Why does God allow children to be raped?"
+  #   2. 0.649 /a/why.html — EN: "Why does life seem so cruel?"
+  #   3. 0.644 /a/care.html — EN: "Suffering and evil — where is God's care?" (panel rel=0.71, not credited)
+  #   4. 0.608 /v/isGodgood.html — EN: "Is God good?" (abstract 250-word video script; panel rel=0.57)
+  #   5. 0.604 /a/midstoftragedy.html — EN: "Where is God in the midst of tragedies?" (about terrorism; panel rel=0.61)
+  #   6. 0.583 /a/whypick.html — EN: "Why choose the God of the Bible?"
+  #   7. 0.572 /a/howcan.html — EN: "How can a loving God send people to hell?"
+  #   8. 0.568 /a/jesusinislam.html — EN: "Jesus in Islam — the six main questions"
+  #   9. 0.556 /a/peaceofmind.html — EN: "Inner peace in a turbulent world"
+  #  10. 0.555 /a/evil.html — EN: "What about all the evil done in God's name?"
+
+  # EN: "My heart is tense all the time, my thoughts won't stop at night, and I feel the stress eating me. How do I find rest?"
+  - id: "esar-seeker-anxiety"
+    language: "ar"  # explicit: see the block note above
+    question: "قلبي مشدود طوال الوقت وأفكاري لا تتوقف في الليل، وأشعر أن التوتر يأكلني. كيف أجد راحة؟"
+    relevant:
+      everystudent-ar:
+        - "/a/tense2.html"  # rel=0.84
+        - "/a/coronavirus.html"  # rel=0.81 — panel's healthiest pastoral doc in the source (snd 0.80; urges medical help)
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.640 /a/tense2.html — EN: "Anxiety and tension — is there a cure?"
+  #   2. 0.585 /a/coronavirus.html — EN: "How do we deal with anxiety?"
+  #   3. 0.520 /a/peaceofmind.html — EN: "Inner peace in a turbulent world" (panel rel=0.67, not credited)
+  #   4. 0.499 /a/midstoftragedy.html — EN: "Where is God in the midst of tragedies?"
+  #   5. 0.492 /a/mylife.html — EN: "He changed my life"
+  #   6. 0.489 /a/strange.html — EN: "My story with astrology, horoscopes and mediums"
+  #   7. 0.467 /a/endingthe8th.html — EN: "Ending the gloomy eighth-floor story"
+  #   8. 0.462 /a/eating.html — EN: "Out of control" (eating disorders)
+  #   9. 0.454 /a/why.html — EN: "Why does life seem so cruel?"
+  #  10. 0.433 /a/sex.html — EN: "Sex and the search for intimacy"
+
+  # EN: "I've heard Christians consider Jesus more than just a prophet. On what basis do they say this?"
+  # (Deliberately uses the Quranic name عيسى while the documents say يسوع — a real vocabulary-mismatch test.)
+  - id: "esar-newcomer-who-is-jesus"
+    language: "ar"  # explicit: see the block note above
+    question: "سمعت أن المسيحيين يعتبرون عيسى أكثر من مجرد نبي. على أي أساس يقولون هذا؟"
+    relevant:
+      everystudent-ar:
+        - "/a/byondblind.html"  # rel=0.91
+        - "/a/jesusinislam.html"  # rel=0.83
+        - "/a/whodoyousay.html"  # rel=0.82 — engine ranks it 14th; an honest coverage gap
+        - "/a/isjesus.html"  # rel=0.75
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.610 /a/jesusinislam.html — EN: "Jesus in Islam — the six main questions about Jesus"
+  #   2. 0.596 /a/difference.html — EN: "Christianity and the other world religions"
+  #   3. 0.591 /a/byondblind.html — EN: "A faith that is not blind — who is Christ? Is Christ God?"
+  #   4. 0.577 /a/isjesus.html — EN: "Is Jesus Christ God?"
+  #   5. 0.566 /a/strange.html — EN: "My story with astrology, horoscopes and mediums"
+  #   6. 0.537 /a/lamb.html — EN: "Do they worship a lamb, or God?"
+  #   7. 0.536 /a/mylife.html — EN: "He changed my life"
+  #   8. 0.523 /a/where.html — EN: "Where is God? How did he enter our world's dimensions?"
+  #   9. 0.521 /a/whypick.html — EN: "Why choose the God of the Bible?"
+  #  10. 0.519 /a/bible.html — EN: "Historical facts about the Bible"
+  #  14. 0.505 /a/whodoyousay.html — EN: "Is Jesus God? — quotations Jesus himself spoke" (CREDITED but ranked 14th)
+
+  # EN: "I only believe what I can see and touch. Give me one scientific proof of a creator's existence."
+  - id: "esar-skeptic-evidence"
+    language: "ar"  # explicit: see the block note above
+    question: "أنا لا أصدّق إلا ما أراه وألمسه. أعطني دليلاً علمياً واحداً على وجود خالق."
+    relevant:
+      everystudent-ar:
+        - "/a/isthere.html"  # rel=0.88
+        - "/a/universe.html"  # rel=0.87
+        - "/a/real.html"  # rel=0.83
+        - "/v/collins.html"  # rel=0.82
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.659 /a/universe.html — EN: "Did God create the universe?" (Big Bang)
+  #   2. 0.634 /a/isthere.html — EN: "Does God exist? Six straightforward reasons"
+  #   3. 0.612 /a/atheist.html — EN: "How an atheist woman found God" (conversion narrative, not evidence; panel rel=0.45)
+  #   4. 0.599 /a/real.html — EN: "Is God real?" (DNA, Antony Flew)
+  #   5. 0.595 /a/coronavirus.html — EN: "How do we deal with anxiety?"
+  #   6. 0.591 /a/atheist2.html — EN: "Living evidences of God's existence" (offers experiential, not scientific, reasons; panel rel=0.28 — lowest in the set)
+  #   7. 0.564 /pack.html — EN: "The spiritual adventure" (email series signup)
+  #   8. 0.556 /v/collins.html — EN: "A scientist presents the evidence pointing to God" (Francis Collins, fine-tuning)
+  #   9. 0.555 /a/matter.html — EN: "Will worshipping any other god make a difference?"
+  #  10. 0.552 /a/acceptreject.html — EN: "What happens if I neither accept nor reject God?"
+
+  # EN: "I'm addicted to watching porn and can't stop; every time I try I go back and feel ashamed. Is there a way out?"
+  - id: "esar-seeker-porn"
+    language: "ar"  # explicit: see the block note above
+    question: "أدمنت مشاهدة المقاطع الإباحية ولا أستطيع التوقف، وكلما حاولت رجعت وأنا أشعر بالخزي. هل هناك مخرج؟"
+    relevant:
+      everystudent-ar:
+        - "/a/toxic.html"  # rel=0.83
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.784 /a/toxic.html — EN: "Toxic pornography"
+  #   2. 0.671 /a/struggling.html — EN: "My struggle with watching porn" (panel rel=0.72 — frames deliverance as instantaneous to a serial relapser)
+  #   3. 0.463 /a/wolves.html — EN: "Romance with wolves (for young men only)"
+  #   4. 0.442 /a/endingthe8th.html — EN: "Ending the gloomy eighth-floor story"
+  #   5. 0.423 /a/eating.html — EN: "Out of control" (eating disorders)
+  #   6. 0.411 /a/loveorlust.html — EN: "Love or lust?" (about dating ethics, not compulsion; panel rel=0.43)
+  #   7. 0.409 /a/quench.html — EN: "Quench your real thirst"
+  #   8. 0.403 /a/childraped.html — EN: "Why does God allow children to be raped?"
+  #   9. 0.395 /a/beauty.html — EN: "Searching for a beauty that lasts"
+  #  10. 0.385 /a/sex.html — EN: "Sex and the search for intimacy"
+
+  # EN: "As a woman in our Eastern society I feel my worth is less than a man's. Does religion see me differently?"
+  - id: "esar-seeker-women-worth"
+    language: "ar"  # explicit: see the block note above
+    question: "كامرأة في مجتمعنا الشرقي أشعر أن قيمتي أقل من الرجل. هل ينظر الدين إليّ نظرة مختلفة؟"
+    relevant:
+      everystudent-ar:
+        - "/a/fem.html"  # rel=0.86
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.624 /a/fem.html — EN: "Women's rights" (how Jesus treated women, set against Middle Eastern culture)
+  #   2. 0.533 /a/toxic.html — EN: "Toxic pornography"
+  #   3. 0.475 /a/wolves.html — EN: "Romance with wolves (for young men only)"
+  #   4. 0.455 /a/loveorlust.html — EN: "Love or lust?"
+  #   5. 0.455 /a/matter.html — EN: "Will worshipping any other god make a difference?"
+  #   6. 0.449 /a/beauty.html — EN: "Searching for a beauty that lasts"
+  #   7. 0.439 /a/endingthe8th.html — EN: "Ending the gloomy eighth-floor story"
+  #   8. 0.438 /a/atheist2.html — EN: "Living evidences of God's existence"
+  #   9. 0.437 /a/r1.html — EN: "The blind men and the elephant — describing God"
+  #  10. 0.427 /a/mylife.html — EN: "He changed my life"
+
+  # EN: "I think a lot about the end — is there something after the grave, or does everything end there?"
+  - id: "esar-newcomer-after-death"
+    language: "ar"  # explicit: see the block note above
+    question: "أفكر كثيراً في النهاية — هل هناك شيء بعد القبر أم أن كل شيء ينتهي هناك؟"
+    relevant:
+      everystudent-ar:
+        - "/a/then.html"  # rel=0.79
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.682 /a/then.html — EN: "What happens when we die? Life now, life after"
+  #   2. 0.548 /a/heaven.html — EN: "What will heaven look like?" (assumes the afterlife rather than arguing it; panel rel=0.60)
+  #   3. 0.545 /a/strange.html — EN: "My story with astrology, horoscopes and mediums"
+  #   4. 0.508 /a/facing.html — EN: "Facing the inevitable" (fear of death; panel rel=0.71)
+  #   5. 0.505 /a/atheist.html — EN: "How an atheist woman found God"
+  #   6. 0.474 /a/whypick.html — EN: "Why choose the God of the Bible?"
+  #   7. 0.460 /a/midstoftragedy.html — EN: "Where is God in the midst of tragedies?"
+  #   8. 0.451 /a/searching.html — EN: "Searching for God in a world full of philosophies"
+  #   9. 0.451 /a/acceptreject.html — EN: "What happens if I neither accept nor reject God?" (panel rel=0.33)
+  #  10. 0.449 /a/atheist2.html — EN: "Living evidences of God's existence"
+  # NOTE (panel): this source has no document that ARGUES anything follows the grave — they all assume it. A real corpus gap.
+
+  # EN: "I have almost everything I wished for, yet I feel an emptiness inside I don't know how to fill. What am I missing?"
+  - id: "esar-seeker-emptiness"
+    language: "ar"  # explicit: see the block note above
+    question: "عندي تقريباً كل ما تمنيته، ومع ذلك أحسّ بفراغ في داخلي لا أعرف كيف أملأه. ما الذي ينقصني؟"
+    relevant:
+      everystudent-ar:
+        - "/a/purpose.html"  # rel=0.84
+        - "/a/beauty.html"  # rel=0.79
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.692 /a/wolves.html — EN: "Romance with wolves (for young men only)" — an honest P@1 MISS: a wait-for-marriage piece, not credited
+  #   2. 0.661 /a/peaceofmind.html — EN: "Inner peace in a turbulent world"
+  #   3. 0.660 /a/quench.html — EN: "Quench your real thirst" (alcohol as a substitute for intimacy; panel rel=0.65)
+  #   4. 0.642 /a/purpose.html — EN: "Why do I live? The question that puzzles millions"
+  #   5. 0.620 /a/happy.html — EN: "Happiness apart from God" (panel rel=0.61)
+  #   6. 0.609 /a/beauty.html — EN: "Searching for a beauty that lasts"
+  #   7. 0.607 /a/struggling.html — EN: "My struggle with watching porn"
+  #   8. 0.549 /a/whypick.html — EN: "Why choose the God of the Bible?"
+  #   9. 0.546 /a/mylife.html — EN: "He changed my life" (panel rel=0.71)
+  #  10. 0.543 /a/violin.html — EN: "'She was missing something in you too'"
+
+  # EN: "Every religion claims to be the right way. Why should I choose your God over all the other gods?"
+  - id: "esar-skeptic-which-god"
+    language: "ar"  # explicit: see the block note above
+    question: "كل دين يدّعي أنه الطريق الصحيح. لماذا أختار إلهكم أنتم دون بقية الآلهة؟"
+    relevant:
+      everystudent-ar:
+        - "/a/whypick.html"  # rel=0.85
+        - "/a/r1.html"  # rel=0.82
+        - "/a/difference.html"  # rel=0.78 — soundness 0.57, see the content issue
+        - "/a/matter.html"  # rel=0.78 — soundness 0.47, lowest in the panel; see the content issue
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.604 /a/whypick.html — EN: "Why choose the God of the Bible?"
+  #   2. 0.593 /a/matter.html — EN: "Will worshipping any other god make a difference?"
+  #   3. 0.592 /a/searching.html — EN: "Searching for God in a world full of philosophies" (panel rel=0.71)
+  #   4. 0.564 /a/howcan.html — EN: "How can a loving God send people to hell?"
+  #   5. 0.543 /a/r1.html — EN: "The blind men and the elephant — an attempt to describe God"
+  #   6. 0.532 /a/difference.html — EN: "Christianity and the other world religions"
+  #   7. 0.520 /a/evil.html — EN: "What about all the evil done in God's name?"
+  #   8. 0.518 /a/atheist2.html — EN: "Living evidences of God's existence"
+  #   9. 0.511 /a/care.html — EN: "Suffering and evil — where is God's care?"
+  #  10. 0.511 /a/jesusinislam.html — EN: "Jesus in Islam — the six main questions"
+
+  # EN: "Someone close hurt me deeply and everyone tells me to forgive. How do I forgive while I'm still in pain?"
+  - id: "esar-believer-forgiveness"
+    language: "ar"  # explicit: see the block note above
+    question: "شخص قريب جرحني جرحاً عميقاً، والجميع يقول لي سامح. كيف أسامح وأنا ما زلت أتألم؟"
+    relevant:
+      everystudent-ar:
+        - "/a/forgiveness.html"  # rel=0.90
+  # RETRIEVED (qwen, ar-scoped, 2026-07-25) — EN translations for human verification:
+  #   1. 0.640 /a/forgiveness.html — EN: "Forgiveness" (written to an Eastern readership that reads forgiving as weakness)
+  #   2. 0.481 /a/tense2.html — EN: "Anxiety and tension — is there a cure?"
+  #   3. 0.472 /a/sex.html — EN: "Sex and the search for intimacy"
+  #   4. 0.456 /a/whydid.html — EN: "Why did Jesus die?"
+  #   5. 0.451 /a/hopeforlasting.html — EN: "Is there hope for a marriage that lasts?"
+  #   6. 0.451 /a/mylife.html — EN: "He changed my life"
+  #   7. 0.439 /a/why.html — EN: "Why does life seem so cruel?"
+  #   8. 0.436 /a/endingthe8th.html — EN: "Ending the gloomy eighth-floor story"
+  #   9. 0.432 /a/toxic.html — EN: "Toxic pornography"
+  #  10. 0.414 /a/byondblind.html — EN: "A faith that is not blind — who is Christ?"

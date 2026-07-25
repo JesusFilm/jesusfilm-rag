@@ -1,6 +1,6 @@
 # Slice: EveryStudent — Arabic (everystudent-ar)
 
-_Branch: `slice/everystudent-ar` · Started: 2026-07-25 · Status: in-progress_
+_Branch: `slice/everystudent-ar` · Started: 2026-07-25 · Status: done_
 <!-- Status: in-progress | blocked | done | deferred (mirrors the RowStatus contract) -->
 
 ## Goal (architecture altitude)
@@ -205,9 +205,137 @@ probe, so this does not disprove the 0.505 reading — but it does mean the
 approach was toward *real* documents rather than noise creeping at the cutoff.
 
 ### 4. Spot-check + eval
-- [ ] `/golden everystudent-ar` — Arabic cases with English question translations
+- [x] `/golden everystudent-ar` — Arabic cases with English question translations
       AND translated retrieved-set blocks; `language: ar` pinned on every case
-- [ ] Whole-corpus eval; confirm no prior-source regression
+- [x] Whole-corpus eval; confirm no prior-source regression
+
+**Stage 4 evidence (2026-07-25).**
+
+*Part A — re-review was a provable NO-OP; there was no regression surface.*
+Adding 67 Arabic docs regressed **nothing**, confirmed two independent ways:
+- **Structurally.** All 106 pre-existing cases resolve to a language (en 78 · fr 10
+  · zh 10 · es 8, **0 unscoped**), and `corpus-search-store.ts:62` is a strict
+  `eq(documents.language, …)`. An Arabic doc is therefore **ineligible by
+  construction** for every prior case — it cannot displace a credited doc.
+- **Empirically.** Zero `everyarabstudent` documents appear anywhere in the
+  106-case results, and the headline metrics reproduced slice #8 exactly across
+  two full runs (recall@3 0.953 · recall@10 1.000 · coverage 0.702 · MRR 0.828 ·
+  P@1 0.698).
+
+This is the first slice where a new source **could not** disturb prior answer
+keys — the "new source regresses the eval" pattern of slices #3/#5 is structurally
+impossible for a language that no prior case is scoped to.
+
+⚠️ **Eval jitter identified — `everystudent` 0.818 ↔ 0.773 is NOT a regression.**
+The only per-source number that moved traced to a single credited doc:
+`everystudent/forum/contradictions.html` in `jf-skeptic-bible-contradictions` sits
+at **rank 10, score 0.648, with rank 11 at 0.647** — a **0.001** gap at the exact
+top-10 cutoff. Both eval modes are individually reproducible (whole-corpus gave
+4/5 twice; `--source everystudent` gave 5/5 twice, matching slice #8's 0.818
+exactly), so the flip is float noise in the query embedding between sessions, not
+retrieval nondeterminism and not the Arabic ingest. **Per-source metrics at small
+n carry ~±0.045 of boundary jitter that we have been reading as exact.**
+
+*Part B — 12 Arabic cases / 27 credits, authored corpus-side.*
+Relevant sets were built by reading **all 65 Arabic documents** (titles + openings,
+full text where borderline) BEFORE consulting the engine — the anti-circularity
+rule from slice #7. The engine probe then *checked* the sets rather than authoring
+them. Personas: skeptic ×4 · seeker ×5 · newcomer ×2 · believer ×1.
+
+**Judge panel: 52 pairs × 3 lenses = 156 judgements, coverage COMPLETE** (the
+code validator hard-fails on any missing pair × lens; zero holes this run, unlike
+slice #8's 7). **Max panel spread 0.35 against a 0.5 escalation threshold → 0
+escalations** — the slice-#7 convergence caveat holds for a third time; do not
+read panel agreement as corroboration.
+
+🔑 **DECISION — entry gated on RELEVANCE only; soundness routed to an issue.**
+The slice #7/#8 both-axes-at-0.75 rule **breaks structurally on a single-source
+language**:
+
+| gate | credits | cases left empty |
+|---|---|---|
+| relevance ≥0.75 only | **27 / 52** | 2 / 14 |
+| rel ≥0.75 + snd ≥0.65 | 21 / 52 | 2 / 14 |
+| rel ≥0.75 + snd ≥0.70 | 14 / 52 | 4 / 14 |
+| both ≥0.75 (slice #7/#8) | 6 / 52 | **9 / 14** |
+
+In slices #7/#8 the corpus held nine English sources, so striking a low-soundness
+doc left other credited docs standing — the gate *filtered* a key. Here
+`everystudent-ar` is the only Arabic source and cases are necessarily `ar`-scoped,
+so a soundness veto **deletes** the key. It would also mark the engine wrong for
+returning the genuinely best-matching document: `/a/childraped.html` scored
+**relevance 0.91 — the highest pair in the panel — on soundness 0.52**. And
+excluding a doc from an answer key never stopped the RAG serving it, so the
+exclusion buys no user protection while blinding the retrieval metric. Mean
+soundness across the 52 pairs was **0.703**, systematically below every prior
+source; those findings are filed as
+**[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** (the #78 analogue).
+
+**Dropped 2 of 14 drafted cases** (no relevance-passing doc, both honest corpus
+gaps the panel surfaced): `esar-believer-next-step` — all four candidates address
+*pre*-believers, so this source has no discipleship next-step content; and
+`esar-seeker-astrology` — `/a/strange.html` is a testimony narrative (rel 0.71),
+not a direct answer.
+
+**Arabic-scoped eval (n=12): recall@3 0.917 · recall@10 1.000 · coverage 0.979 ·
+MRR 0.938 · P@1 0.917** — 11 of 12 cases at rank 1. The two imperfections were
+both predicted from the probe and are honest, not artefacts: `esar-seeker-emptiness`
+ranks 4 because `/a/wolves.html` (a wait-for-marriage piece) out-ranks the
+purpose/beauty docs, and `esar-newcomer-who-is-jesus` covers 3/4 because
+`/a/whodoyousay.html` sits at rank 14 — a real vocabulary gap, surfaced by
+deliberately phrasing the question with the Quranic **عيسى** while the documents
+say **يسوع**.
+
+**Final whole-corpus eval @ 118 cases / 10 sources: recall@3 0.949 · recall@10
+1.000 · coverage 0.730 · MRR 0.839 · P@1 0.720.** Coverage, MRR and P@1 all rose;
+recall@3 dipped 0.004 solely from the rank-4 emptiness case. **Every prior source
+is unchanged** (cru 0.861/0.636 · everystudent 0.773/0.693 · familylife
+0.913/0.745 · jf 0.667/0.537 · sightline 0.783/0.563 · swg 0.458/0.375 · thelife
+0.878/0.634 · thelife-fr 1.000/0.817 · thelife-zh 1.000/0.867). **Per-language:
+`ar` 0.979** · en 0.641 · es 0.938 · fr 0.817 · zh 0.867, **0 unscoped**.
+
+**Negatives (slice-file record, NOT in qa-golden.yaml):** cooking rice 0.239 ·
+World Cup schedule 0.219 · learning Python 0.349. Known non-negatives that cross
+0.37 and are *not* encroachment: "write a CV" 0.466 (**true positive** —
+`/a/jobinterviews.html` exists) and "five pillars of Islam" 0.382 (by-design
+adjacency for a source written for Muslim readers; **0.012** above the cutoff, the
+tightest faith-adjacent margin recorded — the number to watch when
+`everystudent-fr` lands). **minScore 0.37 unchanged.**
+
+⚠️ **FLAKY TEST OBSERVED at the Stage-4 gate — `tests/retrieval.integration.test.ts`,
+the #79 `includeDocument` case. 1 red in 13 runs; NOT reproducible on demand.**
+The gate's first run came back **431/432**; twelve subsequent runs (6 of the file
+alone, 5 of the full suite, plus the closing gate) were all green, so the slice
+closed green — but the red was real and is recorded here rather than waved off.
+
+*Diagnosis (strong, not confirmed).* The fixture seeds and queries with
+**`oneHot(0)` — a SPARSE vector** (`:322`, `StubEmbedder(oneHot(0))` at `:327`).
+That is **the same bug class `55bfd7f` fixed earlier in this very slice**: sparse
+query vectors are not reliably HNSW-reachable once the corpus is large (measured
+then: a dense vector at cosine 0.068 returns 15 rows, a one-hot at 0.113 returns
+**0**, and `ef_search=1000` does not rescue it). The canary repair rebuilt *its*
+fixture on deterministic dense vectors preserving the same geometry; **this
+sibling was left on one-hot**. The failing assertion was consistent with `buried`
+coming back undefined — i.e. the doc was not returned at all, which is the
+sparse-unreachability signature rather than a content mismatch. It surfaced only
+in the **full suite** (a later swarm test floods the source with 60 rows), and
+this slice just grew the corpus by 283 chunks — the slice-#3 lesson that a *data*
+stage can redden tests with zero code changes.
+
+*Recommended fix (deliberately NOT taken here — out of Stage-4 scope, and the
+gate is green):* port `55bfd7f`'s treatment to this fixture — dense deterministic
+vectors preserving the same ranking geometry. Cheap, and it removes a ~1-in-13
+CI failure rather than leaving the suite to fail for reasons unrelated to the
+change under test.
+
+ⓘ **Tooling finding — `pnpm eval` inherits the fast-fail QUERY retry policy.**
+`docs/ops/embed-retry-policy.md` files `pnpm eval` under the query posture
+(`QUERY_EMBED_MAX_ATTEMPTS=2`, 4 s timeout) that exists for `/v1/search` latency.
+An offline 118-case batch has no latency SLA and **no resume**, so one transient
+OpenRouter blip discards the whole run — it killed two runs on 2026-07-25 before
+being worked around with `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000`
+(env only, no code change). Filed as a FOLLOW-UP; the fix is a batch posture for
+the eval scripts, not a change to the serving path.
 
 ## Decisions made (this slice)
 
@@ -267,22 +395,26 @@ approach was toward *real* documents rather than noise creeping at the cutoff.
 
 ## Resume hint (for a cold start)
 
-At: Stage 4 — "`/golden everystudent-ar`". **Stages 1, 2 and 3 are all DONE and
-green.** Arabic is queryable end-to-end: 67 docs / 283 qwen3 chunks, rank-1 hits
-on real Arabic questions, an airtight `language:"ar"` filter, and minScore 0.37
-re-confirmed at 10 sources (clean-negative ceiling 0.349 vs positive floor
-0.538). Next concrete action: hand off to **`/golden everystudent-ar`**
-directly — v4+ is agent-invocable, so do NOT pause for the operator to type it
-(they gate the *write* to `eval/qa-golden.yaml` and the judge-panel *spend*
-instead). Two Arabic-specific requirements carry into that handoff:
-**(1)** every case needs an `# EN:` question translation AND a translated
-`# RETRIEVED` block (`docs/eval-approach.md` Multilingual eval — a reviewer who
-does not read Arabic can only verify results against question if both are in
-English); **(2)** pin `language: ar` on every case, because `everystudent-ar` is
-the *only* Arabic source and the corpus retrieves cross-lingually — unpinned, an
-Arabic case gets scored against a corpus that legitimately answers it in Chinese.
-The 2 null-language `/v/` docs (`gods-help`, `personally`) are **excluded** and
-must never enter a `relevant` map.
+**SLICE COMPLETE — all four stages green.** Nothing to resume. `everystudent-ar`
+is queryable and evaluated end-to-end in the 10-source space: 67 docs / 283 qwen3
+chunks, 12 golden cases / 27 credits, `ar` coverage **0.979** at recall@10
+**1.000**, and minScore 0.37 unchanged.
+
+**Next action is PROMOTION, and the path matters: this is a WALLED source.** Use
+the bulk-copy path — re-acquiring would re-pay Firecrawl for pages already bought:
+
+    bash scripts/copy-raws.sh --source everystudent-ar
+    pnpm index:production
+    pnpm eval:production
+
+**Never `acquire:production` for this source.** See `docs/ops/copy-raws.md`.
+Promotion is operator-gated and is not something the slice runs.
+
+Open follow-ups this slice created: **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)**
+(content soundness — `/a/endingthe8th.html` is the time-sensitive item: suicide
+and self-harm content with no professional help signposted, and it ships to prod
+with the source) and the `pnpm eval` batch-retry-posture FOLLOW-UP.
+
 Last verify: green @ 2026-07-25 (depcruise 100/0, lint clean, typecheck clean,
 db:check in sync, status:check valid, tests 432/432).
 Branch: `slice/everystudent-ar`.

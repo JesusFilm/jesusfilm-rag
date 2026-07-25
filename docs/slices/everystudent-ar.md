@@ -393,28 +393,106 @@ the eval scripts, not a change to the serving path.
 - **Selector claim is unverified on this host.** #112 says `.content4`/`.content4b`
   is shared across all three banners; confirm on the first Arabic fetch.
 
+## Prod promotion (2026-07-25) — DONE via the #115 bulk-copy path
+
+`everystudent-ar` is the **second source promoted through `copy-raws.sh`** and the
+first Arabic content in the prod corpus. `acquire:production` was deliberately NOT
+run — it would re-pay the 68 Firecrawl credits already spent at Stage 1. Mechanism:
+`docs/ops/copy-raws.md`.
+
+Sequence run against prod (`zephyr.proxy.rlwy.net`):
+
+1. **Copy** — `copy-raws.sh --source everystudent-ar` copied **67 rows** local→prod
+   (0 → 67, all landing `ingested_at IS NULL` — the gotcha-fix held). Verified by
+   the same deterministic ordered row-level digest used for the English slice:
+   `md5(string_agg(md5(row) ORDER BY canonical_url))` over all 11 copied columns
+   returned **`712a93db56ff2affd2a89583b02c56a1`** on **both** sides at 67 rows,
+   i.e. row-for-row equality, not merely matching totals. Secondary evidence also
+   matched the Stage-1 acquire record exactly: 431,585 total chars (avg 6,442 · min
+   1,239 · max 23,906), 0 empty titles, 0 non-200.
+   - ⚠️ **Pin `SET TIME ZONE 'UTC'` on both sides when digesting.** `fetched_at` and
+     `last_modified` are `timestamptz`, so their `::text` rendering inside
+     `md5(row::text)` is **session-TimeZone dependent** — an unpinned session can
+     report a spurious mismatch on a byte-identical copy. Not a hazard the English
+     run happened to hit; worth carrying forward for `everystudent-fr`.
+2. **Embed** — `index:production --source everystudent-ar` drained all 67 pending
+   → **67 docs / 283 chunks / 283 embeddings** on `qwen/qwen3-embedding-8b`, an
+   exact match of the local corpus, with **0 `chunk_count` mismatches** and the
+   language split preserved (**65 `ar` / 2 null** — the same two `/v/` testimony
+   pages). Confirmed beyond aggregate totals by a **per-document fingerprint**
+   (`canonical_url|language|chunk_count|content_hash` digested in url order):
+   **`a271be3a8d61801cb5c15136d3c41f80`** on both sides, so every doc landed with
+   an identical chunk split and language label, not just the right grand total.
+   Prod corpus 11,594 → **11,661 docs** / 33,733 → **34,016 chunks**.
+   - OpenRouter was in a slow spell again (#64): **34 corpus-embed retry lines**
+     across the run, longest chain reaching **attempt 6 of 10**. Every one
+     recovered inside the patient corpus policy — **0 docs lost, exit 0**. This is
+     the third prod ingest to be saved by the raised `EMBED_MAX_ATTEMPTS` default.
+3. **Smoke** — `retrieve:production` on three real Arabic questions reproduced the
+   Stage-3 local results within float noise: "هل الله موجود؟" → `/a/isthere.html`
+   **rank 1 @ 0.732** (local 0.732); "كيف أتعامل مع القلق والخوف؟" →
+   `/a/coronavirus.html` **rank 1 @ 0.644** (local 0.643). **Unscoped**,
+   "من هو يسوع؟" put `/a/isjesus.html` at **rank 2 @ 0.607** (local rank 2 @ 0.609)
+   with three English Sightline docs at ranks 1/3/5 — the cross-lingual competition
+   pattern from Stage 3 holds in prod, so the Arabic source is genuinely findable in
+   the shared 10-source space rather than only inside its own `--source` filter.
+4. **Certify** — `eval:production --source everystudent-ar` reproduced the local
+   Stage-4 numbers **exactly, to three decimals**: recall@3 **0.917** · recall@10
+   **1.000** · coverage **0.979** · MRR **0.938** · P@1 **0.917**, 11 of 12 cases at
+   rank 1 with `esar-seeker-emptiness` at rank 4 — the same single rank-4 case.
+   Record: `eval/results-2026-07-25-everystudent-ar-keep.md`.
+   - 🔑 **Zero prod-vs-local drift here, and that is structural, not luck.** The
+     English promotion showed a ~0.09 recall gap that was correctly read as corpus
+     drift (prod carried ~40 more docs across thelife/sightline/jf-org). These
+     cases can't drift that way: every one pins `language: "ar"`, and
+     `corpus-search-store.ts:62` is a strict `eq(documents.language, …)`, so the
+     only documents eligible to compete are `everystudent-ar`'s own 65 `ar` docs —
+     byte-identical on both sides. **An `ar`-scoped eval measures the source in
+     isolation by construction.** Corollary for `everystudent-fr`: French will
+     have `thelife-fr` as a genuine competitor, so expect real drift there and do
+     **not** read this exact match as the new normal.
+   - `eval:production` again needed `QUERY_EMBED_MAX_ATTEMPTS=10
+     QUERY_EMBED_TIMEOUT_MS=15000` to finish — 9 query-embed retries fired, one
+     chain reaching attempt 4. The default fast-fail policy (#118) would have
+     discarded the batch, exactly as on the English run. **Two for two: #118 is not
+     an occasional annoyance on this path, it is the expected posture** for a
+     promotion eval during a slow spell.
+
+⚠️ **Live pastoral hazard now in prod, tightening [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123).**
+The prod smoke test for "كيف أتعامل مع القلق والخوف؟" ("how do I deal with anxiety
+and fear?") returned **`/a/endingthe8th.html` at rank 4 @ 0.431** — the suicide and
+self-harm page with **no professional help signposted**. #123 recorded this as a
+content-soundness finding; the promotion turns it into an observed retrieval
+result, i.e. a distressed Arabic-speaking reader asking a plainly in-scope question
+is served that page **today**. Retrieval is behaving correctly (the document really
+is topically relevant) — the defect is in the document, so the fix belongs to #123
+and not to the engine. This is the promotion's most action-worthy outcome.
+
 ## Resume hint (for a cold start)
 
-**SLICE COMPLETE — all four stages green.** Nothing to resume. `everystudent-ar`
-is queryable and evaluated end-to-end in the 10-source space: 67 docs / 283 qwen3
-chunks, 12 golden cases / 27 credits, `ar` coverage **0.979** at recall@10
-**1.000**, and minScore 0.37 unchanged.
+**SLICE COMPLETE + PROMOTED TO PROD 2026-07-25.** `everystudent-ar` is queryable
+and evaluated in the 10-source local space (67 docs / 283 qwen3 chunks, 12 golden
+cases / 27 credits, `ar` coverage **0.979** at recall@10 **1.000**, minScore 0.37
+unchanged) **AND live in the prod corpus** (67 docs / 283 chunks, prod eval
+identical to local — see "Prod promotion" above). Nothing to resume.
 
-**Next action is PROMOTION, and the path matters: this is a WALLED source.** Use
-the bulk-copy path — re-acquiring would re-pay Firecrawl for pages already bought:
+Remaining operator decisions: (1) **merge** — the branch is still unmerged and
+unpushed, so prod is carrying this source *ahead* of `main`; (2) **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)**,
+now live-confirmed in prod (see the hazard note above); (3) the queued
+`everystudent-fr` slice (~87 credits, 828 remain, period ends 2026-08-21).
 
-    bash scripts/copy-raws.sh --source everystudent-ar
-    pnpm index:production
-    pnpm eval:production
-
-**Never `acquire:production` for this source.** See `docs/ops/copy-raws.md`.
-Promotion is operator-gated and is not something the slice runs.
+**Never `acquire:production` for this source** — it is walled, and the credits are
+already spent. See `docs/ops/copy-raws.md`.
 
 Open follow-ups this slice created: **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)**
 (content soundness — `/a/endingthe8th.html` is the time-sensitive item: suicide
-and self-harm content with no professional help signposted, and it ships to prod
-with the source) and the `pnpm eval` batch-retry-posture FOLLOW-UP.
+and self-harm content with no professional help signposted; ~~and it ships to prod
+with the source~~ — **it has now shipped, and the prod smoke test returned it at
+rank 4 for an anxiety question**, see the hazard note above) and the `pnpm eval`
+batch-retry-posture FOLLOW-UP (now **twice** confirmed on the promotion path — #118
+raising is the expected posture, not a workaround).
 
 Last verify: green @ 2026-07-25 (depcruise 100/0, lint clean, typecheck clean,
 db:check in sync, status:check valid, tests 432/432).
-Branch: `slice/everystudent-ar`.
+Branch: `slice/everystudent-ar` (unmerged; promotion recorded on the same branch —
+unlike the English slice, whose promotion landed separately on `ops/copy-raws`).

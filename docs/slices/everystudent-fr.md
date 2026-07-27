@@ -119,7 +119,7 @@ Gate re-run **WITH** the new data: green, **441/441**.
 ### 3. Retrieve → ranked results
 - [x] A French query returns ranked, cited hits from this source   <!-- sha: ada189d -->
 - [x] `language:"fr"` returns ONLY French, now that **two** French sources compete   <!-- sha: 8f81d98 -->
-- [x] Re-check minScore 0.37 at 11 sources — **specifically the faith-adjacent margin** (slice #9 recorded 0.382, only 0.012 above the cutoff, on a Muslim-readership probe; `/a/260islam.html` is in this seed set)   <!-- sha: ________ -->
+- [x] Re-check minScore 0.37 at 11 sources — **specifically the faith-adjacent margin** (slice #9 recorded 0.382, only 0.012 above the cutoff, on a Muslim-readership probe; `/a/260islam.html` is in this seed set) — **did NOT reproduce**   <!-- sha: a81e428 -->
 
 **Stage 3 evidence — sub-step 1 (2026-07-27): French is queryable, and the
 corpus is cross-lingual in three directions.** Four real French seeker questions
@@ -343,4 +343,4 @@ rule (that exists for single-source languages).
 pnpm eval` (FOLLOW-UP O) — and note Stage 3 found the same fast-fail posture
 silently aborting ad-hoc `pnpm query` probes too.
 Last verify: green @ 2026-07-27 (441/441, WITH the new data).
-Last commit: (this one). Branch: slice/everystudent-fr.
+Last commit: a81e428. Branch: slice/everystudent-fr.

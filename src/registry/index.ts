@@ -14,6 +14,7 @@ import { thelifeZh } from "./thelife-zh.js";
 import { familylife } from "./familylife.js";
 import { everystudent } from "./everystudent.js";
 import { everystudentAr } from "./everystudent-ar.js";
+import { everystudentFr } from "./everystudent-fr.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -29,10 +30,10 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *  source to declare `fetchStrategy: "firecrawl"` (ADR-0012) — but shagerdan.com stays
  *  unregistered until someone slices it and funds the credits.
  *
- *  EveryStudent spans three domains and is therefore three keys, two of which are
- *  registered so far: everystudent.com → `everystudent` and everyarabstudent.com →
- *  `everystudent-ar`. questions2vie.com → `everystudent-fr` follows as its own
- *  slice (#112). All three are Cloudflare-walled and fetched through Firecrawl.
+ *  EveryStudent spans three domains and is therefore three keys, all now registered:
+ *  everystudent.com → `everystudent`, everyarabstudent.com → `everystudent-ar` and
+ *  questions2vie.com → `everystudent-fr` (slice #10, closing the #112 route). All
+ *  three are Cloudflare-walled and fetched through Firecrawl.
  *
  *  A note once recorded here — that cru.org's Spanish locale had no real Spanish content —
  *  over-generalised from a single path. Only `/mx/es/.../10-pasos-basicos/` serves
@@ -50,6 +51,7 @@ export const SOURCES: readonly SourceEntry[] = [
   familylife,
   everystudent,
   everystudentAr,
+  everystudentFr,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

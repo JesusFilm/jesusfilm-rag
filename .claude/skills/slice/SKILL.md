@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 12 -->
+<!-- version: 13 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -263,6 +263,51 @@ Pause and hand back to the operator, in plain language, when:
   score soundness on every pair and **file** it — slice #9's panel found false
   factual claims, modalism, and suicide content with no help signposted (#123).
   See `docs/eval-approach.md` → Multilingual eval, correction 4.
+- **COVERAGE FALLING after a Stage-4 re-review is the EXPECTED outcome, not a
+  regression — and it is structurally capped at `min(1, k/|relevant|)`.** Crediting
+  genuinely-relevant documents that the engine buries below rank 10 is exactly what
+  makes coverage drop, and detecting buried answers is the whole purpose of the
+  metric; the alternative (crediting only what came back) is the circularity trap
+  below. Read **rank, recall@3 and P@1 beside it**: slice #10's re-review took `fr`
+  coverage 0.733 → 0.681 while moving nine of ten French cases to rank 1 (from six)
+  and lifting `fr` P@1 ~0.60 → ~0.90; the whole-corpus number then came back UP
+  (0.723 → 0.736) once Part B's cases landed. **Also report the ceiling-normalised
+  figure whenever a case exceeds `k` relevant docs** — slice #10's
+  `tlfr-skeptic-dieu-existe` carries 20, so its ceiling is 0.50 and it scores 0.45,
+  meaning 9 of its 10 top-10 slots are credited docs: near-perfect, reported as
+  "bad". Never trim an honest relevant set back under `k` to flatter the number.
+  See `docs/eval-approach.md` → authoring trap 3.
+- **A VERY HIGH retrieval score on a NEW golden case is a paraphrase smell, not a
+  success signal.** slice #10 drafted "Quelle est la différence entre être
+  catholique et être chrétien ?" and it scored **0.836, the highest of any probe** —
+  because it restated the article's title almost verbatim (golden Guardrail #1).
+  Reframed as a real situation it still ranked 1, at an honest 0.767. Conversely,
+  rephrasing the hell question away from its article's framing made the target doc
+  **fall out of the top 8 entirely** — a genuine vocabulary gap that the softball
+  phrasing had hidden. **Keep the honest phrasing and let the eval record the gap.**
+- **Verify that every credited path resolves to EXACTLY ONE document before the
+  final eval.** A typo or an over-broad suffix match bakes an unreturnable
+  expectation into the answer key — the same defect the null-language policy exists
+  to prevent, arrived at by accident. One SQL query over the whole relevant set
+  does it (slice #10 checked 116 pairs; all clean, but the check is cheap and the
+  failure is silent and permanent).
+- **A soundness finding in ONE language does not generalise to the source — and a
+  soundness finding in one language SHOULD be checked in its siblings.** Both
+  directions bit in slice #10. The French Trinity explainer is careful and
+  explicitly rejects the partitive analogies, where slice #9 found outright
+  **modalism** in the Arabic one — so do not carry a per-source soundness verdict
+  across a language boundary. But the French child-suffering FAQ reproduced the
+  Arabic document's defect almost exactly, which **escalated #123 from an Arabic
+  finding to an estate-wide one**. When a soundness rejection lands, grep the
+  sibling banners for the same article before filing.
+- **The judge panel may be run IN-CONTEXT when subagents are unavailable, but say
+  so in the record.** What is lost is only the inter-lens *spread*, which has fired
+  **zero** escalations across slices #7/#8/#9 (max 0.20/0.25/0.35 against a 0.5
+  threshold) and which golden Guardrail #6's own caveat says must never be read as
+  corroboration. Both axes must still be scored, and the gate must still be
+  arithmetic. (slice #10: a standing session directive forbade spawning agents; the
+  operator chose in-context judging and the soundness axis still caught the one
+  document that mattered.)
 - **A per-source metric moving is NOT automatically a regression — check for
   top-k boundary jitter FIRST.** slice #9: `everystudent` read 0.818 vs 0.773
   across runs with an unchanged corpus. Cause: one credited doc at **rank 10,

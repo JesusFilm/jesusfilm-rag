@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25",
+  "generated_at": "2026-07-27",
   "sources": [
     {
       "source": "Cru",
@@ -58,6 +58,18 @@
       "ingest": true,
       "evaluate": true,
       "embedded_doc_count": 65,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "EveryStudent — French (questions2vie.com)",
+      "key": "everystudent-fr",
+      "host": "www.questions2vie.com",
+      "language": "fr",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 66,
       "row_status": "done",
       "note": null
     },
@@ -358,6 +370,24 @@
       "missing": "English flagship behind a Cloudflare JS managed challenge (homepage 200 is a false positive) — unblock via Firecrawl, jfa's reviewed-archive scripts (its proven path; it never beat the wall either), or a Cru IP allowlist. The 51 sibling language domains are largely NOT walled (jfa canary fetched 46/46 with plain HTTP)."
     },
     {
+      "source": "EveryStudent — French (questions2vie.com)",
+      "key": "everystudent-fr",
+      "host": "www.questions2vie.com",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "fr",
+          "language": "fr",
+          "state": "evaluated",
+          "embedded_doc_count": 66,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 66,
+      "missing": null
+    },
+    {
       "source": "EveryStudent — Arabic (everyarabstudent.com)",
       "key": "everystudent-ar",
       "host": "www.everyarabstudent.com",
@@ -535,6 +565,12 @@
       "key": "everystudent-ar",
       "host": "www.everyarabstudent.com",
       "embedded_doc_count": 2
+    },
+    {
+      "source": "EveryStudent — French (questions2vie.com)",
+      "key": "everystudent-fr",
+      "host": "www.questions2vie.com",
+      "embedded_doc_count": 1
     }
   ]
 }

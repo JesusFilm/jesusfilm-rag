@@ -955,9 +955,20 @@ cases:
     relevant:
       thelife-fr:
         - "/comment-garder-la-foi-apres-la-perte-de-mon-fils"
-        - "/vivre-son-deuil"
         - "/du-deuil-au-doute-au-dialogue"
         - "/apres-le-deuil-la-vie"
+        # slice #10 Part A — prior-slice (#5) curation gaps, credited on re-review
+        - "/mon-petit-heros"
+        - "/dans-la-tempete-faire-face-a-une-crise-familiale"
+        - "/comment-parler-de-deuil"
+      everystudent-fr:
+        - "/a/601epreuve.html"
+        - "/a/aide-de-Dieu.html"
+        - "/a/602pourquoi.html"
+  # slice #10 Part A: `/vivre-son-deuil` REMOVED (operator-approved 2026-07-27). It is about
+  # grieving the loss of virginity before marriage, not a child's death — a slice-#5
+  # title match. `/a/700horribles.html` scored rel 0.82 but soundness 0.62 and is
+  # deliberately NOT credited; see the slice file and issue #123.
   # RETRIEVED (qwen, fr-scoped, 2026-07-02) — EN translations for human verification:
   #   1. 0.766 /comment-garder-la-foi-apres-la-perte-de-mon-fils — EN: "How do I keep the faith after losing my son?"
   #   2. 0.724 /du-deuil-au-doute-au-dialogue — EN: "From grief, to doubt, to dialogue"
@@ -979,6 +990,23 @@ cases:
         - "/pourquoi-y-a-t-il-quelque-chose-plutot-que-rien"
         - "/la-science-et-le-dieu-personnel"
         - "/cinq-choses-que-la-science-ne-peut-prouver"
+        - "/bienvenue-aux-sceptiques"                     # slice #10 Part A gap-fix
+      everystudent-fr:                                    # slice #10 Part A — the source's core axis
+        - "/a/athee.html"
+        - "/a/101existe.html"
+        - "/a/rationnelle.html"
+        - "/a/reel.html"
+        - "/a/cree.html"
+        - "/a/deconcertes.html"
+        - "/a/collins.html"
+        - "/a/univers.html"
+        - "/a/103quelquechose.html"
+        - "/a/102rien.html"
+        - "/a/731miracle.html"
+        - "/a/guide.html"
+        - "/a/ouest.html"
+        - "/a/204qui2.html"
+        - "/a/104qui.html"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.722 /dieu-existe-t-il — EN: "Does God exist?"
   #   2. 0.647 /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions with answers"
@@ -998,6 +1026,13 @@ cases:
       thelife-fr:
         - "/jesus-est-il-ressuscite-a-la-vie-eternelle"
         - "/y-a-t-il-une-vie-apres-la-mort"
+        - "/bienvenue-aux-sceptiques"                     # slice #10 Part A gap-fix
+      everystudent-fr:                                    # slice #10 Part A
+        - "/a/201foiaveugle.html"
+        - "/a/pourquoi-jesus-est-il-mort.html"
+        - "/a/miracles-de-jesus.html"
+        - "/a/215bible.html"
+        - "/a/700_existe.html"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.724 /jesus-est-il-ressuscite-a-la-vie-eternelle — EN: "Did Jesus rise to eternal life?"
   #   2. 0.716 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
@@ -1019,6 +1054,10 @@ cases:
         - "/je-regrette-mon-avortement"
         - "/guerir-d-un-l-avortement-passe"
         - "/se-liberer-de-sa-culpabilite"
+        # slice #10 Part A gap-fixes. everystudent-fr contributes NOTHING to this case —
+        # it publishes no post-abortion content. The new source is not universally relevant.
+        - "/apprenez-a-vous-voir-comme-dieu-vous-voit"
+        - "/venez-tel-que-vous-etes"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.845 /je-regrette-mon-avortement — EN: "I regret my abortion"
   #   2. 0.824 /guerir-d-un-l-avortement-passe — EN: "Healing from a past abortion"
@@ -1038,6 +1077,11 @@ cases:
       thelife-fr:
         - "/je-lutte-avec-la-pornographie"
         - "/le-vrai-visage-de-la-pornographie"
+        - "/la-puissance-des-images"                      # slice #10 Part A gap-fix
+        - "/une-transformation-surnaturelle"              # slice #10 Part A gap-fix
+      everystudent-fr:                                    # slice #10 Part A
+        - "/a/511toxique.html"
+        - "/a/512luttant.html"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.761 /la-puissance-des-images — EN: "The power of images"
   #   2. 0.754 /je-lutte-avec-la-pornographie — EN: "I struggle with pornography"
@@ -1061,6 +1105,11 @@ cases:
         - "/un-pardon-authentique"
         - "/retrouver-la-liberte-en-pardonnant"
         - "/vivre-le-pardon-et-l-amour-de-dieu"
+        # slice #10 Part A gap-fixes — everystudent-fr has no forgiveness content
+        - "/comment-pardonner-et-oublier-quand-votre-partenaire-vous-decoit"
+        - "/violence-fraternelle"
+        - "/trainer-les-bagages-de-famille-la-liberte-est-un-choix"
+        - "/il-ne-brisera-pas-le-roseau-qui-se-ploie"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.785 /je-ne-peux-pas-lui-pardonner-son-passe-sexuel — EN: "I can't forgive their sexual past"
   #   2. 0.774 /un-pardon-authentique — EN: "Authentic forgiveness"
@@ -1082,6 +1131,14 @@ cases:
         - "/le-saint-esprit-et-la-difference-qu-il-fait"
         - "/suivre-la-direction-du-saint-esprit"
         - "/une-vie-chretienne-dynamique"
+        # slice #10 Part A gap-fixes. everystudent-fr contributes nothing: it publishes
+        # seeker apologetics, not sanctification. `/a/708saintesprit.html` scored rel 0.72
+        # (it explains WHO the Spirit is, not how to LIVE in his power) — under the gate.
+        - "/croitre-dans-votre-relation-avec-dieu"
+        - "/s-abandonner"
+        - "/la-force-dans-la-faiblesse"
+        - "/vivre-une-vraie-transformation"
+        - "/reconnaitre-la-voix-de-dieu"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.746 /une-vie-chretienne-dynamique — EN: "A dynamic Christian life"
   #   2. 0.703 /connaissez-vous-la-plenitude-du-saint-esprit — EN: "Do you know the fullness of the Holy Spirit?"
@@ -1101,6 +1158,10 @@ cases:
       thelife-fr:
         - "/mon-mari-ne-partage-pas-ma-foi"
         - "/le-salut-de-son-partenaire"
+        # slice #10 Part A gap-fixes — both sit BELOW rank 10, so this case's coverage
+        # falls by design: that is coverage detecting a buried good answer, not a regression.
+        - "/un-dieu-deux-reponses-a-la-priere"
+        - "/que-faire-lorsque-vous-vous-sentez-seuls-dans-votre-mariage"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.790 /le-salut-de-son-partenaire — EN: "Your partner's salvation"
   #   2. 0.713 /mon-mari-ne-partage-pas-ma-foi — EN: "My husband doesn't share my faith"
@@ -1121,6 +1182,12 @@ cases:
         - "/qui-est-jesus"
         - "/comprendre-votre-relation-avec-jesus-christ"
         - "/la-beaute-de-jesus"
+      everystudent-fr:                                    # slice #10 Part A
+        - "/a/201foiaveugle.html"
+        - "/a/pourquoi-jesus-est-il-mort.html"
+        - "/a/offre.html"
+        - "/a/noel.html"
+        - "/a/202citationsdeJesus.html"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.615 /qui-est-jesus — EN: "Who is Jesus?"
   #   2. 0.615 /bienvenue-aux-sceptiques — EN: "Welcome, skeptics"
@@ -1142,6 +1209,11 @@ cases:
         - "/pourquoi-se-faire-du-souci"
         - "/ce-monstre-que-l-on-appelle-peur"
         - "/quel-est-votre-niveau-de-stress"
+        - "/les-merveilles-de-la-creation"                # slice #10 Part A gap-fix
+      everystudent-fr:                                    # slice #10 Part A
+        - "/a/coronavirus.html"
+        - "/a/301tranquillite.html"
+        - "/a/601epreuve.html"
   # RETRIEVED (qwen, fr-scoped, 2026-07-02):
   #   1. 0.618 /pourquoi-se-faire-du-souci — EN: "Why worry?"
   #   2. 0.572 /surmonter-l-anxiete — EN: "Overcoming anxiety"
@@ -1905,3 +1977,226 @@ cases:
   #   8. 0.436 /a/endingthe8th.html — EN: "Ending the gloomy eighth-floor story"
   #   9. 0.432 /a/toxic.html — EN: "Toxic pornography"
   #  10. 0.414 /a/byondblind.html — EN: "A faith that is not blind — who is Christ?"
+
+  # ── everystudent-fr (questions2vie.com) ─ slice #10 Stage 4 Part B, merged 2026-07-27
+  # after operator approval. Drafted against the qwen corpus (66 creditable docs / 418
+  # chunks; 1 null-language doc excluded per standing policy). Every question was run
+  # through the wired Retriever fr-scoped BEFORE being finalised; two were rephrased
+  # because the first draft echoed the article's own title (Guardrail #1). Judged on two
+  # axes (relevance ⊥ soundness), both gated at 0.75 — French is multi-source, so the
+  # slice-#7/#8 rule applies, not slice #9's relevance-only rule.
+  # RETRIEVED blocks are fr-scoped qwen top-k evidence with titles translated to English
+  # per the multilingual MUST (docs/eval-approach.md). Drafts + per-doc scores preserved
+  # in eval/candidates-everystudent-fr-partB.yaml.
+
+  # EN: "Don't all religions lead to the same God in the end?"
+  - id: "esfr-newcomer-religions"
+    language: "fr"
+    question: "Toutes les religions ne mènent-elles pas au même Dieu, au fond ?"
+    relevant:
+      everystudent-fr:
+        - "/a/205divin.html"
+        - "/a/elephant.html"
+        - "/a/700_religions.html"
+        - "/a/107choisir.html"
+      thelife-fr:
+        - "/10-questions-spirituelles-avec-reponses"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.670 esfr /a/205divin.html — EN: "A connection with the divine: the world's major religions"
+  #   2. 0.663 esfr /a/elephant.html — EN: "The blind men and the elephant analogy"
+  #   3. 0.653 tlfr /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions answered"
+  #   4. 0.616 esfr /a/700_religions.html — EN: "The difference between Jesus and the major religions"
+  #   — /a/107choisir.html ("Why choose the God of the Bible?") is credited but ranks >10: buried.
+
+  # EN: "I get up every morning not knowing what I'm for — does my life have any meaning?"
+  - id: "esfr-seeker-sens-vie"
+    language: "fr"
+    question: "Je me lève chaque matin sans savoir à quoi je sers — est-ce que ma vie a un sens ?"
+    relevant:
+      everystudent-fr:
+        - "/a/305but.html"
+        - "/a/302changerdevie.html"
+        - "/a/philosophie.html"
+        - "/a/507soif.html"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.674 esfr /a/305but.html — EN: "Do you want to know the purpose of your life?"
+  #   2. 0.635 tlfr /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions answered"
+  #   3. 0.631 esfr /a/302changerdevie.html — EN: "Changing your life: no longer saying 'I hate my life'"
+  #   4. 0.616 esfr /a/philosophie.html — EN: "The value of philosophy"
+  #   — /a/507soif.html ("Quenching your real thirst") credited but ranks >10: buried.
+
+  # EN: "I'm afraid of dying and I don't know what comes after — can anyone tell me?"
+  - id: "esfr-seeker-peur-mort"
+    language: "fr"
+    question: "J'ai peur de mourir et je ne sais pas ce qu'il y a après — est-ce que quelqu'un peut me le dire ?"
+    relevant:
+      everystudent-fr:
+        - "/a/608apres.html"
+        - "/a/611inevitable.html"
+        - "/a/725paradis.html"
+      thelife-fr:
+        - "/y-a-t-il-une-vie-apres-la-mort"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.743 esfr /a/608apres.html — EN: "What happens when you die?"
+  #   2. 0.741 tlfr /y-a-t-il-une-vie-apres-la-mort — EN: "Is there life after death?"
+  #   3. 0.723 esfr /a/611inevitable.html — EN: "The best approach when facing death"
+  #  10. 0.574 esfr /a/725paradis.html — EN: "What is heaven like?"
+
+  # EN: "Infinite punishment for a finite life — how can that possibly be just?"
+  # ⚠️ DELIBERATELY HARD PHRASING. The softer draft ("how can a God of love condemn someone
+  # to suffer for eternity?") echoed the article title and put /a/726enfer.html at rank 1
+  # @ 0.749. Under the proportionality framing below — how a skeptic actually argues it —
+  # that document FALLS OUT OF THE TOP 8. The case is kept honest so the eval records the
+  # vocabulary gap rather than hiding it (cf. slice #3 `jf-believer-disciple-making`).
+  - id: "esfr-skeptic-enfer"
+    language: "fr"
+    question: "Un châtiment infini pour une vie finie, comment est-ce que ça peut être juste ?"
+    relevant:
+      everystudent-fr:
+        - "/a/726enfer.html"
+        - "/a/bonDieu.html"
+      thelife-fr:
+        - "/10-questions-spirituelles-avec-reponses"
+  # ⛔ /a/700horribles.html is deliberately NOT credited: relevance 0.82 but SOUNDNESS 0.62
+  #    (an unevidenced claim that verbal abuse outweighs child sexual abuse, inside the
+  #    answer to a survivor). It ranked 4 on the softer phrasing, so the RAG serves it
+  #    regardless — excluding it protects the metric, not the reader. Content fix → #123.
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.616 tlfr /10-questions-spirituelles-avec-reponses — EN: "10 spiritual questions answered" (Q10 is this objection)
+  #   2. 0.616 esfr /a/260islam.html — EN: "Jesus in Islam" (off-question)
+  #   3. 0.611 esfr /a/723catholique.html — EN: "Catholic vs Christian?" (off-question)
+  #   — /a/726enfer.html did NOT appear in the top 8.
+
+  # EN: "I'm told there is one God but also Father, Son and Spirit — how does that work?"
+  - id: "esfr-newcomer-trinite"
+    language: "fr"
+    question: "On me dit qu'il y a un seul Dieu mais aussi le Père, le Fils et l'Esprit — comment ça marche ?"
+    relevant:
+      everystudent-fr:
+        - "/a/709trinite.html"
+        - "/a/708saintesprit.html"
+  # ⓘ SOUNDNESS 0.90: /a/709trinite.html says "trois personnes de la même essence divine"
+  #    and explicitly REJECTS the H2O and egg analogies for implying parts. No modalism —
+  #    a direct contrast with slice #9's finding on the ARABIC Trinity explainer (#123).
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.748 esfr /a/709trinite.html — EN: "How do you explain the Trinity?"
+  #   2. 0.745 esfr /a/260islam.html — EN: "Jesus in Islam" (not credited: its "1x1x1=1" figure is vacuous)
+  #   3. 0.622 esfr /a/708saintesprit.html — EN: "Who is the Holy Spirit?"
+
+  # EN: "I hate my reflection and compare myself to others non-stop — am I worth anything?"
+  - id: "esfr-seeker-apparence"
+    language: "fr"
+    question: "Je déteste mon reflet et je me compare sans arrêt aux autres — est-ce que je vaux quelque chose ?"
+    relevant:
+      everystudent-fr:
+        - "/a/509beaute.html"
+      thelife-fr:
+        - "/metamorphose-ultime"
+        - "/qu-est-ce-qui-vous-rend-unique"
+        - "/apprenez-a-vous-voir-comme-dieu-vous-voit"
+        - "/une-oeuvre-merveilleuse"
+  # ⓘ everystudent-fr has exactly ONE document on this axis; thelife-fr carries four.
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.617 esfr /a/509beaute.html — EN: "In search of beauty" (a Dior model's story)
+  #   2. 0.547 tlfr /metamorphose-ultime — EN: "The ultimate makeover"
+  #   3. 0.542 tlfr /qu-est-ce-qui-vous-rend-unique — EN: "What makes you unique?"
+  #   4. 0.535 tlfr /apprenez-a-vous-voir-comme-dieu-vous-voit — EN: "Learn to see yourself as God sees you"
+  #   5. 0.509 tlfr /une-oeuvre-merveilleuse — EN: "A marvellous work"
+
+  # EN: "I'm a lesbian and the church rejected me — can God still love me?"
+  - id: "esfr-seeker-lgbt"
+    language: "fr"
+    question: "Je suis lesbienne et l'église m'a rejetée — est-ce que Dieu peut encore m'aimer ?"
+    relevant:
+      everystudent-fr:
+        - "/a/homosexuel-lesbienne.html"
+      thelife-fr:
+        - "/encore-digne"
+  # ⓘ SOUNDNESS 0.88: the everystudent-fr article names the church's judgmentalism as
+  #    contrary to Jesus and never condemns. Honest limitation: it does not address the
+  #    ethical question, redirecting entirely to the gospel.
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.769 esfr /a/homosexuel-lesbienne.html — EN: "Gay, lesbian, and the love of God"
+  #   2. 0.677 esfr /a/501intimite.html — EN: "Love and true intimacy" (off-question)
+  #   5. 0.628 tlfr /encore-digne — EN: "Still worthy"
+
+  # EN: "I've prayed for months about the same thing and nothing moves — is God listening?"
+  - id: "esfr-believer-priere-sans-reponse"
+    language: "fr"
+    question: "Je prie depuis des mois pour la même chose et rien ne bouge — est-ce que Dieu écoute ?"
+    relevant:
+      everystudent-fr:
+        - "/a/306lapriere.html"
+      thelife-fr:
+        - "/un-dieu-deux-reponses-a-la-priere"
+        - "/rester-patients-quand-dieu-nous-demande-d-attendre"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.754 esfr /a/306lapriere.html — EN: "Answered prayers"
+  #   2. 0.679 tlfr /mon-mari-ne-partage-pas-ma-foi — EN: "My husband doesn't share my faith"
+  #   3. 0.678 tlfr /un-dieu-deux-reponses-a-la-priere — EN: "One God, two answers to prayer"
+  #   — /rester-patients-quand-dieu-nous-demande-d-attendre credited but ranks >10: buried.
+
+  # EN: "Muslims say Jesus was a prophet, not the Son of God — who is right?"
+  - id: "esfr-skeptic-islam-jesus"
+    language: "fr"
+    question: "Les musulmans disent que Jésus était un prophète, pas le Fils de Dieu — qui a raison ?"
+    relevant:
+      everystudent-fr:
+        - "/a/260islam.html"
+        - "/a/201foiaveugle.html"
+        - "/a/202citationsdeJesus.html"
+        - "/a/700_religions.html"
+      thelife-fr:
+        - "/voir-dieu-face-a-face"
+  # ⓘ The engine ranks thelife-fr's Muslim-background TESTIMONY (0.705) ABOVE
+  #    everystudent-fr's dedicated Jesus-in-Islam article (0.683) — the two French banners
+  #    genuinely trade places by question.
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.705 tlfr /voir-dieu-face-a-face — EN: "Seeing God face to face" (Muslim-background testimony)
+  #   2. 0.683 esfr /a/260islam.html — EN: "Jesus in Islam"
+  #   4. 0.642 esfr /a/201foiaveugle.html — EN: "More than blind faith — the life of Jesus Christ"
+  #   7. 0.606 esfr /a/202citationsdeJesus.html — EN: "Is Jesus God? Quotations from Jesus"
+  #   9. 0.593 esfr /a/700_religions.html — EN: "The difference between Jesus and the major religions"
+
+  # EN: "My family is Catholic but friends tell me I'm not really a Christian — who's right?"
+  # ⚠️ REPHRASED: the first draft restated the article title almost verbatim and scored
+  # 0.836, the highest of any probe — a Guardrail #1 paraphrase. Reframed as a real family
+  # situation it still ranks 1, at an honest 0.767.
+  - id: "esfr-newcomer-catholique"
+    language: "fr"
+    question: "Ma famille est catholique mais des amis me disent que je ne suis pas vraiment chrétien — qui a raison ?"
+    relevant:
+      everystudent-fr:
+        - "/a/723catholique.html"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.767 esfr /a/723catholique.html — EN: "Is there a difference between Catholic and Christian?"
+  #   2. 0.660 esfr /a/302changerdevie.html — EN: "Changing your life" (off-question)
+
+  # EN: "Religion was used to justify slavery and to keep women down — why would I trust it?"
+  - id: "esfr-skeptic-racisme"
+    language: "fr"
+    question: "La religion a servi à justifier l'esclavage et à maintenir les femmes en bas — pourquoi lui faire confiance ?"
+    relevant:
+      everystudent-fr:
+        - "/a/MLK-et-le-racisme.html"
+        - "/a/270droitsdelafemme.html"
+  # ⓘ The question raises BOTH halves of the objection and the engine returned exactly the
+  #    two matching documents at ranks 1 and 2 — a clean two-target retrieval.
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.631 esfr /a/MLK-et-le-racisme.html — EN: "MLK and racism"
+  #   2. 0.617 esfr /a/270droitsdelafemme.html — EN: "A change in women's rights"
+
+  # EN: "With all the divorces around me, is it even worth getting married?"
+  - id: "esfr-seeker-mariage"
+    language: "fr"
+    question: "Avec tous les divorces autour de moi, est-ce que ça vaut encore le coup de se marier ?"
+    relevant:
+      everystudent-fr:
+        - "/a/502mariage.html"
+      thelife-fr:
+        - "/pourquoi-se-marier"
+        - "/les-enfants-de-divorces-et-le-mariage"
+  # RETRIEVED (qwen, fr-scoped, 2026-07-27):
+  #   1. 0.747 esfr /a/502mariage.html — EN: "A marriage that lasts; marriage statistics"
+  #   2. 0.676 tlfr /pourquoi-se-marier — EN: "Why get married?"
+  #   5. 0.617 tlfr /les-enfants-de-divorces-et-le-mariage — EN: "Children of divorce, and marriage"

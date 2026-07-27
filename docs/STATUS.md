@@ -5,11 +5,29 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) is DONE — all four
+_Last updated: 2026-07-27 — **slice #10 (EveryStudent French, `everystudent-fr`)
+is DONE — all four stages GREEN and PROMOTED TO PROD**, closing the #112 route
+both locally and in prod (en ✅ → ar ✅ → fr ✅). 67 French articles acquired,
+ingested (67 docs / 418 chunks, 66 `fr` / 1 `null`), queryable, evaluated, and now
+**live in the prod corpus** via the bulk-copy path — copy digest and per-document
+fingerprint both matched local↔prod, `eval:production` @ 18 cases returned
+**coverage 0.856, identical to local, with all 18 cases at rank 1**. Prod is now
+**11,728 docs / 34,434 chunks / 11 sources**. **Local eval @ 130 cases / 11
+sources: recall@3 0.954 · recall@10 1.000 · coverage 0.736 · MRR 0.854 · P@1
+0.746 — every headline metric UP** on the pre-curation baseline. ⚠️ **The branch
+is still UNMERGED, so prod leads `main` on this source** (same inverted order as
+slice #9). Three findings: the child-suffering soundness problem behind
+**[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) is estate-wide,
+not Arabic-specific** — and its French document is now **live and served in prod**;
+a real **hell-question vocabulary gap** is recorded in the eval; and the promotion
+**falsified `copy-raws.md`'s drift prediction**, correcting the rule to "a
+language-scoped eval drifts iff that *language's* subcorpus differs local↔prod".
+Previously:
+**slice #9 (EveryStudent Arabic) is DONE — all four
 stages GREEN and PROMOTED TO PROD**. `everystudent-ar` is live in the prod corpus
-(67 docs / 283 chunks via the bulk-copy path, prod eval identical to local) with
-**PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) open and not yet
-merged — so prod leads `main` on this source.** Arabic enters the eval at
+(67 docs / 283 chunks via the bulk-copy path, prod eval identical to local);
+**PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) MERGED
+2026-07-27**, so `main` now carries that slice. Arabic enters the eval at
 **coverage 0.979 / recall@10 1.000**; whole
 corpus @ 118 cases is **recall@10 1.000 · coverage 0.730**. Two findings filed:
 **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** (content
@@ -320,7 +338,248 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Operator decides between three, in this order of urgency:**
+**✅ DONE — slice #10 (`everystudent-fr`, questions2vie.com), ALL FOUR STAGES
+GREEN 2026-07-27 AND PROMOTED TO PROD the same day.** The third and final walled
+EveryStudent domain; **the #112 route is now closed, locally and in prod**
+(en ✅ → ar ✅ → fr ✅).
+
+**Promoted (Step 6, 2026-07-27) — the third source through the #115 bulk-copy
+path.** `acquire:production` was deliberately NOT run (walled source; the ~70
+Firecrawl credits were already spent at Stage 1). 67 raw rows copied local→prod
+after a clean dry-run, verified by a UTC-pinned row-level digest
+(**`8e9ec570…d8b7`** on both sides), then embedded to **67 docs / 418 chunks /
+418 embeddings** — an exact match of local, per-document fingerprint
+**`5739cf2f…5cad`** on both sides, 0 `chunk_count` mismatches, 66 `fr` / 1 `null`
+preserved, 0 rows left pending. **Prod 11,661 → 11,728 docs / 34,016 → 34,434
+chunks.** Smoke test reproduced all four Stage-3 French queries within float noise
+and **the three-way cross-lingual match held in prod** (fr #1 · en #2 · fr #3 ·
+`ar` #4 on "Comment puis-je connaître Dieu personnellement ?").
+`eval:production --source everystudent-fr` @ 18 cases: recall@3/@10 **1.000** ·
+coverage **0.848** · MRR **1.000** · P@1 **1.000**, **all 18 at rank 1**;
+per-source coverage **0.856, identical to local**. Record:
+`eval/results-2026-07-27-everystudent-fr-prod-keep.md`. ✅ **First promotion of
+the three with ZERO retries on either metered step.**
+
+🔑 **The promotion FALSIFIED `copy-raws.md`'s drift prediction, and the rule is
+now corrected.** The runbook expected French to drift because `thelife-fr`
+competes, calling an exact match "the surprise". Coverage matched **exactly on all
+18 cases**. Mechanism, measured: prod carries **40 more docs than local** (11,728
+vs 11,688 — thelife +30, sightline +9, jf-org +1) and **every one is English**,
+while the 225-doc French subcorpus is identical on both sides; the strict
+`eq(documents.language, …)` makes `fr` cases structurally blind to them. Restated:
+**a language-scoped eval drifts iff that LANGUAGE'S subcorpus differs local↔prod**
+— sole-source-ness was a confound, not the cause. Those same ~40 docs are exactly
+what the runbook blamed for the English promotion's ~0.09 gap.
+
+⚠️ **Exactly one case moved rank and it is JITTER, not drift.**
+`esfr-skeptic-enfer` went rank 2 → 1: local's first credited hit was
+`/a/260islam.html` @ **0.616**, prod's was thelife-fr
+`/10-questions-spirituelles-avec-reponses` @ **0.615** — a **0.001** gap, the
+fourth sighting of this pattern. Coverage held at 2/3. ⓘ It qualifies the Stage-4
+"vocabulary gap" framing slightly: the gap is real (`/a/726enfer.html` still falls
+out of the top 8), but **this case's rank-1-vs-2 reading is not stable between
+runs.**
+
+**▶ NEXT — the operator decides, in this order:**
+
+1. **Merge `slice/everystudent-fr` → `main`.** Nothing is pushed; no PR opened.
+   **This is now the ONLY step left to close slice #10**, and until it lands
+   **prod leads `main` on this source** (the same inverted order as slice #9).
+2. ~~Promote to prod via the bulk-copy path.~~ **DONE 2026-07-27** — see above.
+3. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) — now
+   with a WIDER scope than filed, and now LIVE IN PROD in two languages.** The
+   French `/a/700horribles.html` returns at **rank 2 @ 0.718** on a natural French
+   suffering question in the unfiltered prod space, alongside the Arabic
+   `/a/endingthe8th.html` promoted in slice #9. Excluding a doc from an answer key
+   never stopped the RAG serving it; the fix is content-side. See the escalation
+   note below.
+4. `/slice <next-source>` — GotQuestions / KnowGod / Issues I Face.
+
+**Evaluated (Stage 4): qa-golden.yaml 118 → 130 cases; 93 credits added
+(59 `everystudent-fr` + 34 `thelife-fr`), 1 mis-credit removed.**
+**Final @ 130 cases / 11 sources: recall@3 0.954 · recall@10 1.000 · coverage
+0.736 · MRR 0.854 · P@1 0.746** — **every headline metric UP** on the 118-case
+pre-curation baseline (0.941 / 1.000 / 0.723 / 0.821 / 0.695). Per-language:
+`ar` 0.979 · **`fr` 0.804** (n=22) · es 0.938 · zh 0.867 · en 0.641, 0 unscoped.
+`everystudent-fr` **n=18, recall 1.000, coverage 0.856** with 11 of its 12 native
+cases at rank 1; `thelife-fr` 0.778 (n=18).
+
+🚨 **ESCALATION on #123 — the content problem is ESTATE-WIDE, not Arabic-specific.**
+The French `/a/700horribles.html` (the child-rape FAQ) was **rejected on soundness
+0.62** against relevance 0.82: it asserts, as an unevidenced wager, that
+« l'abus verbal est celui dont les conséquences sont les plus graves » —
+relativising child sexual abuse downward inside the answer to a survivor. #123 was
+filed as an Arabic-source finding; the same failure is present in French, so the
+remediation should be scoped across the EveryStudent estate rather than one
+banner. **It ranks 4 on a natural French hell question, so the RAG serves it
+whether or not it is in an answer key** — excluding it from the eval protects the
+metric, not the reader. The fix is content-side.
+
+ⓘ **Counter-finding worth equal weight: doctrinal quality is per-LANGUAGE, not
+per-ministry.** The French Trinity explainer is careful — "trois personnes de la
+même essence divine", explicitly **rejecting** the H2O and egg analogies for
+implying parts — where slice #9 found outright **modalism** in the Arabic
+equivalent. Do not generalise a soundness finding from one language to a source.
+
+⚖️ **The two French sources are COMPLEMENTARY, not competing.** `everystudent-fr`
+contributed **zero** credits to four of the ten prior French cases (post-abortion
+healing, forgiveness, Spirit-empowered living, unbelieving spouse) because it
+publishes **seeker apologetics, not sanctification** — while taking **15 of 20**
+credits on "give me one reason a god exists". The `language:"fr"` probes at Stage
+3 predicted exactly this; Stage 4 confirmed it on content.
+
+🔍 **A real VOCABULARY GAP is now recorded in the eval.** `esfr-skeptic-enfer`'s
+first draft ("how can a God of love condemn someone to suffer for eternity?") put
+`/a/726enfer.html` at **rank 1 @ 0.749** — but that phrasing echoed the article's
+own title. Rephrased to how a skeptic actually argues it (« un châtiment infini
+pour une vie finie »), **the document falls out of the top 8 entirely.** The hard
+phrasing was kept so the eval measures the gap instead of hiding it. Related:
+`esfr-newcomer-catholique` first scored **0.836**, the highest of any probe,
+purely because it restated the article title — **a very high score on a new case
+is a paraphrase smell, not a success signal.**
+
+📐 **METHODOLOGY — `coverage` is structurally capped at `min(1, k/|relevant|)`**
+(filed as `eval-approach.md` authoring trap 3). `tlfr-skeptic-dieu-existe` now
+carries 20 relevant docs, so its ceiling is **0.50**; it scores 0.45, i.e. **9 of
+its 10 top-10 slots are credited docs** — near-perfect, reported as "bad". A
+falling coverage after a re-review is expected, not a regression: read rank and
+P@1 beside it.
+
+⚠️ **`everystudent` (en) 0.693 ↔ 0.739 is BOUNDARY JITTER, seen a THIRD time**
+(`/forum/contradictions.html`, rank 10 @ 0.648 vs rank 11 @ 0.647). `sightline`
+0.563 ↔ 0.571 likewise. Neither can be a French effect — French docs are
+ineligible on English-scoped cases by construction.
+
+**Part A (re-review) was real work — the opposite of slice #9.** Pre-curation,
+`thelife-fr` fell **0.817 → 0.733** and was the ONLY source that moved; the drop
+localised to exactly **two cases** on EveryStudent's core axis
+(`tlfr-skeptic-dieu-existe` rank 1 → 4, `tlfr-newcomer-jesus` rank 1 → 2). Pool
+built from the **corpus** (deep-k 40, floor 0.50 — calibrated as the highest floor
+excluding zero already-approved docs), 320 pairs / 151 whole documents judged:
+**54 approved, 265 rejected as sound-but-off-question (83%)**. Every per-case
+coverage prediction made before the confirming run landed exactly.
+See [docs/slices/everystudent-fr.md](./slices/everystudent-fr.md).
+
+---
+
+**Previously (slice #9 and earlier):**
+
+**Retrieved (Stage 3): French is queryable, and the EveryStudent estate now
+matches itself across three languages.** Four real French questions against the
+unfiltered 11-source space took **rank 1 on three** — « Dieu existe-t-il ? » →
+`/a/101existe.html` **@ 0.737**, « Comment trouver la paix intérieure…? » →
+`/a/coronavirus.html` **@ 0.739**, « Comment puis-je connaître Dieu
+personnellement ? » → `/a/comment-connaitre-dieu-personnellement.html` **@
+0.775**. 🌍 **That last one returned fr #1 · en #2 · fr #3 · `ar` #4 — the same
+EveryStudent article in three languages, matched to one French query across two
+language boundaries**; slice #9 saw this two-way, and completing the #112 route
+makes it three-way. The fourth question (« Pourquoi Dieu permet-il la
+souffrance ? ») was best-answered **in English** by cru at 0.728 over the French
+`/a/700horribles.html` at 0.718 — the unfiltered space ranks on meaning, not
+query language.
+
+**`language:"fr"` is airtight and the two French sources genuinely trade
+places.** An **English** question under `--language fr` returned **8 French docs
+and nothing else**, so the filter binds on the **document**
+(`corpus-search-store.ts:62` is a strict `eq(…)`, excluding other languages and
+NULLs by construction). ⚖️ Neither source monopolises: that anxiety run was **7
+of 8 `thelife-fr`**, while a French knowing-God question under the same filter
+returned **10 of 10 `everystudent-fr`** — matching what each banner publishes
+(seeker apologetics vs devotional life-issues). At 29.3% of the French corpus,
+everystudent-fr is competing, not swamping.
+
+⚠️ **Stage-4 Part A is now CONFIRMED as real work — the opposite of slice #9.**
+A top-10 sweep by the new source, in exactly the language where the 10 `tlfr-*`
+golden cases live, means displacement is **demonstrated, not hypothetical**.
+Re-review the living `relevant` maps before reading any `fr` coverage movement
+(currently 0.817) as a retrieval regression. French is also **multi-source**, so
+default to the slice-#7/#8 two-axis 0.75 gate, NOT slice #9's relevance-only
+rule.
+
+**minScore 0.37 HOLDS at 11 sources — keep unchanged.** French positives
+**0.615–0.775** against a clean-secular ceiling of **0.430** — a ~0.19 gap, the
+same separation slice #9 described with **both ends shifted up**.
+
+🔧 **CORRECTION — the carried-forward "0.012 faith-adjacent margin" does NOT
+reproduce, and slice #9's 0.349 clean-secular ceiling was PROBE-SET dependent,
+not a corpus property.** (a) The French Islam/Ramadan probes land at
+**0.601/0.602 — ~0.23 ABOVE the cutoff, not 0.012** — and both are genuine
+adjacency, not noise (the top hits really do describe world religions and
+fasting respectively). ⓘ **`/a/260islam.html`, the doc this slice was told to
+watch, topped neither probe.** (b) **The secular floor is ~0.40–0.43 in BOTH
+languages:** re-running the two highest crossers as **English controls** gave
+**0.398** and **0.418** versus French **0.430**/**0.421**. So crossings track
+*which* probes you pick, not query language — slice #9's set (rice, World Cup,
+Python) was simply gentler. Read "0.349" as a measurement of that probe set; the
+honest corpus-wide figure is **~0.43**. Two crossings aren't negatives at all —
+"coupe du monde" (0.404) hits cru's real *World Cup City Champion* page and
+carbonara (0.323) hits FamilyLife's real *Family Recipes*, the same
+true-positive-disguised-as-a-negative trap slice #9 hit with its CV probe.
+
+⚠️ **METHODOLOGY TRAP — FOLLOW-UP O bites `pnpm query` too, and it fails LOOKING
+LIKE A RESULT.** Two secular probes first came back with no hits — which reads
+exactly like a perfect clean reject. They had actually aborted the **query
+embedding** with `DOMException [AbortError]` under the fast-fail posture
+(`QUERY_EMBED_MAX_ATTEMPTS=2`, 4 s). Re-run with the retry override, both
+returned hits **above** the cutoff (0.421, 0.323) — the timeout would have made
+the negatives table read *better* than the truth. Run probes AND batch evals as
+`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 …`, and never record a
+zero-hit probe without checking its exit status.
+
+**Ingested (Stage 2): all 67 pending → 67 docs / 418 chunks / 418 embeddings**
+(`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, 0 `chunk_count` mismatches,
+single model, **chunks/doc avg 6.24** (max 21) — the densest of the three
+banners (en 4.70, ar 4.22), matching Stage 1's "richest bodies" finding. All 67
+are `/a/` articles, confirming the 3 signup pages really left the corpus.
+Idempotent re-run drains 0. **The offline language pre-flight held EXACTLY:
+66 `fr` / 1 `null`**, the null being precisely the predicted `/a/jesusqui.html`.
+**Corpus now 11 sources / 11,688 docs / 34,355 chunks.** Gate re-run WITH the new
+data: green, 441/441.
+
+⚠️ **French is now genuinely multi-source: 225 `fr` docs** — thelife-fr 156 ·
+**everystudent-fr 66** · thelife 2 · cru 1. At **29.3% of the French corpus**,
+displacement on the 10 existing `tlfr-*` cases is a live possibility, not a
+theoretical one — Stage-4 Part A re-review is real work this time.
+
+ⓘ The one null-language doc is a **Scripture-compilation page** ("extraits tirés
+directement de l'évangile de Jean… **Aucun commentaire ajouté**") — near-entirely
+quoted Johannine text with no editorial French voice, a plausible reason
+detection sat at 0.689. Observation only; excluded from the eval per standing
+policy, no sweep.
+
+**Acquired 70/70 seeds, zero skips** — the
+first banner to take every seed — at **exactly 1.00 cr/page (828 → 758), so
+#112's whole three-domain route is now paid for**. Bodies are the richest of the
+three (avg 9,104 ch vs en 7,203 / ar 6,442); `.content4` binds here too,
+confirming the shared-template claim on the last banner.
+
+⚠️ **The 3 provisionally-seeded root pages were dropped after fetching — they
+are email-signup forms, not articles**, so ingest takes **67 `/a/` articles and
+nothing else**. All three cleared `minContentLength` easily (1,949–2,453 ch):
+*length is not aboutness*, which is exactly why the floor could not catch them.
+`/jean.html` ↔ `/jeanFR.html` share **87.9% of their 12-word shingles** (the same
+sign-up page reordered — the band slice #8 dropped podcasts at), and all three
+close with an **identical 850-char French GDPR notice** worth 35–44% of their
+bodies. ⓘ **The Arabic `/john.html` + `/pack.html` are the SAME two pages, kept
+in slice #9 and live in prod today** — the estate is inconsistent; recorded for a
+future cleanup, no issue filed, prod untouched by this slice.
+
+**Language pre-flight: 69 `fr` / 1 `null` of 70 staged (66/1 of the 67
+ingested), 0 out-of-declared-set warnings — a 1.5% null rate, the LOWEST of any
+source** (en 7.7%, ar 3.0%). The one null is `/a/jesusqui.html` at confidence
+**0.689**, just under the 0.75 gate, and — as in slice #8 — it is the source's
+*largest* document, not a thin one.
+
+⚠️ Unlike Arabic, **French is not a new language** — 159 `fr` docs and 10
+`tlfr-*` cases already existed, so Stage-4 Part A re-review is **not** a provable
+no-op and `fr` coverage (0.817) should be expected to move. **Next: Stage 3
+(retrieve)** — French queries against the 11-source space, `language:"fr"` with
+**two** French sources competing, and a re-probe of the faith-adjacent minScore
+margin (slice #9 recorded 0.382, just 0.012 above the 0.37 cutoff, and
+`/a/260islam.html` is in this seed set). Plan + decisions:
+[docs/slices/everystudent-fr.md](./slices/everystudent-fr.md).
+
+**Also open — operator decides between three, in this order of urgency:**
 
 1. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) —
    specifically `/a/endingthe8th.html`.** Suicide and self-harm content presented
@@ -335,21 +594,24 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
    real retrieval result, not a latent risk. Retrieval is behaving correctly — the
    document genuinely is topically relevant — so the fix is content-side (exclude
    the doc, or get help signposting added), not engine-side.
-2. ~~**Merge slice #9**, then promote.~~ **Promotion is DONE (2026-07-25);
-   the PR is open at [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124)
-   and still needs merging.** `everystudent-ar` is live in prod: 67 docs / 283
+2. ~~**Merge slice #9**, then promote.~~ **BOTH DONE — promotion 2026-07-25, and
+   PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) MERGED
+   2026-07-27**, so `main` now carries slice #9 and prod no longer leads it.
+   `everystudent-ar` is live in prod: 67 docs / 283
    chunks / 283 embeddings via the **bulk-copy path** (`copy-raws.sh`, zero extra
    Firecrawl), both copy digests matched local↔prod, and `eval:production`
    reproduced the local numbers exactly (coverage 0.979 / recall@10 1.000).
    Dashboard refreshed in the same PR (10 sources / 5 languages / 11,661 docs).
-   **Note the inverted order vs slice #8**, which merged first and promoted after:
-   here prod leads `main` on this source until #124 merges. Details:
+   **Note the inverted order vs slice #8**, which merged first and promoted after
+   — slice #10 has now repeated slice #9's inverted order. Details:
    `docs/slices/everystudent-ar.md` → "Prod promotion".
-3. **`/slice everystudent-fr`** (questions2vie.com, ~87 mapped URLs) as slice #10.
-   The Firecrawl budget fits: 828 credits remain and the period ends 2026-08-21.
-   Watch the **0.382** five-pillars margin — 0.012 above the 0.37 cutoff, the
-   tightest faith-adjacent approach recorded, and French adds another
-   faith-adjacent surface.
+3. ~~**`/slice everystudent-fr`** as slice #10.~~ **STARTED 2026-07-27, now at
+   Stage 4** — see the "in flight" block at the top of this section.
+   ~~The carried-forward watch item stands: the **0.382** five-pillars margin is
+   0.012 above the 0.37 cutoff…~~ **RESOLVED at Stage 3 — it did not reproduce.**
+   French faith-adjacent probes sit ~0.23 above the cutoff and
+   `/a/260islam.html` topped neither; the tightness was specific to slice #9's
+   Arabic probe geometry, not a standing property. See the correction above.
 
 The **#17/#75 gate on the `ar`/`fr` slices is lifted** — the rare-language
 mechanism those slices depend on is verified working; only the test fixture was

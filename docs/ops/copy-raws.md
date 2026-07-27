@@ -197,21 +197,36 @@ a `sources.md` note.
   compete. Verify the *promotion* by comparing doc/chunk counts local↔prod (they
   should match exactly); read the eval as "is it live and sane in prod", not as a
   re-measurement of the local number.
-  - **Exception — a language-scoped eval on a sole-language source cannot drift.**
-    everystudent-ar reproduced its local numbers to three decimals. That is
-    structural, not luck: its cases pin `language: "ar"` and
-    `corpus-search-store.ts` applies a strict `eq(documents.language, …)`, so the
-    only eligible competitors are the source's own docs, which are identical on
-    both sides. **Don't generalise it.** The moment a second source shares the
-    language (`everystudent-fr` vs `thelife-fr`) real neighbours return and so does
-    real drift — an exact match there would be the surprise.
-- **Expect the provider-slow spell on both metered steps.** Both promotions so far
-  hit it. Corpus embed rides it out on its own (everystudent-ar: 34 retry lines,
-  longest chain 6 of 10, zero docs lost). `eval:production` does **not** — its
-  fast-fail query-embed policy (#118) discards the batch on a single timeout, and
-  it has now needed `QUERY_EMBED_MAX_ATTEMPTS=10 QUERY_EMBED_TIMEOUT_MS=15000` on
-  **both** runs. Treat raising those as the default for a promotion eval rather
-  than as a reaction to a failure.
+  - **A language-scoped eval drifts iff that LANGUAGE'S SUBCORPUS differs
+    local↔prod.** Single-source-ness is a confound, not the cause. `language:`-pinned
+    cases hit `corpus-search-store.ts`'s strict `eq(documents.language, …)`, so the
+    eligible competitors are exactly that language's documents — if those are
+    identical on both sides, the eval cannot drift no matter how many sources share
+    the language, and if they differ it will drift even for a sole source.
+    - everystudent-ar (sole-language) reproduced local to three decimals — its own
+      docs were the only competitors and were identical.
+    - **everystudent-fr reproduced local coverage EXACTLY (0.856) on all 18 cases
+      despite `thelife-fr` competing at 156 docs vs its 66** — because the French
+      subcorpus was byte-identical on both sides (225 `fr` docs). This doc
+      previously predicted drift here and called an exact match "the surprise";
+      that prediction was wrong, and the corrected rule above is why.
+    - **The measurement that settles it:** at that run prod carried **40 more docs
+      than local** (11,728 vs 11,688) — thelife +30, sightline +9, jesusfilm-org +1,
+      **all English**. Those same ~40 docs are what this doc blames for the English
+      promotion's ~0.09 gap. Same divergence, same run: it moved `en` and could not
+      touch `fr`.
+    - Practical check before reading a promotion eval as drift: **diff the
+      per-source doc counts local↔prod for that language only.** Whole-corpus totals
+      differing tells you nothing about a language-scoped result.
+- **Be ready for the provider-slow spell on both metered steps — but it is not a
+  law.** The first two promotions hit it; **everystudent-fr hit it on neither**
+  (0 embed retries, 0 query-embed retries) despite carrying the largest chunk
+  count of the three banners. Corpus embed rides it out on its own when it does
+  strike (everystudent-ar: 34 retry lines, longest chain 6 of 10, zero docs lost).
+  `eval:production` does **not** — its fast-fail query-embed policy (#118)
+  discards the batch on a single timeout. Keep running promotion evals with
+  `QUERY_EMBED_MAX_ATTEMPTS=10 QUERY_EMBED_TIMEOUT_MS=15000` as the default: it
+  costs nothing on a clean run and saves the whole batch on a bad one.
 - **Wrong environment.** The redacted-host preview (interactive) and
   `--expect-host` (unattended) are the last line of defence. Never put prod
   values in `.env` / `.env.local` — the script reads `.env` for the *source* side.
@@ -248,6 +263,23 @@ a `sources.md` note.
   the digest needs an explicit UTC TimeZone pin, and a **per-document
   fingerprint** catches split/label errors that matching grand totals hide.
   See `docs/slices/everystudent-ar.md`.
+- **Third live run — everystudent-fr (French), 2026-07-27**, closing the #112
+  route in prod. 67 rows copied (dry-run first: host confirmed, 0 existing rows),
+  digest **`8e9ec570d09affcfbbd7a5fa7baad8b7`** matching on both sides;
+  `index:production` embedded them to **67 docs / 418 chunks / 418 embeddings**,
+  an exact match of local including the 66 `fr` / 1 `null` split, 0 `chunk_count`
+  mismatches and 0 rows left pending, per-document fingerprint
+  **`5739cf2f273df42c115a866840055cad`** on both sides. Prod 11,661 → **11,728
+  docs** / 34,016 → **34,434 chunks**. `eval:production` returned recall@3/@10
+  **1.000** · coverage **0.848** · MRR **1.000** · P@1 **1.000** with **all 18
+  cases at rank 1**, and per-source `everystudent-fr` coverage **0.856 —
+  identical to local** (`eval/results-2026-07-27-everystudent-fr-prod-keep.md`).
+  Two corrections this run contributed, both folded in above: **the first
+  promotion to see zero retries on either metered step**, and — the important one
+  — **the drift predictor is the language subcorpus, not sole-source-ness**, which
+  this doc had stated backwards and which this run falsified directly. Exactly one
+  of 18 cases changed rank (`esfr-skeptic-enfer` 2 → 1) on a **0.001** score gap:
+  boundary jitter, with coverage unchanged. See `docs/slices/everystudent-fr.md`.
 
 ## Related
 

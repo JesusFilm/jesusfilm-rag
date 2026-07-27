@@ -6,9 +6,12 @@ Live "you are here" for the build. Stable design lives in
 whenever state changes; keep it to ~one screen.
 
 _Last updated: 2026-07-27 — **slice #10 (EveryStudent French, `everystudent-fr`)
-is IN FLIGHT: Stages 1+2 GREEN** — 67 French articles acquired and ingested
-(67 docs / 418 chunks, 66 `fr` / 1 `null`), corpus now 11 sources / 11,688 docs /
-34,355 chunks, gate 441/441. Next is Stage 3 (retrieve). Previously:
+is IN FLIGHT: Stages 1+2+3 GREEN** — 67 French articles acquired, ingested
+(67 docs / 418 chunks, 66 `fr` / 1 `null`) and **now queryable**: rank 1 on three
+of four real French questions, `language:"fr"` airtight, **minScore 0.37 holds**.
+Corpus 11 sources / 11,688 docs / 34,355 chunks, gate 441/441. Next is Stage 4
+(`/golden everystudent-fr`) — and unlike slice #9, **Part A re-review is real
+work**. Previously:
 **slice #9 (EveryStudent Arabic) is DONE — all four
 stages GREEN and PROMOTED TO PROD**. `everystudent-ar` is live in the prod corpus
 (67 docs / 283 chunks via the bulk-copy path, prod eval identical to local) with
@@ -324,9 +327,72 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com), STAGES 1+2
+**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com), STAGES 1+2+3
 GREEN 2026-07-27.** The third and final walled EveryStudent domain; this closes
-the #112 route (en ✅ → ar ✅ → fr).
+the #112 route (en ✅ → ar ✅ → fr). **Next: Stage 4 —
+`/golden everystudent-fr`.**
+
+**Retrieved (Stage 3): French is queryable, and the EveryStudent estate now
+matches itself across three languages.** Four real French questions against the
+unfiltered 11-source space took **rank 1 on three** — « Dieu existe-t-il ? » →
+`/a/101existe.html` **@ 0.737**, « Comment trouver la paix intérieure…? » →
+`/a/coronavirus.html` **@ 0.739**, « Comment puis-je connaître Dieu
+personnellement ? » → `/a/comment-connaitre-dieu-personnellement.html` **@
+0.775**. 🌍 **That last one returned fr #1 · en #2 · fr #3 · `ar` #4 — the same
+EveryStudent article in three languages, matched to one French query across two
+language boundaries**; slice #9 saw this two-way, and completing the #112 route
+makes it three-way. The fourth question (« Pourquoi Dieu permet-il la
+souffrance ? ») was best-answered **in English** by cru at 0.728 over the French
+`/a/700horribles.html` at 0.718 — the unfiltered space ranks on meaning, not
+query language.
+
+**`language:"fr"` is airtight and the two French sources genuinely trade
+places.** An **English** question under `--language fr` returned **8 French docs
+and nothing else**, so the filter binds on the **document**
+(`corpus-search-store.ts:62` is a strict `eq(…)`, excluding other languages and
+NULLs by construction). ⚖️ Neither source monopolises: that anxiety run was **7
+of 8 `thelife-fr`**, while a French knowing-God question under the same filter
+returned **10 of 10 `everystudent-fr`** — matching what each banner publishes
+(seeker apologetics vs devotional life-issues). At 29.3% of the French corpus,
+everystudent-fr is competing, not swamping.
+
+⚠️ **Stage-4 Part A is now CONFIRMED as real work — the opposite of slice #9.**
+A top-10 sweep by the new source, in exactly the language where the 10 `tlfr-*`
+golden cases live, means displacement is **demonstrated, not hypothetical**.
+Re-review the living `relevant` maps before reading any `fr` coverage movement
+(currently 0.817) as a retrieval regression. French is also **multi-source**, so
+default to the slice-#7/#8 two-axis 0.75 gate, NOT slice #9's relevance-only
+rule.
+
+**minScore 0.37 HOLDS at 11 sources — keep unchanged.** French positives
+**0.615–0.775** against a clean-secular ceiling of **0.430** — a ~0.19 gap, the
+same separation slice #9 described with **both ends shifted up**.
+
+🔧 **CORRECTION — the carried-forward "0.012 faith-adjacent margin" does NOT
+reproduce, and slice #9's 0.349 clean-secular ceiling was PROBE-SET dependent,
+not a corpus property.** (a) The French Islam/Ramadan probes land at
+**0.601/0.602 — ~0.23 ABOVE the cutoff, not 0.012** — and both are genuine
+adjacency, not noise (the top hits really do describe world religions and
+fasting respectively). ⓘ **`/a/260islam.html`, the doc this slice was told to
+watch, topped neither probe.** (b) **The secular floor is ~0.40–0.43 in BOTH
+languages:** re-running the two highest crossers as **English controls** gave
+**0.398** and **0.418** versus French **0.430**/**0.421**. So crossings track
+*which* probes you pick, not query language — slice #9's set (rice, World Cup,
+Python) was simply gentler. Read "0.349" as a measurement of that probe set; the
+honest corpus-wide figure is **~0.43**. Two crossings aren't negatives at all —
+"coupe du monde" (0.404) hits cru's real *World Cup City Champion* page and
+carbonara (0.323) hits FamilyLife's real *Family Recipes*, the same
+true-positive-disguised-as-a-negative trap slice #9 hit with its CV probe.
+
+⚠️ **METHODOLOGY TRAP — FOLLOW-UP O bites `pnpm query` too, and it fails LOOKING
+LIKE A RESULT.** Two secular probes first came back with no hits — which reads
+exactly like a perfect clean reject. They had actually aborted the **query
+embedding** with `DOMException [AbortError]` under the fast-fail posture
+(`QUERY_EMBED_MAX_ATTEMPTS=2`, 4 s). Re-run with the retry override, both
+returned hits **above** the cutoff (0.421, 0.323) — the timeout would have made
+the negatives table read *better* than the truth. Run probes AND batch evals as
+`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 …`, and never record a
+zero-hit probe without checking its exit status.
 
 **Ingested (Stage 2): all 67 pending → 67 docs / 418 chunks / 418 embeddings**
 (`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, 0 `chunk_count` mismatches,
@@ -406,11 +472,13 @@ margin (slice #9 recorded 0.382, just 0.012 above the 0.37 cutoff, and
    **Note the inverted order vs slice #8**, which merged first and promoted after:
    here prod leads `main` on this source until #124 merges. Details:
    `docs/slices/everystudent-ar.md` → "Prod promotion".
-3. ~~**`/slice everystudent-fr`** as slice #10.~~ **STARTED 2026-07-27** — see
-   the "in flight" block at the top of this section. The carried-forward watch
-   item stands: the **0.382** five-pillars margin is 0.012 above the 0.37 cutoff,
-   the tightest faith-adjacent approach recorded, and French adds another
-   faith-adjacent surface (`/a/260islam.html` is in the seed set).
+3. ~~**`/slice everystudent-fr`** as slice #10.~~ **STARTED 2026-07-27, now at
+   Stage 4** — see the "in flight" block at the top of this section.
+   ~~The carried-forward watch item stands: the **0.382** five-pillars margin is
+   0.012 above the 0.37 cutoff…~~ **RESOLVED at Stage 3 — it did not reproduce.**
+   French faith-adjacent probes sit ~0.23 above the cutoff and
+   `/a/260islam.html` topped neither; the tightness was specific to slice #9's
+   Arabic probe geometry, not a standing property. See the correction above.
 
 The **#17/#75 gate on the `ar`/`fr` slices is lifted** — the rare-language
 mechanism those slices depend on is verified working; only the test fixture was

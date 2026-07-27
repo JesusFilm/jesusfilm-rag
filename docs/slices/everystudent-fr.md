@@ -118,8 +118,8 @@ Gate re-run **WITH** the new data: green, **441/441**.
 
 ### 3. Retrieve → ranked results
 - [x] A French query returns ranked, cited hits from this source   <!-- sha: ada189d -->
-- [x] `language:"fr"` returns ONLY French, now that **two** French sources compete   <!-- sha: ________ -->
-- [ ] Re-check minScore 0.37 at 11 sources — **specifically the faith-adjacent margin** (slice #9 recorded 0.382, only 0.012 above the cutoff, on a Muslim-readership probe; `/a/260islam.html` is in this seed set)   <!-- sha: ________ -->
+- [x] `language:"fr"` returns ONLY French, now that **two** French sources compete   <!-- sha: 8f81d98 -->
+- [x] Re-check minScore 0.37 at 11 sources — **specifically the faith-adjacent margin** (slice #9 recorded 0.382, only 0.012 above the cutoff, on a Muslim-readership probe; `/a/260islam.html` is in this seed set)   <!-- sha: ________ -->
 
 **Stage 3 evidence — sub-step 1 (2026-07-27): French is queryable, and the
 corpus is cross-lingual in three directions.** Four real French seeker questions
@@ -178,6 +178,73 @@ knowing-God result is a top-10 sweep by the new source in exactly the language
 where 10 `tlfr-*` golden cases live. Displacement on those cases is
 demonstrated, not hypothetical — re-review the living `relevant` maps before
 reading any `fr` coverage movement as a retrieval regression.
+
+**Stage 3 evidence — sub-step 3 (2026-07-27): minScore 0.37 HOLDS at 11 sources
+— keep unchanged.** Re-derived from the **French** score distribution per
+`docs/eval-approach.md` §4 (non-English negatives before changing the default),
+all probes run at `--min-score 0` so the true top score is visible:
+
+| Probe (French) | Top score | Verdict |
+|---|---|---|
+| Positives (4 real questions, unfiltered) | **0.615 – 0.775** | — |
+| Positives (`--language fr`, top-10) | 0.673 – 0.775 | — |
+| Recette de pâtes carbonara | 0.323 | clean reject |
+| Apprendre à programmer en Python | **0.384** | crosses — noise |
+| Installer un routeur wifi | **0.393** | crosses — noise |
+| Calendrier de la coupe du monde | **0.404** | **not a negative** — see below |
+| Changer un pneu de voiture | **0.421** | crosses — noise |
+| Quel temps fera-t-il demain à Paris | **0.430** | crosses — **clean-secular ceiling** |
+| Les cinq piliers de l'islam | **0.601** | by-design adjacency — see below |
+| Les règles du jeûne pendant le Ramadan | **0.602** | by-design adjacency |
+
+**Recommendation: keep 0.37 unchanged.** The clean-secular ceiling is **0.430**
+and the French positive floor is **0.615** — 0.37 sits below a ~0.19 gap, the
+same comfortable separation slice #9 described, with **both ends shifted up**.
+
+🔧 **CORRECTION to the carried-forward watch item — the "0.012 margin" does not
+reproduce, and slice #9's 0.349 clean-secular ceiling was PROBE-SET dependent,
+not a corpus property.** Two things were expected here and neither held:
+
+- **The faith-adjacent margin is not tight in French — it is wide.** The Islam
+  and Ramadan probes land at **0.601 / 0.602**, ~0.23 *above* the cutoff, not
+  0.012. Both are genuine adjacency rather than noise: the Islam probe's top hit
+  is `everystudent-fr /a/205divin.html` ("Description des principales religions
+  dans le monde"), which really does describe Islam, and the Ramadan probe's is
+  `thelife-fr /jeuner-est-ce-sain`, which really is about fasting. ⓘ Note
+  `/a/260islam.html` — the doc this slice was told to watch — **topped neither
+  probe**. The tightness recorded in slice #9 was specific to that slice's
+  Arabic probe/corpus geometry; it is not a standing property to watch.
+- **The secular floor is ~0.40–0.43 in BOTH languages — this is not a French
+  effect.** Re-running the two highest crossers as English controls against the
+  same corpus: "what will the weather be tomorrow in Paris" → **0.398** (the
+  same `/a/725paradis.html` hit) and "how do I change a car tire" → **0.418**.
+  Essentially identical to the French 0.430 / 0.421. So the crossings are a
+  function of *which* secular probes you choose, not of query language: slice
+  #9's set (cooking rice, World Cup, Python) happened to be gentler than this
+  one. **Read "the clean-secular ceiling is 0.349" as a measurement of that
+  probe set, not of the corpus** — the honest corpus-wide figure is ~0.43.
+
+ⓘ **Two crossings are not noise at all.** "Calendrier de la coupe du monde"
+(0.404) hits cru's *"Becoming a World Cup City Champion"* — a real World Cup
+document, the same **true-positive-disguised-as-a-negative** trap slice #9 hit
+with its CV probe. The carbonara probe's top hit is FamilyLife's *"Family
+Recipes"*, likewise real. The genuine false positives are Python→méditation,
+wifi→money-saving-tips, tire→family-baggage and weather→heaven; the last is a
+neat **`Paris`/`paradis` lexical near-collision** compounded by "demain"
+reading as *the hereafter*.
+
+⚠️ **METHODOLOGY TRAP FOUND — FOLLOW-UP O bites `pnpm query`, not just
+`pnpm eval`, and it fails LOOKING LIKE A RESULT.** Two secular probes first came
+back with no hits, which reads exactly like a clean reject. They were not: the
+fast-fail query retry posture (`QUERY_EMBED_MAX_ATTEMPTS=2`, 4 s — built for
+`/v1/search` latency) had aborted the **query embedding** with
+`DOMException [AbortError]`, and the grep used to tabulate scores hid the error
+line. Re-run under `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000`,
+both returned hits **above** the cutoff (0.421 and 0.323). A negative probe that
+silently becomes a timeout is indistinguishable from a perfect reject and would
+have made this table read *better* than the truth. Run minScore probes with the
+retry override, and never record a zero-hit probe without seeing its exit
+status.
 
 ### 4. Spot-check / eval (`/golden everystudent-fr`)
 - [ ] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: ________ -->
@@ -262,12 +329,18 @@ is 5 cr/page, Cloudflare has tightened (~350 total) — stop and re-plan.
 
 ## Resume hint (for a cold start)
 
-At: Stage 3 — "A French query returns ranked, cited hits from this source".
-Next concrete action: run `pnpm query` with real French questions against the
-now-11-source space (e.g. "Dieu existe-t-il ?", "Comment gérer l'anxiété ?"),
-then `--language fr` to prove the filter binds with **two** French sources
-competing, then re-probe the minScore 0.37 negatives — **specifically the
-faith-adjacent margin**, since slice #9 recorded 0.382 (only 0.012 above the
-cutoff) and `/a/260islam.html` is in this seed set.
+At: Stage 4 — "Part A — re-review the 10 existing `tlfr-*` cases' living
+`relevant` maps (NOT a no-op this time)". Next concrete action: hand off to
+`/golden everystudent-fr` directly (v4+ is agent-invocable — do NOT pause for the
+operator to type it; the operator's gate is the WRITE to `eval/qa-golden.yaml`).
+Part A is **real work**: Stage 3 demonstrated `everystudent-fr` sweeping all 10
+top-10 slots on a French knowing-God question under `--language fr`, in exactly
+the language where the 10 `tlfr-*` cases live, so displacement is proven not
+theoretical. Decide the Stage-4 gate on evidence — French is MULTI-source, so
+default to the slice-#7/#8 two-axis 0.75 rule, NOT slice #9's relevance-only
+rule (that exists for single-source languages).
+⚠️ Run the full eval as `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000
+pnpm eval` (FOLLOW-UP O) — and note Stage 3 found the same fast-fail posture
+silently aborting ad-hoc `pnpm query` probes too.
 Last verify: green @ 2026-07-27 (441/441, WITH the new data).
-Last commit: 4e3e0e0. Branch: slice/everystudent-fr.
+Last commit: (this one). Branch: slice/everystudent-fr.

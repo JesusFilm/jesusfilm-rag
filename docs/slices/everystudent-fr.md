@@ -487,6 +487,98 @@ Balance checked live 2026-07-27: **828 remaining of 1,000**, billing period ends
 ⚠️ **Cost guard:** watch the credit delta over the first ~10 pages. If the rate
 is 5 cr/page, Cloudflare has tightened (~350 total) — stop and re-plan.
 
+## Prod promotion (2026-07-27) — DONE via the #115 bulk-copy path
+
+`everystudent-fr` is the **third source promoted through `copy-raws.sh`** and
+closes the #112 route in prod (en ✅ → ar ✅ → fr ✅). `acquire:production` was
+deliberately NOT run — it would re-pay the ~70 Firecrawl credits already spent at
+Stage 1. Mechanism: `docs/ops/copy-raws.md`.
+
+Sequence run against prod (`zephyr.proxy.rlwy.net`):
+
+1. **Copy** — a `--dry-run` first confirmed the target host, **0 existing rows**
+   (empty-target guard satisfied) and the `id`+`ingested_at` column omission.
+   `copy-raws.sh --source everystudent-fr` then copied **67 rows** local→prod
+   (0 → 67, all landing `ingested_at IS NULL` — the gotcha-fix held for a third
+   time). Verified by the deterministic ordered row-level digest over all 11
+   copied columns, **with `SET TIME ZONE 'UTC'` pinned on both sides** per slice
+   #9's refinement: `md5(string_agg(md5(row) ORDER BY canonical_url))` returned
+   **`8e9ec570d09affcfbbd7a5fa7baad8b7`** on **both** sides at 67 rows — row-for-row
+   equality, not merely matching totals.
+2. **Embed** — `index:production --source everystudent-fr` drained all 67 pending
+   → **67 docs / 418 chunks / 418 embeddings** on `qwen/qwen3-embedding-8b`: an
+   exact match of local, with **0 `chunk_count` mismatches**, a single embedding
+   model, **0 rows left pending**, and the language split preserved (**66 `fr` /
+   1 `null`** — the same `/a/jesusqui.html` Scripture-compilation page). Confirmed
+   beyond aggregate totals by the **per-document fingerprint**
+   (`canonical_url|language|chunk_count|content_hash` digested in url order):
+   **`5739cf2f273df42c115a866840055cad`** on both sides, so every document landed
+   with an identical chunk split and language label.
+   Prod corpus 11,661 → **11,728 docs** / 34,016 → **34,434 chunks**, 11 sources.
+   - ✅ **Zero embed retries — the first promotion of the three to miss the
+     OpenRouter slow spell.** `copy-raws.md` says to *expect* it on both metered
+     steps (everystudent-ar took 34 retry lines, longest chain 6 of 10). This run
+     logged **none**, on the largest chunk count of the three banners. The patient
+     corpus policy is still right; "expect it" is a preparedness note, not a law.
+3. **Smoke** — `retrieve:production` (unfiltered, `--top-k 5`, matching Stage 3)
+   reproduced all four French questions within float noise: « Dieu existe-t-il ? »
+   → `/a/101existe.html` **rank 1 @ 0.735** (local 0.737); « Comment trouver la
+   paix intérieure quand je suis anxieux ? » → `/a/coronavirus.html` **rank 1 @
+   0.739** (local 0.739); « Comment puis-je connaître Dieu personnellement ? » →
+   `/a/comment-connaitre-dieu-personnellement.html` **rank 1 @ 0.773** (local
+   0.775). 🌍 **The three-way cross-lingual match holds in prod** — that third
+   query returned **fr #1 · en #2 · fr #3 · `ar` #4**, the same EveryStudent
+   article in three languages answering one French query, exactly the local
+   Stage-3 pattern. The fourth (« Pourquoi Dieu permet-il la souffrance ? ») again
+   put **cru's English** article at rank 1 @ 0.727 (local 0.728) over the French
+   `/a/700horribles.html` at **rank 2 @ 0.718** (local 0.718) — the unfiltered
+   space ranks on meaning, not query language, in prod too.
+4. **Certify** — `eval:production --source everystudent-fr` over 18 cases:
+   recall@3 **1.000** · recall@10 **1.000** · coverage **0.848** · MRR **1.000** ·
+   P@1 **1.000** — **all 18 at rank 1**. Per-source **`everystudent-fr` n=18
+   recall 1.000 / coverage 0.856 — identical to local to three decimals**;
+   `thelife-fr` n=14 recall 1.000 / coverage 0.826 (a different denominator from
+   the local whole-corpus row's n=18/0.778 — **not** comparable directly).
+   Record: `eval/results-2026-07-27-everystudent-fr-prod-keep.md` (named
+   `-prod-` because the local whole-corpus run already holds
+   `results-2026-07-27-everystudent-fr-keep.md`).
+   - **Per-case: coverage identical on all 18; exactly one rank moved.**
+     `esfr-skeptic-enfer` went **rank 2 → rank 1**, and it is **boundary jitter,
+     not drift**: local's first credited hit was `/a/260islam.html` @ **0.616**,
+     prod's was thelife-fr `/10-questions-spirituelles-avec-reponses` @ **0.615** —
+     a **0.001** gap reshuffling, the same pattern STATUS records three times for
+     `everystudent`'s `/forum/contradictions.html` (rank 10 @ 0.648 vs rank 11 @
+     0.647). Coverage held at 2/3, so the same credited set returned; only the
+     order changed. ⓘ It slightly qualifies the Stage-4 "vocabulary gap" framing:
+     the gap itself is real (`/a/726enfer.html` still falls out of the top 8), but
+     **this case's rank-1-vs-2 reading is not stable between runs.**
+
+🔑 **CORRECTION to `copy-raws.md` — the drift predictor is whether the LANGUAGE
+SUBCORPUS differs, not whether the language is single-source.** The runbook
+predicted this promotion would drift ("the moment a second source shares the
+language … real neighbours return and so does real drift — an exact match there
+would be the surprise"). Coverage matched **exactly, on every one of the 18
+cases.** The reason is measurable: **prod carries 40 more docs than local**
+(11,728 vs 11,688) — `thelife` +30, `sightline-ministry` +9, `jesusfilm-org` +1 —
+and **every one of them is English**. The French subcorpus is *identical* on both
+sides (225 `fr` docs: thelife-fr 156 · everystudent-fr 66 · thelife 2 · cru 1),
+and `corpus-search-store.ts:62` is a strict `eq(documents.language, …)`, so
+`fr`-scoped cases cannot see those 40 docs. Multi-source competition does **not**
+create drift when the competitors are byte-identical in both environments — and
+notably those same ~40 docs are exactly what the runbook blamed for the English
+promotion's ~0.09 gap. Restated rule: **a language-scoped eval drifts iff that
+language's subcorpus differs local↔prod.** Sole-source-ness was a confound, not
+the cause.
+
+🚨 **`/a/700horribles.html` — the [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)
+escalation document — is now LIVE in prod and demonstrably served**, at **rank 2
+@ 0.718** on a natural French suffering question in the *unfiltered* space. Stage
+4 rejected it on soundness (0.62 against relevance 0.82) for relativising child
+sexual abuse downward inside the answer to a survivor. As with the Arabic
+`/a/endingthe8th.html` before it, **excluding it from an answer key never stopped
+the RAG serving it** — the promotion has made that concrete rather than
+hypothetical, and the fix remains content-side.
+
 ## Open question / blocker
 
 - none
@@ -499,14 +591,23 @@ to resume. `everystudent-fr` is queryable and evaluated in the 11-source corpus:
 coverage 0.736 · MRR 0.854 · P@1 0.746**, the source itself at **n=18 recall
 1.000 / coverage 0.856**.
 
+**PROMOTED TO PROD 2026-07-27** via the bulk-copy path — 67 docs / 418 chunks /
+418 embeddings live in the prod corpus, certified at coverage 0.856 (identical to
+local). See "Prod promotion" above. **As in slice #9, prod now leads `main` on
+this source** — the branch is still unmerged and unpushed.
+
 Next actions are the operator's, in this order:
 
-1. **Merge `slice/everystudent-fr` → `main`** (not done; nothing is pushed).
-2. **Promote to prod via the BULK-COPY path — NEVER `acquire:production`.** This
-   is a walled Firecrawl source; re-acquiring in prod would re-pay ~70 credits for
-   pages already bought. `bash scripts/copy-raws.sh --source everystudent-fr` →
-   `pnpm index:production` → `pnpm eval:production`. See `docs/ops/copy-raws.md`.
-3. `/slice <next-source>` — GotQuestions / KnowGod / Issues I Face.
+1. **Merge `slice/everystudent-fr` → `main`** (not done; nothing is pushed, no PR
+   opened). This is the only remaining step to close the slice.
+2. ~~**Promote to prod via the BULK-COPY path**~~ — **DONE 2026-07-27.** Copy
+   digest and per-document fingerprint both matched local↔prod; `eval:production`
+   reproduced the local coverage exactly. **Never `acquire:production` for this
+   source** — it is walled and the credits are already spent.
+3. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** —
+   now live-confirmed in prod for French as well (`/a/700horribles.html` at rank 2
+   on a natural suffering question), alongside the Arabic `/a/endingthe8th.html`.
+4. `/slice <next-source>` — GotQuestions / KnowGod / Issues I Face.
 
 ⚠️ Standing hazard for any future run here: **`pnpm eval` and `pnpm query` inherit
 the fast-fail query-embed posture (FOLLOW-UP O)** and a timeout looks exactly like

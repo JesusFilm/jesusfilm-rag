@@ -6,23 +6,28 @@ Live "you are here" for the build. Stable design lives in
 whenever state changes; keep it to ~one screen.
 
 _Last updated: 2026-07-27 — **slice #10 (EveryStudent French, `everystudent-fr`)
-is DONE — all four stages GREEN, source Evaluated**, closing the #112 route
-(en ✅ → ar ✅ → fr ✅). 67 French articles acquired, ingested (67 docs / 418
-chunks, 66 `fr` / 1 `null`), queryable, and now evaluated. **Final eval @ 130
-cases / 11 sources: recall@3 0.954 · recall@10 1.000 · coverage 0.736 · MRR
-0.854 · P@1 0.746 — every headline metric UP** on the pre-curation baseline.
-`everystudent-fr` enters at **n=18, recall 1.000, coverage 0.856**, the
-second-strongest source after Arabic. **Not merged and NOT promoted to prod** —
-when it is, it MUST go via `copy-raws.sh`, never `acquire:production` (walled
-source). Two findings: the child-suffering soundness problem behind
+is DONE — all four stages GREEN and PROMOTED TO PROD**, closing the #112 route
+both locally and in prod (en ✅ → ar ✅ → fr ✅). 67 French articles acquired,
+ingested (67 docs / 418 chunks, 66 `fr` / 1 `null`), queryable, evaluated, and now
+**live in the prod corpus** via the bulk-copy path — copy digest and per-document
+fingerprint both matched local↔prod, `eval:production` @ 18 cases returned
+**coverage 0.856, identical to local, with all 18 cases at rank 1**. Prod is now
+**11,728 docs / 34,434 chunks / 11 sources**. **Local eval @ 130 cases / 11
+sources: recall@3 0.954 · recall@10 1.000 · coverage 0.736 · MRR 0.854 · P@1
+0.746 — every headline metric UP** on the pre-curation baseline. ⚠️ **The branch
+is still UNMERGED, so prod leads `main` on this source** (same inverted order as
+slice #9). Three findings: the child-suffering soundness problem behind
 **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) is estate-wide,
-not Arabic-specific**, and a real **hell-question vocabulary gap** is now recorded
-in the eval. Previously:
+not Arabic-specific** — and its French document is now **live and served in prod**;
+a real **hell-question vocabulary gap** is recorded in the eval; and the promotion
+**falsified `copy-raws.md`'s drift prediction**, correcting the rule to "a
+language-scoped eval drifts iff that *language's* subcorpus differs local↔prod".
+Previously:
 **slice #9 (EveryStudent Arabic) is DONE — all four
 stages GREEN and PROMOTED TO PROD**. `everystudent-ar` is live in the prod corpus
-(67 docs / 283 chunks via the bulk-copy path, prod eval identical to local) with
-**PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) open and not yet
-merged — so prod leads `main` on this source.** Arabic enters the eval at
+(67 docs / 283 chunks via the bulk-copy path, prod eval identical to local);
+**PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) MERGED
+2026-07-27**, so `main` now carries that slice. Arabic enters the eval at
 **coverage 0.979 / recall@10 1.000**; whole
 corpus @ 118 cases is **recall@10 1.000 · coverage 0.730**. Two findings filed:
 **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** (content
@@ -334,20 +339,60 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 ## Next action
 
 **✅ DONE — slice #10 (`everystudent-fr`, questions2vie.com), ALL FOUR STAGES
-GREEN 2026-07-27.** The third and final walled EveryStudent domain; **the #112
-route is now closed** (en ✅ → ar ✅ → fr ✅).
+GREEN 2026-07-27 AND PROMOTED TO PROD the same day.** The third and final walled
+EveryStudent domain; **the #112 route is now closed, locally and in prod**
+(en ✅ → ar ✅ → fr ✅).
+
+**Promoted (Step 6, 2026-07-27) — the third source through the #115 bulk-copy
+path.** `acquire:production` was deliberately NOT run (walled source; the ~70
+Firecrawl credits were already spent at Stage 1). 67 raw rows copied local→prod
+after a clean dry-run, verified by a UTC-pinned row-level digest
+(**`8e9ec570…d8b7`** on both sides), then embedded to **67 docs / 418 chunks /
+418 embeddings** — an exact match of local, per-document fingerprint
+**`5739cf2f…5cad`** on both sides, 0 `chunk_count` mismatches, 66 `fr` / 1 `null`
+preserved, 0 rows left pending. **Prod 11,661 → 11,728 docs / 34,016 → 34,434
+chunks.** Smoke test reproduced all four Stage-3 French queries within float noise
+and **the three-way cross-lingual match held in prod** (fr #1 · en #2 · fr #3 ·
+`ar` #4 on "Comment puis-je connaître Dieu personnellement ?").
+`eval:production --source everystudent-fr` @ 18 cases: recall@3/@10 **1.000** ·
+coverage **0.848** · MRR **1.000** · P@1 **1.000**, **all 18 at rank 1**;
+per-source coverage **0.856, identical to local**. Record:
+`eval/results-2026-07-27-everystudent-fr-prod-keep.md`. ✅ **First promotion of
+the three with ZERO retries on either metered step.**
+
+🔑 **The promotion FALSIFIED `copy-raws.md`'s drift prediction, and the rule is
+now corrected.** The runbook expected French to drift because `thelife-fr`
+competes, calling an exact match "the surprise". Coverage matched **exactly on all
+18 cases**. Mechanism, measured: prod carries **40 more docs than local** (11,728
+vs 11,688 — thelife +30, sightline +9, jf-org +1) and **every one is English**,
+while the 225-doc French subcorpus is identical on both sides; the strict
+`eq(documents.language, …)` makes `fr` cases structurally blind to them. Restated:
+**a language-scoped eval drifts iff that LANGUAGE'S subcorpus differs local↔prod**
+— sole-source-ness was a confound, not the cause. Those same ~40 docs are exactly
+what the runbook blamed for the English promotion's ~0.09 gap.
+
+⚠️ **Exactly one case moved rank and it is JITTER, not drift.**
+`esfr-skeptic-enfer` went rank 2 → 1: local's first credited hit was
+`/a/260islam.html` @ **0.616**, prod's was thelife-fr
+`/10-questions-spirituelles-avec-reponses` @ **0.615** — a **0.001** gap, the
+fourth sighting of this pattern. Coverage held at 2/3. ⓘ It qualifies the Stage-4
+"vocabulary gap" framing slightly: the gap is real (`/a/726enfer.html` still falls
+out of the top 8), but **this case's rank-1-vs-2 reading is not stable between
+runs.**
 
 **▶ NEXT — the operator decides, in this order:**
 
 1. **Merge `slice/everystudent-fr` → `main`.** Nothing is pushed; no PR opened.
-2. **Promote to prod via the BULK-COPY path — NEVER `acquire:production`.**
-   `everystudent-fr` is a walled Firecrawl source; re-acquiring in prod re-pays
-   ~70 metered credits for pages already bought. The path is
-   `bash scripts/copy-raws.sh --source everystudent-fr` → `pnpm index:production`
-   → `pnpm eval:production`, per `docs/ops/copy-raws.md` (the same route slice #9
-   used successfully).
+   **This is now the ONLY step left to close slice #10**, and until it lands
+   **prod leads `main` on this source** (the same inverted order as slice #9).
+2. ~~Promote to prod via the bulk-copy path.~~ **DONE 2026-07-27** — see above.
 3. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) — now
-   with a WIDER scope than filed.** See the escalation note below.
+   with a WIDER scope than filed, and now LIVE IN PROD in two languages.** The
+   French `/a/700horribles.html` returns at **rank 2 @ 0.718** on a natural French
+   suffering question in the unfiltered prod space, alongside the Arabic
+   `/a/endingthe8th.html` promoted in slice #9. Excluding a doc from an answer key
+   never stopped the RAG serving it; the fix is content-side. See the escalation
+   note below.
 4. `/slice <next-source>` — GotQuestions / KnowGod / Issues I Face.
 
 **Evaluated (Stage 4): qa-golden.yaml 118 → 130 cases; 93 credits added
@@ -549,15 +594,16 @@ margin (slice #9 recorded 0.382, just 0.012 above the 0.37 cutoff, and
    real retrieval result, not a latent risk. Retrieval is behaving correctly — the
    document genuinely is topically relevant — so the fix is content-side (exclude
    the doc, or get help signposting added), not engine-side.
-2. ~~**Merge slice #9**, then promote.~~ **Promotion is DONE (2026-07-25);
-   the PR is open at [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124)
-   and still needs merging.** `everystudent-ar` is live in prod: 67 docs / 283
+2. ~~**Merge slice #9**, then promote.~~ **BOTH DONE — promotion 2026-07-25, and
+   PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) MERGED
+   2026-07-27**, so `main` now carries slice #9 and prod no longer leads it.
+   `everystudent-ar` is live in prod: 67 docs / 283
    chunks / 283 embeddings via the **bulk-copy path** (`copy-raws.sh`, zero extra
    Firecrawl), both copy digests matched local↔prod, and `eval:production`
    reproduced the local numbers exactly (coverage 0.979 / recall@10 1.000).
    Dashboard refreshed in the same PR (10 sources / 5 languages / 11,661 docs).
-   **Note the inverted order vs slice #8**, which merged first and promoted after:
-   here prod leads `main` on this source until #124 merges. Details:
+   **Note the inverted order vs slice #8**, which merged first and promoted after
+   — slice #10 has now repeated slice #9's inverted order. Details:
    `docs/slices/everystudent-ar.md` → "Prod promotion".
 3. ~~**`/slice everystudent-fr`** as slice #10.~~ **STARTED 2026-07-27, now at
    Stage 4** — see the "in flight" block at the top of this section.

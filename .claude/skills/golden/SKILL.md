@@ -4,7 +4,7 @@ description: "Author grounded golden eval cases for one ingested source, fast. S
 allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 ---
 
-<!-- version: 7 -->
+<!-- version: 8 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -152,6 +152,34 @@ Slice #7's max panel disagreement was **0.25** against a 0.5 escalation threshol
 escalations fired**. Do not read agreement as corroboration. The axis that earned its keep
 was **soundness**, which found prosperity drift and genuinely harmful pastoral content that
 no relevance check could ever surface (→ issue #78).
+
+## Guardrail #8 — calibrate the candidate FLOOR, engine-check every draft, verify every path (v8, slice #10)
+
+Three mechanical checks that cost minutes and prevent silent, permanent damage to the keys.
+
+1. **Set the candidate floor empirically: the HIGHEST score that excludes ZERO
+   already-approved documents.** A deep-k pool over a small language corpus is mostly
+   noise — slice #10's top-40 sweep of a 225-doc French corpus produced 367 raw
+   candidates (1,101 judgements, over the runaway ceiling). Rather than guess a
+   cutoff, score the *existing* credited docs: they bottomed out at **0.511**, so a
+   0.50 floor excludes none of them while cutting the pool to 320 pairs, and a 0.55
+   floor would have discarded 3 documents the operator had already approved. **If a
+   floor would exclude a previously-approved doc, it is too high** — that is the
+   whole test, and it beats any round number.
+2. **Run every drafted question through the wired Retriever BEFORE finalising it,
+   and treat a very high score as a PARAPHRASE SMELL rather than a success.** slice
+   #10's "what is the difference between being Catholic and being Christian?" scored
+   **0.836** — the highest of any probe — purely because it restated the article
+   title (Guardrail #1). Reframed as a real family situation it still ranked 1 at an
+   honest 0.767. The reverse is also informative: rephrasing the hell question away
+   from its article's framing dropped the target document **out of the top 8
+   entirely**, exposing a genuine vocabulary gap. **Keep the honest phrasing and let
+   the eval record the gap** — a case that always passes measures nothing.
+3. **Before the final eval, verify every credited `(source, path)` resolves to
+   EXACTLY ONE document.** One SQL query over the whole relevant set. A typo or an
+   over-broad suffix match creates an expectation the engine can never satisfy —
+   precisely the defect Guardrail #3a exists to prevent, reached by accident instead
+   of by policy, and invisible in the metrics except as unexplained missing coverage.
 
 ## Guardrail #7 — REPORT the fan-out cost, don't pause for it (v7)
 

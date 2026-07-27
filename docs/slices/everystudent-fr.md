@@ -74,9 +74,47 @@ otherwise left alone — no sweep; the dashboard's null count is the record.
 exclusion has the same shape as slice #8's `/wires/loneliness.html` cost.
 
 ### 2. Ingest → corpus tables
-- [ ] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)   <!-- sha: ________ -->
-- [ ] Verify: 1:1 counts, `documents.language = 'fr'` (invariant 6), idempotent re-run   <!-- sha: ________ -->
-- [ ] Report the null-language count as evidence — no sweep, no fix (standing policy)   <!-- sha: ________ -->
+- [x] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3) — **67 docs / 418 chunks / 418 embeddings**   <!-- sha: PENDING -->
+- [x] Verify: 1:1 counts, `documents.language = 'fr'` (invariant 6), idempotent re-run   <!-- sha: PENDING -->
+- [x] Report the null-language count as evidence — no sweep, no fix (standing policy)   <!-- sha: PENDING -->
+
+**Stage 2 evidence (2026-07-27).** All **67 pending rows drained in one pass →
+67 documents / 418 chunks / 418 embeddings** — a perfect 1:1, **0 `chunk_count`
+mismatches**, and a single embedding model (`qwen/qwen3-embedding-8b`, 1536d).
+Chunks/doc min 1 · **avg 6.24** · max 21 — the densest of the three EveryStudent
+banners (en 4.70, ar 4.22), consistent with Stage 1's finding that the French
+bodies are the richest. **All 67 sit under `/a/`** — confirmation that the 3
+dropped signup pages really did leave the corpus. The **idempotent re-run drains
+0** (`0 inserted, 0 updated, 0 unchanged, 0 skipped`).
+
+**The offline language pre-flight held EXACTLY at ingest: 66 `fr` / 1 `null`**,
+and the null is precisely the predicted document — `/a/jesusqui.html` ("Qui était
+Jésus ?"). Per-document detection (invariant 6) labelled every article off the
+content, never the URL path or the `["fr"]` declaration. **Null rate 1.5% — the
+lowest of any source in the corpus** (en 7.7%, ar 3.0%). Per standing policy the
+null is **excluded from the eval**, not swept; the dashboard's null count is the
+record.
+
+ⓘ **Why that one document hedged, most likely.** Spot-reading it: it is a
+**Scripture-compilation page** — "Ce sont des extraits tirés directement de
+l'évangile de Jean, dans la Bible. **Aucun commentaire ajouté.**" Its 14 chunks
+are near-entirely quoted Johannine text with no editorial French voice, which is
+a plausible reason the detector sat at 0.689 rather than a length problem (it is
+the source's *largest* document, so `DETECTION_FLOOR_CHARS` is not involved).
+An observation only — no action, per policy.
+
+**Corpus now 11 sources / 11,688 docs / 34,355 chunks** (from 11,621 / 33,937).
+**French is now genuinely multi-source: 225 `fr` docs** — thelife-fr 156 ·
+**everystudent-fr 66** · thelife 2 · cru 1. everystudent-fr is **29.3% of the
+French corpus**, so Stage-4 Part A displacement on the 10 `tlfr-*` cases is a
+live possibility, not a theoretical one.
+
+Transient OpenRouter embed timeouts occurred and **all recovered inside the retry
+policy** (#64, as in slices #8/#9); **0 permanent failures**. An exact retry
+count isn't available — the run's log was captured through `tail -60`, so only
+the final stretch was retained (15 retries visible there).
+
+Gate re-run **WITH** the new data: green, **441/441**.
 
 ### 3. Retrieve → ranked results
 - [ ] A French query returns ranked, cited hits from this source   <!-- sha: ________ -->
@@ -166,11 +204,12 @@ is 5 cr/page, Cloudflare has tightened (~350 total) — stop and re-plan.
 
 ## Resume hint (for a cold start)
 
-At: Stage 2 — "Drain `raw_documents` → documents / chunks / chunk_embeddings".
-Next concrete action: run `pnpm index --source everystudent-fr`. 67 rows are
-staged and pending (the 3 signup pages were dropped at Stage 1). Expect 66 `fr`
-/ 1 `null` (`/a/jesusqui.html`, detected 0.689, just under the 0.75 gate) and
-roughly 300-400 chunks given the 9.4k-char average. Then verify 1:1 counts and
-an idempotent re-run.
+At: Stage 3 — "A French query returns ranked, cited hits from this source".
+Next concrete action: run `pnpm query` with real French questions against the
+now-11-source space (e.g. "Dieu existe-t-il ?", "Comment gérer l'anxiété ?"),
+then `--language fr` to prove the filter binds with **two** French sources
+competing, then re-probe the minScore 0.37 negatives — **specifically the
+faith-adjacent margin**, since slice #9 recorded 0.382 (only 0.012 above the
+cutoff) and `/a/260islam.html` is in this seed set.
 Last verify: green @ 2026-07-27 (441/441, WITH the new data).
-Last commit: ad1de46. Branch: slice/everystudent-fr.
+Last commit: (this one). Branch: slice/everystudent-fr.

@@ -5,7 +5,11 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-25 — **slice #9 (EveryStudent Arabic) is DONE — all four
+_Last updated: 2026-07-27 — **slice #10 (EveryStudent French, `everystudent-fr`)
+is IN FLIGHT: Stages 1+2 GREEN** — 67 French articles acquired and ingested
+(67 docs / 418 chunks, 66 `fr` / 1 `null`), corpus now 11 sources / 11,688 docs /
+34,355 chunks, gate 441/441. Next is Stage 3 (retrieve). Previously:
+**slice #9 (EveryStudent Arabic) is DONE — all four
 stages GREEN and PROMOTED TO PROD**. `everystudent-ar` is live in the prod corpus
 (67 docs / 283 chunks via the bulk-copy path, prod eval identical to local) with
 **PR [#124](https://github.com/JesusFilm/jesusfilm-rag/pull/124) open and not yet
@@ -320,9 +324,32 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com), STAGE 1
+**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com), STAGES 1+2
 GREEN 2026-07-27.** The third and final walled EveryStudent domain; this closes
-the #112 route (en ✅ → ar ✅ → fr). **Acquired 70/70 seeds, zero skips** — the
+the #112 route (en ✅ → ar ✅ → fr).
+
+**Ingested (Stage 2): all 67 pending → 67 docs / 418 chunks / 418 embeddings**
+(`qwen/qwen3-embedding-8b`, 1536d) — perfect 1:1, 0 `chunk_count` mismatches,
+single model, **chunks/doc avg 6.24** (max 21) — the densest of the three
+banners (en 4.70, ar 4.22), matching Stage 1's "richest bodies" finding. All 67
+are `/a/` articles, confirming the 3 signup pages really left the corpus.
+Idempotent re-run drains 0. **The offline language pre-flight held EXACTLY:
+66 `fr` / 1 `null`**, the null being precisely the predicted `/a/jesusqui.html`.
+**Corpus now 11 sources / 11,688 docs / 34,355 chunks.** Gate re-run WITH the new
+data: green, 441/441.
+
+⚠️ **French is now genuinely multi-source: 225 `fr` docs** — thelife-fr 156 ·
+**everystudent-fr 66** · thelife 2 · cru 1. At **29.3% of the French corpus**,
+displacement on the 10 existing `tlfr-*` cases is a live possibility, not a
+theoretical one — Stage-4 Part A re-review is real work this time.
+
+ⓘ The one null-language doc is a **Scripture-compilation page** ("extraits tirés
+directement de l'évangile de Jean… **Aucun commentaire ajouté**") — near-entirely
+quoted Johannine text with no editorial French voice, a plausible reason
+detection sat at 0.689. Observation only; excluded from the eval per standing
+policy, no sweep.
+
+**Acquired 70/70 seeds, zero skips** — the
 first banner to take every seed — at **exactly 1.00 cr/page (828 → 758), so
 #112's whole three-domain route is now paid for**. Bodies are the richest of the
 three (avg 9,104 ch vs en 7,203 / ar 6,442); `.content4` binds here too,
@@ -346,9 +373,12 @@ source** (en 7.7%, ar 3.0%). The one null is `/a/jesusqui.html` at confidence
 *largest* document, not a thin one.
 
 ⚠️ Unlike Arabic, **French is not a new language** — 159 `fr` docs and 10
-`tlfr-*` cases already exist, so Stage-4 Part A re-review is **not** a provable
-no-op and `fr` coverage (0.817) should be expected to move. Next: Stage 2
-(ingest). Plan + decisions:
+`tlfr-*` cases already existed, so Stage-4 Part A re-review is **not** a provable
+no-op and `fr` coverage (0.817) should be expected to move. **Next: Stage 3
+(retrieve)** — French queries against the 11-source space, `language:"fr"` with
+**two** French sources competing, and a re-probe of the faith-adjacent minScore
+margin (slice #9 recorded 0.382, just 0.012 above the 0.37 cutoff, and
+`/a/260islam.html` is in this seed set). Plan + decisions:
 [docs/slices/everystudent-fr.md](./slices/everystudent-fr.md).
 
 **Also open — operator decides between three, in this order of urgency:**

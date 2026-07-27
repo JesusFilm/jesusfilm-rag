@@ -117,9 +117,40 @@ the final stretch was retained (15 retries visible there).
 Gate re-run **WITH** the new data: green, **441/441**.
 
 ### 3. Retrieve → ranked results
-- [ ] A French query returns ranked, cited hits from this source   <!-- sha: ________ -->
+- [x] A French query returns ranked, cited hits from this source   <!-- sha: ________ -->
 - [ ] `language:"fr"` returns ONLY French, now that **two** French sources compete   <!-- sha: ________ -->
 - [ ] Re-check minScore 0.37 at 11 sources — **specifically the faith-adjacent margin** (slice #9 recorded 0.382, only 0.012 above the cutoff, on a Muslim-readership probe; `/a/260islam.html` is in this seed set)   <!-- sha: ________ -->
+
+**Stage 3 evidence — sub-step 1 (2026-07-27): French is queryable, and the
+corpus is cross-lingual in three directions.** Four real French seeker questions
+against the **unfiltered** 11-source space, `pnpm query --top-k 5`:
+
+| Question | Rank 1 | Score |
+|---|---|---|
+| « Dieu existe-t-il ? » | `everystudent-fr /a/101existe.html` | **0.737** |
+| « Comment trouver la paix intérieure quand je suis anxieux ? » | `everystudent-fr /a/coronavirus.html` | **0.739** |
+| « Comment puis-je connaître Dieu personnellement ? » | `everystudent-fr /a/comment-connaitre-dieu-personnellement.html` | **0.775** |
+| « Pourquoi Dieu permet-il la souffrance ? » | `cru …/why-does-god-allow-suffering.html` (en) | 0.728 |
+
+**Rank 1 on three of four**, every hit ranked and cited off real French prose.
+
+Two findings worth carrying:
+
+- 🌍 **The three-banner cross-lingual match, now three-way.** « Comment puis-je
+  connaître Dieu personnellement ? » returned **fr #1 · en #2 · fr #3 · `ar` #4**
+  — `everystudent-fr/a/comment-connaitre-dieu-personnellement.html` (0.775),
+  `everystudent.com/faq/know.html` (0.769),
+  `everystudent-fr/a/trouverDieu.html` (0.766) and
+  `everystudent-ar/v/personally.html` (0.722): **the same EveryStudent article in
+  three languages, matched to a French query across two language boundaries.**
+  Slice #9 saw this two-way (ar↔en); the #112 route being complete makes it
+  three-way. (Note `/v/personally.html` is the Arabic doc whose *stored* label is
+  `null` — it is retrievable unfiltered, and only invisible under `language:`.)
+- 🇫🇷 **A French question can still be best-answered in English.** « Pourquoi Dieu
+  permet-il la souffrance ? » put **cru's English** suffering article at rank 1
+  (0.728) over the French `/a/700horribles.html` at #2 (0.718) — the unfiltered
+  space ranks on meaning, not on query language. (That #1 chunk also opens with
+  the `0 100 0` AEM junk string — the known cru extraction artifact, #79.)
 
 ### 4. Spot-check / eval (`/golden everystudent-fr`)
 - [ ] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: ________ -->

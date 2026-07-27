@@ -15,7 +15,7 @@ The pipeline already has the seam to avoid this. `raw_documents` is flat, keyed 
 
 ## Decision
 
-Adopt an **optional** promotion path, `scripts/copy-raws.sh`, sanctioned **specifically for walled/metered (Firecrawl) sources** where re-acquiring in prod would double a real credit cost. It is **not** a replacement for `acquire:production`: for any free-to-acquire source, `acquire:production` (crawl-in-prod, resumable) remains the path. The operator recognises a source as walled/metered and chooses this path deliberately.
+Adopt an **optional** promotion path, `scripts/copy-raws.sh`, whose justifying case is a **walled/metered (Firecrawl) source** where re-acquiring in prod would double a real credit cost. It is **not** a replacement for `acquire:production`: for a free-to-acquire source, `acquire:production` (crawl-in-prod, resumable) remains the normal path. `copy-raws.sh` *works* on a non-walled source too — it skips a re-crawl — but with nothing metered to save there is no reason to prefer it over the simpler path, so choosing it there is a deliberate exception, not the default. The operator recognises a source as walled/metered and chooses this path deliberately.
 
 **Flow** (all steps driven from wherever the operator runs prod scripts — VM or local):
 
@@ -43,4 +43,4 @@ Adopt an **optional** promotion path, `scripts/copy-raws.sh`, sanctioned **speci
 - (+) Validated end-to-end on everystudent en/ar/fr, which doubled as a proving run of the local contributor promotion path.
 - (−) Embedding is done twice (local + prod). Accepted.
 - (−) `copy-raws.sh` writes to the prod corpus while bypassing `acquire:production`'s crawl+gate path. It carries its own host guard, but it is a distinct write path an operator must invoke deliberately.
-- (−) Optional and situational: the operator must correctly identify a source as walled/metered and choose this path; a non-walled source must not use it.
+- (−) Optional and situational: the operator must correctly identify a source as walled/metered and choose this path deliberately. On a non-walled source it still works but buys nothing — an extra step off the normal `acquire:production` path.

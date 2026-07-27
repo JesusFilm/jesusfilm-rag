@@ -1,8 +1,8 @@
 # ADR-0013 — Language sweep runs on-demand, null-only by default; residual nulls are accepted
 
-- Status: Accepted
+- Status: Accepted as **policy**; the `--mode blanks` default flip is **not yet in the CLI** — tracked by [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126). Until it lands, a routine run passes `--mode blanks` explicitly.
 - Date: 2026-07-28
-- Issue/PR: [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126) (adopts the default flip in code + docs)
+- Issue/PR: [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126) (implements the default flip in code + docs; separately tracked)
 - Related: builds the **operational policy** on top of [ADR-0009](./0009-llm-language-detection-sweep.md) (the sweep's detection *mechanism*); depends on [ADR-0007](./0007-language-decision-thresholds-null-policy.md)'s `null` policy and [ADR-0008](./0008-language-label-lifecycle.md)'s never-blank lifecycle.
 
 ## Context
@@ -21,7 +21,9 @@ Two facts frame the decision:
 
 ## Decision
 
-1. **`--mode blanks` becomes the default.** Routine `pnpm lang:sweep` targets only `null`-language documents. `full` becomes an explicit opt-in, reserved for a **detector change** (a new model or prompt) where re-auditing established labels is the actual point. (Code + docs change tracked in [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126); `--mode blanks` already exists, so this is a default flip, not new capability.)
+1. **`--mode blanks` becomes the default** — *policy decided here; the code default flip is tracked by [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126) and has not landed.* Routine `pnpm lang:sweep` targets only `null`-language documents. `full` becomes an explicit opt-in, reserved for a **detector change** (a new model or prompt) where re-auditing established labels is the actual point.
+
+   ⚠️ **Interim (pre-#126): the CLI still defaults to `--mode full`** (`scripts/lib/language-sweep-core.ts`), which re-audits the whole corpus and bills accordingly. A routine sweep **must pass `--mode blanks` explicitly** until #126 lands. (`--mode blanks` already exists, so #126 is a default flip, not new capability.)
 
 2. **Residual `null`s are accepted, not an error state.** A permanent residue of nulls is the expected, correct output of a detector that abstains on hard cases. Null rows stay fully retrievable *unfiltered* (ADR-0007) and are excluded only from `language:` filters.
 

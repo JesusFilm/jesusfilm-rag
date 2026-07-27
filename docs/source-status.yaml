@@ -150,3 +150,12 @@ sources:
           French eval (10 cases)."
     slice_file: docs/slices/cru.md
     last_updated: 2026-07-14
+  everystudent-ar:
+    name: EveryStudent — Arabic (everyarabstudent.com)
+    status: done
+    languages:
+      ar:
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
+    slice_file: docs/slices/everystudent-ar.md
+    last_updated: 2026-07-25

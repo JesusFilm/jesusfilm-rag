@@ -339,10 +339,15 @@ describe("SourceRegistry", () => {
     expect(getSource("cru-10-basic-steps")).toBeUndefined();
     // NOT registered: shagerdan.com (Persian) serves a Cloudflare 403 wall.
     expect(getSource("thelife-fa")).toBeUndefined();
-    // EveryStudent's three banners are three DOMAINS, so three keys — the
-    // Arabic and French ones are later slices (#112), not languages of `everystudent`.
+    // EveryStudent's three banners are three DOMAINS, so three keys — the Arabic
+    // one is registered (slice #9); French is a later slice (#112). None of them
+    // is a *language* of `everystudent`.
     expect(getSource("everystudent")?.languages).toEqual(["en"]);
-    expect(getSource("everystudent-ar")).toBeUndefined();
+    expect(getSource("everystudent")?.domain).toBe("www.everystudent.com");
+    expect(getSource("everystudent-ar")?.languages).toEqual(["ar"]);
+    expect(getSource("everystudent-ar")?.domain).toBe(
+      "www.everyarabstudent.com",
+    );
     expect(getSource("everystudent-fr")).toBeUndefined();
   });
 });

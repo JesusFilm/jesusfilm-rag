@@ -60,6 +60,52 @@ naive copy-all would duplicate pages in prod after any re-acquire. The source
 the newest row per URL. The script also **refuses to run if the target already
 has rows for the source** (pass `--force` only to deliberately append).
 
+## Verifying a copy (do this — matching totals are not proof)
+
+`copy-raws.sh` prints row counts, which proves *how many* rows arrived, not *that
+they are the same rows*. Two digests close that gap. Run each on **both** local and
+prod and compare the hashes; they are cheap and they are what turns "looks right"
+into evidence.
+
+**1. After the copy — row-level digest over the 11 copied columns:**
+
+```sql
+SET TIME ZONE 'UTC';   -- REQUIRED, see below
+WITH copied AS (
+  SELECT DISTINCT ON (canonical_url)
+         source_key, url, canonical_url, title, raw_content, status,
+         body_hash, etag, last_modified, fetched_at, not_modified
+  FROM raw_documents WHERE source_key = '<key>'
+  ORDER BY canonical_url, fetched_at DESC
+)
+SELECT count(*), md5(string_agg(md5(copied::text), '' ORDER BY canonical_url))
+FROM copied;
+```
+
+⚠️ **Pin the TimeZone.** `fetched_at` and `last_modified` are `timestamptz`, so
+their `::text` rendering inside `md5(row::text)` depends on the **session**
+TimeZone. Local psql and the prod session can differ, which makes a byte-identical
+copy report a mismatch. Pin both sides to UTC and the comparison is meaningful.
+
+**2. After `index:production` — per-document fingerprint:**
+
+```sql
+WITH d AS (
+  SELECT d.canonical_url, coalesce(d.language,'∅') AS lang, d.chunk_count, d.content_hash
+  FROM documents d JOIN sources s ON s.id = d.source_id WHERE s.key = '<key>'
+)
+SELECT count(*),
+       md5(string_agg(canonical_url||'|'||lang||'|'||chunk_count||'|'||content_hash,
+                      '' ORDER BY canonical_url))
+FROM d;
+```
+
+This is the one that earns its keep: identical `docs` + `chunks` **totals** can
+still hide a document that chunked differently or picked up a different language
+label, because errors in opposite directions cancel in a sum. The fingerprint pins
+every document's split and label individually. Also assert
+`count(*) FILTER (WHERE chunk_count <> (actual chunk rows)) = 0`.
+
 ## Guard rails (this is a new write path into the prod corpus)
 
 `copy-raws.sh` bypasses `acquire:production`'s Y/N gates, so it carries its own,
@@ -151,6 +197,21 @@ a `sources.md` note.
   compete. Verify the *promotion* by comparing doc/chunk counts local↔prod (they
   should match exactly); read the eval as "is it live and sane in prod", not as a
   re-measurement of the local number.
+  - **Exception — a language-scoped eval on a sole-language source cannot drift.**
+    everystudent-ar reproduced its local numbers to three decimals. That is
+    structural, not luck: its cases pin `language: "ar"` and
+    `corpus-search-store.ts` applies a strict `eq(documents.language, …)`, so the
+    only eligible competitors are the source's own docs, which are identical on
+    both sides. **Don't generalise it.** The moment a second source shares the
+    language (`everystudent-fr` vs `thelife-fr`) real neighbours return and so does
+    real drift — an exact match there would be the surprise.
+- **Expect the provider-slow spell on both metered steps.** Both promotions so far
+  hit it. Corpus embed rides it out on its own (everystudent-ar: 34 retry lines,
+  longest chain 6 of 10, zero docs lost). `eval:production` does **not** — its
+  fast-fail query-embed policy (#118) discards the batch on a single timeout, and
+  it has now needed `QUERY_EMBED_MAX_ATTEMPTS=10 QUERY_EMBED_TIMEOUT_MS=15000` on
+  **both** runs. Treat raising those as the default for a promotion eval rather
+  than as a reaction to a failure.
 - **Wrong environment.** The redacted-host preview (interactive) and
   `--expect-host` (unattended) are the last line of defence. Never put prod
   values in `.env` / `.env.local` — the script reads `.env` for the *source* side.
@@ -176,6 +237,17 @@ a `sources.md` note.
   slice-8 number (0.818) is corpus drift, not a promotion defect — prod carried
   ~40 more docs across thelife/sightline/jf-org than local at run time. See
   `docs/slices/everystudent.md`.
+- **Second live run — everystudent-ar (Arabic), 2026-07-25.** 67 rows copied,
+  digest `712a93db…56a1` matching on both sides; `index:production` embedded them
+  to **67 docs / 283 chunks / 283 embeddings**, an exact match of local including
+  the 65 `ar` / 2 null language split and 0 `chunk_count` mismatches.
+  `eval:production` reproduced the local numbers **exactly** — recall@3 0.917 /
+  recall@10 1.000 / coverage 0.979 / MRR 0.938 / P@1 0.917
+  (`eval/results-2026-07-25-everystudent-ar-keep.md`). Two refinements this run
+  contributed, both now folded into *Verifying a copy* and *Hazards* below:
+  the digest needs an explicit UTC TimeZone pin, and a **per-document
+  fingerprint** catches split/label errors that matching grand totals hide.
+  See `docs/slices/everystudent-ar.md`.
 
 ## Related
 

@@ -5,7 +5,7 @@ allowed-tools: "Bash(git *) Bash(pnpm *) Bash(npx *) Bash(tsx *) Bash(node *) Ba
 disable-model-invocation: true
 ---
 
-<!-- version: 10 -->
+<!-- version: 12 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -109,18 +109,29 @@ broken foundation.
    3. **State that language is detected per document at ingest** from the content
       (`ingestion/detect-language.ts`). The skill never assumes one language per
       source and never trusts the URL path or `<html lang>` for the label.
-   4. **State the null-language policy — nulls are UNCREDITABLE in the eval until
-      swept.** Detection leaves honest `null`s (ADR-0007), and a null doc is both
-      invisible to `language:`-filtered serving AND impossible to credit in
-      qa-golden.yaml: `caseLanguage()` has no unscoped pin, so en-intersecting
-      cases run scoped and a null credit is a permanently unreturnable
-      expectation (eval-approach.md → Multilingual eval, correction 3). Decide
-      **sweep-after-ingest vs exclude-from-credits** here, at unpack — deferring
-      it costs a Stage-4 pause and can leave a source's best docs out of the
-      answer keys. *(slice #8: everystudent's 9 nulls were its flagship
-      apologetics pieces; "keep the cases unscoped" turned out mechanically
-      impossible, and the excluded `/wires/loneliness.html` left the native
-      loneliness case with zero everystudent credits.)*
+   4. **Null-language docs are EXPECTED, and they are EXCLUDED from the eval.
+      This is settled — do not re-open it, do not ask the operator, do not
+      propose a sweep.** Every source produces some `null`s; that is detection
+      being honest (ADR-0007), not a defect to fix before the slice can proceed.
+      The rule, in full:
+      - **Excluded from eval credits, always.** A null doc has no known
+        language, so a `language:`-scoped expectation on it is unreturnable by
+        construction (`caseLanguage()` has no unscoped pin; SQL three-valued
+        logic drops it). Crediting one would measure the confidence gate, not
+        retrieval. **Never** put a null-language doc in a `relevant` map.
+      - **They are not lost.** The dashboard carries a per-source null count, so
+        the exclusion is visible rather than silent. That count IS the record.
+      - **`pnpm lang:sweep` is a PROD corrective tool, not a slice step.** Never
+        run it, schedule it, or offer it as an option inside a slice. It does
+        not belong in a stage checklist, a resume hint, or a stage-boundary
+        summary.
+      Report the null count and which docs they are as Stage-2 evidence — one
+      line, as an observation. Then move on. *(This was asked of the operator at
+      every new source until 2026-07-25; it is a rule now precisely so it stops
+      being a question. Slice #8's cost — everystudent's excluded
+      `/wires/loneliness.html` leaving that case with zero everystudent credits —
+      is the accepted price of not baking unreturnable expectations into the
+      answer keys, not an argument for revisiting.)*
    Escalate to the operator **only** if detection confidence is *systematically* low
    for a source (a genuine fork), not to ask "how do we handle languages?".
    *(slice: FamilyLife `es` was mislabeled `en` because language was sourced from
@@ -226,11 +237,57 @@ Pause and hand back to the operator, in plain language, when:
   running `/slice`, and it punched a hole in the cold-start resume contract.
   v4 drops the flag and moves the protection to where it belongs — the operator
   gates the **write to `eval/qa-golden.yaml`** (golden Guardrail #4: draft →
-  present → stop → write only what came back approved) and the **fan-out spend**
-  (Guardrail #7: report N docs × 3 lenses and stop for a go-ahead before
-  judging). Hand off to `/golden <source-key>` directly; do not pause the slice
-  for a human to re-issue it. *(slice #8: the invocation gate was the only stage
-  boundary a fresh session could not cross unaided.)*
+  present → stop → write only what came back approved). Hand off to
+  `/golden <source-key>` directly; do not pause the slice for a human to
+  re-issue it. *(slice #8: the invocation gate was the only stage boundary a
+  fresh session could not cross unaided.)*
+- **Do NOT pause the slice for judge-panel spend approval.** golden **v7**
+  removed that gate: the panel's fan-out (N docs × 3 lenses) is **reported and
+  then run**, without stopping, unless the estimate tops ~1,000 judgements (a
+  runaway backstop — that size means the candidate pool is malformed, not that
+  it needs buying). The operator approved every batch in slices #7/#8/#9, so the
+  pause was pure latency and it stranded unattended Stage 4 runs. The **write**
+  gate (Guardrail #4) is the one that still stops the world. *(slice #9: the
+  operator asked for this directly.)*
+- **A SINGLE-SOURCE LANGUAGE changes the Stage-4 gate: relevance gates the key,
+  soundness gets FILED.** The two-axis 0.75 gate (golden Guardrail #6) silently
+  assumes several sources compete on a question — then striking a low-soundness
+  doc *filters* an answer key. When a language has exactly one source and cases
+  are `language:`-scoped, the same gate *deletes* the key. Measured on slice #9
+  (`everystudent-ar`): both axes → **6 of 52** credits and **9 of 14 cases empty**;
+  relevance alone → **27 of 52**, 2 empty. Two reasons it must be relevance:
+  the eval measures **retrieval** (the panel's highest-relevance pair, 0.91, scored
+  0.52 soundness — excluding it marks the engine wrong for returning the best
+  document in the corpus), and striking a doc from a key **never stopped the RAG
+  serving it**, so the exclusion protects nobody while blinding the metric. Still
+  score soundness on every pair and **file** it — slice #9's panel found false
+  factual claims, modalism, and suicide content with no help signposted (#123).
+  See `docs/eval-approach.md` → Multilingual eval, correction 4.
+- **A per-source metric moving is NOT automatically a regression — check for
+  top-k boundary jitter FIRST.** slice #9: `everystudent` read 0.818 vs 0.773
+  across runs with an unchanged corpus. Cause: one credited doc at **rank 10,
+  score 0.648, rank 11 at 0.647** — float noise in the query embedding flipping a
+  0.001 gap. Before suspecting the new source, (a) grep the results for ANY doc
+  from it (if none appear, displacement is impossible) and (b) diff **per-case**
+  `rank`/`cov=x/y`, which localises it immediately. At n≈20 one boundary doc is
+  ~0.045 of per-source recall.
+- **Re-review (Part A) is a provable NO-OP when no prior case shares the new
+  source's language.** Before spending a curation pass, compute each existing
+  case's resolved language (`caseLanguage()` = explicit pin, else the intersection
+  of its relevant sources' declared languages). If none resolve to the new
+  language and none are unscoped, the new docs are **ineligible by construction**
+  — `corpus-search-store.ts` applies a strict `eq(documents.language, …)`. slice
+  #9 confirmed this offline in seconds (106 cases: en 78 · fr 10 · zh 10 · es 8,
+  0 unscoped) and then verified it empirically (zero Arabic docs anywhere in the
+  results). Do the cheap structural check before the expensive re-review.
+- **`pnpm eval` inherits the FAST-FAIL query retry policy — override it for
+  batch runs.** `docs/ops/embed-retry-policy.md` files `pnpm eval` under the
+  `/v1/search` posture (`QUERY_EMBED_MAX_ATTEMPTS=2`, 4 s timeout) because a human
+  is waiting on a search. A 100+-case offline eval has no latency SLA and **no
+  resume**, so one transient OpenRouter blip discards the entire run — it killed
+  two runs in slice #9. Run batch evals as
+  `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval` (env only,
+  no code change, serving path untouched).
 - **Stage 4 curation: judge the DOCUMENT, not the chunk.** The relevant set credits
   **document paths**, so relevance must be judged on the whole document. Cru articles
   routinely open with a long lead-in anecdote, so judging chunk 0 rejects docs whose
@@ -364,7 +421,10 @@ The bar for "this sub-step is real":
     re-run is idempotent (delete-then-insert, no duplicate chunks). **For a
     multi-language source, spot-check that a non-primary-language document lands
     with the correct `documents.language`** (e.g. a FamilyLife `/us-latinos/` page
-    reads `es`, not `en`) — this is the invariant-6 detection working.
+    reads `es`, not `en`) — this is the invariant-6 detection working. Also
+    report the **null-language count** — as an observation, not a problem to
+    solve: nulls are expected, excluded from the eval, and surfaced on the
+    dashboard (see the language plan, §Step 2.3). No sweep, no operator question.
   - *Retrieve* — a real query returns ranked, cited hits from this source. **For a
     multi-language source, a `language:<code>` filter returns ONLY that language**
     (e.g. `language:"es"` returns Spanish and no English).

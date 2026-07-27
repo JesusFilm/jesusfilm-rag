@@ -4,7 +4,7 @@ description: "Author grounded golden eval cases for one ingested source, fast. S
 allowed-tools: "Bash(pnpm *) Bash(psql *) Bash(docker *) Bash(cat *) Bash(grep *) Read(*) Write(*) Edit(*) Grep(*) Glob(*)"
 ---
 
-<!-- version: 5 -->
+<!-- version: 7 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -73,6 +73,17 @@ The personas are the default balanced set; the operator may swap or add one.
    the question was derived from — never invent a path. Use the `canonical_url`
    pathname for `expected_doc_paths`.
 3. **Negatives must be plausibly-asked but genuinely off-topic for THIS source.**
+   **3a. NEVER credit a null-language document — no exceptions, no operator
+   question.** A doc whose `documents.language` is `null` has no known language
+   (an honest ADR-0007 blank), so a `language:`-scoped case can never return it
+   (SQL three-valued logic) and crediting it bakes a permanently unreturnable
+   expectation into the answer keys — coverage would measure the confidence gate
+   instead of retrieval. Drop nulls from the survey in §1 (`AND d.language IS NOT
+   NULL`) so they cannot reach a draft, and say how many you dropped. This is
+   settled policy (eval-approach.md → Multilingual eval, correction 3): do not
+   propose `pnpm lang:sweep` — that is a production corrective tool, never a step
+   in authoring an eval. Every source has some nulls; the dashboard counts them,
+   so they are visible, not lost.
 4. **The operator is the gate — and the gate is the WRITE, not the invocation.**
    This skill *proposes*; the operator approves, edits, or rejects. **Nothing
    reaches `eval/qa-golden.yaml` without an explicit approval turn** — not a
@@ -84,8 +95,9 @@ The personas are the default balanced set; the operator may swap or add one.
    invoked by an agent** (v4 dropped `disable-model-invocation` — `/slice`
    Stage 4 hands off here, and a cold-start resume must not need a human at the
    keyboard). What used to be protected by "a human typed the command" is now
-   protected by this guardrail and #7 below. Both must hold, or the answer keys
-   stop being the operator's.
+   protected by **this guardrail alone** — v7 removed #7's routine spend pause
+   because it never changed an outcome. This one is the answer keys' only gate:
+   if it stops holding, they stop being the operator's.
 5. **Curate on content, never on titles.** Every candidate the operator judges
    MUST be presented with the actual chunk-text snippet (≥200 chars) and not
    just a title + score. A reviewer cannot judge whether `/devotionals/transform-
@@ -141,23 +153,33 @@ escalations fired**. Do not read agreement as corroboration. The axis that earne
 was **soundness**, which found prosperity drift and genuinely harmful pastoral content that
 no relevance check could ever surface (→ issue #78).
 
-## Guardrail #7 — announce the fan-out cost BEFORE spending it (v4)
+## Guardrail #7 — REPORT the fan-out cost, don't pause for it (v7)
 
 The judge panel is the expensive part: **N docs × 3 lenses**, and a Stage-4 batch
 is routinely 150+ docs. Slice #7 ran 151 credits × 3 = 453 judgements in one pass.
 
-**Before fanning out, compute and report the estimate, then stop for a
-go-ahead:** how many candidate docs, × 3 lenses, and the rough output-token
-cost. Proceed only on an explicit yes. Volunteer a cheaper shape when the batch
-is large — judge the top-N by rank first, or split the run per case-group — so
-"too expensive" has an answer other than "don't run it".
+**Compute and report the estimate — candidate docs × 3 lenses — then GO.** Do
+**not** stop for a go-ahead on an ordinary Stage-4 batch. Print the number so the
+run's size is visible in the record, and proceed in the same turn.
 
-This exists because v4 made the skill agent-invocable. While a human had to type
-`/golden`, the typing *was* the spend approval; now nothing else is. Estimate
-first, spend second — the operator should never learn the size of a run from the
-bill. (The rule comes from the slice-#7 prompt's own COST clause, which asked
-for an estimate above ~1M output tokens; it was never promoted into this skill
-until now.)
+**The one exception (runaway backstop): stop and ask only if the estimate exceeds
+~1,000 judgements** — roughly 2× the largest batch run to date (slice #8, 480).
+That is not a normal Stage 4; it means the candidate pool was built wrong (a
+missing floor, a duplicated case set), and the right response is to check the
+pool, not to buy it. Below that ceiling, never ask.
+
+**Why this changed in v7.** v4 added the pause because making the skill
+agent-invocable removed the "a human typed `/golden`" spend approval. In practice
+the gate never changed an outcome: the operator approved every batch, every time
+(slices #7, #8, #9), because ingesting and evaluating sources *is* the goal and
+the embedder budget is provisioned for it. A gate that always returns the same
+answer is not oversight, it is latency — and it broke the cold-start resume
+contract it was meant to protect, stranding an unattended Stage 4 on a question
+whose answer was known. Spend approval now lives where it is load-bearing: the
+runaway ceiling above, and **Guardrail #4** (the write to `eval/qa-golden.yaml`
+is still gated on an explicit approval turn — that one does not move).
+*(slice #9: the operator asked for this directly — "I always say yes … please
+update the directive responsible for pausing on this every time.")*
 
 ## Two operating modes
 
@@ -225,9 +247,16 @@ psql "$(grep -E '^DATABASE_URL=' .env | cut -d= -f2-)" -c "
     JOIN documents d ON d.source_id = s.id
     LEFT JOIN chunks c ON c.document_id = d.id
    WHERE s.key = '<source-key>'
+     AND d.language IS NOT NULL   -- Guardrail #3a: nulls are UNCREDITABLE
    GROUP BY d.id, d.title, d.canonical_url, d.category, d.language
    ORDER BY d.title;"
 ```
+
+The `d.language IS NOT NULL` filter is **load-bearing, not tidying** — it is what
+stops an uncreditable doc reaching a draft (Guardrail #3a). Run the same query
+without it once to get the null count, report that number alongside the digest
+("N docs excluded as null-language"), and move on — do not investigate them, do
+not propose a sweep.
 
 Present a compact digest so both you and the operator can see the source's real
 shape (titles, paths, categories, snippets).

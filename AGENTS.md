@@ -83,6 +83,18 @@ merge. A secondary **"Unclassified documents"** table tallies any embedded docs
 with no detected language per source, so the index total is never silently
 under-reported (#86). Full runbook: `docs/ops/dashboard.md`. Skill: `.claude/skills/status-dashboard/SKILL.md`.
 
+**That unclassified table is the null-language policy's safety net, and the
+policy is settled — do not re-open it per source.** Every source produces some
+docs whose language could not be confidently detected (honest ADR-0007 blanks).
+They are **permanently excluded from the eval**: with no known language, a
+`language:`-scoped expectation on one is unreturnable by construction, so
+crediting it would measure the confidence gate rather than retrieval. They are
+**not lost** — the dashboard counts them. **`pnpm lang:sweep` is a production
+corrective tool only**: never a step in a slice, never a route for a null doc
+back into `eval/qa-golden.yaml`, and never something to ask the operator about.
+See `docs/eval-approach.md` → Multilingual eval, correction 3;
+`.claude/skills/slice` v12; `.claude/skills/golden` v7 Guardrail #3a.
+
 End-to-end flow the skill performs:
 
 1. Open a GitHub issue tracking the refresh.

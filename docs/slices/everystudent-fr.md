@@ -33,10 +33,43 @@ The corpus already holds **159 `fr` docs** — `thelife-fr` 156 · `thelife` 2 �
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents
-- [x] Register `everystudent-fr` (walled, seed-only, 70 seeds) + fakes-only tests   <!-- sha: b6e9b3d -->
-- [ ] Live Firecrawl crawl of the 70 seeds → `raw_documents`; watch the credit rate over the first ~10 pages   <!-- sha: ________ -->
+- [x] Register `everystudent-fr` (walled, seed-only, 70 seeds) + fakes-only tests   <!-- sha: 8398995 -->
+- [x] Live Firecrawl crawl of the 70 seeds → `raw_documents` — **70/70 staged, 0 skips**   <!-- sha: PENDING -->
 - [ ] Verify: row count, French article prose (not nav/boilerplate), `.content4` binds; resolve the `/jean*` + `/aventure` provisional keeps   <!-- sha: ________ -->
-- [ ] Offline language pre-flight (`decideLanguage` over the staged bodies) — predict the `fr` / `null` split before paying for embeddings   <!-- sha: ________ -->
+- [x] Offline language pre-flight (`decideLanguage` over the staged bodies) — **69 `fr` / 1 `null`**   <!-- sha: PENDING -->
+
+**Stage 1 evidence (2026-07-27).** Staged **70 of 70** seeds — **zero skips**,
+the first EveryStudent banner to take every seed (en 117/117 but from a
+pre-filtered 149; ar 67/68). 70 rows / 70 distinct `canonical_url` / 0
+null-or-empty titles / 0 non-200 / 0 already-ingested / 0 below
+`minContentLength`. Chars min 1,718 · avg **9,104** · max 31,558 — the richest
+of the three banners (en 7,203, ar 6,442). Sections: **`/a/` 67** (avg 9,416 ch)
+· **root 3** (2,141).
+
+**Cost: exactly 70 credits at exactly 1.00 cr/page** (828 → 758). The guard
+tripped at 26 pages reading 1.00 cr/page, so the tightened-wall risk (5 cr/page,
+~350 total) did not materialise on the third host either. **#112's route is now
+fully funded and paid: 758 credits remain**, period ends 2026-08-21.
+
+**Extraction verified** on `/a/101existe.html` ("Dieu existe-t-il ?"): a short
+breadcrumb ("Existence de Dieu"), then title, subtitle, byline (Marilyn
+Adamson), then clean French article prose, closing on genuine Scripture
+footnotes (Jean 8.12, Jérémie 31.3, Apocalypse 3.20). `.content4` **binds on
+this host**, confirming #112's shared-template claim on the last of the three
+banners. Residual chrome is a trailing "PARTAGER CETTE PAGE:" — a few words, the
+same class as the English sibling's leftover and the Arabic "شارك مع أخرين";
+noted, not re-crawled.
+
+**Language pre-flight (offline, free, before ingest): 69 `fr` / 1 `null`, 0
+out-of-declared-set warnings** — the `languages: ["fr"]` declaration is correct.
+**Null rate 1.4% — the lowest of any source** (en 7.7%, ar 3.0%). The single
+null is `/a/jesusqui.html` ("Who is Jesus?"), detected `fr` at **0.689**, just
+under the 0.75 confidence gate — and, as in slice #8, it is the source's
+*largest* document (23,762 ch cleaned), not a thin one, so `DETECTION_FLOOR_CHARS`
+is not involved. Per standing policy it is **excluded from the eval** and
+otherwise left alone — no sweep; the dashboard's null count is the record.
+⚠️ Worth noting for Stage 4: this is a flagship apologetics article, so the
+exclusion has the same shape as slice #8's `/wires/loneliness.html` cost.
 
 ### 2. Ingest → corpus tables
 - [ ] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3)   <!-- sha: ________ -->

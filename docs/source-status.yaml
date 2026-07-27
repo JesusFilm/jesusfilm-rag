@@ -159,3 +159,12 @@ sources:
         stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/everystudent-ar.md
     last_updated: 2026-07-25
+  everystudent-fr:
+    name: EveryStudent — French (questions2vie.com)
+    status: in-progress
+    languages:
+      fr:
+        status: in-progress
+        stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-fr.md
+    last_updated: 2026-07-27

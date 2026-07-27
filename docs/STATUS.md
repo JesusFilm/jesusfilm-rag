@@ -320,7 +320,21 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**Operator decides between three, in this order of urgency:**
+**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com) started
+2026-07-27** on `slice/everystudent-fr`, at **Stage 1 (Acquire)**. The third and
+final walled EveryStudent domain; closes the #112 route (en ✅ → ar ✅ → fr).
+**70 seeds** of the 87 mapped (67 `/a/` articles + 3 provisional root pages;
+dropped the homepage, 12 `/m/*` indexes, `/contact1.html`, `/plan.html` and the
+two `.php` extension twins). Walled — re-probed live: homepage, article and
+`/sitemap.xml` all **403** with the Cloudflare block-page signature; only
+`robots.txt` (`Allow: /`, no disallows) answers. **~70 credits at the measured
+1 cr/page; 828 remain, period ends 2026-08-21.** ⚠️ Unlike Arabic, **French is
+not a new language** — 159 `fr` docs and 10 `tlfr-*` cases already exist, so
+Stage-4 Part A re-review is **not** a provable no-op and `fr` coverage (0.817)
+should be expected to move. Plan + decisions:
+[docs/slices/everystudent-fr.md](./slices/everystudent-fr.md).
+
+**Also open — operator decides between three, in this order of urgency:**
 
 1. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) —
    specifically `/a/endingthe8th.html`.** Suicide and self-harm content presented
@@ -345,11 +359,11 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
    **Note the inverted order vs slice #8**, which merged first and promoted after:
    here prod leads `main` on this source until #124 merges. Details:
    `docs/slices/everystudent-ar.md` → "Prod promotion".
-3. **`/slice everystudent-fr`** (questions2vie.com, ~87 mapped URLs) as slice #10.
-   The Firecrawl budget fits: 828 credits remain and the period ends 2026-08-21.
-   Watch the **0.382** five-pillars margin — 0.012 above the 0.37 cutoff, the
-   tightest faith-adjacent approach recorded, and French adds another
-   faith-adjacent surface.
+3. ~~**`/slice everystudent-fr`** as slice #10.~~ **STARTED 2026-07-27** — see
+   the "in flight" block at the top of this section. The carried-forward watch
+   item stands: the **0.382** five-pillars margin is 0.012 above the 0.37 cutoff,
+   the tightest faith-adjacent approach recorded, and French adds another
+   faith-adjacent surface (`/a/260islam.html` is in the seed set).
 
 The **#17/#75 gate on the `ar`/`fr` slices is lifted** — the rare-language
 mechanism those slices depend on is verified working; only the test fixture was

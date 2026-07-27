@@ -35,7 +35,7 @@ The corpus already holds **159 `fr` docs** — `thelife-fr` 156 · `thelife` 2 �
 ### 1. Acquire → raw_documents
 - [x] Register `everystudent-fr` (walled, seed-only, 70 seeds) + fakes-only tests   <!-- sha: 8398995 -->
 - [x] Live Firecrawl crawl of the 70 seeds → `raw_documents` — **70/70 staged, 0 skips**   <!-- sha: c542c13 -->
-- [x] Verify: row count, French article prose, `.content4` binds; provisional keeps resolved — **all 3 dropped**   <!-- sha: PENDING -->
+- [x] Verify: row count, French article prose, `.content4` binds; provisional keeps resolved — **all 3 dropped**   <!-- sha: ad1de46 -->
 - [x] Offline language pre-flight (`decideLanguage` over the staged bodies) — **69 `fr` / 1 `null`**   <!-- sha: c542c13 -->
 
 **Stage 1 evidence (2026-07-27).** Staged **70 of 70** seeds — **zero skips**,
@@ -60,9 +60,11 @@ banners. Residual chrome is a trailing "PARTAGER CETTE PAGE:" — a few words, t
 same class as the English sibling's leftover and the Arabic "شارك مع أخرين";
 noted, not re-crawled.
 
-**Language pre-flight (offline, free, before ingest): 69 `fr` / 1 `null`, 0
-out-of-declared-set warnings** — the `languages: ["fr"]` declaration is correct.
-**Null rate 1.4% — the lowest of any source** (en 7.7%, ar 3.0%). The single
+**Language pre-flight (offline, free, before ingest): 69 `fr` / 1 `null` over
+the 70 staged, 0 out-of-declared-set warnings** — the `languages: ["fr"]`
+declaration is correct. After the 3 signup-page drops (all of which detected
+`fr`) the set carried into ingest is **66 `fr` / 1 `null` of 67**. **Null rate
+1.5% — the lowest of any source** (en 7.7%, ar 3.0%). The single
 null is `/a/jesusqui.html` ("Who is Jesus?"), detected `fr` at **0.689**, just
 under the 0.75 confidence gate — and, as in slice #8, it is the source's
 *largest* document (23,762 ch cleaned), not a thin one, so `DETECTION_FLOOR_CHARS`
@@ -164,10 +166,11 @@ is 5 cr/page, Cloudflare has tightened (~350 total) — stop and re-plan.
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — "Live Firecrawl crawl of the 70 seeds". Next concrete action: run
-`pnpm acquire --source everystudent-fr` against the live site, watching the
-Firecrawl credit delta over the first ~10 pages (expect 1.00 cr/page; 5 cr/page
-means the wall tightened — stop and re-plan). Then verify row count, French
-prose, and whether `.content4` binds on this host.
-Last verify: green @ 2026-07-27 (440/440, source registered).
-Last commit: (registry). Branch: slice/everystudent-fr.
+At: Stage 2 — "Drain `raw_documents` → documents / chunks / chunk_embeddings".
+Next concrete action: run `pnpm index --source everystudent-fr`. 67 rows are
+staged and pending (the 3 signup pages were dropped at Stage 1). Expect 66 `fr`
+/ 1 `null` (`/a/jesusqui.html`, detected 0.689, just under the 0.75 gate) and
+roughly 300-400 chunks given the 9.4k-char average. Then verify 1:1 counts and
+an idempotent re-run.
+Last verify: green @ 2026-07-27 (441/441, WITH the new data).
+Last commit: ad1de46. Branch: slice/everystudent-fr.

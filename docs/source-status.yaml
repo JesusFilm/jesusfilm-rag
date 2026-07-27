@@ -165,6 +165,6 @@ sources:
     languages:
       fr:
         status: in-progress
-        stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
     slice_file: docs/slices/everystudent-fr.md
     last_updated: 2026-07-27

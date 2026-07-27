@@ -320,18 +320,35 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com) started
-2026-07-27** on `slice/everystudent-fr`, at **Stage 1 (Acquire)**. The third and
-final walled EveryStudent domain; closes the #112 route (en ✅ → ar ✅ → fr).
-**70 seeds** of the 87 mapped (67 `/a/` articles + 3 provisional root pages;
-dropped the homepage, 12 `/m/*` indexes, `/contact1.html`, `/plan.html` and the
-two `.php` extension twins). Walled — re-probed live: homepage, article and
-`/sitemap.xml` all **403** with the Cloudflare block-page signature; only
-`robots.txt` (`Allow: /`, no disallows) answers. **~70 credits at the measured
-1 cr/page; 828 remain, period ends 2026-08-21.** ⚠️ Unlike Arabic, **French is
-not a new language** — 159 `fr` docs and 10 `tlfr-*` cases already exist, so
-Stage-4 Part A re-review is **not** a provable no-op and `fr` coverage (0.817)
-should be expected to move. Plan + decisions:
+**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com), STAGE 1
+GREEN 2026-07-27.** The third and final walled EveryStudent domain; this closes
+the #112 route (en ✅ → ar ✅ → fr). **Acquired 70/70 seeds, zero skips** — the
+first banner to take every seed — at **exactly 1.00 cr/page (828 → 758), so
+#112's whole three-domain route is now paid for**. Bodies are the richest of the
+three (avg 9,104 ch vs en 7,203 / ar 6,442); `.content4` binds here too,
+confirming the shared-template claim on the last banner.
+
+⚠️ **The 3 provisionally-seeded root pages were dropped after fetching — they
+are email-signup forms, not articles**, so ingest takes **67 `/a/` articles and
+nothing else**. All three cleared `minContentLength` easily (1,949–2,453 ch):
+*length is not aboutness*, which is exactly why the floor could not catch them.
+`/jean.html` ↔ `/jeanFR.html` share **87.9% of their 12-word shingles** (the same
+sign-up page reordered — the band slice #8 dropped podcasts at), and all three
+close with an **identical 850-char French GDPR notice** worth 35–44% of their
+bodies. ⓘ **The Arabic `/john.html` + `/pack.html` are the SAME two pages, kept
+in slice #9 and live in prod today** — the estate is inconsistent; recorded for a
+future cleanup, no issue filed, prod untouched by this slice.
+
+**Language pre-flight: 69 `fr` / 1 `null` of 70 staged (66/1 of the 67
+ingested), 0 out-of-declared-set warnings — a 1.5% null rate, the LOWEST of any
+source** (en 7.7%, ar 3.0%). The one null is `/a/jesusqui.html` at confidence
+**0.689**, just under the 0.75 gate, and — as in slice #8 — it is the source's
+*largest* document, not a thin one.
+
+⚠️ Unlike Arabic, **French is not a new language** — 159 `fr` docs and 10
+`tlfr-*` cases already exist, so Stage-4 Part A re-review is **not** a provable
+no-op and `fr` coverage (0.817) should be expected to move. Next: Stage 2
+(ingest). Plan + decisions:
 [docs/slices/everystudent-fr.md](./slices/everystudent-fr.md).
 
 **Also open — operator decides between three, in this order of urgency:**

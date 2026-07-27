@@ -247,10 +247,10 @@ retry override, and never record a zero-hit probe without seeing its exit
 status.
 
 ### 4. Spot-check / eval (`/golden everystudent-fr`)
-- [x] Decide + record the Stage-4 gate (two-axis vs relevance-only) on French's multi-source evidence   <!-- sha: ________ -->
-- [x] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: ________ -->
-- [x] Part B — author everystudent-fr-native cases (English translation + translated retrieved-set block, per `docs/eval-approach.md`)   <!-- sha: ________ -->
-- [x] Full eval; report whole-corpus, per-language `fr`, and per-source numbers   <!-- sha: ________ -->
+- [x] Decide + record the Stage-4 gate (two-axis vs relevance-only) on French's multi-source evidence   <!-- sha: c13c6ce -->
+- [x] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: c13c6ce -->
+- [x] Part B — author everystudent-fr-native cases (English translation + translated retrieved-set block, per `docs/eval-approach.md`)   <!-- sha: c13c6ce -->
+- [x] Full eval; report whole-corpus, per-language `fr`, and per-source numbers   <!-- sha: c13c6ce -->
 
 **Stage-4 gate DECIDED: the two-axis 0.75 rule (slice #7/#8), not slice #9's
 relevance-only rule.** French is genuinely multi-source — 225 `fr` docs across

@@ -74,9 +74,9 @@ otherwise left alone — no sweep; the dashboard's null count is the record.
 exclusion has the same shape as slice #8's `/wires/loneliness.html` cost.
 
 ### 2. Ingest → corpus tables
-- [x] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3) — **67 docs / 418 chunks / 418 embeddings**   <!-- sha: PENDING -->
-- [x] Verify: 1:1 counts, `documents.language = 'fr'` (invariant 6), idempotent re-run   <!-- sha: PENDING -->
-- [x] Report the null-language count as evidence — no sweep, no fix (standing policy)   <!-- sha: PENDING -->
+- [x] Drain `raw_documents` → documents / chunks / chunk_embeddings (qwen3) — **67 docs / 418 chunks / 418 embeddings**   <!-- sha: 4e3e0e0 -->
+- [x] Verify: 1:1 counts, `documents.language = 'fr'` (invariant 6), idempotent re-run   <!-- sha: 4e3e0e0 -->
+- [x] Report the null-language count as evidence — no sweep, no fix (standing policy)   <!-- sha: 4e3e0e0 -->
 
 **Stage 2 evidence (2026-07-27).** All **67 pending rows drained in one pass →
 67 documents / 418 chunks / 418 embeddings** — a perfect 1:1, **0 `chunk_count`
@@ -212,4 +212,4 @@ competing, then re-probe the minScore 0.37 negatives — **specifically the
 faith-adjacent margin**, since slice #9 recorded 0.382 (only 0.012 above the
 cutoff) and `/a/260islam.html` is in this seed set.
 Last verify: green @ 2026-07-27 (441/441, WITH the new data).
-Last commit: (this one). Branch: slice/everystudent-fr.
+Last commit: 4e3e0e0. Branch: slice/everystudent-fr.

@@ -1,6 +1,6 @@
 # Slice: EveryStudent — French (everystudent-fr)
 
-_Branch: `slice/everystudent-fr` · Started: 2026-07-27 · Status: in-progress_
+_Branch: `slice/everystudent-fr` · Started: 2026-07-27 · Completed: 2026-07-27 · Status: done_
 <!-- Status: in-progress | blocked | done | deferred (mirrors the RowStatus contract) -->
 
 ## Goal (architecture altitude)
@@ -247,10 +247,174 @@ retry override, and never record a zero-hit probe without seeing its exit
 status.
 
 ### 4. Spot-check / eval (`/golden everystudent-fr`)
-- [ ] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: ________ -->
-- [ ] Part B — author everystudent-fr-native cases (English translation + translated retrieved-set block, per `docs/eval-approach.md`)   <!-- sha: ________ -->
-- [ ] Decide + record the Stage-4 gate (two-axis vs relevance-only) on French's multi-source evidence   <!-- sha: ________ -->
-- [ ] Full eval; report whole-corpus, per-language `fr`, and per-source numbers   <!-- sha: ________ -->
+- [x] Decide + record the Stage-4 gate (two-axis vs relevance-only) on French's multi-source evidence   <!-- sha: ________ -->
+- [x] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: ________ -->
+- [x] Part B — author everystudent-fr-native cases (English translation + translated retrieved-set block, per `docs/eval-approach.md`)   <!-- sha: ________ -->
+- [x] Full eval; report whole-corpus, per-language `fr`, and per-source numbers   <!-- sha: ________ -->
+
+**Stage-4 gate DECIDED: the two-axis 0.75 rule (slice #7/#8), not slice #9's
+relevance-only rule.** French is genuinely multi-source — 225 `fr` docs across
+`thelife-fr` (156) · `everystudent-fr` (66) · `thelife` (2) · `cru` (1) — so the
+condition slice #9's exception exists for (one source, `language:`-scoped cases,
+where striking a doc *deletes* the answer key rather than filtering it) does not
+hold. Striking a doc here leaves the case with other sources' credits, which is
+exactly what the two-axis gate is for. Evidence that the gate had teeth: it
+rejected one document on soundness that relevance alone would have credited
+(below).
+
+**Part A evidence (2026-07-27) — the baseline, and where the drop came from.**
+Pre-curation eval at 118 cases: whole-corpus recall@3 **0.941** · recall@10
+**1.000** · coverage **0.723** · MRR 0.821 · P@1 0.695. **`thelife-fr` /
+per-language `fr` fell 0.817 → 0.733**, and that was the ONLY source that moved:
+cru, everystudent-ar, jesusfilm-org, sightline, swg, thelife and thelife-zh were
+byte-identical, `familylife` moved −0.009 and `everystudent` (en) moved **+0.046
+— boundary jitter in the documented direction**, not a French effect (French docs
+are ineligible on English-scoped cases by construction).
+
+The 0.084 drop localised to exactly **two cases**, both on EveryStudent's core
+axis: `tlfr-skeptic-dieu-existe` (rank **1 → 4**, cov 4/4 → 2/4) and
+`tlfr-newcomer-jesus` (rank 1 → 2, cov 2/3 → 1/3). Two more shifted rank with
+coverage intact (`tlfr-seeker-porno` 2 → 3, `tlfr-seeker-anxiete` 1 → 3). This is
+textbook displacement, exactly as Stage 3 predicted — not a retrieval regression.
+
+**Method.** Candidate pool built from the **corpus**, never from the engine's
+top-10 (slice #7's circularity trap): a deep-k fr-scoped probe at `topK=40,
+minScore=0` over all 10 cases → **320 (case, doc) pairs / 151 distinct documents**
+(94 `thelife-fr` · 56 `everystudent-fr` · 1 `cru`). The **0.50 floor is
+calibrated, not arbitrary — it is the highest floor that excludes ZERO
+already-approved documents** (credited docs bottom out at 0.511; a 0.55 floor
+would have cut 3 of them). Every document was judged **whole**, with a sample
+taken from *every* chunk rather than the opening (slice #7: chunk-0 judging
+rejected 75% of docs whose answer lived further in).
+
+⚠️ **The panel was run IN-CONTEXT this session, not as 3 separate agents** —
+an operator decision, because a standing session directive forbade spawning
+agents. What is lost is only the inter-lens *spread* signal, which has fired
+**zero** escalations across slices #7/#8/#9 (max spread 0.20/0.25/0.35 against a
+0.5 threshold) and which Guardrail #6's own caveat says must not be read as
+corroboration. Both axes were still scored and gated in code.
+
+**Result: 54 credits approved of 320 (16.9%) — 33 `everystudent-fr` + 21
+`thelife-fr` prior-slice gap-fixes.** **265 rejected as SOUND-BUT-OFF-QUESTION
+(83%)** — the Guardrail #6 tripwire, far above slice #7's 48% and slice #8's 61%,
+because a top-40 sweep of a 225-doc corpus pulls in loosely-related material by
+construction rather than because the content is worse.
+
+🚨 **ONE SOUNDNESS REJECTION, and it is an estate-wide pattern, not an Arabic
+one.** `everystudent-fr /a/700horribles.html` — the "why worship a God who allows
+a child to be raped?" FAQ — scored relevance **0.82** but soundness **0.62** and
+was **excluded**. The free-will defence is orthodox and it opens with real
+solidarity ("un membre de ma famille proche s'est fait violer dans son enfance…
+je comprends vraiment votre rage"). But mid-article it asserts, as an unevidenced
+wager, « je parie que la plupart [des conseillers] diraient que **l'abus verbal**
+est celui dont les conséquences sont les plus graves » — a false empirical claim
+that relativises child sexual abuse downward, inside the answer to a survivor.
+**This is the French sibling of the Arabic document filed under
+[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)**, so that content
+problem spans the estate. Relevance alone would have credited it.
+
+ⓘ **Two soundness checks that came back CLEAN, and one is a direct contrast with
+slice #9.** `/a/709trinite.html` is doctrinally careful — "trois personnes de la
+même essence divine", and it explicitly *rejects* the H2O and egg analogies for
+implying parts (~0.90). **No modalism**, where slice #9 found exactly that in the
+Arabic Trinity explainer. `/a/homosexuel-lesbienne.html` is pastorally careful
+(~0.88): it names the church's judgmentalism as contrary to Jesus and never
+condemns. Quality is per-language, not per-ministry.
+
+⚖️ **The new source is NOT universally relevant, and that is a real finding.**
+`everystudent-fr` contributed **zero** credits to four of the ten cases —
+post-abortion healing, forgiveness, Holy-Spirit-empowered living, and the
+unbelieving spouse. It publishes **seeker apologetics**, not sanctification or
+pastoral care; `/a/708saintesprit.html` scored rel 0.72 because it explains *who*
+the Spirit is, not how to *live* in his power. Conversely it took **15 of 20**
+credits on "give me one reason a god exists". The two French sources are
+complementary, not competing — the same conclusion Stage 3 reached from the
+`language:"fr"` probes, now confirmed on content.
+
+🔎 **A pre-existing curation error found and REMOVED (operator-approved).**
+`tlfr-seeker-deuil-fils` credited `thelife-fr /vivre-son-deuil`, but that document
+is about grieving **the loss of virginity before marriage**, not a child's death —
+a slice-#5 title match ("living through your grief"). It was an unreturnable-by-
+merit expectation quietly depressing the case. Removed; the guardrails' additive-
+only default was overridden deliberately, by the operator.
+
+⚠️ **COVERAGE FALLS ON PURPOSE — read rank and P@1, not coverage alone.**
+Crediting genuinely-relevant documents that the engine buries below rank 10 is
+what makes coverage go DOWN, and detecting buried good answers is precisely what
+coverage is for. The alternative — crediting only what came back — is the
+circularity slice #7 named. Rank and precision move the other way sharply.
+
+📐 **METHODOLOGY FINDING — coverage is structurally capped at `min(1, 10/|relevant|)`.**
+`tlfr-skeptic-dieu-existe` now carries **20** relevant docs, so its ceiling is
+**0.50**; it scores 0.45, meaning **9 of its 10 top-10 slots are credited docs** —
+near-perfect performance that raw coverage reports as "bad". Ceiling-normalised,
+the ten French cases average ~**0.72**. Any case with more than 10 relevant docs
+is scored against an unreachable 1.0. **Filed in `docs/eval-approach.md` as
+authoring trap 3.**
+
+**Part A confirmed (eval @ 118 cases, post-curation).** Whole-corpus recall@3
+**0.941 → 0.949** · recall@10 1.000 · coverage 0.723 → 0.721 · MRR **0.821 →
+0.843** · P@1 **0.695 → 0.729**. Per-language `fr` 0.733 → **0.681**, exactly the
+predicted trade: **nine of ten French cases moved to rank 1** (from six) while
+coverage fell because 54 genuinely-relevant documents entered the keys, many of
+them buried below rank 10. **Every per-case coverage prediction made before the
+run landed exactly** — 5/9 · 9/20 · 6/8 · 4/6 · 6/6 · 6/10 · 6/9 · 2/4 · 5/8 ·
+8/8 — which is the strongest available check that the judging and the rank model
+were sound rather than lucky.
+
+**Part B evidence (2026-07-27) — 12 everystudent-fr-native cases, qa-golden.yaml
+118 → 130.** Drafted against the 66 creditable docs, targeting the axes neither
+the `tlfr-*` cases nor Part A touch: world religions, purpose, death/afterlife,
+hell, the Trinity, self-image, sexuality, unanswered prayer, Islam, denominations,
+racism/women's rights, marriage. **39 credits — 26 `everystudent-fr` + 13
+`thelife-fr`.** Personas newcomer ×3 · seeker ×5 · skeptic ×3 · believer ×1 — the
+believer thinness is **honest**, matching Part A's finding that this source
+publishes seeker apologetics, not sanctification.
+
+Every question was run through the wired Retriever **before** being finalised, and
+**two were rephrased because the first draft echoed the article's own title**
+(Guardrail #1). One of those rephrasings found something real:
+
+- 🔍 **`esfr-skeptic-enfer` — a genuine VOCABULARY GAP.** The soft draft ("how can
+  a God of love condemn someone to suffer for eternity?") put `/a/726enfer.html`
+  at **rank 1 @ 0.749**. Rephrased to how a skeptic actually argues it — « un
+  châtiment infini pour une vie finie » — **that document falls out of the top 8
+  entirely.** The honest phrasing was kept so the eval *records* the gap instead
+  of hiding it; the case duly reports rank 2, cov 2/3. Same shape as slice #3's
+  `jf-believer-disciple-making` gap.
+- **`esfr-newcomer-catholique`** first scored **0.836**, the highest of any probe —
+  because it restated the article title almost verbatim. Reframed as a family
+  situation it still ranks 1, at an honest 0.767. *A very high score on a new case
+  is a paraphrase smell, not a success signal.*
+
+**All 116 credited (source, path) pairs were verified against the DB to resolve to
+exactly one document** before the final run — no typos, no ambiguous suffix
+matches, so no unreturnable expectation was baked in.
+
+**FINAL EVAL @ 130 cases / 11 sources: recall@3 0.954 · recall@10 1.000 ·
+coverage 0.736 · MRR 0.854 · P@1 0.746.** Every headline metric is **UP** on the
+118-case pre-curation baseline (0.941 / 1.000 / 0.723 / 0.821 / 0.695).
+
+- **`everystudent-fr` enters at n=18, recall 1.000, coverage 0.856** — the
+  second-strongest source in the corpus after `everystudent-ar` (0.979).
+  **11 of its 12 native cases rank 1**; the only rank-2 is the deliberately-hard
+  hell question.
+- **`thelife-fr` recovers to 0.778** (n 10 → 18) — the Part-A dip to 0.650 was the
+  transient state of a half-curated key, not a standing cost. **Per-language `fr`
+  0.804 across 22 cases.**
+- **Every other source is unchanged or oscillating within the documented jitter
+  band.** `everystudent` (en) read 0.693 here vs 0.739 in the previous run — the
+  same `/forum/contradictions.html` rank-10/11 doc sitting on a 0.001 gap
+  (slice #9's finding, now observed a third time); `sightline` 0.571 → 0.563
+  likewise. **French docs are ineligible on English-scoped cases by construction**,
+  so neither can be a French effect.
+
+ⓘ **Two soundness observations recorded for the future**, both above the gate and
+neither actioned: `/a/260islam.html` explains the Trinity with "1x1x1=1", which is
+mathematically vacuous though not heretical (it was left uncredited on the Trinity
+case for that reason); and `/a/homosexuel-lesbienne.html` never addresses the
+ethical question at all, redirecting wholly to the gospel — sound, but a real
+limitation for the reader who asked.
 
 ## Decisions made (this slice)
 
@@ -329,18 +493,25 @@ is 5 cr/page, Cloudflare has tightened (~350 total) — stop and re-plan.
 
 ## Resume hint (for a cold start)
 
-At: Stage 4 — "Part A — re-review the 10 existing `tlfr-*` cases' living
-`relevant` maps (NOT a no-op this time)". Next concrete action: hand off to
-`/golden everystudent-fr` directly (v4+ is agent-invocable — do NOT pause for the
-operator to type it; the operator's gate is the WRITE to `eval/qa-golden.yaml`).
-Part A is **real work**: Stage 3 demonstrated `everystudent-fr` sweeping all 10
-top-10 slots on a French knowing-God question under `--language fr`, in exactly
-the language where the 10 `tlfr-*` cases live, so displacement is proven not
-theoretical. Decide the Stage-4 gate on evidence — French is MULTI-source, so
-default to the slice-#7/#8 two-axis 0.75 rule, NOT slice #9's relevance-only
-rule (that exists for single-source languages).
-⚠️ Run the full eval as `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000
-pnpm eval` (FOLLOW-UP O) — and note Stage 3 found the same fast-fail posture
-silently aborting ad-hoc `pnpm query` probes too.
-Last verify: green @ 2026-07-27 (441/441, WITH the new data).
-Last commit: a81e428. Branch: slice/everystudent-fr.
+**SLICE COMPLETE — all four stages green, source Evaluated, 2026-07-27.** Nothing
+to resume. `everystudent-fr` is queryable and evaluated in the 11-source corpus:
+67 docs / 418 chunks, final eval @ 130 cases **recall@3 0.954 · recall@10 1.000 ·
+coverage 0.736 · MRR 0.854 · P@1 0.746**, the source itself at **n=18 recall
+1.000 / coverage 0.856**.
+
+Next actions are the operator's, in this order:
+
+1. **Merge `slice/everystudent-fr` → `main`** (not done; nothing is pushed).
+2. **Promote to prod via the BULK-COPY path — NEVER `acquire:production`.** This
+   is a walled Firecrawl source; re-acquiring in prod would re-pay ~70 credits for
+   pages already bought. `bash scripts/copy-raws.sh --source everystudent-fr` →
+   `pnpm index:production` → `pnpm eval:production`. See `docs/ops/copy-raws.md`.
+3. `/slice <next-source>` — GotQuestions / KnowGod / Issues I Face.
+
+⚠️ Standing hazard for any future run here: **`pnpm eval` and `pnpm query` inherit
+the fast-fail query-embed posture (FOLLOW-UP O)** and a timeout looks exactly like
+a clean zero-hit result. Always run
+`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 …` for batch evals and
+minScore probes, and never record a zero-hit probe without checking its exit status.
+
+Last verify: green @ 2026-07-27. Branch: slice/everystudent-fr.

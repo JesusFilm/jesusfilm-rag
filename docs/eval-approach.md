@@ -137,6 +137,25 @@ articles routinely open with a long lead-in anecdote, so 75% of the docs it reje
 "off-question" had >2 chunks with their actual answer further in. Judging the wrong unit
 manufactured a rejection list that had to be thrown away and re-run.
 
+**3. `coverage` is structurally capped at `min(1, k/|relevant|)` — a case with more than
+`k` relevant docs is scored against an unreachable 1.0 (slice #10).** Retrieval returns at
+most `k` documents (the eval runs `k=10`), so a case crediting 20 documents can never score
+above **0.50** no matter how perfectly the engine ranks. Slice #10's re-review took
+`tlfr-skeptic-dieu-existe` to 20 credited docs — `everystudent-fr` genuinely publishes ~15
+separate arguments for God's existence — and it scores ~0.45, meaning **9 of its 10 top-10
+slots are credited docs**. That is near-ceiling performance which raw coverage reports as
+"bad", and it drags the per-language mean down with it.
+
+Two consequences. **(a) A falling coverage number after a re-review is expected, not a
+regression** — crediting genuinely-relevant buried documents is what makes it fall, and
+detecting buried answers is the whole point of the metric (trap 1 above is the alternative,
+and it is worse). Read `rank`, recall@3 and P@1 alongside it: slice #10's re-review dropped
+`fr` coverage while moving four of ten cases to rank 1 and lifting `fr` P@1 from ~0.60 to
+~0.90. **(b) When a case's relevant set exceeds `k`, report the ceiling-normalised figure
+(`coverage ÷ min(1, k/|relevant|)`) beside the raw one** — slice #10's ten French cases read
+~0.68 raw and ~0.72 ceiling-normalised. Do not "fix" this by trimming honest relevant sets
+back under `k`; that reintroduces trap 1.
+
 ## LLM-as-judge curation: score relevance and soundness as SEPARATE axes (slice #7)
 
 Slice #7 replaced the hand pass with a **3-lens judge panel** (theologian / pastor /

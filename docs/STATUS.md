@@ -6,12 +6,18 @@ Live "you are here" for the build. Stable design lives in
 whenever state changes; keep it to ~one screen.
 
 _Last updated: 2026-07-27 — **slice #10 (EveryStudent French, `everystudent-fr`)
-is IN FLIGHT: Stages 1+2+3 GREEN** — 67 French articles acquired, ingested
-(67 docs / 418 chunks, 66 `fr` / 1 `null`) and **now queryable**: rank 1 on three
-of four real French questions, `language:"fr"` airtight, **minScore 0.37 holds**.
-Corpus 11 sources / 11,688 docs / 34,355 chunks, gate 441/441. Next is Stage 4
-(`/golden everystudent-fr`) — and unlike slice #9, **Part A re-review is real
-work**. Previously:
+is DONE — all four stages GREEN, source Evaluated**, closing the #112 route
+(en ✅ → ar ✅ → fr ✅). 67 French articles acquired, ingested (67 docs / 418
+chunks, 66 `fr` / 1 `null`), queryable, and now evaluated. **Final eval @ 130
+cases / 11 sources: recall@3 0.954 · recall@10 1.000 · coverage 0.736 · MRR
+0.854 · P@1 0.746 — every headline metric UP** on the pre-curation baseline.
+`everystudent-fr` enters at **n=18, recall 1.000, coverage 0.856**, the
+second-strongest source after Arabic. **Not merged and NOT promoted to prod** —
+when it is, it MUST go via `copy-raws.sh`, never `acquire:production` (walled
+source). Two findings: the child-suffering soundness problem behind
+**[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) is estate-wide,
+not Arabic-specific**, and a real **hell-question vocabulary gap** is now recorded
+in the eval. Previously:
 **slice #9 (EveryStudent Arabic) is DONE — all four
 stages GREEN and PROMOTED TO PROD**. `everystudent-ar` is live in the prod corpus
 (67 docs / 283 chunks via the bulk-copy path, prod eval identical to local) with
@@ -327,10 +333,91 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ IN FLIGHT — slice #10 (`everystudent-fr`, questions2vie.com), STAGES 1+2+3
-GREEN 2026-07-27.** The third and final walled EveryStudent domain; this closes
-the #112 route (en ✅ → ar ✅ → fr). **Next: Stage 4 —
-`/golden everystudent-fr`.**
+**✅ DONE — slice #10 (`everystudent-fr`, questions2vie.com), ALL FOUR STAGES
+GREEN 2026-07-27.** The third and final walled EveryStudent domain; **the #112
+route is now closed** (en ✅ → ar ✅ → fr ✅).
+
+**▶ NEXT — the operator decides, in this order:**
+
+1. **Merge `slice/everystudent-fr` → `main`.** Nothing is pushed; no PR opened.
+2. **Promote to prod via the BULK-COPY path — NEVER `acquire:production`.**
+   `everystudent-fr` is a walled Firecrawl source; re-acquiring in prod re-pays
+   ~70 metered credits for pages already bought. The path is
+   `bash scripts/copy-raws.sh --source everystudent-fr` → `pnpm index:production`
+   → `pnpm eval:production`, per `docs/ops/copy-raws.md` (the same route slice #9
+   used successfully).
+3. **Triage [#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123) — now
+   with a WIDER scope than filed.** See the escalation note below.
+4. `/slice <next-source>` — GotQuestions / KnowGod / Issues I Face.
+
+**Evaluated (Stage 4): qa-golden.yaml 118 → 130 cases; 93 credits added
+(59 `everystudent-fr` + 34 `thelife-fr`), 1 mis-credit removed.**
+**Final @ 130 cases / 11 sources: recall@3 0.954 · recall@10 1.000 · coverage
+0.736 · MRR 0.854 · P@1 0.746** — **every headline metric UP** on the 118-case
+pre-curation baseline (0.941 / 1.000 / 0.723 / 0.821 / 0.695). Per-language:
+`ar` 0.979 · **`fr` 0.804** (n=22) · es 0.938 · zh 0.867 · en 0.641, 0 unscoped.
+`everystudent-fr` **n=18, recall 1.000, coverage 0.856** with 11 of its 12 native
+cases at rank 1; `thelife-fr` 0.778 (n=18).
+
+🚨 **ESCALATION on #123 — the content problem is ESTATE-WIDE, not Arabic-specific.**
+The French `/a/700horribles.html` (the child-rape FAQ) was **rejected on soundness
+0.62** against relevance 0.82: it asserts, as an unevidenced wager, that
+« l'abus verbal est celui dont les conséquences sont les plus graves » —
+relativising child sexual abuse downward inside the answer to a survivor. #123 was
+filed as an Arabic-source finding; the same failure is present in French, so the
+remediation should be scoped across the EveryStudent estate rather than one
+banner. **It ranks 4 on a natural French hell question, so the RAG serves it
+whether or not it is in an answer key** — excluding it from the eval protects the
+metric, not the reader. The fix is content-side.
+
+ⓘ **Counter-finding worth equal weight: doctrinal quality is per-LANGUAGE, not
+per-ministry.** The French Trinity explainer is careful — "trois personnes de la
+même essence divine", explicitly **rejecting** the H2O and egg analogies for
+implying parts — where slice #9 found outright **modalism** in the Arabic
+equivalent. Do not generalise a soundness finding from one language to a source.
+
+⚖️ **The two French sources are COMPLEMENTARY, not competing.** `everystudent-fr`
+contributed **zero** credits to four of the ten prior French cases (post-abortion
+healing, forgiveness, Spirit-empowered living, unbelieving spouse) because it
+publishes **seeker apologetics, not sanctification** — while taking **15 of 20**
+credits on "give me one reason a god exists". The `language:"fr"` probes at Stage
+3 predicted exactly this; Stage 4 confirmed it on content.
+
+🔍 **A real VOCABULARY GAP is now recorded in the eval.** `esfr-skeptic-enfer`'s
+first draft ("how can a God of love condemn someone to suffer for eternity?") put
+`/a/726enfer.html` at **rank 1 @ 0.749** — but that phrasing echoed the article's
+own title. Rephrased to how a skeptic actually argues it (« un châtiment infini
+pour une vie finie »), **the document falls out of the top 8 entirely.** The hard
+phrasing was kept so the eval measures the gap instead of hiding it. Related:
+`esfr-newcomer-catholique` first scored **0.836**, the highest of any probe,
+purely because it restated the article title — **a very high score on a new case
+is a paraphrase smell, not a success signal.**
+
+📐 **METHODOLOGY — `coverage` is structurally capped at `min(1, k/|relevant|)`**
+(filed as `eval-approach.md` authoring trap 3). `tlfr-skeptic-dieu-existe` now
+carries 20 relevant docs, so its ceiling is **0.50**; it scores 0.45, i.e. **9 of
+its 10 top-10 slots are credited docs** — near-perfect, reported as "bad". A
+falling coverage after a re-review is expected, not a regression: read rank and
+P@1 beside it.
+
+⚠️ **`everystudent` (en) 0.693 ↔ 0.739 is BOUNDARY JITTER, seen a THIRD time**
+(`/forum/contradictions.html`, rank 10 @ 0.648 vs rank 11 @ 0.647). `sightline`
+0.563 ↔ 0.571 likewise. Neither can be a French effect — French docs are
+ineligible on English-scoped cases by construction.
+
+**Part A (re-review) was real work — the opposite of slice #9.** Pre-curation,
+`thelife-fr` fell **0.817 → 0.733** and was the ONLY source that moved; the drop
+localised to exactly **two cases** on EveryStudent's core axis
+(`tlfr-skeptic-dieu-existe` rank 1 → 4, `tlfr-newcomer-jesus` rank 1 → 2). Pool
+built from the **corpus** (deep-k 40, floor 0.50 — calibrated as the highest floor
+excluding zero already-approved docs), 320 pairs / 151 whole documents judged:
+**54 approved, 265 rejected as sound-but-off-question (83%)**. Every per-case
+coverage prediction made before the confirming run landed exactly.
+See [docs/slices/everystudent-fr.md](./slices/everystudent-fr.md).
+
+---
+
+**Previously (slice #9 and earlier):**
 
 **Retrieved (Stage 3): French is queryable, and the EveryStudent estate now
 matches itself across three languages.** Four real French questions against the

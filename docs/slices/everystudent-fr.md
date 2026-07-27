@@ -117,8 +117,8 @@ the final stretch was retained (15 retries visible there).
 Gate re-run **WITH** the new data: green, **441/441**.
 
 ### 3. Retrieve → ranked results
-- [x] A French query returns ranked, cited hits from this source   <!-- sha: ________ -->
-- [ ] `language:"fr"` returns ONLY French, now that **two** French sources compete   <!-- sha: ________ -->
+- [x] A French query returns ranked, cited hits from this source   <!-- sha: ada189d -->
+- [x] `language:"fr"` returns ONLY French, now that **two** French sources compete   <!-- sha: ________ -->
 - [ ] Re-check minScore 0.37 at 11 sources — **specifically the faith-adjacent margin** (slice #9 recorded 0.382, only 0.012 above the cutoff, on a Muslim-readership probe; `/a/260islam.html` is in this seed set)   <!-- sha: ________ -->
 
 **Stage 3 evidence — sub-step 1 (2026-07-27): French is queryable, and the
@@ -151,6 +151,33 @@ Two findings worth carrying:
   (0.728) over the French `/a/700horribles.html` at #2 (0.718) — the unfiltered
   space ranks on meaning, not on query language. (That #1 chunk also opens with
   the `0 100 0` AEM junk string — the known cru extraction artifact, #79.)
+
+**Stage 3 evidence — sub-step 2 (2026-07-27): `language:"fr"` is airtight, and
+the two French sources genuinely trade places.** The filter binds on the
+**document**, not the query language — the slice-#9 proof re-run in French:
+
+- **French question under `--language fr`** (« Comment puis-je connaître Dieu
+  personnellement ? », top-10): 10 French docs, **all 10 `everystudent-fr`**,
+  0.673–0.775. `thelife-fr` is entirely displaced on this question.
+- **ENGLISH question under `--language fr`** ("how do I deal with anxiety and
+  fear?", top-8): **8 French docs and nothing else** — 0.446–0.595, of which
+  **7 are `thelife-fr`** and 1 is `everystudent-fr`. An English query returning
+  only French documents is the filter binding on `documents.language`;
+  `corpus-search-store.ts:62` is a strict `eq(…)`, so other languages **and
+  NULLs** are excluded by construction.
+
+⚖️ **Neither French source monopolises — it is query-dependent, and that is the
+healthy outcome.** The same filter yields 10/10 `everystudent-fr` on a
+knowing-God question and 7/8 `thelife-fr` on an anxiety question, which matches
+what each banner actually publishes (everystudent = seeker apologetics,
+thelife-fr = devotional life-issues). At **29.3% of the French corpus**
+everystudent-fr is competing, not swamping.
+
+⚠️ **Stage-4 Part A is now confirmed as real work, not a formality.** The
+knowing-God result is a top-10 sweep by the new source in exactly the language
+where 10 `tlfr-*` golden cases live. Displacement on those cases is
+demonstrated, not hypothetical — re-review the living `relevant` maps before
+reading any `fr` coverage movement as a retrieval regression.
 
 ### 4. Spot-check / eval (`/golden everystudent-fr`)
 - [ ] Part A — re-review the 10 existing `tlfr-*` cases' living `relevant` maps (NOT a no-op this time)   <!-- sha: ________ -->

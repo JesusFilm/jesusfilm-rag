@@ -34,9 +34,9 @@ The corpus already holds **159 `fr` docs** — `thelife-fr` 156 · `thelife` 2 �
 
 ### 1. Acquire → raw_documents
 - [x] Register `everystudent-fr` (walled, seed-only, 70 seeds) + fakes-only tests   <!-- sha: 8398995 -->
-- [x] Live Firecrawl crawl of the 70 seeds → `raw_documents` — **70/70 staged, 0 skips**   <!-- sha: PENDING -->
-- [ ] Verify: row count, French article prose (not nav/boilerplate), `.content4` binds; resolve the `/jean*` + `/aventure` provisional keeps   <!-- sha: ________ -->
-- [x] Offline language pre-flight (`decideLanguage` over the staged bodies) — **69 `fr` / 1 `null`**   <!-- sha: PENDING -->
+- [x] Live Firecrawl crawl of the 70 seeds → `raw_documents` — **70/70 staged, 0 skips**   <!-- sha: c542c13 -->
+- [x] Verify: row count, French article prose, `.content4` binds; provisional keeps resolved — **all 3 dropped**   <!-- sha: PENDING -->
+- [x] Offline language pre-flight (`decideLanguage` over the staged bodies) — **69 `fr` / 1 `null`**   <!-- sha: c542c13 -->
 
 **Stage 1 evidence (2026-07-27).** Staged **70 of 70** seeds — **zero skips**,
 the first EveryStudent banner to take every seed (en 117/117 but from a
@@ -106,13 +106,32 @@ exclusion has the same shape as slice #8's `/wires/loneliness.html` cost.
   `/sitemap.html`), and the two `.php` extension twins `/aventure.php` +
   `/jean.php` (same slug served twice; keeping both would pay a credit for a
   duplicate document the content hash cannot collapse across differing URLs).
-- 2026-07-27 — **`/jean.html`, `/jeanFR.html` and `/aventure.html` kept
-  provisionally.** Root-level pages the map returned that cannot be classified
-  without spending a credit (`jean` = the Gospel of John, mirroring the Arabic
-  banner's `/john.html`; `aventure` likely a resource/next-step page). Whether
-  `/jeanFR.html` is a genuine variant or a duplicate of `/jean.html` is a
-  3-credit question answered at Stage 1, not guessed now; `minContentLength: 250`
-  drops any that turn out to be link-only chrome.
+- 2026-07-27 — **the 3 provisional root pages are DROPPED; ingest takes the 67
+  `/a/` articles and nothing else** (operator fork, resolved on Stage-1
+  evidence). `/jean.html`, `/jeanFR.html` and `/aventure.html` all cleared
+  `minContentLength` comfortably (1,949 / 2,020 / 2,453 ch) — which is precisely
+  why the floor could not decide it: **length is not aboutness**. The fetch
+  showed all three are **email-signup landing pages**, not seeker Q&A:
+    - `/jean.html` ↔ `/jeanFR.html` share **87.9% of their 12-word shingles** —
+      one sign-up page for a Gospel-of-John email study with sentences reordered.
+      That is the same band as the 93.8% podcast/article overlap slice #8
+      dropped, and the document-level content hash cannot collapse
+      near-duplicates living at different URLs.
+    - all three close with an **identical 850-char French GDPR privacy notice**
+      (Agapé France, loi « informatique et libertés ») — **44% / 42% / 35%** of
+      their bodies, and the only text the three share. It would embed as pure
+      noise and could match privacy/legal queries.
+    - what is left is form copy ("S'inscrire ici", unsubscribe terms).
+  The 3 credits are sunk and unrecoverable, but the seeds are removed so a
+  re-crawl never re-pays for them, and the 3 rows were deleted from
+  `raw_documents` before ingest. Seed set 70 → **67**.
+- 2026-07-27 — ⓘ **Observation, NOT actioned by this slice: the Arabic banner's
+  `/john.html` and `/pack.html` are the SAME two pages** (the John email study
+  and the "Spiritual Adventure" 7-email series), kept in slice #9 on the same
+  provisional call and **live in prod today**. The estate is therefore
+  inconsistent: French ingests articles only, Arabic carries two signup pages.
+  Recorded for a future cleanup — slice #10 deliberately does not touch prod, and
+  no issue was filed (operator's call).
 - 2026-07-27 — **robots.txt is `User-agent: * Allow: /`** (checked live). Nothing
   disallowed, so no seed dropped on robots grounds — same as `everystudent-ar`,
   unlike `everystudent` (en), which carries a real disallow list. No `block`
@@ -131,7 +150,7 @@ exclusion has the same shape as slice #8's `/wires/loneliness.html` cost.
 
 ## Budget
 
-**~70 credits at the measured 1.00 cr/page** (#114 — Firecrawl's `basic` proxy
+**~70 credits at the measured 1.00 cr/page** (70 paid; 67 ingested) (#114 — Firecrawl's `basic` proxy
 clears this host, so `auto` never escalates to the 5-credit enhanced retry).
 Balance checked live 2026-07-27: **828 remaining of 1,000**, billing period ends
 **2026-08-21**. Comfortable — this closes #112's route with ~758 to spare.

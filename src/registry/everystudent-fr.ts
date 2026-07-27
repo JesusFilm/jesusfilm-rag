@@ -31,7 +31,7 @@
  * issue). Re-discovering would re-pay for knowledge we already hold, so the
  * mapped inventory is lifted here directly. `sitemaps` is intentionally absent.
  *
- * **70 seeds from the 87 mapped.** Dropped:
+ * **67 seeds from the 87 mapped** — the whole `/a/` article body, and nothing else. Dropped:
  *   - the **12 `/m/*` pages** — the mobile/menu section indexes (`enigmes`,
  *     `existence`, `experience`, `faq`, `intl`, `jesus`, `lavie`, `legales`,
  *     `qetr`, `qui`, `relations`, `videos`). #112's crawl policy strips `/m/`,
@@ -49,17 +49,36 @@
  *     seeding both would pay a credit to add a near-duplicate document. If the
  *     `.html` twin turns out to be a redirect stub at Stage 1, revisit.
  *   - the bare homepage.
+ *   - the **3 root-level email-signup landing pages** (`/jean.html`,
+ *     `/jeanFR.html`, `/aventure.html`) — seeded provisionally, fetched, then
+ *     dropped on the evidence below.
  * No `block` array: `block` filters DISCOVERED urls, and a seed-only source
  * discovers none — the seed list itself is the filter. Anything added later must
  * be re-checked against robots.txt by hand.
  *
- * **`/jean.html`, `/jeanFR.html` and `/aventure.html` are kept provisionally.**
- * Root-level pages the map returned that could not be classified without
- * spending a credit — `jean` is presumably a Gospel-of-John reader (the Arabic
- * banner's `/john.html` equivalent) and `aventure` a resource or next-step page.
- * Whether `/jeanFR.html` is a genuine variant or a duplicate of `/jean.html` is
- * a question worth 1 credit, not a guess; `minContentLength: 250` drops any that
- * turn out to be link-only chrome. Confirm at Stage 1.
+ * **`/jean.html`, `/jeanFR.html` and `/aventure.html` were seeded provisionally
+ * and are now DROPPED — measured at Stage 1, they are email-signup landing
+ * pages, not articles.** All three cleared `minContentLength` comfortably
+ * (1,949 / 2,020 / 2,453 ch), which is exactly why the floor could not decide
+ * this: length is not aboutness. What the fetch revealed:
+ *   - `/jean.html` and `/jeanFR.html` share **87.9% of their 12-word shingles**
+ *     — the same sign-up page for a Gospel-of-John email study with sentences
+ *     reordered. That sits in the same band as the 93.8% podcast/article overlap
+ *     the English entry drops, and the document-level content hash cannot
+ *     collapse near-duplicates that live at different URLs.
+ *   - all three end in an **identical 850-char French GDPR privacy notice**
+ *     (Agapé France, loi « informatique et libertés ») — 44% / 42% / 35% of
+ *     their bodies. It is the only text the three share, and it would embed as
+ *     noise in a seeker Q&A corpus.
+ *   - what remains is form copy ("S'inscrire ici", unsubscribe terms), not a
+ *     seeker question being answered.
+ * The 3 credits are spent and not recoverable, but the seeds are removed so a
+ * re-crawl does not re-pay for them, and the rows were deleted before ingest.
+ *
+ * ⓘ **The Arabic banner's `/john.html` and `/pack.html` are the SAME two pages**
+ * (the John email study and the "Spiritual Adventure" 7-email series), kept in
+ * slice #9 on the same provisional call and **live in prod today**. Recorded as
+ * an observation for a future estate-wide cleanup; slice #10 does not touch prod.
  *
  * **robots.txt is `User-agent: * Allow: /`** — checked live 2026-07-27. Same as
  * everyarabstudent.com and UNLIKE everystudent.com, which carries a real
@@ -176,9 +195,6 @@ export const everystudentFr: SourceEntry = {
       "/a/reel.html",
       "/a/trouverDieu.html",
       "/a/univers.html",
-      "/aventure.html",
-      "/jean.html",
-      "/jeanFR.html",
     ],
     // No `sitemaps`: discovery was already paid for (#114). See the header.
     contentSelectors: [
@@ -205,7 +221,7 @@ export const everystudentFr: SourceEntry = {
     ],
     // Firecrawl fronts every request; a scrape already takes seconds.
     requestDelayMs: 1000,
-    maxPages: 120, // 70 seeds + headroom
+    maxPages: 120, // 67 seeds + headroom
     minContentLength: 250,
   },
 };

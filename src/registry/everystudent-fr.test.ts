@@ -31,7 +31,7 @@ describe("everystudent-fr registry entry", () => {
     // /sitemap.xml is 403 to plain HTTP anyway. A `sitemaps` entry would re-pay
     // per scrape for URLs we already hold.
     expect(entry.crawl.sitemaps).toBeUndefined();
-    expect(entry.crawl.seedPaths).toHaveLength(70);
+    expect(entry.crawl.seedPaths).toHaveLength(67);
   });
 
   it("is a SEPARATE source key from everystudent, not a language of it (ADR-0006)", () => {
@@ -72,17 +72,26 @@ describe("everystudent-fr registry entry", () => {
     // content hash cannot collapse duplicates sitting at different URLs, so
     // seeding both would pay a credit to add a near-duplicate document.
     expect(paths.filter((p) => p.endsWith(".php"))).toEqual([]);
-    expect(paths).toContain("/aventure.html");
-    expect(paths).toContain("/jean.html");
   });
 
-  it("keeps the whole French article body plus the provisional root pages", () => {
+  it("drops the email-signup landing pages measured at Stage 1", () => {
     const paths = fr().crawl.seedPaths!;
-    // /a/* is the article corpus — the substance of this source.
+    // Seeded provisionally, fetched, then dropped on evidence: /jean.html and
+    // /jeanFR.html share 87.9% of their 12-word shingles (the same sign-up page
+    // reordered), and all three end in an identical 850-char GDPR privacy
+    // notice worth 35-44% of their bodies. They clear minContentLength easily —
+    // length is not aboutness, so the floor could never have caught them.
+    expect(paths).not.toContain("/jean.html");
+    expect(paths).not.toContain("/jeanFR.html");
+    expect(paths).not.toContain("/aventure.html");
+  });
+
+  it("is exactly the French article body — every seed is an /a/ page", () => {
+    const paths = fr().crawl.seedPaths!;
+    // /a/* is the article corpus, and after the Stage-1 drops it is the WHOLE
+    // seed set: this source ingests articles and nothing else.
     expect(paths.filter((p) => p.startsWith("/a/"))).toHaveLength(67);
-    // Provisional root-level pages — minContentLength drops them at Stage 1 if
-    // they turn out to be link-only chrome.
-    expect(paths).toContain("/jeanFR.html");
+    expect(paths).toHaveLength(67);
   });
 
   it("every seed is a distinct, root-relative path under the French domain", () => {

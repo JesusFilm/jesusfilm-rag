@@ -33,7 +33,7 @@ The corpus already holds **159 `fr` docs** — `thelife-fr` 156 · `thelife` 2 �
 `[x]` = done + verify-green + committed (sha). Resume at the first `[ ]`.
 
 ### 1. Acquire → raw_documents
-- [ ] Register `everystudent-fr` (walled, seed-only, 70 seeds) + fakes-only tests   <!-- sha: ________ -->
+- [x] Register `everystudent-fr` (walled, seed-only, 70 seeds) + fakes-only tests   <!-- sha: b6e9b3d -->
 - [ ] Live Firecrawl crawl of the 70 seeds → `raw_documents`; watch the credit rate over the first ~10 pages   <!-- sha: ________ -->
 - [ ] Verify: row count, French article prose (not nav/boilerplate), `.content4` binds; resolve the `/jean*` + `/aventure` provisional keeps   <!-- sha: ________ -->
 - [ ] Offline language pre-flight (`decideLanguage` over the staged bodies) — predict the `fr` / `null` split before paying for embeddings   <!-- sha: ________ -->
@@ -112,9 +112,10 @@ is 5 cr/page, Cloudflare has tightened (~350 total) — stop and re-plan.
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — "Register `everystudent-fr` (walled, seed-only, 70 seeds) +
-fakes-only tests". Next concrete action: write `src/registry/everystudent-fr.ts`
-from the 70-seed list above, wire it into `src/registry/index.ts`, and add the
-fakes-only registry test — mirroring `everystudent-ar.ts`.
-Last verify: green @ 2026-07-27 (432/432, baseline before any work).
-Last commit: (none yet). Branch: slice/everystudent-fr.
+At: Stage 1 — "Live Firecrawl crawl of the 70 seeds". Next concrete action: run
+`pnpm acquire --source everystudent-fr` against the live site, watching the
+Firecrawl credit delta over the first ~10 pages (expect 1.00 cr/page; 5 cr/page
+means the wall tightened — stop and re-plan). Then verify row count, French
+prose, and whether `.content4` binds on this host.
+Last verify: green @ 2026-07-27 (440/440, source registered).
+Last commit: (registry). Branch: slice/everystudent-fr.

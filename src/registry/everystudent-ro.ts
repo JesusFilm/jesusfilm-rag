@@ -75,45 +75,63 @@
  * (below), so expect **~64 ingested documents**, not 102. Do not read a
  * shortfall against the sitemap count as a crawl failure.
  *
- * Those 25 are deliberately NOT hard-blocked, because they are **self-policing**:
- * the homepage they redirect to carries **none** of the four content selectors
- * (verified 2026-07-28 — zero `class="content4|content4b|articletitle|
- * contentpadding"` attributes in the whole document), so extraction yields **0
- * characters** and `minContentLength: 250` drops every one of them. They cost 25
- * wasted plain-HTTP fetches per run and pollute nothing. Listing 25 dead-URL
- * regexes would bloat the entry and rot the moment the site restores one, so the
- * floor handles it. Revisit only if the homepage ever grows a `.content4`.
+ * ⚠️ **All 25 are HARD-BLOCKED below, and must stay that way.** This entry
+ * originally left them unblocked on the theory that they were "self-policing" —
+ * the homepage carries none of the template selectors, so extraction would yield
+ * 0 chars and `minContentLength` would drop them. **That reasoning was wrong,
+ * and a real acquire run on 2026-07-29 proved it.** It overlooked
+ * `extractContent`'s fallback (`src/acquisition/extract.ts:50`):
  *
- * **Extraction — measured on THIS host, not inherited.** All four shared
- * EveryStudent template selectors bind here (verified 2026-07-28 across
- * `/a/exista.html`, `/a/iisus.html`, `/a/depresie.html`, `/v/collins.html`,
- * `/v/estedumnezeubun.html` and more): `<div class="content4">` wraps the body,
- * with `.content4b` and `.contentpadding` nested inside it and
- * `<h1 class="articletitle">` carrying the title. `.content4` first is correct —
- * it is the outermost of the four. Extracted body text ran 2,208–25,272 chars on
- * the sampled articles, all far above the floor.
+ *     const container = scope ?? root.querySelector("body") ?? root;
  *
- * **Strip list — `.shareiconsmenupg` is site-specific and load-bearing.** The
- * inherited five all appear: `sitelevel_noindex` is a custom element wrapping
- * the cookie notice, sidebar and nav; `.fccell` is the call-to-action table
- * (6 cells/page); `.hr2` and `.articledivider` are rule divs. `.relatedbottom`
- * is present **only as a CSS rule in an inline `<style>`**, never as an element
- * on this host — retained for parity with the siblings, but it strips nothing
- * here and that is not a mistake to "fix". Together they removed 50–192 chars
- * per page.
+ * When NO `contentSelector` matches, extraction does not return nothing — it
+ * falls back to `<body>` and returns the whole page. On the homepage that is the
+ * 842-char teaser list ("Care este scopul meu în viaţă?… Există Dumnezeu?…"),
+ * comfortably above the 250 floor. The unblocked run staged **89 documents, 25
+ * of them byte-identical copies of that nav page** (verified by `md5(raw_content)`
+ * — a single hash with `count = 25`). They are not deduped away either: the
+ * ingest dedup gate keys on `(sourceKey, canonicalUrl)`, so 25 distinct URLs
+ * mean 25 separate documents chunked and embedded.
  *
- * The addition: **this host's markup overlaps**, and `sitelevel_noindex` alone
- * does not contain the share widget. Traced byte offsets in `/a/iisus.html`:
- * `.content4` opens at 22086, a `<sitelevel_noindex>` opens at 27504 *inside*
- * `.contentpadding`, and the `</div>`s closing `.contentpadding`, `.content4b`
- * and `.content4` all sit *inside* it (closing comments at 27531/27571/28897)
- * before it closes at 28929. Any conforming parser resolves that overlap by
- * implicitly closing `sitelevel_noindex` at the first `</div>` — which leaves
- * `<div class="shareiconsmenupg">` (offset 27608) as a direct child of
- * `.content4`. Measured result: without it every extracted body ended in a
- * dangling "SHARE:"; with it added, all 10 sampled pages end on their own last
- * sentence. Do not remove it on the grounds that `sitelevel_noindex` "already
- * covers" the share links — on this host it does not.
+ * So the floor does NOT handle it, and a 25-branch block regex is the cheap
+ * option. If the site restores any of these pages, drop it from the alternation.
+ * The expected yield is unchanged at **~64 documents** — that number was always
+ * right; only the mechanism was wrong.
+ *
+ * **Extraction — `.contentpadding` is the container, and `.content4` is an
+ * EMPTY SPACER that must never precede it.** Re-verified 2026-07-29 by running
+ * the repo's own `extractContent` against live pages, which is the only check
+ * that proves anything here:
+ *   - `.contentpadding` — **1 instance, the whole article**. `/a/exista.html` →
+ *     20,511 chars raw, **20,214 after stripping**, ending on its own last
+ *     footnote; `/a/scop.html` → 3,782 raw / 3,628 stripped.
+ *   - `.content4` — **1 instance, an empty spacer div: 0 characters.**
+ *   - `.content4b` — **0 instances.** Absent from this host entirely.
+ *   - `.articletitle` — an `<h1>`, 16–30 chars. A title, not a body.
+ * `extractContent` scopes to the FIRST selector that MATCHES AN ELEMENT, not the
+ * first that yields text, so listing `.content4` ahead of `.contentpadding`
+ * bound the empty spacer and extracted **0 chars on every page** — every article
+ * skipped as `too-thin` on a 200 status, with no error anywhere. That is how
+ * this entry first shipped.
+ *
+ * **Strip list — re-counted 2026-07-29 inside `.contentpadding`.** The earlier
+ * figures were taken against a container that extracted nothing and are
+ * superseded. `sitelevel_noindex` (a custom element) removes **102 chars** on
+ * both sampled pages; `.fccell` — the call-to-action table — removes **195** on
+ * `/a/exista.html` and **52** on `/a/scop.html`; `.hr2` (2 instances) and
+ * `.articledivider` (1) are rule divs at **0 chars**. `.relatedbottom` has **no
+ * element instance** on this host — retained for parity with the siblings, but
+ * it strips nothing and that is not a mistake to "fix".
+ *
+ * The addition: **`.shareiconsmenupg` is site-specific and load-bearing** (1
+ * instance, 8 chars). `sitelevel_noindex` alone does not contain the share
+ * widget, because this host's markup overlaps: the `<sitelevel_noindex>` that
+ * nominally wraps it opens inside `.contentpadding` and closes only after
+ * `.contentpadding` has closed, so any conforming parser pops it at the first
+ * `</div>` and the widget survives as a direct child of the container (#128).
+ * Without this selector every extracted body ended in a dangling "SHARE:". Do
+ * not remove it on the grounds that `sitelevel_noindex` "already covers" the
+ * share links — on this host it does not.
  *
  * `/v/filmuliisus.html` is likewise left unblocked and left to the floor: it is a
  * bare 2-hour JESUS film embed with no transcript, extracting to **53 chars**,
@@ -168,15 +186,25 @@ export const everystudentRo: SourceEntry = {
       // landing page (the Romanian twin of the French /jean.html, dropped at
       // slice #10 — it clears minContentLength, so only a URL block catches it).
       "^https://www\\.everystudent\\.ro/(sitemap|contact|ioan)\\.html$",
-      // The homepage: no content selectors at all, so it extracts to 0 chars.
+      // The homepage. NOTE: it does NOT extract to 0 chars — no contentSelector
+      // matches, so extractContent falls back to <body> and yields the 842-char
+      // teaser list. It must be blocked by URL, not left to minContentLength.
       "^https://www\\.everystudent\\.ro/?$",
+      // The 25 dead /a/ URLs that 301 to the homepage (see header). Each one
+      // therefore extracts that same 842-char nav page via the <body> fallback,
+      // and the ingest dedup gate keys on (sourceKey, canonicalUrl) so they do
+      // NOT collapse — an unblocked run staged 25 byte-identical copies.
+      // Verified dead 2026-07-28 (301) and again by the 2026-07-29 acquire run.
+      // If the site restores a page, remove it from this alternation.
+      "^https://www\\.everystudent\\.ro/a/(adam|apostolii|asemanare|astazi|cale|care|ceva|cine|cine2|coronavirus|fericire|iad|inchinare|inspirata|intamplare|iubitor|miracole|nimic|ofera|raul2|religiile|rezultat|sex|sex2|suferinta)\\.html$",
     ],
-    contentSelectors: [
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ],
+    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // host that extracts the article. `.content4` is deliberately ABSENT: it is
+    // an empty spacer div (0 chars) and, because extractContent scopes to the
+    // first selector that MATCHES rather than the first that yields text,
+    // listing it here made every page skip as `too-thin`. `.content4b` does not
+    // exist on this host.
+    contentSelectors: [".contentpadding"],
     stripSelectors: [
       "script",
       "style",

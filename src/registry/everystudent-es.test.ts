@@ -121,22 +121,31 @@ describe("everystudent-es registry entry", () => {
     expect(blocked(`${b}/acerca.html`)).toBe(true); // about + privacy
   });
 
-  it("binds the shared EveryStudent template and strips the CTA + share chrome", () => {
+  it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const crawl = es().crawl;
-    // Measured binding on all 21 /articulos/ pages fetched 2026-07-28: exactly
-    // one <div class="content4"> and one nested .content4b each, yielding
-    // kicker + title + subhead + byline + body.
-    expect(crawl.contentSelectors[0]).toBe(".content4");
-    expect(crawl.contentSelectors).toContain(".content4b");
-    expect(crawl.contentSelectors).toContain(".articletitle");
-    // The two selectors that actually remove text on this host: the FEATURE
-    // CLOSE CTA table (61-183 ch/page) and the trailing "COMPARTE ESTA PÁGINA"
-    // share row, which is site-specific here because a markup defect lets it
-    // escape <sitelevel_noindex>. Together they let articles end on their own
-    // last line.
+    // Measured 2026-07-29 with the repo's own extractContent against live
+    // pages: .contentpadding is the ONLY element on this host that extracts the
+    // article (19,976 ch raw on /articulos/hayundios.html). .content4 exists but
+    // is `<div class="content4"> </div>` — 0 chars — and .content4b is absent.
+    // extractContent scopes to the first selector that MATCHES AN ELEMENT, not
+    // the first that yields text, so any of those listed ahead of
+    // .contentpadding silently extracts nothing and every page skips
+    // `too-thin` on a 200. This assertion is the guard against that regression.
+    expect(crawl.contentSelectors).toEqual([".contentpadding"]);
+  });
+
+  it("strips the CTA and share chrome that survive inside .contentpadding", () => {
+    const crawl = es().crawl;
+    // Re-measured 2026-07-29 inside .contentpadding: the FEATURE CLOSE CTA
+    // table (6 instances / 185 ch on hayundios) and the trailing "COMPARTE ESTA
+    // PÁGINA" share row (1 / 23 ch). The share row is site-specific here
+    // because <sitelevel_noindex> closes after .contentpadding and so pops
+    // early (#128) — only .shareiconsmenupg catches it. Together they let
+    // articles end on their own last line.
     expect(crawl.stripSelectors).toContain(".fccell");
     expect(crawl.stripSelectors).toContain(".shareiconsmenupg");
     // A custom TAG, not a class — hence no leading dot, as in the siblings.
+    // Measured 2 instances / 148 ch inside .contentpadding.
     expect(crawl.stripSelectors).toContain("sitelevel_noindex");
   });
 });

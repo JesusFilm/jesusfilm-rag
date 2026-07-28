@@ -86,32 +86,39 @@
  * `/a/quem.html` opens "[continuação do artigo «Alguma coisa»]" — so all six
  * pages stay.
  *
- * **Extraction — the shared EveryStudent template BINDS.** Verified 2026-07-28
- * across all 27 article pages fetched: every one carries exactly **one**
- * `.content4`, **one** `.content4b` (nested inside it), **one** `.articletitle`
- * and **one** `.contentpadding`. Extracted body text ran **3.9k–19k chars**,
- * far above `minContentLength`. No fallback selector is needed — unlike the
- * Simplified-Chinese and Georgian siblings, this host did not diverge.
+ * **Extraction — the shared `.content4` template does NOT bind; `.contentpadding`
+ * is the container.** Re-verified 2026-07-29 by running the repo's own
+ * `extractContent` against live pages, which is the only check that proves
+ * anything (every one of these tokens is also declared in an inline `<style>`):
+ *   - `.contentpadding` — **1 instance, the whole article**.
+ *     `/a/deusexiste.html` → 19,147 chars raw, **18,807 after stripping**;
+ *     `/a/coronavirus.html` → 9,604 raw / 9,384 stripped.
+ *   - `.content4` — **1 instance, an empty spacer div: 0 characters.**
+ *   - `.content4b` — **0 instances.** Absent from this host entirely.
+ *   - `.articletitle` — an `<h1>`, 12–36 chars. A title, not a body.
+ * `extractContent` scopes to the FIRST selector that MATCHES AN ELEMENT, not the
+ * first that yields text, so listing `.content4` ahead of `.contentpadding`
+ * bound the empty spacer and extracted **0 chars on every page** — every article
+ * skipped as `too-thin` on a 200 status, with no error anywhere. That is how
+ * this entry first shipped.
  *
- * **Chrome, measured on this host — not inherited on faith:**
- *   - `sitelevel_noindex` is a real custom **ELEMENT**, not a class — 4 per
- *     article page on all 27. It is the FreeFind "no index" wrapper around the
- *     cookie notice + nav menu at the top and the `COMPARTILHE ESTA PÁGINA:`
- *     AddToAny share block at the bottom. ⚠️ Its nesting in the source is
+ * **Chrome — re-counted 2026-07-29 INSIDE `.contentpadding`.** The earlier
+ * figures were taken against a container that extracted nothing and are
+ * superseded:
+ *   - `sitelevel_noindex` is a real custom **ELEMENT**, not a class — **2
+ *     instances inside `.contentpadding`, 154 chars** on both sampled pages. It
+ *     is the FreeFind "no index" wrapper. ⚠️ Its nesting in the source is
  *     **malformed** — it opens inside `.contentpadding` and closes only after
- *     `.content4`'s closing `</div>` — so which side of the `.content4`
- *     boundary the share block lands on depends on how the HTML parser
- *     re-balances it. Hence the belt-and-braces below.
- *   - `.shareiconsmenupg` — **added for this host**, present on all 27 article
- *     pages. It is the div that actually holds `COMPARTILHE ESTA PÁGINA:` and
- *     the share icons, so stripping it removes that block deterministically
- *     regardless of how the malformed `sitelevel_noindex` above is re-balanced.
- *   - `.fccell` — 4 to 8 `<td class="fccell">` per article on all 27: the
- *     "FEATURE CLOSE" call-to-action table ("Como começar um relacionamento com
- *     Deus", "Tenho uma pergunta…"). Measured removing 64–183 chars per page.
- *   - `.hr2` — 2 to 4 per article on all 27, empty `<div class="hr2"></div>`
- *     dividers bracketing the FEATURE CLOSE table. Zero text; free to strip.
- *   - `.articledivider` — present on 24 of 27.
+ *     `.contentpadding` does, so the parser pops it early and it does **not**
+ *     contain the share block (#128). Hence the belt-and-braces below.
+ *   - `.shareiconsmenupg` — **added for this host and load-bearing**: 1 instance,
+ *     **26 chars**. It is the div that actually holds `COMPARTILHE ESTA PÁGINA:`
+ *     and the share icons, and it is the only selector that removes them.
+ *   - `.fccell` — the "FEATURE CLOSE" call-to-action table ("Como começar um
+ *     relacionamento com Deus", "Tenho uma pergunta…"): 6 instances / **186
+ *     chars** on `deusexiste`, 4 / **66** on `coronavirus`.
+ *   - `.hr2` (2 instances) and `.articledivider` (1) — empty divider divs
+ *     bracketing the FEATURE CLOSE table. **0 chars**; free to strip.
  *   - `.relatedbottom` — **zero markup occurrences on all 33 pages fetched**;
  *     it exists only as a CSS rule in the stylesheet. Retained purely for
  *     parity with the sibling entries, but it is dead config on this host and
@@ -197,13 +204,13 @@ export const everystudentPt: SourceEntry = {
       "^https://www\\.suaescolha\\.com/promocion/",
       "\\.pdf($|\\?)",
     ],
-    // Verified binding on 27/27 article pages fetched 2026-07-28.
-    contentSelectors: [
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ],
+    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // host that extracts the article. `.content4` is deliberately ABSENT: it is
+    // an empty spacer div (0 chars) and, because extractContent scopes to the
+    // first selector that MATCHES rather than the first that yields text,
+    // listing it here made every page skip as `too-thin`. `.content4b` does not
+    // exist on this host.
+    contentSelectors: [".contentpadding"],
     stripSelectors: [
       "script",
       "style",

@@ -86,41 +86,48 @@
  * hits) and so will not be discovered. It is decision-follow-up material rather
  * than a seeker article, so this is acceptable — recorded so nobody re-derives it.
  *
- * **Extraction — the shared EveryStudent template is fully present here and
- * `.content4` binds.** Verified 2026-07-28 across 32 fetched pages, 21 of them
- * `/articulos/` articles: every article carries exactly one
- * `<div class="content4">` and one nested `<div class="content4b">`, plus
- * `.articletitle` and `.contentpadding`. (Only nav/utility pages —
- * `/menu/preguntas.html`, `/acerca.html`, `/promocion/`, `/audio/` — lack
- * `.content4b`, and all of those are blocked.) Extracting `.content4` yields the
- * category kicker, headline, subhead, byline and the whole body — e.g.
- * `/articulos/hayundios.html` → 19,643 chars ending on its own last footnote.
- * Bodies measured after stripping ranged 1,422–24,146 chars, so the 250 floor is
- * comfortable. Selector order mirrors the three siblings.
+ * **Extraction — `.contentpadding` is the container, and `.content4` is an
+ * EMPTY SPACER that must never precede it.** Re-verified 2026-07-29 by running
+ * the repo's own `extractContent` against live pages (the only check that
+ * proves anything — see ADR note below):
+ *   - `.contentpadding` — **1 instance, the whole article**: category kicker,
+ *     headline, subhead, byline and body. `/articulos/hayundios.html` → 19,976
+ *     chars raw, **19,643 after stripping**, ending on its own last footnote;
+ *     `/articulos/proposito.html` → 3,770 raw / 3,560 stripped.
+ *   - `.content4` — **1 instance, literally `<div class="content4"> </div>`:
+ *     zero child elements, 0 characters.** It is a layout spacer on this host,
+ *     not the content column.
+ *   - `.content4b` — **0 instances.** Absent from this host entirely.
+ *   - `.articletitle` — an `<h1>`, 13–33 chars. A title, not a body.
+ * `extractContent` scopes to the FIRST selector that MATCHES AN ELEMENT, not the
+ * first that yields text, so listing `.content4` ahead of `.contentpadding`
+ * bound the empty spacer and extracted **0 chars on every page** — every article
+ * skipped as `too-thin` with a 200 status and no error anywhere. That is exactly
+ * how this entry first shipped; hence `contentSelectors` is now the single
+ * measured container and nothing else. Bodies range 3.6k–19.6k chars, so the 250
+ * floor is comfortable.
  *
- * **Chrome strip — measured per selector, not copied on faith.** On 5 sampled
- * articles the base sibling list removes 61–183 chars/page and the additions
- * below take it to 84–206:
+ * **Chrome strip — re-measured 2026-07-29 inside the REAL scope
+ * (`.contentpadding`).** The earlier figures on this entry were taken against a
+ * container that extracted nothing, so they are superseded:
  *   - `.fccell` — the "FEATURE CLOSE" CTA table (`INVITÉ A JESUS A ENTRAR EN MI
- *     VIDA…`, `TENGO UNA PREGUNTA…`). **The only sibling selector that removes
- *     real text here: 61–183 chars on every page.**
- *   - `.shareiconsmenupg` — **SITE-SPECIFIC, added here.** The trailing
- *     "COMPARTE ESTA PÁGINA:" share row. It survives `sitelevel_noindex` because
- *     of a genuine markup defect (below), so it needs naming directly; removing
- *     it is what lets every article end on its own last line.
+ *     VIDA…`, `TENGO UNA PREGUNTA…`). 6 instances / **185 chars** on
+ *     `hayundios`, 4 / **62** on `proposito`.
  *   - `sitelevel_noindex` — a real custom TAG, not a class (hence no leading
  *     dot, as in both sibling entries): the markup is literally
- *     `<sitelevel_noindex>…</sitelevel_noindex>`. **Measured 0 chars removed
- *     from inside `.content4`** on all 5 pages: its instances wrap the cookie
- *     notice, the top nav menu and the right sidebar, all of which sit outside
- *     `.content4`; the one instance that overlaps the article opens inside
- *     `.contentpadding` and closes *after* `.content4` closes, so HTML5 tree
- *     construction pops it at the first `</div>` and it never encloses the share
- *     row. Retained for parity and in case the markup is repaired upstream.
- *   - `.relatedbottom` — present only as a CSS rule; no element instance on any
- *     sampled page. 0 chars. Retained for parity.
- *   - `.hr2` / `.articledivider` — present as elements but they are zero-height,
- *     zero-text rules. 0 chars. Retained for parity.
+ *     `<sitelevel_noindex>…</sitelevel_noindex>`. **2 instances inside
+ *     `.contentpadding`, 148 chars** on both sampled pages. It does NOT enclose
+ *     the share row: that instance opens inside `.contentpadding` and closes
+ *     after `.contentpadding` does, so HTML5 tree construction pops it early
+ *     (#128).
+ *   - `.shareiconsmenupg` — **SITE-SPECIFIC, required.** The trailing "COMPARTE
+ *     ESTA PÁGINA:" share row, 1 instance / **23 chars**. Because
+ *     `sitelevel_noindex` pops early (above), only this selector catches it;
+ *     removing it is what lets every article end on its own last line.
+ *   - `.relatedbottom` — **no element instance on any sampled page; 0 chars.**
+ *     Dead config, retained only for sibling parity — it strips nothing.
+ *   - `.hr2` (2 instances) / `.articledivider` (1) — real elements but
+ *     zero-text rules. **0 chars.** Retained for parity.
  *
  * **Language: `["es"]` — read, not inferred.** Every page carries
  * `<html lang="es">`, and the bodies are genuine Spanish prose, not the
@@ -180,12 +187,13 @@ export const everystudentEs: SourceEntry = {
       "^https://www\\.cadaestudiante\\.com/?$",
       "\\.pdf($|\\?)",
     ],
-    contentSelectors: [
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ],
+    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // host that extracts the article. `.content4` is deliberately ABSENT: it
+    // exists as `<div class="content4"> </div>` (0 chars) and, because
+    // extractContent scopes to the first selector that MATCHES rather than the
+    // first that yields text, listing it here bound the empty spacer and made
+    // every page skip as `too-thin`. `.content4b` does not exist on this host.
+    contentSelectors: [".contentpadding"],
     stripSelectors: [
       "script",
       "style",

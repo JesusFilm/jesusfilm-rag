@@ -83,10 +83,28 @@
  * — the page linking out to the sibling language domains — is blocked for
  * parity with the siblings and to record the robots rule explicitly.
  *
- * **Extraction — measured on THIS host, not inherited on trust.** All four
- * shared-template selectors bind on every article probed: `.content4`,
- * `.content4b`, `.articletitle`, `.contentpadding`. `.content4` is the widest
- * container and is tried first.
+ * **Extraction — measured on THIS host, not inherited on trust.** `.content4` is
+ * a REAL container here (2,914 ch on `/a/christmas.html`, 7,777 on
+ * `/a/exp301.html`) and is the widest of the four — it carries the category
+ * kicker that `.content4b`/`.contentpadding` omit (an 11-char delta) — so it is
+ * correctly tried first. **This host is the exception**: on five of the eight
+ * pilot siblings (`es`, `ru`, `ro`, `pt`, `de`) `.content4` is an empty spacer
+ * div and this ordering would extract 0 chars from every page. See rule 1b in
+ * `docs/slices/everystudent-siblings.md`.
+ *
+ * ⚠️ **But this host is MIXED, not uniform — do not generalise from the 79 that
+ * work.** The 2026-07-29 acquire run staged 79/81 and the two skips are both
+ * selector-shape anomalies, confirmed by re-probing:
+ *   - `/a/jes4.html` — `.content4` matches with **0 chars** (the empty-spacer
+ *     shape), `.contentpadding` has **220**. Under the 250 floor either way, so
+ *     nothing is lost, but the spacer shape does occur on this host.
+ *   - `/a/Bible215.html` — an interactive quiz page (`div#question1.hidden`,
+ *     script-driven), 75 KB of markup with **no content container at all**:
+ *     `.content4` and `.contentpadding` match 0 elements, `.content4b` matches
+ *     with 0 chars. Structurally unlike an article; correctly dropped.
+ * Note also that `<body>` is **absent from the parsed tree** on this host (as on
+ * `everykoreanstudent.com`), so `extractContent`'s `body` fallback does not
+ * apply — a page with no matching selector falls through to the document root.
  *
  * The strip list needed **two corrections** against the sibling entries:
  *   - **`sitelevel_noindex` does NOT exist on this host.** The siblings strip it

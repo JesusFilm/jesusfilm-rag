@@ -105,33 +105,35 @@ describe("everystudent-de registry entry", () => {
     expect(de().crawl.minContentLength).toBe(250);
   });
 
-  it("extracts from the template selectors measured binding on this host", () => {
+  it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const { contentSelectors } = de().crawl;
-    // Verified 2026-07-28 against the markup with the inline <style> block
-    // removed — all four are defined in the stylesheet too, so token presence
-    // alone proved nothing. Nesting: .content4 > .content4b > h1.articletitle
-    // + .contentpadding. Outermost first, so one node carries title + body.
-    expect(contentSelectors).toEqual([
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ]);
+    // Measured 2026-07-29 with the repo's own extractContent against live
+    // pages: .contentpadding is the ONLY element on this host that extracts the
+    // article (19,471 ch raw on /artikel/gibtes.html, 3,771 on
+    // /artikel/ichkann.html). .content4 exists but is an empty spacer div — 0
+    // chars — and .content4b is absent. Every token is ALSO declared in the
+    // inline <style>, so a grep proves nothing. extractContent scopes to the
+    // first selector that MATCHES AN ELEMENT, not the first that yields text,
+    // so either listed ahead of .contentpadding silently extracts nothing and
+    // every page skips `too-thin` on a 200. This is the guard against that.
+    expect(contentSelectors).toEqual([".contentpadding"]);
   });
 
   it("strips the share/CTA chrome, including the site-specific TEILEN widget", () => {
     const strip = de().crawl.stripSelectors;
-    // A custom ELEMENT tag, not a class — <sitelevel_noindex>…</sitelevel_noindex>,
-    // 4 pairs per article page. The missing leading "." is correct, not a typo.
+    // A custom ELEMENT tag, not a class — <sitelevel_noindex>…</sitelevel_noindex>.
+    // Measured 2 instances / 109 ch inside .contentpadding. The missing leading
+    // "." is correct, not a typo.
     expect(strip).toContain("sitelevel_noindex");
     // The "FEATURE CLOSE" CTA: the table shell as well as its cells, or the
-    // emptied shell survives.
+    // emptied shell survives. Measured 204 ch on gibtes, 54 on ichkann.
     expect(strip).toContain(".fctable");
     expect(strip).toContain(".fccell");
-    // Site-specific: the "TEILEN:" AddToAny widget at the tail of .content4.
-    // Its wrapping <sitelevel_noindex> is malformed (opens inside
-    // .contentpadding, closes after .content4b), so parser recovery cannot be
-    // assumed — without this selector "TEILEN:" trails every extraction.
+    // Site-specific: the "TEILEN:" AddToAny widget, 9 ch. Its wrapping
+    // <sitelevel_noindex> is malformed — it opens inside .contentpadding and
+    // closes only after .contentpadding does, so the parser pops it early and
+    // it never encloses the widget (#128). Without this selector "TEILEN:"
+    // trails every extraction.
     expect(strip).toContain(".shareiconsmenupg");
   });
 });

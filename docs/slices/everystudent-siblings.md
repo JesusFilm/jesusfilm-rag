@@ -1,6 +1,6 @@
 # Campaign: EveryStudent non-walled sibling domains (48 sources) — [#111](https://github.com/JesusFilm/jesusfilm-rag/issues/111)
 
-_Branch: `feat/everystudent-siblings` · Started: 2026-07-28 · Status: **in-progress**_
+_Branch: `feat/everystudent-siblings` · Started: 2026-07-28 · Status: in-progress_
 <!-- Status: in-progress | blocked | done | deferred -->
 
 > **If you are a fresh agent: read this whole file, then go to "You are here".**
@@ -69,30 +69,37 @@ locally acquired.
 
 ## 4. You are here
 
-**Last updated: 2026-07-28 · last commit `6e7f492`**
+**Last updated: 2026-07-29**
 
-- ✅ **Phase 1, batch 1 (pilot) — DONE.** 8 registry entries written, wired,
-  verify gate green (depcruise · lint · typecheck · db:check · status:check ·
-  test 494 passing). Dry-run acquire resolves all 8 → **630 article URLs**.
-  Committed as `6e7f492`.
-- ⏭️ **NEXT: Phase 2 for batch 1** — acquire those 8 locally. Nothing has been
-  fetched or ingested yet. Command in §6.
-- ⏭️ Then: Phase 1 batch 2 (12 sources), and repeat.
+- ✅ **Phase 1, batch 1 (pilot) — DONE.** 8 registry entries written and wired.
+- ⚠️ **Two real defects found and fixed at Phase 2 — read rules 1b and 1c.**
+  Five of the eight entries would have acquired **zero documents**, and a sixth
+  would have staged 25 duplicate nav pages. Neither was visible to the Phase-1
+  gate. The gate has been strengthened; §10's agent prompt is updated.
+- ✅ **Phase 2, batch 1 — DONE 2026-07-29.** All 8 acquired locally:
+  **600 documents**, zero duplicate-content groups, `acquire: green` recorded in
+  `docs/source-status.yaml`. Per-source counts and full skip accounting in §8.
+- ⏭️ **NEXT: Phase 1, batch 2** — 12 sources from §8, largest sitemap first,
+  using the §10 prompt. **Do NOT run `pnpm index` yet** — indexing happens once,
+  after all 48 are acquired (Phase 3).
 
-**Progress: 8 of 48 registry entries written. 0 of 48 acquired.**
+**Progress: 8 of 48 registry entries written. 8 of 48 acquired (600 docs).**
 
 ### The immediate next command
 
-```bash
-git checkout feat/everystudent-siblings
-for k in es zh-cn ru ro ja pt de ko; do
-  pnpm acquire --source everystudent-$k
-done
-```
+Pick the next 12 from §8's "Remaining with reachable sitemaps" table, largest
+first — `sq` pyetjetejetes.com (131), `fa` everypersianstudent.com (107),
+`mn` tailal.mn (105), `tr` tanriyitanimak.com (102), `cs` everystudent.cz (97),
+`bg` everystudent.bg (95), `hu` everystudent.hu (95), `pl` kazdystudent.pl (90),
+`sr` studentskikutak.com (84), `et` tudengielu.net (77),
+`vi` everyvietstudent.com (76), `zh-tw` everystudent.com.tw (70) — and spawn one
+agent each with the §10 prompt, each with its own scratch subdirectory.
 
-~630 pages over plain HTTP at 1s delay ≈ 15 min. Free. Then verify per §6 and
-commit. **Do not run `pnpm index` yet** — indexing happens once, after all 48 are
-acquired (Phase 3).
+⚠️ `cs` (everystudent.cz) is a known outlier: `.content .content-13` / `.main`,
+not the shared template. Expect it to need its own container.
+
+**Before committing batch 2, run the live-extraction gate** (§6 Phase 1, step 4).
+It is not optional — it is the only check that caught the batch-1 defect.
 
 ---
 
@@ -145,21 +152,51 @@ per-domain facts.
    ```
    This resolves the discovery filters against the live sitemap and fetches
    nothing. A source that resolves 0 URLs is broken — do not proceed.
-4. Commit the batch. **Do not** register in `source-status.yaml` yet — that
+4. ⚠️ **MANDATORY — the live-extraction gate.** `--dry-run` fetches nothing and
+   the registry tests assert the entry's own fields, so **neither can tell you
+   whether extraction works.** Batch 1 passed both with five entries that
+   extracted 0 chars. For each new key, fetch 2 discovered article URLs and run
+   the repo's own extractor:
+   ```ts
+   const entry = SOURCES.find((s) => s.key === key)!;
+   const { urls } = await discoverUrls({ fetcher }, entry.crawl);
+   for (const url of urls.slice(0, 2)) {
+     const res = await fetcher.fetch(url);
+     // Report EVERY contentSelector's char count, not just the final result —
+     // a 0-char match that binds first is the failure you are looking for.
+     for (const sel of entry.crawl.contentSelectors) { … }
+     const out = extractContent(res.body!, entry.crawl);
+     assert(out.text.length >= entry.crawl.minContentLength);
+   }
+   ```
+   Anything below `minContentLength` means the container is wrong (rule 1b).
+5. Commit the batch. **Do not** register in `source-status.yaml` yet — that
    happens at stage boundaries once the source has actually acquired.
 
 ### Phase 2 — acquire (per batch)
 ```bash
 for k in <batch keys>; do pnpm acquire --source everystudent-$k; done
 ```
-Evidence to check before calling it done:
+Evidence to check before calling it done. (`raw_documents` carries `source_key`
+directly — there is no `source_id` and no join. An earlier version of this file
+had that wrong.)
 ```sql
-select s.key, count(*), min(length(r.raw_content)), avg(length(r.raw_content))::int
-from raw_documents r join sources s on s.id = r.source_id
-where s.key like 'everystudent-%' group by 1 order by 1;
+-- 1. counts and body sizes
+select source_key, count(*), min(length(raw_content)),
+       avg(length(raw_content))::int, max(length(raw_content))
+from raw_documents where source_key like 'everystudent-%' group by 1 order by 1;
+
+-- 2. ⚠️ REQUIRED — duplicate-content check (rule 1c). Any group with a high
+--    count means dead URLs are extracting the same nav page via the <body>
+--    fallback. Expect ZERO rows.
+select source_key, md5(raw_content) h, count(*)
+from raw_documents where source_key like 'everystudent-%'
+group by 1, 2 having count(*) > 1 order by 3 desc;
 ```
-Expect the counts in §8's "will acquire" column. A large shortfall means the
-crawl policy is wrong; a small one is normal (dead sitemap URLs, see §9).
+Expect the counts in §8's "Staged" column. A large shortfall means the crawl
+policy is wrong; a small one is normal (dead sitemap URLs, see §9). **Account for
+every skip** — `grep "⤫"` the acquire log and check each URL by hand. That is how
+the `ja` mixed-host anomaly surfaced.
 
 Then `pnpm status:add-source` + `status:set … acquire=green` per source.
 
@@ -227,18 +264,32 @@ Facts that bear on this (measured 2026-07-28, local corpus):
 
 ## 8. The 48 domains
 
-**Done (8)** — registry written, dry-run verified, not yet acquired:
+**Done (8) — ACQUIRED locally 2026-07-29.** `acquire: green` in
+`docs/source-status.yaml`. **600 documents, zero duplicate-content groups.**
+"Container" is the selector that actually extracts (see rule 1b):
 
-| Lang | Domain | Sitemap | Will acquire | Template |
-|---|---|---|---|---|
-| `es` | cadaestudiante.com | 153 | 78 | shared |
-| `zh-cn` | xinshengming.com | 146 | 129 | **WordPress** |
-| `ru` | mirstudentov.com | 105 | 95 | shared |
-| `ro` | everystudent.ro | 102 | 90 | shared |
-| `ja` | studentinjapan.com | 94 | 81 | shared |
-| `pt` | suaescolha.com | 74 | **75** | shared |
-| `de` | duentscheidest.com | 72 | 45 | shared |
-| `ko` | everykoreanstudent.com | 48 | 37 | **`html` (broken markup)** |
+| Lang | Domain | Sitemap | Resolved | **Staged** | Container |
+|---|---|---|---|---|---|
+| `es` | cadaestudiante.com | 153 | 78 | **77** | `.contentpadding` |
+| `zh-cn` | xinshengming.com | 146 | 129 | **128** | `.cb-entry-content` (WordPress) |
+| `ru` | mirstudentov.com | 105 | 95 | **95** | `.contentpadding` |
+| `ro` | everystudent.ro | 102 | 90→65 | **64** | `.contentpadding` |
+| `ja` | studentinjapan.com | 94 | 81 | **79** | `.content4` ⚠️ mixed host |
+| `pt` | suaescolha.com | 74 | **75** | **75** | `.contentpadding` |
+| `de` | duentscheidest.com | 72 | 45 | **45** | `.contentpadding` |
+| `ko` | everykoreanstudent.com | 48 | 37 | **37** | `html` (broken markup) |
+
+Skip accounting — every one checked, none is a defect:
+- `es` 1 · `/articulos/discipulos.html` is a genuine 164-char stub (title +
+  subhead only).
+- `zh-cn` 1 · `/a/pack3.html`, from the "adventure/pack" email series.
+- `ro` 90→65 · the 25 dead redirects are now **hard-blocked** (see rule 1c);
+  the remaining 1 skip is `/v/filmuliisus.html`, a transcript-less video embed.
+  64 = the ~64 this file predicted all along.
+- `ja` 2 · `/a/jes4.html` (220 ch, under the floor) and `/a/Bible215.html` (an
+  interactive quiz page with no content container). Both correctly dropped.
+- `pt` 75/75 · the 13 pinned `seedPaths` unioned with the 62 discovered exactly
+  as designed — the stale-sitemap patch works.
 
 **Remaining with reachable sitemaps (35)** — suggested batch order, largest first:
 
@@ -292,6 +343,69 @@ Each cost real investigation. Cite them when they apply.
    const el = parse(html).querySelector(sel);
    console.log(sel, el ? el.structuredText.trim().length : -1);
    ```
+
+1b. **⚠️ THE ONE THAT BIT US — `contentSelectors` is NOT a fallback chain.**
+   `extractContent` (`src/acquisition/extract.ts`) scopes to the **first selector
+   that matches an ELEMENT**, not the first that yields text:
+   ```ts
+   for (const selector of policy.contentSelectors) {
+     scope = root.querySelector(selector);
+     if (scope) break;          // ← binds even when it extracts 0 chars
+   }
+   ```
+   So **a zero-text match SHADOWS every working selector after it.** Listing the
+   shared template as a "fallback chain, outermost first" is not defensive — it
+   is the failure mode.
+
+   On **five of the eight pilot hosts** (`es`, `ru`, `ro`, `pt`, `de`)
+   `.content4` exists only as `<div class="content4"> </div>` — an empty layout
+   spacer, 0 chars, 0 child elements — and `.content4b` **does not exist at all**.
+   The real container is **`.contentpadding`** (3.6k–20.5k chars). Because
+   `.content4` was listed first, all five extracted **0 chars on every page** and
+   every article was skipped as `too-thin` on an **HTTP 200**. Fixed 2026-07-29 by
+   setting `contentSelectors: [".contentpadding"]` — one measured selector, no
+   chain. Only `ja` genuinely has `.content4` as its container.
+
+   Two things made this survive Phase 1:
+   - **The registry unit tests cannot catch it.** They assert the entry object's
+     own fields (`expect(contentSelectors[0]).toBe(".content4")`) — a tautology
+     that passes whatever you write. All five even shipped a confident nesting
+     diagram (`.content4 > .content4b > .contentpadding`) that does not exist.
+   - **`--dry-run` acquire cannot catch it either.** It resolves URLs against the
+     sitemap and **fetches nothing**, so "resolves 630 URLs" says nothing about
+     extraction. The §6 Phase-1 gate is insufficient on its own.
+
+   **New mandatory Phase-1 gate — run BEFORE committing a batch:** fetch 2 real
+   article URLs per new key and run the repo's own `extractContent` with the
+   registry policy; assert `text.length >= minContentLength`. Anything else is
+   guessing. See "Open questions" #4 — this should become a checked-in script.
+
+1c. **"`minContentLength` will drop it" is NOT a blocking strategy — there is a
+   `<body>` fallback.** When **no** `contentSelector` matches, `extractContent`
+   does not return empty. It falls through (`extract.ts:50`):
+   ```ts
+   const container = scope ?? root.querySelector("body") ?? root;
+   ```
+   so the page still extracts — usually the entire nav/teaser chrome, which on
+   these hosts runs 800+ chars and clears the 250 floor comfortably.
+
+   `everystudent-ro` shipped 25 dead `/a/` URLs unblocked on exactly the wrong
+   reasoning: "the homepage carries none of the selectors, so extraction yields
+   0 characters and the floor drops them." The real acquire run staged **89 docs,
+   25 of them byte-identical copies of the 842-char homepage teaser list.** They
+   do not collapse at ingest either — the dedup gate keys on
+   `(sourceKey, canonicalUrl)`, so 25 URLs mean 25 chunked, embedded documents.
+   Blocked by URL and the 25 rows deleted; `ro` now stands at the 64 predicted.
+
+   **Rule: a page you do not want must be blocked by URL.** The floor only
+   catches pages that are genuinely short *after* extraction, and a selector
+   miss makes a page LONGER, not shorter. Verify with
+   `select md5(raw_content), count(*) … group by 1 having count(*) > 1` after
+   every acquire — one hash with a high count is this bug.
+
+   ⚠️ Two hosts (`studentinjapan.com`, `everykoreanstudent.com`) have **no
+   `<body>` in the parsed tree at all**, so they fall through to the document
+   root instead — same failure, different shape.
 2. **There is no single shared template.** Three families in the first eight:
    shared `.content4` (5), WordPress `.cb-entry-content` (`zh-cn`), and
    `html`-as-container (`ko`). #111's "one crawl policy + a handful of bespoke"
@@ -350,7 +464,20 @@ Recorded here so they are not lost, but **do not act on them during Phase 1–2*
   campaign step.
 - `studentinjapan.com` and `everykoreanstudent.com` serve **UTF-8** but send a
   bare `content-type: text/html` with **no charset parameter**. A client
-  defaulting to ISO-8859-1 would mojibake every page.
+  defaulting to ISO-8859-1 would mojibake every page. (Observed clean in the
+  2026-07-29 acquire — Node's `fetch` handled both correctly.)
+- **Measured after batch-1 acquire (2026-07-29), to watch at Phase 3:**
+  - `everystudent-zh-cn` min body is **322 chars** and its mean is **2,882** —
+    by far the shortest of the eight. The 500-char detection floor (ADR-0007)
+    will label some of these `language = null`, exactly the CJK interaction
+    already flagged above. Expect it; do not "fix" it.
+  - `everystudent-es` has one **100,409-char** document,
+    `/articulos/biblia_juan.html` ("El Evangelio de Juan") — the full text of
+    John's Gospel on an article URL. Correctly extracted, not chrome, but it is
+    4× the next largest and will chunk heavily. Decide at Phase 3 whether a full
+    scripture book belongs in this corpus or should be blocked.
+  - `everystudent-ja` min body is **841 chars**, the next-shortest after
+    `zh-cn`.
 
 ---
 
@@ -398,13 +525,26 @@ docstring standard), `src/registry/thelife-fr.ts` (discovery-mode precedent),
    missing 17% of its articles, another lists 25 dead URLs. If the HTML map has
    articles the XML sitemap lacks, pin them in `seedPaths` — acquire.ts unions
    seeds with discovered URLs.
-3. At least 3 real article pages. Determine which selectors wrap the body — and
+3. At least 3 real article pages. Determine which selector wraps the body — and
    verify by EXTRACTED TEXT LENGTH using node-html-parser exactly as
    extract.ts does, NOT by grepping for the class name. Every host declares
-   .content4 in an inline <style> block, and on one sibling .content4 matched
-   but extracted 0 chars while <body> was absent entirely. Test the shared
-   template (.content4/.content4b/.articletitle/.contentpadding) first; if it
-   does not extract text, find the real container.
+   .content4 in an inline <style> block, so a grep false-positives every time.
+
+   ⚠️ READ THIS TWICE — it broke 5 of the 8 pilot entries. `contentSelectors`
+   is NOT a fallback chain. extract.ts binds the FIRST selector that matches an
+   ELEMENT, even when that element extracts 0 characters, and then stops. A
+   zero-text match SHADOWS every working selector after it. On most of these
+   hosts `.content4` is an empty spacer `<div class="content4"> </div>` (0 ch)
+   and `.content4b` does not exist; the real container is `.contentpadding`.
+   Listing the shared template "outermost first as fallbacks" makes every page
+   extract 0 chars and skip as `too-thin` on an HTTP 200 — silent, and the unit
+   tests cannot see it.
+
+   So: measure EVERY candidate and report each one's char count. Then ship
+   `contentSelectors` with the SINGLE selector you measured extracting the
+   article — not a chain, not the sibling list. If you are tempted to add a
+   fallback, don't: state in your report why you think one is needed and let
+   the orchestrator decide.
 4. Chrome to strip — check `sitelevel_noindex` (a custom ELEMENT, not a class),
    `.fccell`, `.fctable`, `.hr2`, `.articledivider`, `.relatedbottom`, and
    `.shareiconsmenupg` (REQUIRED — sitelevel_noindex's markup is malformed and
@@ -444,7 +584,9 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 
 ## Report back — tight
 - domain + sitemap count + article pattern + any HTML-map cross-check delta
-- selectors measured binding, with extracted char counts
+- EVERY candidate selector with its measured extracted char count (including
+  the zero ones — "`.content4` matched, 0 chars" is a required line), and which
+  single one you shipped
 - robots.txt verdict
 - language confirmation in your own words, quoting a phrase you read
 - anything surprising, or any call the orchestrator must make
@@ -474,6 +616,11 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 | 2026-07-28 | Branch `feat/everystudent-siblings` off `origin/main` | New work; `slice/everystudent-fr` was already merged upstream. |
 | 2026-07-28 | #128 kept out of this branch | Keeps the 48-source PR reviewable. |
 | 2026-07-28 | Batch 2 sized at 12 | Pilot of 8 was comfortably reviewable. |
+| 2026-07-29 | `contentSelectors` ships ONE measured selector, never the sibling chain | A zero-text match shadows everything after it (rule 1b). 5 of 8 pilot entries extracted 0 chars because `.content4` — an empty spacer — was listed first. |
+| 2026-07-29 | Live-extraction check added to the Phase-1 gate | `--dry-run` fetches nothing and the unit tests are tautological, so neither can see a broken selector. Only running `extractContent` on a real page can. |
+| 2026-07-29 | `extract.ts` NOT changed on this branch | Preferring the first text-yielding selector would fix the trap globally but alters extraction for all sources incl. the 3 live in prod. Raised as open question #5. |
+| 2026-07-29 | `ro`'s 25 dead URLs hard-blocked, reversing the earlier call | The "self-policing floor" reasoning ignored the `<body>` fallback; the real run staged 25 identical nav pages (rule 1c). 25-branch alternation is the cheap fix. |
+| 2026-07-29 | `ja` keeps `.content4` first — deliberately not normalised | It is a genuine container there and carries the category kicker that `.contentpadding` omits (11 ch/page). Switching would lose the kicker on 79 pages to fix 0. Mixed-host caveat documented in the entry. |
 
 ## 13. Open questions for the operator
 
@@ -483,12 +630,32 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 2. **When to fix #128** — before the 48 land, after, or on its own schedule.
 3. **The 5 sitemap-less domains** — hand-list seeds from their HTML sitemap
    pages, or defer them out of this campaign entirely?
+4. **Make the live-extraction gate a checked-in script?** (New, 2026-07-29.)
+   Rule 1b was caught only by hand-running `extractContent` against live pages
+   after acquire had already started. With 40 domains still to write, that check
+   should be a command — e.g. `pnpm acquire --source <key> --probe`, fetching 2
+   discovered URLs and printing extracted char counts per `contentSelector`
+   without writing to the database. Small, and it turns the campaign's most
+   expensive failure mode into a gate. Needs Jaco's yes before building.
+5. **Should `extractContent` skip zero-text matches?** The root cause is that
+   `contentSelectors` reads like a fallback chain but is not one. Making the
+   loop prefer the first selector yielding text would remove the trap for all 48
+   domains — but it changes shared extraction behaviour for **every** source,
+   including the three already live in prod. Deliberately NOT done on this
+   branch, same reasoning as #128. Worth its own issue.
 
 ## 14. Resume hint (cold start)
 
-At: **Phase 2, batch 1** — acquire the 8 pilot sources locally. Nothing fetched
-yet. Run the command in §4, verify with the SQL in §6, `status:add-source` +
-`status:set … acquire=green` per source, commit. Then Phase 1 batch 2 (12
-sources from §8, largest first) using the §10 prompt.
-Last verify: **green 2026-07-28** (494 tests). Last commit: `6e7f492`.
-Branch: `feat/everystudent-siblings`.
+At: **Phase 1, batch 2.** Batch 1 is fully acquired — 8 sources, **600
+documents**, `acquire: green` in `docs/source-status.yaml`, zero duplicates.
+
+Next: spawn 12 agents for the 12 domains listed in §4 using the §10 prompt, wire
+`src/registry/index.ts` yourself, then run the full gate **plus the mandatory
+live-extraction gate (§6 Phase 1 step 4)** before committing. Do not skip it:
+batch 1 passed the old gate with five entries that extracted nothing.
+
+Read rules **1b** and **1c** in §9 before writing any entry — they are the two
+defects batch 1 shipped, and both are easy to repeat.
+
+Last verify: **green 2026-07-29** (496 tests · depcruise · lint · typecheck ·
+db:check · status:check). Branch: `feat/everystudent-siblings`.

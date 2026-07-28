@@ -96,37 +96,60 @@ describe("everystudent-ro registry entry", () => {
     expect(blocked("https://www.everystudent.ro/v/collins.html")).toBe(false);
   });
 
-  it("uses the shared EveryStudent template selectors, outermost first", () => {
-    // All four measured binding on this host 2026-07-28: <div class="content4">
-    // wraps the body, with .content4b / .contentpadding nested inside it and
-    // <h1 class="articletitle"> carrying the title. First match wins, so
-    // .content4 must stay first — it is the outermost of the four.
-    expect(ro().crawl.contentSelectors).toEqual([
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ]);
+  it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
+    // Measured 2026-07-29 with the repo's own extractContent against live
+    // pages: .contentpadding is the ONLY element on this host that extracts the
+    // article (20,511 ch raw on /a/exista.html, 3,782 on /a/scop.html).
+    // .content4 exists but is an empty spacer div — 0 chars — and .content4b is
+    // absent. extractContent scopes to the first selector that MATCHES AN
+    // ELEMENT, not the first that yields text, so either of those listed ahead
+    // of .contentpadding silently extracts nothing and every page skips
+    // `too-thin` on a 200. This is the guard against that regression.
+    expect(ro().crawl.contentSelectors).toEqual([".contentpadding"]);
   });
 
   it("strips the share widget that sitelevel_noindex does NOT cover on this host", () => {
     const strip = ro().crawl.stripSelectors;
     for (const s of ["sitelevel_noindex", ".fccell", ".hr2", ".articledivider"])
       expect(strip).toContain(s);
-    // The load-bearing addition. This host's markup overlaps: <sitelevel_noindex>
-    // opens inside .contentpadding but .content4's closing </div>s sit inside
-    // it, so a conforming parser leaves .shareiconsmenupg as a direct child of
-    // .content4. Without this every extracted body ended in a dangling "SHARE:".
+    // The load-bearing addition (1 instance, 8 ch). This host's markup overlaps:
+    // <sitelevel_noindex> opens inside .contentpadding but closes only after
+    // .contentpadding does, so a conforming parser pops it early and leaves
+    // .shareiconsmenupg as a direct child of the container (#128). Without this
+    // every extracted body ended in a dangling "SHARE:".
     expect(strip).toContain(".shareiconsmenupg");
   });
 
-  it("caps maxPages above the sitemap size and keeps the 250-char floor that drops the dead redirects", () => {
+  it("hard-blocks the 25 dead /a/ URLs that 301 to the homepage", () => {
+    const block = ro().crawl.block!;
+    const blocked = (url: string) => block.some((r) => new RegExp(r).test(url));
+    // These are NOT self-policing, which is how they first shipped. The homepage
+    // they redirect to matches no contentSelector, so extractContent falls back
+    // to <body> (extract.ts:50) and returns its 842-char teaser list — well over
+    // the 250 floor. The ingest dedup gate keys on (sourceKey, canonicalUrl), so
+    // 25 distinct URLs do not collapse: the unblocked 2026-07-29 acquire run
+    // staged 25 byte-identical copies of that nav page. Only a URL block works.
+    const dead = [
+      "adam", "apostolii", "asemanare", "astazi", "cale", "care", "ceva",
+      "cine", "cine2", "coronavirus", "fericire", "iad", "inchinare",
+      "inspirata", "intamplare", "iubitor", "miracole", "nimic", "ofera",
+      "raul2", "religiile", "rezultat", "sex", "sex2", "suferinta",
+    ];
+    expect(dead).toHaveLength(25);
+    for (const slug of dead)
+      expect(blocked(`https://www.everystudent.ro/a/${slug}.html`)).toBe(true);
+    // Near-miss slugs that ARE live (confirmed in the 2026-07-29 acquire run)
+    // must survive the alternation — note each one shadows a dead slug above:
+    // adam2/adam, miracol/miracole, cineeste/cine, raul/raul2.
+    for (const slug of ["adam2", "miracol", "cineeste", "raul", "exista", "scop"])
+      expect(blocked(`https://www.everystudent.ro/a/${slug}.html`)).toBe(false);
+  });
+
+  it("caps maxPages above the sitemap size and keeps the 250-char floor", () => {
     const crawl = ro().crawl;
     expect(crawl.maxPages).toBeGreaterThan(102); // 102 sitemap URLs + headroom
-    // 25 of the 85 /a/ URLs are dead and 301 to the homepage, which carries none
-    // of the content selectors -> 0 chars extracted. The floor drops them, which
-    // is why they are not hard-blocked. /v/filmuliisus.html (53 chars, a bare
-    // video embed with no transcript) goes the same way.
+    // The floor still does real work on live-but-empty pages:
+    // /v/filmuliisus.html is a bare video embed with no transcript (53 chars).
     expect(crawl.minContentLength).toBe(250);
   });
 });

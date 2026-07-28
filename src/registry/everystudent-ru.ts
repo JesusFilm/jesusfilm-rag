@@ -115,60 +115,56 @@
  *
  * ## Extraction — measured on this host, not inherited on trust
  *
- * The shared EveryStudent template **does** bind here (unlike Simplified Chinese
- * and Georgian). Note that `.content4` / `.content4b` / `.articletitle` /
- * `.contentpadding` are ALSO all defined in the page's inline `<style>` block,
- * so mere presence of the token proves nothing; verified 2026-07-28 against the
- * markup itself, all four bind as real elements on `/a/` pages, nested:
+ * **The shared `.content4` template does NOT bind here.** Re-verified 2026-07-29
+ * by running the repo's own `extractContent` against live pages — the only check
+ * that proves anything, because these tokens are also declared in the page's
+ * inline `<style>` block and a grep false-positives on every one of them:
+ *   - `.contentpadding` — **1 instance, the whole article**: kicker, title,
+ *     subhead, byline and body. `/a/estli.html` → 17,787 chars raw, **17,541
+ *     after stripping**; `/a/ktoeto.html` → 3,980 raw / 3,835 stripped.
+ *   - `.content4` — **1 instance, an empty spacer div: 0 characters.**
+ *   - `.content4b` — **0 instances.** Absent from this host entirely.
+ *   - `.articletitle` — an `<h1>`, 12–14 chars. A title, not a body.
+ * `extractContent` scopes to the FIRST selector that MATCHES AN ELEMENT, not the
+ * first that yields text, so listing `.content4` ahead of `.contentpadding`
+ * bound the empty spacer and extracted **0 chars on every page** — every article
+ * skipped as `too-thin` on a 200 status, with no error anywhere. That is how
+ * this entry first shipped. `contentSelectors` is now the one measured
+ * container and nothing else.
  *
- *     <div class="content4">          ← main content column (the extraction root)
- *       <div class="content4b">
- *         <div class="contentpadding">
- *           <h1 class="articletitle">Отвечает ли Бог на наши молитвы?</h1>
- *           … article body …
- *
- * `.content4` is listed first because it is the outermost of the four and so
- * captures kicker + title + subhead + body in one node; the rest are ordered
- * inner-ward as progressively narrower fallbacks. Extracted lengths across the
- * 14 articles sampled: **2,570 – 17,689 chars** (median ~3.6k), every one far
- * above the 250-char floor.
- *
- * ⚠️ `.content4` also binds on `/m/`, `/vopros.html` and `/sitemap.html` — it
- * does **not** discriminate content from nav. The URL filters above are what
+ * ⚠️ `.contentpadding` also binds on `/m/`, `/vopros.html` and `/sitemap.html` —
+ * it does **not** discriminate content from nav. The URL filters above are what
  * keep the corpus clean; the selector list must not be relied on to do it.
  *
- * ## Chrome stripped — all counted in this host's markup 2026-07-28
+ * ## Chrome stripped — re-counted 2026-07-29 INSIDE the real scope
+ *
+ * The earlier figures on this entry were taken against a container that
+ * extracted nothing, so they are superseded. Instances and char removals below
+ * are measured within `.contentpadding` on `/a/estli.html` and `/a/ktoeto.html`:
  *
  *   - **`sitelevel_noindex`** is a **custom ELEMENT tag**, not a class:
- *     `<sitelevel_noindex> … </sitelevel_noindex>`, **4 pairs per article page**,
- *     wrapping (1) the cookie notice + top nav (358 ch), (2) the share block
- *     (11 ch), (3) the "Есть вопрос? / Видео комната / Карта сайта /
- *     Рекомендовать страницу" utility bar (65 ch), and (4) the footer nav +
- *     "© MirStudentov.com" (290 ch). Hence the bare tag-name selector with no
- *     leading `.` — matching the sibling entries, whose form is correct rather
- *     than a typo.
- *   - **`.fctable` (1–2 per article) and `.fccell` (4–8)** — the "FEATURE CLOSE"
- *     call-to-action table appended to every article ("► Как начать
- *     взаимоотношения с Богом… ► У меня есть вопрос…"). Measured removal:
- *     **60–238 chars** per article across the four sampled for it. `.fctable` is
- *     included because stripping only the cells would leave the table shell.
- *   - **`.hr2` (2–6) and `.articledivider` (4–5 tokens, 1 element)** — empty
- *     divs drawing the rules that bracket that CTA block. No text of their own.
+ *     `<sitelevel_noindex> … </sitelevel_noindex>`. **2 instances inside
+ *     `.contentpadding`, 83 chars** on both pages. Hence the bare tag-name
+ *     selector with no leading `.` — matching the sibling entries, whose form is
+ *     correct rather than a typo.
+ *   - **`.fctable` (1) and `.fccell` (4–6)** — the "FEATURE CLOSE" call-to-action
+ *     table appended to every article ("► Как начать взаимоотношения с Богом… ►
+ *     У меня есть вопрос…"). Measured removal: **163 chars** on `estli`, **62**
+ *     on `ktoeto`; the two selectors remove the same block (the cells nest in
+ *     the table). `.fctable` is included because stripping only the cells would
+ *     leave the table shell.
+ *   - **`.hr2` (2) and `.articledivider` (1)** — empty divs drawing the rules
+ *     that bracket that CTA block. **0 chars**, confirmed.
  *   - **`.shareiconsmenupg` (1 per article) — a site-specific addition, and the
  *     one selector this host genuinely needs.** It wraps the "ПОДЕЛИТЬСЯ:"
- *     ("SHARE:") AddToAny widget. It must be named explicitly because the
- *     `<sitelevel_noindex>` that nominally contains it is **malformed**:
- *     measured on `/a/molitvi.html`, that tag opens at line 360 — inside
- *     `.contentpadding` — and closes at line 375, *after* `.contentpadding`
- *     (361), `.content4b` (362) and `.content4` (374) have all already closed.
- *     A parser's recovery of that overlap cannot be assumed, and in a
- *     div-balance extraction the label survives: every one of the 14 sampled
- *     articles ended on a trailing "ПОДЕЛИТЬСЯ:" until this selector was added.
- *     Identical finding to the German sibling.
- *   - **`.relatedbottom`** is **defined in the stylesheet but never used in the
- *     markup** of any of the 24 pages fetched — a no-op on this host. Retained
- *     for parity with the sibling entries; do not read its presence here as
- *     evidence it binds.
+ *     ("SHARE:") AddToAny widget, **13 chars**. It must be named explicitly
+ *     because the `<sitelevel_noindex>` that nominally contains it is
+ *     **malformed** — it opens inside `.contentpadding` and closes only after
+ *     `.contentpadding` has closed, so the parser pops it early and it never
+ *     encloses the share row (#128). Identical finding to the German sibling.
+ *   - **`.relatedbottom`** has **no element instance** on any page measured — a
+ *     no-op on this host. Retained for parity with the sibling entries; do not
+ *     read its presence here as evidence it binds.
  *
  * ## Language: `["ru"]` — read, not inferred
  *
@@ -237,16 +233,16 @@ export const everystudentRu: SourceEntry = {
       "^https://www\\.mirstudentov\\.com/sitemap\\.html$",
       // The contact form: 85 chars, would fail minContentLength anyway.
       "^https://www\\.mirstudentov\\.com/vopros\\.html$",
-      // The homepage — it has no .content4 at all, so it extracts nothing.
+      // The homepage — no article container, so it extracts nothing.
       "^https://www\\.mirstudentov\\.com/?$",
     ],
-    // Measured binding on /a/ pages 2026-07-28, outermost first.
-    contentSelectors: [
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ],
+    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // host that extracts the article. `.content4` is deliberately ABSENT: it is
+    // an empty spacer div (0 chars) and, because extractContent scopes to the
+    // first selector that MATCHES rather than the first that yields text,
+    // listing it here made every page skip as `too-thin`. `.content4b` does not
+    // exist on this host.
+    contentSelectors: [".contentpadding"],
     stripSelectors: [
       "script",
       "style",

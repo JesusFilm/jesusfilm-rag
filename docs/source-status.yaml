@@ -168,3 +168,75 @@ sources:
         stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/everystudent-fr.md
     last_updated: 2026-07-27
+  everystudent-es:
+    name: EveryStudent — Spanish (cadaestudiante.com)
+    status: in-progress
+    languages:
+      es:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-zh-cn:
+    name: EveryStudent — Chinese Simplified (XinShengMing / 新生命)
+    status: in-progress
+    languages:
+      zh:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-ru:
+    name: EveryStudent — Russian (Мир студентов)
+    status: in-progress
+    languages:
+      ru:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-ro:
+    name: EveryStudent — Romanian (everystudent.ro)
+    status: in-progress
+    languages:
+      ro:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-ja:
+    name: EveryStudent — Japanese (Student in Japan)
+    status: in-progress
+    languages:
+      ja:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-pt:
+    name: EveryStudent — Portuguese (suaescolha.com)
+    status: in-progress
+    languages:
+      pt:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-de:
+    name: EveryStudent — German (Du entscheidest)
+    status: in-progress
+    languages:
+      de:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-ko:
+    name: EveryStudent — Korean (everykoreanstudent.com)
+    status: in-progress
+    languages:
+      ko:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28

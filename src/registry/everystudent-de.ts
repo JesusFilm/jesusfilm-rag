@@ -104,50 +104,53 @@
  * ## Extraction — measured on this host, not inherited on trust
  *
  * The prior probe reported the shared EveryStudent template selectors "present".
- * They are, but **`.content4` / `.content4b` / `.articletitle` /
- * `.contentpadding` are also all defined in the page's inline `<style>` block**,
- * so mere presence of the token proves nothing. Verified 2026-07-28 against the
- * markup with the stylesheet removed — all four bind as real elements on
- * `/artikel/` pages, nested:
+ * The tokens are — but they are also all defined in the page's inline `<style>`
+ * block, so mere presence proves nothing, and **`.content4` does not actually
+ * hold the article here.** Re-verified 2026-07-29 by running the repo's own
+ * `extractContent` against live pages:
+ *   - `.contentpadding` — **1 instance, the whole article**.
+ *     `/artikel/gibtes.html` → 19,471 chars raw, **19,160 after stripping**;
+ *     `/artikel/ichkann.html` → 3,771 raw / 3,609 stripped.
+ *   - `.content4` — **1 instance, an empty spacer div: 0 characters.**
+ *   - `.content4b` — **0 instances.** Absent from this host entirely.
+ *   - `.articletitle` — an `<h1>`, 19–44 chars. A title, not a body.
+ * `extractContent` scopes to the FIRST selector that MATCHES AN ELEMENT, not the
+ * first that yields text, so listing `.content4` ahead of `.contentpadding`
+ * bound the empty spacer and extracted **0 chars on every page** — every article
+ * skipped as `too-thin` on a 200 status, with no error anywhere. That is how
+ * this entry first shipped.
  *
- *     <div class="content4">          ← main content column (the extraction root)
- *       <div class="content4b">
- *         <h1 class="articletitle">Gibt es einen Gott?</h1>
- *         <div class="contentpadding"> … article body … </div>
+ * ⚠️ `.contentpadding` also binds on `/menu/`, `/audio/` and `/p_*` pages — it
+ * does **not** discriminate content from nav. The URL filters above are what keep
+ * the corpus clean; the selector list must not be relied on to do it.
  *
- * `.content4` is listed first because it is the outermost of the four and so
- * captures kicker + title + subhead + body in one node; the rest are ordered
- * inner-ward as progressively narrower fallbacks. Extracted lengths on the six
- * articles sampled: 3,964 / 5,971 / 6,689 / 12,210 / 19,112 / 25,422 chars.
+ * ## Chrome stripped — re-counted 2026-07-29 INSIDE the real scope
  *
- * ⚠️ `.content4` also binds on `/menu/`, `/audio/` and `/p_*` pages — it does
- * **not** discriminate content from nav. The URL filters above are what keep the
- * corpus clean; the selector list must not be relied on to do it.
- *
- * ## Chrome stripped — all verified present on this host 2026-07-28
+ * The earlier figures were taken against a container that extracted nothing and
+ * are superseded. Counts below are within `.contentpadding` on
+ * `/artikel/gibtes.html` and `/artikel/ichkann.html`:
  *
  *   - **`sitelevel_noindex`** is a **custom ELEMENT tag**, not a class:
- *     `<sitelevel_noindex> … </sitelevel_noindex>`, 4 pairs per article page,
- *     wrapping the cookie notice + top nav, the share block, the sidebar, and
- *     the footer. One pair sits inside `.content4`. Hence the bare tag-name
+ *     `<sitelevel_noindex> … </sitelevel_noindex>`. **2 instances inside
+ *     `.contentpadding`, 109 chars** on both pages. Hence the bare tag-name
  *     selector with no leading `.` — matching the sibling entries, whose form
  *     is correct rather than a typo.
- *   - **`.fccell` (4–8 per article) and `.fctable`** — the "FEATURE CLOSE"
- *     call-to-action table of links to other articles, appended to every
- *     article. `.fctable` is added here because stripping only the cells would
- *     leave the table shell behind.
- *   - **`.hr2` (2–4) and `.articledivider` (0–1)** — the rules bracketing that
- *     CTA block.
- *   - **`.shareiconsmenupg` (1 per article) — a site-specific addition.** It
- *     wraps the "TEILEN:" AddToAny share widget at the tail of `.content4`.
- *     Worth naming explicitly: the `<sitelevel_noindex>` that nominally contains
- *     it opens inside `.contentpadding` and closes after `.content4b` has
- *     already closed, so the nesting is malformed and a parser's recovery of it
- *     cannot be assumed. Without this selector, "TEILEN:" trails the extraction.
- *   - **`.relatedbottom`** is **defined in the stylesheet but never used in the
- *     markup** of any of the 11 pages fetched — a no-op on this host. Retained
- *     for parity with the sibling entries; do not read its presence here as
- *     evidence it binds.
+ *   - **`.fccell` (4–6) and `.fctable` (1)** — the "FEATURE CLOSE" call-to-action
+ *     table of links to other articles, appended to every article. Measured
+ *     **204 chars** on `gibtes`, **54** on `ichkann`; the two selectors remove
+ *     the same block (the cells nest in the table). `.fctable` is included
+ *     because stripping only the cells would leave the table shell behind.
+ *   - **`.hr2` (2) and `.articledivider` (1)** — the rules bracketing that CTA
+ *     block. **0 chars**, confirmed.
+ *   - **`.shareiconsmenupg` (1 per article) — a site-specific addition and the
+ *     only selector that removes the share row.** It wraps the "TEILEN:"
+ *     AddToAny widget, **9 chars**. The `<sitelevel_noindex>` that nominally
+ *     contains it opens inside `.contentpadding` and closes only after
+ *     `.contentpadding` does, so the parser pops it early and it never encloses
+ *     the widget (#128). Without this selector, "TEILEN:" trails the extraction.
+ *   - **`.relatedbottom`** has **no element instance** on any page measured — a
+ *     no-op on this host. Retained for parity with the sibling entries; do not
+ *     read its presence here as evidence it binds.
  *
  * Together the strip list removes 60–384 chars of pure chrome per article
  * (measured across the six sampled), leaving each article ending on its own
@@ -211,13 +214,13 @@ export const everystudentDe: SourceEntry = {
       // The homepage.
       "^https://www\\.duentscheidest\\.com/?$",
     ],
-    // Measured binding on /artikel/ pages 2026-07-28, outermost first.
-    contentSelectors: [
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ],
+    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // host that extracts the article. `.content4` is deliberately ABSENT: it is
+    // an empty spacer div (0 chars) and, because extractContent scopes to the
+    // first selector that MATCHES rather than the first that yields text,
+    // listing it here made every page skip as `too-thin`. `.content4b` does not
+    // exist on this host.
+    contentSelectors: [".contentpadding"],
     stripSelectors: [
       "script",
       "style",

@@ -97,34 +97,32 @@ describe("everystudent-pt registry entry", () => {
     }
   });
 
-  it("uses the shared EveryStudent template selectors, measured binding on this host", () => {
+  it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const { contentSelectors } = pt().crawl;
-    // Verified 2026-07-28 on all 27 article pages fetched: each carries exactly
-    // one .content4, one nested .content4b, one .articletitle and one
-    // .contentpadding, yielding 3.9k-19k chars of body text. Unlike the
-    // Simplified-Chinese and Georgian siblings, this host did not diverge, so
-    // no site-specific fallback selector is needed.
-    expect(contentSelectors).toEqual([
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ]);
+    // Measured 2026-07-29 with the repo's own extractContent against live
+    // pages: .contentpadding is the ONLY element on this host that extracts the
+    // article (19,147 ch raw on /a/deusexiste.html, 9,604 on
+    // /a/coronavirus.html). .content4 exists but is an empty spacer div — 0
+    // chars — and .content4b is absent. extractContent scopes to the first
+    // selector that MATCHES AN ELEMENT, not the first that yields text, so
+    // either of those listed ahead of .contentpadding silently extracts nothing
+    // and every page skips `too-thin` on a 200. This is the guard against that.
+    expect(contentSelectors).toEqual([".contentpadding"]);
   });
 
   it("strips the share/CTA chrome so citations stay clean", () => {
     const strip = pt().crawl.stripSelectors;
-    // sitelevel_noindex is a custom ELEMENT here (4 per page) whose nesting is
-    // malformed — it opens inside .contentpadding and closes only after
-    // .content4's closing </div>, so whether the share block falls inside the
-    // content container depends on how the parser re-balances it.
+    // sitelevel_noindex is a custom ELEMENT here (2 instances / 154 ch inside
+    // .contentpadding) whose nesting is malformed — it opens inside
+    // .contentpadding and closes only after .contentpadding does, so the parser
+    // pops it early and it does NOT contain the share block (#128).
     expect(strip).toContain("sitelevel_noindex");
-    // …which is why .shareiconsmenupg is stripped too: it is the div that
-    // actually holds "COMPARTILHE ESTA PÁGINA:" and the share icons (27/27
-    // pages), so the block goes regardless of the re-balancing above.
+    // …which is why .shareiconsmenupg is load-bearing: it is the div that
+    // actually holds "COMPARTILHE ESTA PÁGINA:" and the share icons (1 instance,
+    // 26 ch), and the only selector that removes them.
     expect(strip).toContain(".shareiconsmenupg");
-    // The "FEATURE CLOSE" CTA table — 4-8 cells per article, measured removing
-    // 64-183 chars of pure link chrome per page.
+    // The "FEATURE CLOSE" CTA table — 6 cells / 186 ch on /a/deusexiste.html,
+    // 4 / 66 on /a/coronavirus.html.
     expect(strip).toContain(".fccell");
   });
 });

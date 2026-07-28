@@ -98,36 +98,36 @@ describe("everystudent-ru registry entry", () => {
     expect(ru().crawl.minContentLength).toBe(250);
   });
 
-  it("extracts from the shared template selectors, measured binding on this host", () => {
+  it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const { contentSelectors } = ru().crawl;
-    // The shared EveryStudent template DOES bind here (unlike Simplified
-    // Chinese and Georgian). All four are also defined in the page's inline
-    // <style> block, so token presence alone proved nothing — verified against
-    // the markup itself. Nesting: .content4 > .content4b > .contentpadding >
-    // h1.articletitle. Outermost first, so one node carries kicker + title +
-    // body; the 14 articles sampled extracted 2,570-17,689 chars.
-    expect(contentSelectors).toEqual([
-      ".content4",
-      ".content4b",
-      ".articletitle",
-      ".contentpadding",
-    ]);
+    // Measured 2026-07-29 with the repo's own extractContent against live
+    // pages: .contentpadding is the ONLY element on this host that extracts the
+    // article (17,787 ch raw on /a/estli.html, 3,980 on /a/ktoeto.html).
+    // .content4 exists but is an empty spacer div — 0 chars — and .content4b is
+    // absent. Every one of these tokens is ALSO declared in the page's inline
+    // <style>, so a grep proves nothing. extractContent scopes to the first
+    // selector that MATCHES AN ELEMENT, not the first that yields text, so any
+    // of them listed ahead of .contentpadding silently extracts nothing and
+    // every page skips `too-thin` on a 200. This is the guard against that.
+    expect(contentSelectors).toEqual([".contentpadding"]);
   });
 
   it("strips the share/CTA chrome, including the site-specific ПОДЕЛИТЬСЯ widget", () => {
     const strip = ru().crawl.stripSelectors;
-    // A custom ELEMENT tag, not a class — <sitelevel_noindex>…</sitelevel_noindex>,
-    // 4 pairs per article page. The missing leading "." is correct, not a typo.
+    // A custom ELEMENT tag, not a class — <sitelevel_noindex>…</sitelevel_noindex>.
+    // Measured 2 instances / 83 ch inside .contentpadding. The missing leading
+    // "." is correct, not a typo.
     expect(strip).toContain("sitelevel_noindex");
     // The "FEATURE CLOSE" CTA: the table shell as well as its cells, or the
-    // emptied shell survives. Measured removal 60-238 chars per article.
+    // emptied shell survives. Measured removal 163 ch on /a/estli.html, 62 on
+    // /a/ktoeto.html.
     expect(strip).toContain(".fctable");
     expect(strip).toContain(".fccell");
-    // Site-specific: the "ПОДЕЛИТЬСЯ:" AddToAny widget. Its wrapping
-    // <sitelevel_noindex> is malformed — on /a/molitvi.html it opens at line
-    // 360 inside .contentpadding and closes at 375, after .contentpadding
-    // (361), .content4b (362) and .content4 (374) have all closed. Parser
-    // recovery cannot be assumed; without this the label trails every article.
+    // Site-specific: the "ПОДЕЛИТЬСЯ:" AddToAny widget, 13 ch. Its wrapping
+    // <sitelevel_noindex> is malformed — it opens inside .contentpadding and
+    // closes only after .contentpadding has closed, so the parser pops it early
+    // and it never encloses the widget (#128). Without this the label trails
+    // every article.
     expect(strip).toContain(".shareiconsmenupg");
   });
 });

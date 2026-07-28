@@ -338,6 +338,30 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
+**▶ ACTIVE: the #111 campaign — 48 non-walled EveryStudent sibling domains.**
+Branch `feat/everystudent-siblings`. **The state file is
+[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md) — read
+it first; it is the complete resume contract and needs no chat history.**
+
+This is a **batched campaign, NOT 48 `/slice` runs** — only acquisition is
+per-source; ingest and eval are already whole-corpus single commands. Do not run
+`/slice` for these.
+
+_You are here (2026-07-28, commit `6e7f492`):_ Phase 1 batch 1 (pilot) **DONE** —
+8 registry entries (`es` `zh-cn` `ru` `ro` `ja` `pt` `de` `ko`) written by 8
+parallel agents, wired, gate green (494 tests), dry-run acquire resolves **630
+article URLs**. **Nothing fetched or ingested yet.**
+_Next:_ Phase 2 — acquire those 8 locally, then Phase 1 batch 2 (12 sources).
+Full pipeline through to the single 48-source PR and the prod re-run is in §3 of
+the state file.
+
+Filed on the way: **[#128](https://github.com/JesusFilm/jesusfilm-rag/issues/128)**
+— share-widget chrome is embedded in all three EXISTING EveryStudent sources and
+is **live in prod** (232 chunks; `-ar` and `-fr` at 100% of documents).
+Deliberately kept out of the campaign branch.
+
+---
+
 **✅ DONE — slice #10 (`everystudent-fr`, questions2vie.com), ALL FOUR STAGES
 GREEN 2026-07-27 AND PROMOTED TO PROD the same day.** The third and final walled
 EveryStudent domain; **the #112 route is now closed, locally and in prod**

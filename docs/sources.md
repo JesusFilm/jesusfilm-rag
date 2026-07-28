@@ -110,6 +110,36 @@ source we currently know of.)
 
 ---
 
+## Known corpus defects (open)
+
+Defects in content **already ingested**. Each has an issue; fix on its own
+schedule, not folded into unrelated source work.
+
+| Issue | Sources | Impact | Fix |
+|---|---|---|---|
+| **[#128](https://github.com/JesusFilm/jesusfilm-rag/issues/128)** — share-widget chrome embedded as body text, **live in prod** | `everystudent` 97/117 docs · `everystudent-ar` **67/67** · `everystudent-fr` **67/67** (232 chunks) | UI text ("Share this article" / "شارك مع أخرين" / "PARTAGER CETTE PAGE:") sits inside the embedding vector and can surface in a citation | Add `.shareiconsmenupg` to `stripSelectors` on the three entries, then re-extract. **No re-fetch, no Firecrawl credits** — the `raw_documents` rows are already stored. |
+| **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** — content soundness, estate-wide | found in `everystudent-ar`, confirmed in `everystudent-fr` | false factual claims, modalism, suicide content with no help signposted | content decision, not an engine fix |
+
+**Why #128 was missed for three slices:** all three entries strip
+`sitelevel_noindex`, which *should* wrap the share block — but it is a custom
+**element** whose markup is malformed (opens inside `.contentpadding`, closes
+after `.content4`), so any conforming parser pops it early and the share block
+survives. `everystudent-fr.ts` records the residue as "chrome that no selector
+can reach"; that is **wrong** — `.shareiconsmenupg` reaches it. Found
+independently by all eight agents authoring the [#111](https://github.com/JesusFilm/jesusfilm-rag/issues/111)
+sibling entries, which already carry the fix.
+
+---
+
+## EveryStudent sibling-language estate (#111) — campaign in progress
+
+48 non-walled sibling domains are being acquired as a **batched campaign, not 48
+`/slice` runs**. Full plan, per-source findings, rules learned and the reusable
+agent prompt live in **[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md)**
+— point a fresh agent at that file and it can resume unaided.
+
+---
+
 ## Scope note
 
 A few entries on the old registry were finer-grained sub-scopes of one site

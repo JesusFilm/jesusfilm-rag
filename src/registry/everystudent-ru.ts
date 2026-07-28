@@ -115,7 +115,7 @@
  *
  * ## Extraction — measured on this host, not inherited on trust
  *
- * **The shared `.content4` template does NOT bind here.** Re-verified 2026-07-29
+ * **The shared `.content4` template does NOT bind here.** Re-verified 2026-07-28
  * by running the repo's own `extractContent` against live pages — the only check
  * that proves anything, because these tokens are also declared in the page's
  * inline `<style>` block and a grep false-positives on every one of them:
@@ -136,7 +136,7 @@
  * it does **not** discriminate content from nav. The URL filters above are what
  * keep the corpus clean; the selector list must not be relied on to do it.
  *
- * ## Chrome stripped — re-counted 2026-07-29 INSIDE the real scope
+ * ## Chrome stripped — re-counted 2026-07-28 INSIDE the real scope
  *
  * The earlier figures on this entry were taken against a container that
  * extracted nothing, so they are superseded. Instances and char removals below
@@ -236,7 +236,7 @@ export const everystudentRu: SourceEntry = {
       // The homepage — no article container, so it extracts nothing.
       "^https://www\\.mirstudentov\\.com/?$",
     ],
-    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // ONLY `.contentpadding` — measured 2026-07-28 as the sole element on this
     // host that extracts the article. `.content4` is deliberately ABSENT: it is
     // an empty spacer div (0 chars) and, because extractContent scopes to the
     // first selector that MATCHES rather than the first that yields text,

@@ -93,7 +93,7 @@
  * `docs/slices/everystudent-siblings.md`.
  *
  * ⚠️ **But this host is MIXED, not uniform — do not generalise from the 79 that
- * work.** The 2026-07-29 acquire run staged 79/81 and the two skips are both
+ * work.** The 2026-07-28 acquire run staged 79/81 and the two skips are both
  * selector-shape anomalies, confirmed by re-probing:
  *   - `/a/jes4.html` — `.content4` matches with **0 chars** (the empty-spacer
  *     shape), `.contentpadding` has **220**. Under the 250 floor either way, so

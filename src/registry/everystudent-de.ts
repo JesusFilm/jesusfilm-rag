@@ -106,7 +106,7 @@
  * The prior probe reported the shared EveryStudent template selectors "present".
  * The tokens are — but they are also all defined in the page's inline `<style>`
  * block, so mere presence proves nothing, and **`.content4` does not actually
- * hold the article here.** Re-verified 2026-07-29 by running the repo's own
+ * hold the article here.** Re-verified 2026-07-28 by running the repo's own
  * `extractContent` against live pages:
  *   - `.contentpadding` — **1 instance, the whole article**.
  *     `/artikel/gibtes.html` → 19,471 chars raw, **19,160 after stripping**;
@@ -124,7 +124,7 @@
  * does **not** discriminate content from nav. The URL filters above are what keep
  * the corpus clean; the selector list must not be relied on to do it.
  *
- * ## Chrome stripped — re-counted 2026-07-29 INSIDE the real scope
+ * ## Chrome stripped — re-counted 2026-07-28 INSIDE the real scope
  *
  * The earlier figures were taken against a container that extracted nothing and
  * are superseded. Counts below are within `.contentpadding` on
@@ -214,7 +214,7 @@ export const everystudentDe: SourceEntry = {
       // The homepage.
       "^https://www\\.duentscheidest\\.com/?$",
     ],
-    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // ONLY `.contentpadding` — measured 2026-07-28 as the sole element on this
     // host that extracts the article. `.content4` is deliberately ABSENT: it is
     // an empty spacer div (0 chars) and, because extractContent scopes to the
     // first selector that MATCHES rather than the first that yields text,

@@ -100,7 +100,7 @@ describe("everystudent-ru registry entry", () => {
 
   it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const { contentSelectors } = ru().crawl;
-    // Measured 2026-07-29 with the repo's own extractContent against live
+    // Measured 2026-07-28 with the repo's own extractContent against live
     // pages: .contentpadding is the ONLY element on this host that extracts the
     // article (17,787 ch raw on /a/estli.html, 3,980 on /a/ktoeto.html).
     // .content4 exists but is an empty spacer div — 0 chars — and .content4b is

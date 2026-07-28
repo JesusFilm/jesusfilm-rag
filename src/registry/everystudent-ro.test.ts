@@ -97,7 +97,7 @@ describe("everystudent-ro registry entry", () => {
   });
 
   it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
-    // Measured 2026-07-29 with the repo's own extractContent against live
+    // Measured 2026-07-28 with the repo's own extractContent against live
     // pages: .contentpadding is the ONLY element on this host that extracts the
     // article (20,511 ch raw on /a/exista.html, 3,782 on /a/scop.html).
     // .content4 exists but is an empty spacer div — 0 chars — and .content4b is
@@ -127,7 +127,7 @@ describe("everystudent-ro registry entry", () => {
     // they redirect to matches no contentSelector, so extractContent falls back
     // to <body> (extract.ts:50) and returns its 842-char teaser list — well over
     // the 250 floor. The ingest dedup gate keys on (sourceKey, canonicalUrl), so
-    // 25 distinct URLs do not collapse: the unblocked 2026-07-29 acquire run
+    // 25 distinct URLs do not collapse: the unblocked 2026-07-28 acquire run
     // staged 25 byte-identical copies of that nav page. Only a URL block works.
     const dead = [
       "adam", "apostolii", "asemanare", "astazi", "cale", "care", "ceva",
@@ -138,7 +138,7 @@ describe("everystudent-ro registry entry", () => {
     expect(dead).toHaveLength(25);
     for (const slug of dead)
       expect(blocked(`https://www.everystudent.ro/a/${slug}.html`)).toBe(true);
-    // Near-miss slugs that ARE live (confirmed in the 2026-07-29 acquire run)
+    // Near-miss slugs that ARE live (confirmed in the 2026-07-28 acquire run)
     // must survive the alternation — note each one shadows a dead slug above:
     // adam2/adam, miracol/miracole, cineeste/cine, raul/raul2.
     for (const slug of ["adam2", "miracol", "cineeste", "raul", "exista", "scop"])

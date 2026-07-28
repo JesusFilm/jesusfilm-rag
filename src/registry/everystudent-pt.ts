@@ -87,7 +87,7 @@
  * pages stay.
  *
  * **Extraction — the shared `.content4` template does NOT bind; `.contentpadding`
- * is the container.** Re-verified 2026-07-29 by running the repo's own
+ * is the container.** Re-verified 2026-07-28 by running the repo's own
  * `extractContent` against live pages, which is the only check that proves
  * anything (every one of these tokens is also declared in an inline `<style>`):
  *   - `.contentpadding` — **1 instance, the whole article**.
@@ -102,7 +102,7 @@
  * skipped as `too-thin` on a 200 status, with no error anywhere. That is how
  * this entry first shipped.
  *
- * **Chrome — re-counted 2026-07-29 INSIDE `.contentpadding`.** The earlier
+ * **Chrome — re-counted 2026-07-28 INSIDE `.contentpadding`.** The earlier
  * figures were taken against a container that extracted nothing and are
  * superseded:
  *   - `sitelevel_noindex` is a real custom **ELEMENT**, not a class — **2
@@ -204,7 +204,7 @@ export const everystudentPt: SourceEntry = {
       "^https://www\\.suaescolha\\.com/promocion/",
       "\\.pdf($|\\?)",
     ],
-    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // ONLY `.contentpadding` — measured 2026-07-28 as the sole element on this
     // host that extracts the article. `.content4` is deliberately ABSENT: it is
     // an empty spacer div (0 chars) and, because extractContent scopes to the
     // first selector that MATCHES rather than the first that yields text,

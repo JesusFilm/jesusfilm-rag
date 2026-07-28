@@ -123,7 +123,7 @@ describe("everystudent-es registry entry", () => {
 
   it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const crawl = es().crawl;
-    // Measured 2026-07-29 with the repo's own extractContent against live
+    // Measured 2026-07-28 with the repo's own extractContent against live
     // pages: .contentpadding is the ONLY element on this host that extracts the
     // article (19,976 ch raw on /articulos/hayundios.html). .content4 exists but
     // is `<div class="content4"> </div>` — 0 chars — and .content4b is absent.
@@ -136,7 +136,7 @@ describe("everystudent-es registry entry", () => {
 
   it("strips the CTA and share chrome that survive inside .contentpadding", () => {
     const crawl = es().crawl;
-    // Re-measured 2026-07-29 inside .contentpadding: the FEATURE CLOSE CTA
+    // Re-measured 2026-07-28 inside .contentpadding: the FEATURE CLOSE CTA
     // table (6 instances / 185 ch on hayundios) and the trailing "COMPARTE ESTA
     // PÁGINA" share row (1 / 23 ch). The share row is site-specific here
     // because <sitelevel_noindex> closes after .contentpadding and so pops

@@ -79,7 +79,7 @@
  * originally left them unblocked on the theory that they were "self-policing" —
  * the homepage carries none of the template selectors, so extraction would yield
  * 0 chars and `minContentLength` would drop them. **That reasoning was wrong,
- * and a real acquire run on 2026-07-29 proved it.** It overlooked
+ * and a real acquire run on 2026-07-28 proved it.** It overlooked
  * `extractContent`'s fallback (`src/acquisition/extract.ts:50`):
  *
  *     const container = scope ?? root.querySelector("body") ?? root;
@@ -99,7 +99,7 @@
  * right; only the mechanism was wrong.
  *
  * **Extraction — `.contentpadding` is the container, and `.content4` is an
- * EMPTY SPACER that must never precede it.** Re-verified 2026-07-29 by running
+ * EMPTY SPACER that must never precede it.** Re-verified 2026-07-28 by running
  * the repo's own `extractContent` against live pages, which is the only check
  * that proves anything here:
  *   - `.contentpadding` — **1 instance, the whole article**. `/a/exista.html` →
@@ -114,7 +114,7 @@
  * skipped as `too-thin` on a 200 status, with no error anywhere. That is how
  * this entry first shipped.
  *
- * **Strip list — re-counted 2026-07-29 inside `.contentpadding`.** The earlier
+ * **Strip list — re-counted 2026-07-28 inside `.contentpadding`.** The earlier
  * figures were taken against a container that extracted nothing and are
  * superseded. `sitelevel_noindex` (a custom element) removes **102 chars** on
  * both sampled pages; `.fccell` — the call-to-action table — removes **195** on
@@ -194,11 +194,11 @@ export const everystudentRo: SourceEntry = {
       // therefore extracts that same 842-char nav page via the <body> fallback,
       // and the ingest dedup gate keys on (sourceKey, canonicalUrl) so they do
       // NOT collapse — an unblocked run staged 25 byte-identical copies.
-      // Verified dead 2026-07-28 (301) and again by the 2026-07-29 acquire run.
+      // Verified dead 2026-07-28 (301) and again by the 2026-07-28 acquire run.
       // If the site restores a page, remove it from this alternation.
       "^https://www\\.everystudent\\.ro/a/(adam|apostolii|asemanare|astazi|cale|care|ceva|cine|cine2|coronavirus|fericire|iad|inchinare|inspirata|intamplare|iubitor|miracole|nimic|ofera|raul2|religiile|rezultat|sex|sex2|suferinta)\\.html$",
     ],
-    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // ONLY `.contentpadding` — measured 2026-07-28 as the sole element on this
     // host that extracts the article. `.content4` is deliberately ABSENT: it is
     // an empty spacer div (0 chars) and, because extractContent scopes to the
     // first selector that MATCHES rather than the first that yields text,

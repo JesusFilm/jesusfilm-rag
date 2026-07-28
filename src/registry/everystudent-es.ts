@@ -87,7 +87,7 @@
  * than a seeker article, so this is acceptable — recorded so nobody re-derives it.
  *
  * **Extraction — `.contentpadding` is the container, and `.content4` is an
- * EMPTY SPACER that must never precede it.** Re-verified 2026-07-29 by running
+ * EMPTY SPACER that must never precede it.** Re-verified 2026-07-28 by running
  * the repo's own `extractContent` against live pages (the only check that
  * proves anything — see ADR note below):
  *   - `.contentpadding` — **1 instance, the whole article**: category kicker,
@@ -107,7 +107,7 @@
  * measured container and nothing else. Bodies range 3.6k–19.6k chars, so the 250
  * floor is comfortable.
  *
- * **Chrome strip — re-measured 2026-07-29 inside the REAL scope
+ * **Chrome strip — re-measured 2026-07-28 inside the REAL scope
  * (`.contentpadding`).** The earlier figures on this entry were taken against a
  * container that extracted nothing, so they are superseded:
  *   - `.fccell` — the "FEATURE CLOSE" CTA table (`INVITÉ A JESUS A ENTRAR EN MI
@@ -187,7 +187,7 @@ export const everystudentEs: SourceEntry = {
       "^https://www\\.cadaestudiante\\.com/?$",
       "\\.pdf($|\\?)",
     ],
-    // ONLY `.contentpadding` — measured 2026-07-29 as the sole element on this
+    // ONLY `.contentpadding` — measured 2026-07-28 as the sole element on this
     // host that extracts the article. `.content4` is deliberately ABSENT: it
     // exists as `<div class="content4"> </div>` (0 chars) and, because
     // extractContent scopes to the first selector that MATCHES rather than the

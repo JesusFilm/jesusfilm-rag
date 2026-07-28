@@ -107,7 +107,7 @@ describe("everystudent-de registry entry", () => {
 
   it("scopes to .contentpadding and never lets the empty .content4 spacer shadow it", () => {
     const { contentSelectors } = de().crawl;
-    // Measured 2026-07-29 with the repo's own extractContent against live
+    // Measured 2026-07-28 with the repo's own extractContent against live
     // pages: .contentpadding is the ONLY element on this host that extracts the
     // article (19,471 ch raw on /artikel/gibtes.html, 3,771 on
     // /artikel/ichkann.html). .content4 exists but is an empty spacer div — 0

@@ -71,35 +71,53 @@ locally acquired.
 
 **Last updated: 2026-07-29**
 
-- ✅ **Phase 1, batch 1 (pilot) — DONE.** 8 registry entries written and wired.
-- ⚠️ **Two real defects found and fixed at Phase 2 — read rules 1b and 1c.**
-  Five of the eight entries would have acquired **zero documents**, and a sixth
-  would have staged 25 duplicate nav pages. Neither was visible to the Phase-1
-  gate. The gate has been strengthened; §10's agent prompt is updated.
-- ✅ **Phase 2, batch 1 — DONE 2026-07-28.** All 8 acquired locally:
-  **600 documents**, zero duplicate-content groups, `acquire: green` recorded in
-  `docs/source-status.yaml`. Per-source counts and full skip accounting in §8.
-- ⏭️ **NEXT: Phase 1, batch 2** — 12 sources from §8, largest sitemap first,
-  using the §10 prompt. **Do NOT run `pnpm index` yet** — indexing happens once,
-  after all 48 are acquired (Phase 3).
+- ✅ **Batch 1 (pilot, 8 sources) — DONE.** Written, wired, acquired.
+- ✅ **Batch 2 (12 sources) — DONE, with one source still to acquire.**
+  All 12 registry entries written and wired; **11 of 12 acquired locally
+  (782 documents)**. `sr` is written and gated but **NOT acquired** — see the
+  blocker below. Zero duplicate-content groups across all 21 everystudent keys.
+- ⏭️ **NEXT: acquire `sr` (needs one `/etc/hosts` line), then Phase 1 batch 3.**
+  **Do NOT run `pnpm index` yet** — indexing happens ONCE, after all 48 are
+  acquired (Phase 3).
 
-**Progress: 8 of 48 registry entries written. 8 of 48 acquired (600 docs).**
+**Progress: 20 of 48 registry entries written. 19 of 48 acquired
+(1,381 documents).**
 
-### Batch 2 — the exact 12 domains
+### ⛔ The one open blocker — `sr`
 
-Already picked from §8's "Remaining with reachable sitemaps" table, largest
-first — `sq` pyetjetejetes.com (131), `fa` everypersianstudent.com (107),
-`mn` tailal.mn (105), `tr` tanriyitanimak.com (102), `cs` everystudent.cz (97),
-`bg` everystudent.bg (95), `hu` everystudent.hu (95), `pl` kazdystudent.pl (90),
-`sr` studentskikutak.com (84), `et` tudengielu.net (77),
-`vi` everyvietstudent.com (76), `zh-tw` everystudent.com.tw (70) — and spawn one
-agent each with the §10 prompt, each with its own scratch subdirectory.
+`studentskikutak.com` is **DNS-blackholed on Jaco's network** to
+`203.0.113.250` (TEST-NET-3). Port-53 traffic is transparently intercepted, so
+even `dig @1.1.1.1` returns the blackhole; DoH over 443 returns the true
+`50.28.103.165`, and a `--resolve`-pinned request gets a clean 200. **The host
+is fine and the entry is correct** — its live-extraction gate was run offline
+against curl-fetched bytes and passed (19,095 / 4,733 / 21,022 chars).
+Operator decision 2026-07-29 was to fix it with a hosts entry:
 
-⚠️ `cs` (everystudent.cz) is a known outlier: `.content .content-13` / `.main`,
-not the shared template. Expect it to need its own container.
+```bash
+sudo sh -c 'echo "50.28.103.165 www.studentskikutak.com studentskikutak.com" >> /etc/hosts'
+pnpm acquire --source everystudent-sr     # expect 76 documents
+pnpm status:add-source --key everystudent-sr \
+  --name "EveryStudent — Serbian (Studentski Kutak)" --lang sr \
+  --slice-file docs/slices/everystudent-siblings.md
+pnpm status:set --source everystudent-sr --lang sr --stage acquire=green
+```
 
-**Before committing batch 2, run the live-extraction gate** (§6 Phase 1, step 4).
-It is not optional — it is the only check that caught the batch-1 defect.
+Remove the hosts line afterwards. On the VM at Phase 7 this should not recur.
+
+### ⚠️ Two environment gotchas that are NOT code defects
+
+1. **`cs` needs an IPv6 workaround.** `everystudent.cz` publishes an AAAA
+   record (`2001:1ab0:7e1e:151:62:109:154:30`) that is unreachable from here.
+   `curl` silently falls back to IPv4; **Node's `fetch` does not** and dies
+   `ETIMEDOUT`. Every `cs` command needs:
+   ```bash
+   NODE_OPTIONS=--no-network-family-autoselection pnpm acquire --source everystudent-cs
+   ```
+   `--dns-result-order=ipv4first` alone is NOT enough — undici's Happy Eyeballs
+   still tries v6. Verified 2026-07-29 on Node v24.3.0.
+2. **Do not run `pnpm test` while an acquire is writing to Postgres.** One
+   integration test went red mid-run and was green immediately after. This is
+   the §6 Phase-3 warning showing up early — the suite queries the live DB.
 
 ---
 
@@ -319,13 +337,14 @@ Facts that bear on this (measured 2026-07-28, local corpus):
 
 ## 8. The 48 domains
 
-**Done (8) — ACQUIRED locally 2026-07-28.** `acquire: green` in
-`docs/source-status.yaml`. **600 documents, zero duplicate-content groups.**
+**Batch 1 (8) — ACQUIRED locally 2026-07-28.** `acquire: green` in
+`docs/source-status.yaml`. **599 documents** (was 600; `es` lost one row to the
+2026-07-29 scripture policy), zero duplicate-content groups.
 "Container" is the selector that actually extracts (see rule 1b):
 
 | Lang | Domain | Sitemap | Resolved | **Staged** | Container |
 |---|---|---|---|---|---|
-| `es` | cadaestudiante.com | 153 | 78 | **77** | `.contentpadding` |
+| `es` | cadaestudiante.com | 153 | 77 | **76** | `.contentpadding` |
 | `zh-cn` | xinshengming.com | 146 | 129 | **128** | `.cb-entry-content` (WordPress) |
 | `ru` | mirstudentov.com | 105 | 95 | **95** | `.contentpadding` |
 | `ro` | everystudent.ro | 102 | 65 | **64** | `.contentpadding` |
@@ -336,7 +355,12 @@ Facts that bear on this (measured 2026-07-28, local corpus):
 
 Skip accounting — every one checked, none is a defect:
 - `es` 1 · `/articulos/discipulos.html` is a genuine 164-char stub (title +
-  subhead only).
+  subhead only). ⚠️ A **second** `es` document was removed on 2026-07-29:
+  `/articulos/biblia_juan.html` (100,409 ch, the complete Gospel of John) is now
+  blocked under the estate-wide scripture policy and its row was deleted. The
+  entry's own test was updated — it had asserted that URL was *kept*, as its
+  example of an underscore slug passing the hint, and it was the only underscore
+  slug on the host.
 - `zh-cn` 1 · `/a/pack3.html`, from the "adventure/pack" email series.
 - `ro` · the 25 dead redirects are now **hard-blocked** (rule 1c), so discovery
   resolves 65 rather than 90. The single remaining skip is
@@ -349,28 +373,61 @@ Skip accounting — every one checked, none is a defect:
 - `pt` 75/75 · the 13 pinned `seedPaths` unioned with the 62 discovered exactly
   as designed — the stale-sitemap patch works.
 
-**Remaining with reachable sitemaps (35)** — suggested batch order, largest first:
+**Batch 2 (12) — written and wired 2026-07-29; 11 ACQUIRED, `sr` pending.**
+**782 documents**, zero duplicate-content groups. Commit `9a0fec3` (+ a follow-up
+for `bg` and the scripture policy).
+
+| Lang | Domain | Sitemap | Resolved | **Staged** | Container |
+|---|---|---|---|---|---|
+| `hu` | everystudent.hu | 95 | 83 | **83** | `.contentpadding` |
+| `bg` | everystudent.bg | 95 | 84 seeds | **84** | `.article-content` ⚠️ staging |
+| `mn` | tailal.mn | 105 | 82 | **82** | `html` ⚠️ +11 seeds |
+| `sq` | pyetjetejetes.com | 131 | 78 | **77** | `html` |
+| `pl` | kazdystudent.pl | 90 | 77 | **77** | `.contentpadding` |
+| `sr` | studentskikutak.com | 84 | 76 | **— blocked** | `.contentpadding` |
+| `fa` | everypersianstudent.com | 107 | 75 | **75** | `.contentpadding` |
+| `cs` | everystudent.cz | 97 | 100 | **74** | `.content` ⚠️ Yii app |
+| `tr` | tanriyitanimak.com | 102 | 71 | **71** | `.contentpadding` |
+| `vi` | everyvietstudent.com | 76 | 67 | **67** | `.contentpadding` |
+| `et` | tudengielu.net | 77 | 46 | **46** | `.contentleftpadding` |
+| `zh-tw` | everystudent.com.tw | 70 | 46 | **46** | `.entry-content` |
+
+Skip accounting — every one checked, none is a defect:
+- **9 of the 11 acquired staged 100% with ZERO skips.** Only `cs` and `sq` differ.
+- `cs` 26 · dead event stubs (`movie_night`, `plazovy_volejbal`, `rip`, …), all
+  extracting the same 25-char "Nenalezeny žádné záznamy." Left unblocked
+  deliberately: `.content` binds, so there is no `<body>` fallback and the floor
+  genuinely catches them. Their ids interleave with live articles.
+- `cs` 1 fetch-failed on the **first** run (`/in/73/je_bible_duveryhodna`, a
+  genuine article) — a timeout on that slow PHP host, **recovered on re-run**.
+  This is why the entry ships `requestDelayMs: 2000`.
+- `sq` 1 · `/a/gjoni.html` blocked under the scripture policy (see §12).
+- `mn` +11 · the XML sitemap omits 11 live articles the site's own map links —
+  a 13.4% blind spot, pinned as `seedPaths`. `cs` similarly pins 17 (a whole
+  section, `/19/zivot_s_bohem`, absent from the sitemap). `sr` pins 7.
+
+**Remaining with reachable sitemaps (23)** — suggested batch order, largest first:
 
 | Lang | Domain | URLs | | Lang | Domain | URLs |
 |---|---|---|---|---|---|---|
-| `sq` | pyetjetejetes.com | 131 | | `hr` | vrlovazno.com | 54 |
-| `fa` | everypersianstudent.com | 107 | | `th` | everythaistudent.com | 52 |
-| `mn` | tailal.mn | 105 | | `am` | habeshastudent.com | 50 |
-| `tr` | tanriyitanimak.com | 102 | | `it` | ognistudente.com | 50 |
-| `cs` | everystudent.cz | 97 | | `sk` | everystudent.sk | 44 |
-| `bg` | everystudent.bg | 95 | | `el` | everystudent.gr | 43 |
-| `hu` | everystudent.hu | 95 | | `ur` | zindagikaysawalat.com | 42 |
-| `pl` | kazdystudent.pl | 90 | | `hi` | everystudent.in | 40 |
-| `sr` | studentskikutak.com | 84 | | `ta` | ungalthervuenna.com | 40 |
-| `et` | tudengielu.net | 77 | | `te` | everytelugustudent.com | 39 |
-| `vi` | everyvietstudent.com | 76 | | `my` | everymyanmarstudent.com | 38 |
-| `zh-tw` | everystudent.com.tw | 70 | | `sl` | vsakstudent.com | 30 |
-| `id` | mahasiswakeren.com | 67 | | `om` | everybarataa.com | 29 |
-| `mk` | studentskiodgovori.com | 65 | | `ne` | nepalistudent.net | 28 |
-| `ms` | persoalanhidup.com | 61 | | `ka` | kovelistudenti.com | 25 |
-| `lt` | kiekvienamstudentui.lt | 60 | | `kk` | shakirtter.com | 25 |
-| `bn` | everybengalistudent.com | 57 | | `sw` | lipotumaini.com | 21 |
+| `id` | mahasiswakeren.com | 67 | | `ur` | zindagikaysawalat.com | 42 |
+| `mk` | studentskiodgovori.com | 65 | | `hi` | everystudent.in | 40 |
+| `ms` | persoalanhidup.com | 61 | | `ta` | ungalthervuenna.com | 40 |
+| `lt` | kiekvienamstudentui.lt | 60 | | `te` | everytelugustudent.com | 39 |
+| `bn` | everybengalistudent.com | 57 | | `my` | everymyanmarstudent.com | 38 |
+| `hr` | vrlovazno.com | 54 | | `sl` | vsakstudent.com | 30 |
+| `th` | everythaistudent.com | 52 | | `om` | everybarataa.com | 29 |
+| `am` | habeshastudent.com | 50 | | `ne` | nepalistudent.net | 28 |
+| `it` | ognistudente.com | 50 | | `ka` | kovelistudenti.com | 25 |
+| `sk` | everystudent.sk | 44 | | `kk` | shakirtter.com | 25 |
+| `el` | everystudent.gr | 43 | | `sw` | lipotumaini.com | 21 |
 | | | | | `he` | igod.co.il | 5 |
+
+⚠️ **`sk` (everystudent.sk) needs care.** `cs` found ONE Slovak-bodied page on
+the Czech host (`/in/163/koronavirus_jak_prekonat_strach`, off-sitemap and
+deliberately not seeded). Expect overlap between the two estates.
+⚠️ **`hr` and `mk` are Serbian's neighbours.** `sr` measured Ekavian Serbian in
+Latin script with no Cyrillic tree; do not assume the same for those two.
 
 **No reachable sitemap (5) — SAVE FOR LAST**, they need a different discovery
 route (site's own HTML sitemap page, or hand-listed seeds):
@@ -461,21 +518,51 @@ Each cost real investigation. Cite them when they apply.
    `select md5(raw_content), count(*) … group by 1 having count(*) > 1` after
    every acquire — one hash with a high count is this bug.
 
-   ⚠️ Two hosts (`studentinjapan.com`, `everykoreanstudent.com`) have **no
-   `<body>` in the parsed tree at all**, so they fall through to the document
-   root instead — same failure, different shape.
-2. **There is no single shared template.** Measured across the first eight —
-   note this is the CORRECTED breakdown, after rule 1b:
-   - **`.contentpadding` (5)** — `es`, `ru`, `ro`, `pt`, `de`. `.content4` is an
-     empty spacer on all five and `.content4b` is absent.
+   ⚠️ **CORRECTED 2026-07-29 — it is not "two hosts", it is MOST of them.**
+   `<body>` is absent from the parsed tree on `ja`, `ko`, `sq`, `mn`, `vi`, and
+   on individual pages of `hu`, `fa` and `sr`. So `?? root` — the *document*
+   fallback — is the normal path on this estate, not the exception. What it
+   returns is the WHOLE document including a literal `<!DOCTYPE html>` text
+   node, not the tidy nav blob this rule originally described. Two agents
+   (`sq`, `vi`) hit that artifact independently.
+
+1d. **⚠️ CORRECTED 2026-07-29 — `.contentpadding` is NOT a safe default either.**
+   Rule 1b reads as "`.content4` is the trap, `.contentpadding` is the fix". That
+   is wrong. On `pyetjetejetes.com` (`sq`) **`.contentpadding` matches 52 of 78
+   pages and extracts 0 chars on every one**, while `.content4` matches 78/78
+   at 0 chars and `<body>` is absent entirely — the only container is `html`.
+   There is **no selector that is safe by default anywhere on this estate.**
+   Measure every candidate on every host, every time.
+2. **There is no single shared template.** Measured across all 20 registered
+   siblings (updated 2026-07-29 after batch 2):
+   - **`.contentpadding` (11)** — `es` `ru` `ro` `pt` `de` `pl` `hu` `tr` `vi`
+     `fa` `sr`. `.content4` is an empty 0-char spacer on essentially all of them.
+   - **`html` (3)** — `ko` `sq` `mn`. Malformed `sitelevel_noindex` pops the
+     element stack and takes `<body>` with it (rule 4).
    - **`.content4` (1)** — `ja` only, and even there the spacer shape appears on
      some pages (see the entry's mixed-host note).
-   - **`.cb-entry-content` (1)** — `zh-cn`, a WordPress theme.
-   - **`html` (1)** — `ko`, whose markup is broken enough that `<body>` is absent
-     from the parsed tree entirely.
-   So the "shared EveryStudent template" is a **minority** case, not the default.
-   #111's "one crawl policy + a handful of bespoke" is optimistic — assume
-   per-host verification every time, and never copy a sibling's selector list.
+   - **`.cb-entry-content` (1)** — `zh-cn`, WordPress (Chosen theme).
+   - **`.entry-content` (1)** — `zh-tw`, WordPress (Enfold/Avia). A *different*
+     WordPress theme from `zh-cn` — do not assume one WP host predicts another.
+   - **`.contentleftpadding` (1)** — `et`, an older hand-rolled layout. None of
+     the `.content4`-family selectors exist on it **at all**, not even as
+     spacers. Inheriting the sibling list here would have missed on all four and
+     silently ingested 46 articles with nav+sidebar+footer attached.
+   - **`.article-content` (1)** — `bg`, an Angular build with Pagefind search.
+   - **`.content` (1)** — `cs`, a bespoke Yii PHP app. #111's
+     "`.content .content-13`" hint was one element's class attribute;
+     `content-13` is the article id, so the stable half is `.content`.
+
+   That is **seven distinct generators**. The "shared EveryStudent template" is
+   a minority case; #111's "one crawl policy + a handful of bespoke" is
+   optimistic by a wide margin. Assume per-host verification every time, and
+   never copy a sibling's selector list.
+
+   ⚠️ **The estate may be mid-migration.** `bg`'s sitemap carries hreflang
+   alternates naming **49 other EveryStudent hosts**, and `bg` alone is on a new
+   Angular platform. If it is the pilot of a platform-wide rebuild, container
+   selectors recorded here have a shelf life — re-verify rather than trusting
+   this table on a host you have not measured yourself.
 3. **Sitemaps here are stale and cannot be trusted as the source of truth.**
    - `suaescolha.com`: sitemap listed 62 articles, the site's own `/mapa.html`
      lists **75**. Pure discovery would have silently dropped **17%** of the
@@ -488,11 +575,23 @@ Each cost real investigation. Cite them when they apply.
    - **Always cross-check the sitemap against the site's own HTML sitemap page**
      (`/mapa.html`, `/sitemap.html`, `/plan.html`, `/m/sitemap.html`).
 4. **`sitelevel_noindex` is a custom ELEMENT, not a class** (hence no leading dot
-   in the entries — that is correct, not a typo). Its markup is **malformed on
-   every host**: it opens inside `.contentpadding` and closes only *after*
-   `.contentpadding` itself has closed, so HTML5 tree construction pops it at the
-   first `</div>` and it does **not** contain the share widget. Strip
-   **`.shareiconsmenupg`** explicitly. This is the defect behind #128.
+   in the entries — that is correct, not a typo).
+
+   ⚠️ **CORRECTED 2026-07-29 — it is NOT malformed on every host.** This rule
+   previously claimed the malformation was universal. Six batch-2 hosts measured
+   the opposite: on `pl`, `hu`, `tr`, `vi`, `fa` and `et` the tag is
+   **well-formed and already contains the share widget**, making
+   `.shareiconsmenupg` a **0-char no-op**. Those entries keep the selector as a
+   cheap drift guard and say so honestly rather than claiming it strips.
+   **#128 is host-specific, not estate-wide** — cite it only where measured.
+
+   Where it IS malformed the damage is worse than "doesn't contain the widget":
+   on `mn` the tag opens at line 176 and closes at 202, *inside*
+   `.contentpadding` and before the article starts at 212, which pops the
+   element stack and destroys `#content4`, `.contentpadding` **and** `<body>`.
+   That is the mechanism behind every `["html"]` host (`ko`, `sq`, `mn`).
+
+   Where it is malformed, strip **`.shareiconsmenupg`** explicitly.
    Measured inside `.contentpadding` on 2026-07-28: it removes 83 ch (`ru`),
    102 (`ro`), 109 (`de`), 148 (`es`), 154 (`pt`) — real chrome, so keep it. It
    does **not** exist at all on `studentinjapan.com` (`ja`), where the site's
@@ -700,80 +799,121 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 | 2026-07-28 | `extract.ts` NOT changed on this branch | Preferring the first text-yielding selector would fix the trap globally but alters extraction for all sources incl. the 3 live in prod. Raised as open question #5. |
 | 2026-07-28 | `ro`'s 25 dead URLs hard-blocked, reversing the earlier call | The "self-policing floor" reasoning ignored the `<body>` fallback; the real run staged 25 identical nav pages (rule 1c). 25-branch alternation is the cheap fix. |
 | 2026-07-28 | `ja` keeps `.content4` first — deliberately not normalised | It is a genuine container there and carries the category kicker that `.contentpadding` omits (11 ch/page). Switching would lose the kicker on 79 pages to fix 0. Mixed-host caveat documented in the entry. |
+| **2026-07-29** | **Scripture is excluded estate-wide** | Five hosts carry full Bible text and were being handled three different ways in one PR. `everystudent-ar` already set the precedent for its `/bible/**.pdf`: "public-domain Scripture text rather than ministry writing — outside what this corpus answers from." Applied uniformly: `et` `mn` `fa` already blocked; **`sq` `/a/gjoni.html` (98,887 ch) and `es` `/articulos/biblia_juan.html` (100,409 ch) newly blocked**, and the `es` row deleted from `raw_documents`. `et`'s chapters were additionally © Eesti Piibliselts — a third-party rights holder our `rights` line would misattribute. |
+| **2026-07-29** | **`bg` ingested despite being a pre-launch staging site** | Operator call. Cru owns the property. All automated signals say keep out (`Disallow: /`, `noindex` header + meta, staging canonicals). Recorded prominently in the entry so nobody "fixes" it later. |
+| **2026-07-29** | **`bg` is SEED mode, not discovery** | Its 84 article `<loc>`s all name `staging.everystudent.bg`. Discovery would stamp a staging host into `canonical_url` — the dedup key — for all 84 documents, needing a rewrite at launch. `www` serves the identical pages at 200, so the paths are hand-listed against a `www` baseUrl. Precedent for seed-only: `everystudent-ar`. |
+| **2026-07-29** | Batch 2 sized at 12, and it held | 12 concurrent agents, no scratch collisions (per-agent subdirectories worked), 11 clean entries + 1 correct refusal. Reviewable. Keep 12 for batch 3. |
+| **2026-07-29** | `bg`'s agent was right to STOP and write nothing | It hit a robots `Disallow: /` and a staging canonical and escalated instead of shipping. That is the behaviour the prompt asks for; the recon it returned made the entry a 20-minute write once the operator decided. |
 
 ## 13. Open questions for the operator
 
+**Answered 2026-07-29:** scripture policy (now §12), `bg` (ingested, §12),
+`sr` network route (hosts entry, §4).
+
 1. **Eval shortlist (§7)** — confirm `es`/`zh`/`ru`/`pt`/`de`/`ja`/`ko` get real
    golden cases and the remaining 41 are `evaluate: deferred`, or name a
-   different set. **Does not block Phases 1–4.**
+   different set. **Does not block Phases 1–4.** Batch 2 adds 11 more languages,
+   **10 of them entirely new to the corpus** (`sq` `fa` `mn` `tr` `cs` `hu` `pl`
+   `et` `vi` `bg`) — for those, Stage-4 Part A is a provable no-op. Only `zh`
+   (from `zh-tw`) lands in an existing language, and it makes that label
+   **three-way ambiguous** (see #6).
 2. **When to fix #128** — before the 48 land, after, or on its own schedule.
+   Note the scope shrank: batch 2 measured `sitelevel_noindex` **well-formed** on
+   6 of 11 hosts, so #128 is host-specific (rule 4, corrected).
 3. **The 5 sitemap-less domains** — hand-list seeds from their HTML sitemap
-   pages, or defer them out of this campaign entirely?
-4. **Make the live-extraction gate a checked-in script?** (New, 2026-07-28.)
-   Rule 1b was caught only by hand-running `extractContent` against live pages
-   after acquire had already started. With 40 domains still to write, that check
-   should be a command — e.g. `pnpm acquire --source <key> --probe`, fetching 2
-   discovered URLs and printing extracted char counts per `contentSelector`
-   without writing to the database. Small, and it turns the campaign's most
-   expensive failure mode into a gate. Needs Jaco's yes before building.
-5. **Should `extractContent` skip zero-text matches?** The root cause is that
-   `contentSelectors` reads like a fallback chain but is not one. Making the
-   loop prefer the first selector yielding text would remove the trap for all 48
-   domains — but it changes shared extraction behaviour for **every** source,
-   including the three already live in prod. Deliberately NOT done on this
-   branch, same reasoning as #128. Worth its own issue.
+   pages, or defer them out of this campaign entirely? `bg` now provides a
+   worked precedent for a hand-listed entry on a modern host.
+4. **Make the live-extraction gate a checked-in script?** (2026-07-28.) It has
+   now been hand-rebuilt from this file **twice**. It caught nothing in batch 2
+   — because the agents were told to measure — but it is what *proves* that,
+   and it took two extra variants this round (an IPv6 flag for `cs`, an
+   offline file-based run for `sr`). Strong candidate for
+   `pnpm acquire --source <key> --probe`. Still needs Jaco's yes.
+5. **Should `extractContent` skip zero-text matches?** Unchanged, and batch 2
+   strengthens the case: `sq` proved even `.contentpadding` can be the zero-char
+   shadow (rule 1d), so there is no selector ordering that is safe by
+   convention. Still deliberately NOT done on this branch.
+6. **NEW — `zh` is now a three-way collision.** `thelife-zh` (uwota.com,
+   Simplified), `everystudent-zh-cn` (Simplified) and `everystudent-zh-tw`
+   (Traditional) all declare `zh`. Language-filtered retrieval cannot separate
+   Traditional from Simplified. Recorded, not solved. `ru` / `ru-ca` will do the
+   same when `studentstan.com` lands.
+7. **NEW — the repo does not enforce `robots.txt` at all.** The `robots_cache`
+   table, the `RobotsEntry` port and both its implementations exist, but **no
+   caller in `src/acquisition/` invokes them** — verified 2026-07-29 — while
+   `docs/architecture.md:150` declares Acquisition "Owns: … robots (RFC-9309
+   longest-match, fail-open)". So that line is aspirational. It surfaced here
+   because `bg` serves `Disallow: /` and `sq` disallows a real article path
+   (`/a/ungjillin2.html`, blocked by URL by hand as the only thing that would
+   honour it). **Deserves its own issue, not this branch** — same reasoning as
+   #128.
 
 ## 14. Resume hint (cold start)
 
 ### Repo state, exactly
 - Branch **`feat/everystudent-siblings`**, tracking `origin/main`.
-- **4 unpushed commits.** Verify with `git log --oneline origin/main..HEAD` —
-  expect exactly these, newest first:
-  1. `docs(campaign): make the state file a clean cold-start contract` ← HEAD,
-     the commit that wrote this section (so its hash is not quoted here — it
-     would change the moment the commit was amended).
-  2. `fix(registry): correct 5 broken containers, acquire batch 1 (600 docs)`
-     — `6a31631`, the batch-1 acquire plus the rule 1b/1c fixes.
-  3. `docs(campaign): capture the #111 sibling-domain state file and #128`
+- **7 unpushed commits.** Verify with `git log --oneline origin/main..HEAD` —
+  expect these, newest first:
+  1. `docs(campaign): record batch 2 and correct three rules it disproved`
+     ← HEAD, the commit that wrote this section (hash not quoted — it changes
+     on amend).
+  2. `feat(registry): everystudent-bg + estate-wide scripture policy`
+     — `9c60b40`, the `bg` entry, the `sq`/`es` scripture blocks and the
+     batch-2 `acquire: green` records.
+  3. `feat(registry): register 11 more everystudent sibling domains (batch 2)`
+     — `9a0fec3`.
+  4. `docs(campaign): make the state file a clean cold-start contract`
+     — `4cbd1d2`.
+  5. `fix(registry): correct 5 broken containers, acquire batch 1 (600 docs)`
+     — `6a31631`.
+  6. `docs(campaign): capture the #111 sibling-domain state file and #128`
      — `2807832`.
-  4. `feat(registry): register 8 non-walled everystudent sibling domains`
-     — `6e7f492`, the original batch-1 entries (before the container fix).
+  7. `feat(registry): register 8 non-walled everystudent sibling domains`
+     — `6e7f492`, the original batch-1 entries.
 - **Nothing is pushed and there is no PR** — that is Phase 6, after all 48 land.
   Do not open one early.
 - Working tree clean apart from an untracked `.playwright-mcp/` (unrelated).
 - Local Postgres container `jesusfilm-rag-db` on port 5434 must be running.
   Query it with:
   `docker exec jesusfilm-rag-db psql -U jesusfilm_rag -d jesusfilm_rag -c "…"`
-- Last full gate: green **2026-07-29**, run against this exact tree —
-  depcruise · lint · typecheck · db:check · status:check · **496 tests**.
+- Last full gate: green **2026-07-29** — depcruise · lint · typecheck ·
+  db:check · status:check · **575 tests** (was 496 before batch 2).
 
 ⚠️ **Dates in this file and in the registry docstrings are the dates the work was
-MEASURED — `2026-07-28` for everything in batch 1**, matching `6a31631`. The only
-`2026-07-29` stamps are the "last updated" line in §4 and the gate line just
-above, both of which belong to this handoff pass. Cross-check against `git log`
-and they will agree; an earlier draft had the batch-1 work stamped a day late.
+MEASURED** — `2026-07-28` for batch 1 (matching `6a31631`), `2026-07-29` for
+batch 2. Cross-check against `git log` and they will agree.
 
 ### Where the work stands
-**Phase 2 of batch 1 is DONE.** 8 sources acquired locally, **600 documents**,
-zero duplicate-content groups, `acquire: green` for all 8 in
-`docs/source-status.yaml`. Per-source counts and full skip accounting: §8.
+**Batch 1 and batch 2 are both through Phase 2, with one exception.**
+19 sources acquired locally, **1,381 documents**, **zero duplicate-content
+groups across all 21 everystudent keys**, `acquire: green` recorded for each.
+Per-source counts and full skip accounting: §8.
+
+**`everystudent-sr` is the single outstanding item** — written, wired, gated,
+but not acquired, because this network blackholes its domain. §4 has the exact
+three commands. Everything else in batches 1–2 is done.
+
 Nothing has been indexed — Phase 3 runs ONCE, after all 48 are acquired.
 
 ### Do this next
-1. **Read rules 1b and 1c in §9 first.** They are the two defects batch 1
-   shipped. Both are easy to repeat and neither is visible to the test suite.
-2. Spawn 12 agents for the 12 domains named in §4, using the §10 prompt verbatim
-   with per-domain facts swapped. Give each its own scratch subdirectory.
-3. Wire `src/registry/index.ts` yourself — agents must not touch the barrel.
-4. Run the full gate, then `--dry-run` acquire each key, then the **mandatory
-   live-extraction gate (§6 Phase 1 step 4 — the script is in this file, ready
-   to paste)**. Batch 1 passed the first two with five entries that extracted
-   nothing; only the third catches it.
-5. Commit, then Phase 2 for batch 2 (§6), including the duplicate-content SQL.
+1. **Acquire `sr`** — §4 has the hosts line and the three commands. 76 docs.
+2. **Read §9 rules 1b, 1c, 1d and 4 before writing any new entry.** 1d and the
+   rule-4 correction are new from batch 2 and both reverse advice this file
+   previously gave. In particular: there is **no** safe default container, and
+   `.shareiconsmenupg` is a no-op on most hosts.
+3. Batch 3: pick 12 from §8's remaining-23 table, largest first, and spawn one
+   agent each with the §10 prompt. Give each its own scratch subdirectory —
+   that worked cleanly for 12 concurrent agents in batch 2.
+4. Wire `src/registry/index.ts` yourself — agents must not touch the barrel.
+5. Full gate → `--dry-run` per key → the **mandatory live-extraction gate**
+   (§6 Phase 1 step 4). Batch 1 passed the first two with five entries that
+   extracted nothing; only the third catches that.
+6. Commit, then Phase 2 (§6) including the duplicate-content SQL.
 
-### Waiting on Jaco (none of it blocks batch 2)
-Five open questions in §13 — the two new ones are whether to make the
-live-extraction gate a real `--probe` flag (#4) and whether `extractContent`
-should skip zero-text matches (#5, the root cause). Also unanswered from
-2026-07-28: the eval shortlist (#1), #128 timing (#2), and what to do with the
-5 sitemap-less domains (#3).
+### Waiting on Jaco (none of it blocks batch 3)
+Seven open questions in §13. Answered on 2026-07-29: the scripture policy, `bg`,
+and the `sr` network route. Still open — the eval shortlist (#1), #128 timing
+(#2), the 5 sitemap-less domains (#3), the `--probe` flag (#4), the
+`extractContent` root-cause fix (#5), and two new ones: the three-way `zh`
+collision (#6) and the fact that **robots.txt is not enforced anywhere in the
+acquire path** (#7), which is worth its own issue.

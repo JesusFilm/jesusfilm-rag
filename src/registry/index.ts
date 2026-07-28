@@ -23,6 +23,7 @@ import { everystudentPt } from "./everystudent-pt.js";
 import { everystudentRo } from "./everystudent-ro.js";
 import { everystudentRu } from "./everystudent-ru.js";
 import { everystudentZhCn } from "./everystudent-zh-cn.js";
+import { everystudentBg } from "./everystudent-bg.js";
 import { everystudentCs } from "./everystudent-cs.js";
 import { everystudentEt } from "./everystudent-et.js";
 import { everystudentFa } from "./everystudent-fa.js";
@@ -129,6 +130,9 @@ export const SOURCES: readonly SourceEntry[] = [
   everystudentEt,
   everystudentVi,
   everystudentZhTw,
+  // Pre-launch staging property, ingested on an explicit operator decision
+  // (2026-07-29). Seed mode — its sitemap names the staging host. See the entry.
+  everystudentBg,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

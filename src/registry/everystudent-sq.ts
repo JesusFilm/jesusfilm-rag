@@ -268,6 +268,13 @@ export const everystudentSq: SourceEntry = {
       // chars, so nothing else would have excluded it. Absent from the sitemap
       // today; blocked so the rule is enforced, not merely noted.
       "^https://www\\.pyetjetejetes\\.com/a/ungjillin2\\.html$",
+      // /a/gjoni.html is the COMPLETE Gospel of John, all 21 chapters
+      // (98,887 chars measured 2026-07-29) — verbatim Scripture, not ministry
+      // writing. Blocked 2026-07-29 under the estate-wide scripture policy that
+      // `everystudent-ar` set for its /bible/**.pdf files: "outside what this
+      // corpus answers from". Siblings -et, -mn and -fa block their equivalents.
+      // It matches /a/*.html, so only a URL block catches it.
+      "^https://www\\.pyetjetejetes\\.com/a/gjoni\\.html$",
       // 41 sitemap entries are /pdf/ print twins of the articles. This source is
       // html-scrape and cannot read a PDF.
       "^https://www\\.pyetjetejetes\\.com/pdf/",

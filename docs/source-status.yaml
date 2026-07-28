@@ -240,3 +240,102 @@ sources:
         stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-07-28
+  everystudent-sq:
+    name: EveryStudent — Albanian (Pyetjet e Jetës)
+    status: in-progress
+    languages:
+      sq:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-fa:
+    name: EveryStudent — Persian/Farsi (everypersianstudent.com)
+    status: in-progress
+    languages:
+      fa:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-mn:
+    name: EveryStudent — Mongolian (Tailal.mn)
+    status: in-progress
+    languages:
+      mn:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-tr:
+    name: EveryStudent — Turkish (Tanrı'yı Tanımak)
+    status: in-progress
+    languages:
+      tr:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-cs:
+    name: EveryStudent — Czech (everystudent.cz)
+    status: in-progress
+    languages:
+      cs:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-hu:
+    name: EveryStudent — Hungarian (everystudent.hu)
+    status: in-progress
+    languages:
+      hu:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-pl:
+    name: EveryStudent — Polish (KazdyStudent.pl)
+    status: in-progress
+    languages:
+      pl:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-et:
+    name: EveryStudent — Estonian (TudengiElu)
+    status: in-progress
+    languages:
+      et:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-vi:
+    name: EveryStudent — Vietnamese (EveryVietStudent.com)
+    status: in-progress
+    languages:
+      vi:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-zh-tw:
+    name: EveryStudent — Chinese Traditional (everystudent.com.tw)
+    status: in-progress
+    languages:
+      zh:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28
+  everystudent-bg:
+    name: EveryStudent — Bulgarian (everystudent.bg)
+    status: in-progress
+    languages:
+      bg:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-28

@@ -186,6 +186,14 @@ export const everystudentEs: SourceEntry = {
       // Homepage.
       "^https://www\\.cadaestudiante\\.com/?$",
       "\\.pdf($|\\?)",
+      // /articulos/biblia_juan.html is the COMPLETE Gospel of John ("El
+      // Evangelio de Juan", 100,409 chars) — verbatim Scripture on an article
+      // URL, 4x the next largest document here. Blocked 2026-07-29 under the
+      // estate-wide scripture policy `everystudent-ar` set for its
+      // /bible/**.pdf files: "outside what this corpus answers from". The row
+      // staged by the 2026-07-28 acquire was deleted from raw_documents at the
+      // same time. Siblings -sq, -et, -mn and -fa block their equivalents.
+      "^https://www\\.cadaestudiante\\.com/articulos/biblia_juan\\.html$",
     ],
     // ONLY `.contentpadding` — measured 2026-07-28 as the sole element on this
     // host that extracts the article. `.content4` is deliberately ABSENT: it

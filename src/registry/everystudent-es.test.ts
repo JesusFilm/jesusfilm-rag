@@ -78,11 +78,21 @@ describe("everystudent-es registry entry", () => {
 
   it("keeps /articulos/<slug>.html and drops the pdf/audio near-duplicates, menus and nav", () => {
     const b = "https://www.cadaestudiante.com";
-    // Articles: mixed-case slugs with hyphens and underscores all pass.
+    // Articles: mixed-case slugs with hyphens pass.
     expect(kept(`${b}/articulos/hayundios.html`)).toBe(true);
     expect(kept(`${b}/articulos/Dios.html`)).toBe(true);
-    expect(kept(`${b}/articulos/biblia_juan.html`)).toBe(true);
     expect(kept(`${b}/articulos/ayuda-de-Dios.html`)).toBe(true);
+    // `articleHints` still admits underscore slugs — but the only one this host
+    // has is /articulos/biblia_juan.html, which is now blocked (below), so
+    // there is no live example left to assert. Kept as a note, not a test.
+    //
+    // Scripture is excluded estate-wide (2026-07-29): biblia_juan.html is the
+    // COMPLETE Gospel of John, 100,409 chars — verbatim Scripture on an article
+    // URL, not ministry writing. Same policy as `everystudent-ar`'s
+    // /bible/**.pdf, and siblings -sq, -et, -mn, -fa. It matches the article
+    // hint, so ONLY a URL block excludes it; the row staged on 2026-07-28 was
+    // deleted from raw_documents when the block landed.
+    expect(blocked(`${b}/articulos/biblia_juan.html`)).toBe(true);
     // /audio/ pages are the same body wrapped in a player: measured 85.7% and
     // 83.5% 12-word-shingle overlap with their /articulos/ twin, and the one
     // page with no same-slug twin (intimidad) is 91.9% of /articulos/busqueda.

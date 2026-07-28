@@ -23,6 +23,17 @@ import { everystudentPt } from "./everystudent-pt.js";
 import { everystudentRo } from "./everystudent-ro.js";
 import { everystudentRu } from "./everystudent-ru.js";
 import { everystudentZhCn } from "./everystudent-zh-cn.js";
+import { everystudentCs } from "./everystudent-cs.js";
+import { everystudentEt } from "./everystudent-et.js";
+import { everystudentFa } from "./everystudent-fa.js";
+import { everystudentHu } from "./everystudent-hu.js";
+import { everystudentMn } from "./everystudent-mn.js";
+import { everystudentPl } from "./everystudent-pl.js";
+import { everystudentSq } from "./everystudent-sq.js";
+import { everystudentSr } from "./everystudent-sr.js";
+import { everystudentTr } from "./everystudent-tr.js";
+import { everystudentVi } from "./everystudent-vi.js";
+import { everystudentZhTw } from "./everystudent-zh-tw.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -44,20 +55,41 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *  three are Cloudflare-walled and fetched through Firecrawl.
  *
  *  It ALSO spans ~48 NON-walled sibling-language domains (#111), each its own key
- *  under the same one-domain-one-source rule. The first 8 are registered here
- *  (2026-07-28 pilot batch): `-es` `-zh-cn` `-ru` `-ro` `-ja` `-pt` `-de` `-ko`.
- *  Unlike the walled three these are plain HTTP — no `fetchStrategy`, no Firecrawl
- *  credits — and they use sitemap DISCOVERY rather than hand-listed seeds.
+ *  under the same one-domain-one-source rule. 19 are registered here — the
+ *  2026-07-28 pilot batch (`-es` `-zh-cn` `-ru` `-ro` `-ja` `-pt` `-de` `-ko`) and
+ *  the 2026-07-29 batch 2 (`-sq` `-fa` `-mn` `-tr` `-cs` `-hu` `-pl` `-sr` `-et`
+ *  `-vi` `-zh-tw`). Unlike the walled three these are plain HTTP — no
+ *  `fetchStrategy`, no Firecrawl credits — and they use sitemap DISCOVERY, with
+ *  `seedPaths` only to patch a stale sitemap.
  *
- *  The "shared .content4 template" claim in the walled entries holds for only 5 of
- *  the 8. Measured against the repo's own parser (`extract.ts`, node-html-parser):
- *    - `-zh-cn` (xinshengming.com) is WordPress — `.cb-entry-content`, no .content4.
- *    - `-ko` (everykoreanstudent.com) has malformed FreeFind markup that flattens
- *      the tree: `.content4` MATCHES but extracts 0 chars and there is no <body>,
- *      so its container is `html`. Copying the sibling selectors there would have
- *      ingested nothing while looking correctly configured.
- *  Verify selectors by extracted TEXT LENGTH, never by grepping for the class name
- *  — every one of these hosts also declares .content4 in an inline <style> block.
+ *  **There is no shared template.** The ".content4 family" claim in the walled
+ *  entries describes a MINORITY of the estate. Measured across 19 hosts with the
+ *  repo's own parser (`extract.ts`, node-html-parser), containers are:
+ *    - `.contentpadding` — `-es` `-ru` `-ro` `-pt` `-de` `-pl` `-hu` `-tr` `-vi`
+ *      `-fa` `-sr`. On most of these `.content4` MATCHES and extracts 0 chars.
+ *    - `html` — `-ko` `-sq` `-mn`. Malformed FreeFind markup (a
+ *      `<sitelevel_noindex>` that closes inside `.contentpadding`) pops the
+ *      element stack, destroying `.content4`, `.contentpadding` AND `<body>`;
+ *      the article ends up as flat children of `<html>`.
+ *    - `.content4` — `-ja` only.
+ *    - `.cb-entry-content` — `-zh-cn`, WordPress (Chosen theme).
+ *    - `.entry-content` — `-zh-tw`, WordPress (Enfold/Avia). A THIRD generator.
+ *    - `.contentleftpadding` — `-et`, an older hand-rolled layout. None of the
+ *      .content4-family selectors exist here at all.
+ *    - `.content` — `-cs`, a bespoke Yii PHP app. #111's ".content .content-13"
+ *      hint was one element's class attribute; `content-13` is the article id.
+ *
+ *  Two traps this cost us. (1) `contentSelectors` is NOT a fallback chain —
+ *  `extract.ts` binds the FIRST selector matching an ELEMENT even at 0 chars, so a
+ *  zero-text match SHADOWS every working selector after it. Ship ONE measured
+ *  selector. (2) Verify by extracted TEXT LENGTH, never by grepping for the class
+ *  name — every FreeFind host declares .content4 in an inline <style> block, and
+ *  on `-mn` the raw bytes contain `<div class="contentpadding">` that the parser
+ *  never builds as an element.
+ *
+ *  Note `<body>` is absent from the parsed tree on MOST of these hosts, so
+ *  extract.ts's `?? root` is the real fallback — it returns the whole document
+ *  (including a literal "<!DOCTYPE html>" text node), not a tidy nav blob.
  *
  *  A note once recorded here — that cru.org's Spanish locale had no real Spanish content —
  *  over-generalised from a single path. Only `/mx/es/.../10-pasos-basicos/` serves
@@ -85,6 +117,18 @@ export const SOURCES: readonly SourceEntry[] = [
   everystudentPt,
   everystudentDe,
   everystudentKo,
+  // #111 non-walled sibling-language domains — batch 2, 2026-07-29.
+  everystudentSq,
+  everystudentFa,
+  everystudentMn,
+  everystudentTr,
+  everystudentCs,
+  everystudentHu,
+  everystudentPl,
+  everystudentSr,
+  everystudentEt,
+  everystudentVi,
+  everystudentZhTw,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

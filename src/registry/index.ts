@@ -15,6 +15,14 @@ import { familylife } from "./familylife.js";
 import { everystudent } from "./everystudent.js";
 import { everystudentAr } from "./everystudent-ar.js";
 import { everystudentFr } from "./everystudent-fr.js";
+import { everystudentDe } from "./everystudent-de.js";
+import { everystudentEs } from "./everystudent-es.js";
+import { everystudentJa } from "./everystudent-ja.js";
+import { everystudentKo } from "./everystudent-ko.js";
+import { everystudentPt } from "./everystudent-pt.js";
+import { everystudentRo } from "./everystudent-ro.js";
+import { everystudentRu } from "./everystudent-ru.js";
+import { everystudentZhCn } from "./everystudent-zh-cn.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -30,10 +38,26 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *  source to declare `fetchStrategy: "firecrawl"` (ADR-0012) — but shagerdan.com stays
  *  unregistered until someone slices it and funds the credits.
  *
- *  EveryStudent spans three domains and is therefore three keys, all now registered:
+ *  EveryStudent spans three WALLED domains, all registered:
  *  everystudent.com → `everystudent`, everyarabstudent.com → `everystudent-ar` and
  *  questions2vie.com → `everystudent-fr` (slice #10, closing the #112 route). All
  *  three are Cloudflare-walled and fetched through Firecrawl.
+ *
+ *  It ALSO spans ~48 NON-walled sibling-language domains (#111), each its own key
+ *  under the same one-domain-one-source rule. The first 8 are registered here
+ *  (2026-07-28 pilot batch): `-es` `-zh-cn` `-ru` `-ro` `-ja` `-pt` `-de` `-ko`.
+ *  Unlike the walled three these are plain HTTP — no `fetchStrategy`, no Firecrawl
+ *  credits — and they use sitemap DISCOVERY rather than hand-listed seeds.
+ *
+ *  The "shared .content4 template" claim in the walled entries holds for only 5 of
+ *  the 8. Measured against the repo's own parser (`extract.ts`, node-html-parser):
+ *    - `-zh-cn` (xinshengming.com) is WordPress — `.cb-entry-content`, no .content4.
+ *    - `-ko` (everykoreanstudent.com) has malformed FreeFind markup that flattens
+ *      the tree: `.content4` MATCHES but extracts 0 chars and there is no <body>,
+ *      so its container is `html`. Copying the sibling selectors there would have
+ *      ingested nothing while looking correctly configured.
+ *  Verify selectors by extracted TEXT LENGTH, never by grepping for the class name
+ *  — every one of these hosts also declares .content4 in an inline <style> block.
  *
  *  A note once recorded here — that cru.org's Spanish locale had no real Spanish content —
  *  over-generalised from a single path. Only `/mx/es/.../10-pasos-basicos/` serves
@@ -52,6 +76,15 @@ export const SOURCES: readonly SourceEntry[] = [
   everystudent,
   everystudentAr,
   everystudentFr,
+  // #111 non-walled sibling-language domains — pilot batch, 2026-07-28.
+  everystudentEs,
+  everystudentZhCn,
+  everystudentRu,
+  everystudentRo,
+  everystudentJa,
+  everystudentPt,
+  everystudentDe,
+  everystudentKo,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

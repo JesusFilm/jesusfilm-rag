@@ -339,3 +339,21 @@ sources:
         stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-07-28
+  everystudent-sr:
+    name: EveryStudent — Serbian (Studentski Kutak)
+    status: deferred
+    languages:
+      sr:
+        status: deferred
+        stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
+        note: Deferred 2026-07-29 pending a reachability decision.
+          studentskikutak.com DNS-blackholes to 203.0.113.250 (TEST-NET-3) from
+          the dev network via port-53 interception; public DoH (Cloudflare +
+          Google) returns the true 50.28.103.165, and the entry's
+          live-extraction gate passed offline against curl-fetched bytes
+          (19,095/4,733/21,022 chars). The registry entry is correct and wired —
+          what is unresolved is whether a host our own network filters should be
+          listed as a retrieval source. Tracked in a GitHub issue; do NOT work
+          around it with /etc/hosts.
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29

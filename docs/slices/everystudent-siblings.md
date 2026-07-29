@@ -76,35 +76,41 @@ locally acquired.
   All 12 registry entries written and wired; **11 of 12 acquired locally
   (782 documents)**. `sr` is written and gated but **NOT acquired** — see the
   blocker below. Zero duplicate-content groups across all 21 everystudent keys.
-- ⏭️ **NEXT: acquire `sr` (needs one `/etc/hosts` line), then Phase 1 batch 3.**
+- 🅿️ **`sr` is DEFERRED, not pending — see below. Do not try to acquire it.**
+- ⏭️ **NEXT: Phase 1, batch 3** — 12 sources from §8's remaining-23 table.
   **Do NOT run `pnpm index` yet** — indexing happens ONCE, after all 48 are
   acquired (Phase 3).
 
 **Progress: 20 of 48 registry entries written. 19 of 48 acquired
-(1,381 documents).**
+(1,381 documents). 1 deferred (`sr`).**
 
-### ⛔ The one open blocker — `sr`
+### 🅿️ `everystudent-sr` — deferred to [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129), do NOT work around it
 
-`studentskikutak.com` is **DNS-blackholed on Jaco's network** to
-`203.0.113.250` (TEST-NET-3). Port-53 traffic is transparently intercepted, so
-even `dig @1.1.1.1` returns the blackhole; DoH over 443 returns the true
-`50.28.103.165`, and a `--resolve`-pinned request gets a clean 200. **The host
-is fine and the entry is correct** — its live-extraction gate was run offline
-against curl-fetched bytes and passed (19,095 / 4,733 / 21,022 chars).
-Operator decision 2026-07-29 was to fix it with a hosts entry:
+`studentskikutak.com` is DNS-blackholed to `203.0.113.250` (TEST-NET-3) from
+Jaco's network. Both port-53 paths return the blackhole — including
+`dig @1.1.1.1` — while Cloudflare and Google **DoH** both return the true
+`50.28.103.165`. That signature is transparent port-53 interception on the local
+gateway; **the domain resolves fine on the public internet.**
 
-```bash
-sudo sh -c 'echo "50.28.103.165 www.studentskikutak.com studentskikutak.com" >> /etc/hosts'
-pnpm acquire --source everystudent-sr     # expect 76 documents
-pnpm status:add-source --key everystudent-sr \
-  --name "EveryStudent — Serbian (Studentski Kutak)" --lang sr \
-  --slice-file docs/slices/everystudent-siblings.md
-pnpm status:set --source everystudent-sr --lang sr --stage acquire=green
-```
+The entry is correct and its gate passed (offline, against curl-fetched bytes:
+19,095 / 4,733 / 21,022 chars). What is unresolved is a judgement call Jaco
+raised on 2026-07-29:
 
-Remove the hosts line afterwards. On the VM at Phase 7 this should not recur.
+> If our own network filters this host, can we confidently list it as a
+> publicly available retrieval source?
 
-### ⚠️ Two environment gotchas that are NOT code defects
+⚠️ **An `/etc/hosts` line was considered and DELIBERATELY REJECTED.** It makes
+the acquire succeed while leaving that question unanswered and bakes a
+machine-specific workaround into a corpus meant to hold publicly retrievable
+sources. **Do not add one.** If a future agent finds this and thinks "easy fix",
+it is not — read #129 first.
+
+Status: `deferred` in `docs/source-status.yaml`, with the full reason in its
+`note`. Still wired into `SOURCES` (the entry is sound); #129 decides whether it
+acquires on the VM at Phase 7, or comes out of `SOURCES` entirely. Expected
+yield if unblocked: **76 documents**.
+
+### ⚠️ One environment gotcha that is NOT a code defect
 
 1. **`cs` needs an IPv6 workaround.** `everystudent.cz` publishes an AAAA
    record (`2001:1ab0:7e1e:151:62:109:154:30`) that is unreachable from here.
@@ -373,7 +379,7 @@ Skip accounting — every one checked, none is a defect:
 - `pt` 75/75 · the 13 pinned `seedPaths` unioned with the 62 discovered exactly
   as designed — the stale-sitemap patch works.
 
-**Batch 2 (12) — written and wired 2026-07-29; 11 ACQUIRED, `sr` pending.**
+**Batch 2 (12) — written and wired 2026-07-29; 11 ACQUIRED, `sr` deferred (#129).**
 **782 documents**, zero duplicate-content groups. Commit `9a0fec3` (+ a follow-up
 for `bg` and the scripture policy).
 
@@ -384,7 +390,7 @@ for `bg` and the scripture policy).
 | `mn` | tailal.mn | 105 | 82 | **82** | `html` ⚠️ +11 seeds |
 | `sq` | pyetjetejetes.com | 131 | 78 | **77** | `html` |
 | `pl` | kazdystudent.pl | 90 | 77 | **77** | `.contentpadding` |
-| `sr` | studentskikutak.com | 84 | 76 | **— blocked** | `.contentpadding` |
+| `sr` | studentskikutak.com | 84 | 76 | **— deferred #129** | `.contentpadding` |
 | `fa` | everypersianstudent.com | 107 | 75 | **75** | `.contentpadding` |
 | `cs` | everystudent.cz | 97 | 100 | **74** | `.content` ⚠️ Yii app |
 | `tr` | tanriyitanimak.com | 102 | 71 | **71** | `.contentpadding` |
@@ -783,6 +789,10 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
   existing sources and would make the 48-source PR unreviewable.
 - Related open: **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)**
   content soundness, estate-wide (found in `-ar`, confirmed in `-fr`).
+- **[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)** (new,
+  2026-07-29) — whether `everystudent-sr` is a listable retrieval source at all,
+  given our own network blackholes it. Blocks only `sr`. **The fix is NOT an
+  `/etc/hosts` line** — see §4.
 
 ## 12. Decisions made
 
@@ -804,6 +814,7 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 | **2026-07-29** | **`bg` is SEED mode, not discovery** | Its 84 article `<loc>`s all name `staging.everystudent.bg`. Discovery would stamp a staging host into `canonical_url` — the dedup key — for all 84 documents, needing a rewrite at launch. `www` serves the identical pages at 200, so the paths are hand-listed against a `www` baseUrl. Precedent for seed-only: `everystudent-ar`. |
 | **2026-07-29** | Batch 2 sized at 12, and it held | 12 concurrent agents, no scratch collisions (per-agent subdirectories worked), 11 clean entries + 1 correct refusal. Reviewable. Keep 12 for batch 3. |
 | **2026-07-29** | `bg`'s agent was right to STOP and write nothing | It hit a robots `Disallow: /` and a staging canonical and escalated instead of shipping. That is the behaviour the prompt asks for; the recon it returned made the entry a 20-minute write once the operator decided. |
+| **2026-07-29** | **`sr` deferred, and the `/etc/hosts` workaround explicitly rejected** | Jaco's call, reversing the earlier "add a hosts entry" decision. A host our own network filters cannot be listed as a publicly available retrieval source on the strength of a machine-local override — the workaround would hide the question rather than answer it. Tracked in [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129). Note the domain IS publicly resolvable (both DoH providers return the real IP); what needs deciding is why our gateway blackholes it. |
 
 ## 13. Open questions for the operator
 
@@ -852,23 +863,25 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 
 ### Repo state, exactly
 - Branch **`feat/everystudent-siblings`**, tracking `origin/main`.
-- **7 unpushed commits.** Verify with `git log --oneline origin/main..HEAD` —
+- **8 unpushed commits.** Verify with `git log --oneline origin/main..HEAD` —
   expect these, newest first:
-  1. `docs(campaign): record batch 2 and correct three rules it disproved`
-     ← HEAD, the commit that wrote this section (hash not quoted — it changes
-     on amend).
-  2. `feat(registry): everystudent-bg + estate-wide scripture policy`
+  1. `docs(campaign): defer everystudent-sr to #129 rather than work around it`
+     ← HEAD, the commit that last touched this section (hash not quoted — it
+     changes on amend).
+  2. `docs(campaign): record batch 2 and correct three rules it disproved`
+     — `55c1521`.
+  3. `feat(registry): everystudent-bg + estate-wide scripture policy`
      — `9c60b40`, the `bg` entry, the `sq`/`es` scripture blocks and the
      batch-2 `acquire: green` records.
-  3. `feat(registry): register 11 more everystudent sibling domains (batch 2)`
+  4. `feat(registry): register 11 more everystudent sibling domains (batch 2)`
      — `9a0fec3`.
-  4. `docs(campaign): make the state file a clean cold-start contract`
+  5. `docs(campaign): make the state file a clean cold-start contract`
      — `4cbd1d2`.
-  5. `fix(registry): correct 5 broken containers, acquire batch 1 (600 docs)`
+  6. `fix(registry): correct 5 broken containers, acquire batch 1 (600 docs)`
      — `6a31631`.
-  6. `docs(campaign): capture the #111 sibling-domain state file and #128`
+  7. `docs(campaign): capture the #111 sibling-domain state file and #128`
      — `2807832`.
-  7. `feat(registry): register 8 non-walled everystudent sibling domains`
+  8. `feat(registry): register 8 non-walled everystudent sibling domains`
      — `6e7f492`, the original batch-1 entries.
 - **Nothing is pushed and there is no PR** — that is Phase 6, after all 48 land.
   Do not open one early.
@@ -889,31 +902,40 @@ batch 2. Cross-check against `git log` and they will agree.
 groups across all 21 everystudent keys**, `acquire: green` recorded for each.
 Per-source counts and full skip accounting: §8.
 
-**`everystudent-sr` is the single outstanding item** — written, wired, gated,
-but not acquired, because this network blackholes its domain. §4 has the exact
-three commands. Everything else in batches 1–2 is done.
+**Batches 1 and 2 are both COMPLETE.** Nothing is half-finished.
+`everystudent-sr` is **deferred by decision, not left undone** — see §4 and
+[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129). Do not try to
+acquire it, and specifically do not add an `/etc/hosts` line; that workaround
+was considered and rejected on purpose.
 
 Nothing has been indexed — Phase 3 runs ONCE, after all 48 are acquired.
 
-### Do this next
-1. **Acquire `sr`** — §4 has the hosts line and the three commands. 76 docs.
-2. **Read §9 rules 1b, 1c, 1d and 4 before writing any new entry.** 1d and the
-   rule-4 correction are new from batch 2 and both reverse advice this file
-   previously gave. In particular: there is **no** safe default container, and
-   `.shareiconsmenupg` is a no-op on most hosts.
-3. Batch 3: pick 12 from §8's remaining-23 table, largest first, and spawn one
-   agent each with the §10 prompt. Give each its own scratch subdirectory —
-   that worked cleanly for 12 concurrent agents in batch 2.
-4. Wire `src/registry/index.ts` yourself — agents must not touch the barrel.
-5. Full gate → `--dry-run` per key → the **mandatory live-extraction gate**
+### Do this next — batch 3
+1. **Read §9 rules 1b, 1c, 1d and 4 before writing any new entry.** Rule 1d and
+   the rule-4 correction are new from batch 2 and both **reverse advice this
+   file previously gave**. In particular: there is **no** safe default
+   container (not even `.contentpadding`), and `.shareiconsmenupg` is a
+   measured no-op on most hosts.
+2. Pick **12** from §8's remaining-23 table, largest sitemap first, and spawn
+   one agent each with the §10 prompt. Give each its own scratch subdirectory —
+   that ran cleanly for 12 concurrent agents in batch 2, zero collisions.
+   ⚠️ Watch `sk` (Slovak/Czech overlap) and `hr`/`mk` (Serbian's neighbours);
+   §8 explains both.
+3. Wire `src/registry/index.ts` yourself — agents must not touch the barrel.
+4. Full gate → `--dry-run` per key → the **mandatory live-extraction gate**
    (§6 Phase 1 step 4). Batch 1 passed the first two with five entries that
-   extracted nothing; only the third catches that.
-6. Commit, then Phase 2 (§6) including the duplicate-content SQL.
+   extracted nothing; only the third catches that. Batch 2 passed all three,
+   which is what makes its 782 documents trustworthy.
+5. Commit, then Phase 2 (§6) including the duplicate-content SQL.
+
+**Expect an agent to refuse occasionally, and treat that as success.** `bg`'s
+agent wrote nothing and escalated a robots `Disallow: /`; that was correct, and
+its recon made the entry a short write once Jaco decided.
 
 ### Waiting on Jaco (none of it blocks batch 3)
 Seven open questions in §13. Answered on 2026-07-29: the scripture policy, `bg`,
-and the `sr` network route. Still open — the eval shortlist (#1), #128 timing
+and `sr` (deferred → #129). Still open — the eval shortlist (#1), #128 timing
 (#2), the 5 sitemap-less domains (#3), the `--probe` flag (#4), the
-`extractContent` root-cause fix (#5), and two new ones: the three-way `zh`
-collision (#6) and the fact that **robots.txt is not enforced anywhere in the
-acquire path** (#7), which is worth its own issue.
+`extractContent` root-cause fix (#5), the three-way `zh` collision (#6), and
+the fact that **robots.txt is not enforced anywhere in the acquire path** (#7),
+which is worth its own issue.

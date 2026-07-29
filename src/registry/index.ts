@@ -47,6 +47,17 @@ import { everystudentMs } from "./everystudent-ms.js";
 import { everystudentSk } from "./everystudent-sk.js";
 import { everystudentTh } from "./everystudent-th.js";
 import { everystudentUr } from "./everystudent-ur.js";
+import { everystudentHe } from "./everystudent-he.js";
+import { everystudentHi } from "./everystudent-hi.js";
+import { everystudentKa } from "./everystudent-ka.js";
+import { everystudentKk } from "./everystudent-kk.js";
+import { everystudentMy } from "./everystudent-my.js";
+import { everystudentNe } from "./everystudent-ne.js";
+import { everystudentOm } from "./everystudent-om.js";
+import { everystudentSl } from "./everystudent-sl.js";
+import { everystudentSw } from "./everystudent-sw.js";
+import { everystudentTa } from "./everystudent-ta.js";
+import { everystudentTe } from "./everystudent-te.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -177,6 +188,27 @@ export const SOURCES: readonly SourceEntry[] = [
   everystudentIt,
   everystudentUr,
   everystudentEl,
+  // #111 non-walled sibling-language domains — batch 4, 2026-07-30. The last of
+  // the sitemap-reachable hosts; ordered largest expected yield first.
+  everystudentHi,
+  everystudentTa,
+  everystudentMy,
+  everystudentTe,
+  everystudentSl,
+  everystudentNe,
+  everystudentOm,
+  everystudentKk,
+  everystudentKa,
+  everystudentSw,
+  // ⚠️ NOT YET ACQUIRABLE — wired so the gates can typecheck and test it, but
+  // three things are open. (1) Its sitemap wraps every <loc> in CDATA and
+  // `discover.ts` does not unwrap it, so acquire throws ERR_INVALID_URL — a repo
+  // defect, not an entry defect, and deliberately not fixed on this branch (same
+  // reasoning as #128 / extract.ts). (2) igod.co.il is NOT a Cru property: its
+  // footer reads "© המכללה למקרא" (HaMichlala LaMikra) and no Cru/EveryStudent
+  // marker appears anywhere on the site. (3) It holds 1,020 articles, not the ~5
+  // #111's recon recorded. All three await the operator; see the campaign file.
+  everystudentHe,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

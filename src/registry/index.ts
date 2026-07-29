@@ -35,6 +35,18 @@ import { everystudentSr } from "./everystudent-sr.js";
 import { everystudentTr } from "./everystudent-tr.js";
 import { everystudentVi } from "./everystudent-vi.js";
 import { everystudentZhTw } from "./everystudent-zh-tw.js";
+import { everystudentAm } from "./everystudent-am.js";
+import { everystudentBn } from "./everystudent-bn.js";
+import { everystudentEl } from "./everystudent-el.js";
+import { everystudentHr } from "./everystudent-hr.js";
+import { everystudentId } from "./everystudent-id.js";
+import { everystudentIt } from "./everystudent-it.js";
+import { everystudentLt } from "./everystudent-lt.js";
+import { everystudentMk } from "./everystudent-mk.js";
+import { everystudentMs } from "./everystudent-ms.js";
+import { everystudentSk } from "./everystudent-sk.js";
+import { everystudentTh } from "./everystudent-th.js";
+import { everystudentUr } from "./everystudent-ur.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -56,29 +68,48 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *  three are Cloudflare-walled and fetched through Firecrawl.
  *
  *  It ALSO spans ~48 NON-walled sibling-language domains (#111), each its own key
- *  under the same one-domain-one-source rule. 19 are registered here — the
- *  2026-07-28 pilot batch (`-es` `-zh-cn` `-ru` `-ro` `-ja` `-pt` `-de` `-ko`) and
+ *  under the same one-domain-one-source rule. 32 are registered here — the
+ *  2026-07-28 pilot batch (`-es` `-zh-cn` `-ru` `-ro` `-ja` `-pt` `-de` `-ko`),
  *  the 2026-07-29 batch 2 (`-sq` `-fa` `-mn` `-tr` `-cs` `-hu` `-pl` `-sr` `-et`
- *  `-vi` `-zh-tw`). Unlike the walled three these are plain HTTP — no
- *  `fetchStrategy`, no Firecrawl credits — and they use sitemap DISCOVERY, with
+ *  `-vi` `-zh-tw` `-bg`) and batch 3 (`-sk` `-id` `-ms` `-mk` `-lt` `-bn` `-th`
+ *  `-hr` `-am` `-it` `-ur` `-el`). Unlike the walled three these are plain HTTP —
+ *  no `fetchStrategy`, no Firecrawl credits — and they use sitemap DISCOVERY, with
  *  `seedPaths` only to patch a stale sitemap.
  *
  *  **There is no shared template.** The ".content4 family" claim in the walled
- *  entries describes a MINORITY of the estate. Measured across 19 hosts with the
+ *  entries describes a MINORITY of the estate. Measured across 32 hosts with the
  *  repo's own parser (`extract.ts`, node-html-parser), containers are:
  *    - `.contentpadding` — `-es` `-ru` `-ro` `-pt` `-de` `-pl` `-hu` `-tr` `-vi`
- *      `-fa` `-sr`. On most of these `.content4` MATCHES and extracts 0 chars.
- *    - `html` — `-ko` `-sq` `-mn`. Malformed FreeFind markup (a
- *      `<sitelevel_noindex>` that closes inside `.contentpadding`) pops the
+ *      `-fa` `-sr` `-id` `-ms` `-mk` `-bn` `-th` `-hr` `-am`. On most of these
+ *      `.content4` MATCHES and extracts 0 chars.
+ *    - `html` — `-ko` `-sq` `-mn` `-lt`. Malformed FreeFind markup pops the
  *      element stack, destroying `.content4`, `.contentpadding` AND `<body>`;
- *      the article ends up as flat children of `<html>`.
+ *      the article ends up as flat children of `<html>`. On `-ko` `-sq` `-mn` the
+ *      culprit is a `<sitelevel_noindex>` closing inside `.contentpadding`; on
+ *      `-lt` it is two articles with an unclosed `<span>` and a `</h1>` closing
+ *      an `<h2>`.
  *    - `.content4` — `-ja` only.
+ *    - `#content4` — `-el`, where `content4` is an ID, NOT a class. `.content4`
+ *      matches nothing there. One character between working and silent zero.
  *    - `.cb-entry-content` — `-zh-cn`, WordPress (Chosen theme).
- *    - `.entry-content` — `-zh-tw`, WordPress (Enfold/Avia). A THIRD generator.
+ *    - `.entry-content` — `-zh-tw`, WordPress (Enfold/Avia), and `-sk`,
+ *      WordPress + Elementor. Same selector, two unrelated themes.
+ *    - `.post-content` — `-it`, WordPress (`sight2016`). A THIRD WordPress theme
+ *      with a THIRD container — one WP host never predicts another.
  *    - `.contentleftpadding` — `-et`, an older hand-rolled layout. None of the
  *      .content4-family selectors exist here at all.
  *    - `.content` — `-cs`, a bespoke Yii PHP app. #111's ".content .content-13"
  *      hint was one element's class attribute; `content-13` is the article id.
+ *      NOTE `-sk` is NOT this app despite the sibling domain — it is WordPress,
+ *      and `.content` matches 0 of its pages.
+ *    - `.article-content` — `-bg`, an Angular build.
+ *
+ *  Also measured on this estate and easy to trip over:
+ *    - `-el`'s sitemap publishes `http://` `<loc>`s. `discover.ts` filters the RAW
+ *      `<loc>` string and never rewrites the scheme, so the `^https://` pin every
+ *      sibling uses discovers ZERO URLs there. Its filters use `^https?://`.
+ *    - `-sk`'s canonical host is the BARE apex (`www.` 301s away) — the reverse of
+ *      every other sibling, where the apex 301s to `www.`.
  *
  *  Two traps this cost us. (1) `contentSelectors` is NOT a fallback chain —
  *  `extract.ts` binds the FIRST selector matching an ELEMENT even at 0 chars, so a
@@ -133,6 +164,19 @@ export const SOURCES: readonly SourceEntry[] = [
   // Pre-launch staging property, ingested on an explicit operator decision
   // (2026-07-29). Seed mode — its sitemap names the staging host. See the entry.
   everystudentBg,
+  // #111 non-walled sibling-language domains — batch 3, 2026-07-29.
+  everystudentSk,
+  everystudentId,
+  everystudentMs,
+  everystudentMk,
+  everystudentLt,
+  everystudentBn,
+  everystudentTh,
+  everystudentHr,
+  everystudentAm,
+  everystudentIt,
+  everystudentUr,
+  everystudentEl,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

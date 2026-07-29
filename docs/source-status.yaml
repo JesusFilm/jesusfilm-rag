@@ -346,14 +346,121 @@ sources:
       sr:
         status: deferred
         stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
-        note: Deferred 2026-07-29 pending a reachability decision.
-          studentskikutak.com DNS-blackholes to 203.0.113.250 (TEST-NET-3) from
-          the dev network via port-53 interception; public DoH (Cloudflare +
-          Google) returns the true 50.28.103.165, and the entry's
-          live-extraction gate passed offline against curl-fetched bytes
-          (19,095/4,733/21,022 chars). The registry entry is correct and wired —
-          what is unresolved is whether a host our own network filters should be
-          listed as a retrieval source. Tracked in a GitHub issue; do NOT work
-          around it with /etc/hosts.
+        note: Deferred 2026-07-29 pending a reachability decision. studentskikutak.com
+          DNS-blackholes to 203.0.113.250 (TEST-NET-3) from the dev network via
+          port-53 interception; public DoH (Cloudflare + Google) returns the
+          true 50.28.103.165, and the entry's live-extraction gate passed
+          offline against curl-fetched bytes (19,095/4,733/21,022 chars). The
+          registry entry is correct and wired — what is unresolved is whether a
+          host our own network filters should be listed as a retrieval source.
+          Tracked in a GitHub issue; do NOT work around it with /etc/hosts.
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-sk:
+    name: EveryStudent — Slovak (EveryStudent.sk)
+    status: in-progress
+    languages:
+      sk:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-id:
+    name: EveryStudent — Indonesian (MahasiswaKeren.com)
+    status: in-progress
+    languages:
+      id:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-ms:
+    name: EveryStudent — Malay (PersoalanHidup.com)
+    status: in-progress
+    languages:
+      ms:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-mk:
+    name: EveryStudent — Macedonian (StudentskiOdgovori.com)
+    status: in-progress
+    languages:
+      mk:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-lt:
+    name: EveryStudent — Lithuanian (KiekvienamStudentui.lt)
+    status: in-progress
+    languages:
+      lt:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-bn:
+    name: EveryStudent — Bengali (EveryBengaliStudent.com)
+    status: in-progress
+    languages:
+      bn:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-th:
+    name: EveryStudent — Thai (EveryThaiStudent.com)
+    status: in-progress
+    languages:
+      th:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-hr:
+    name: EveryStudent — Croatian (VrloVazno.com)
+    status: in-progress
+    languages:
+      hr:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-am:
+    name: EveryStudent — Amharic (HabeshaStudent.com)
+    status: in-progress
+    languages:
+      am:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-it:
+    name: EveryStudent — Italian (OgniStudente.com)
+    status: in-progress
+    languages:
+      it:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-ur:
+    name: EveryStudent — Urdu (ZindagiKaySawalat.com)
+    status: in-progress
+    languages:
+      ur:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-el:
+    name: EveryStudent — Greek (EveryStudent.gr)
+    status: in-progress
+    languages:
+      el:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-07-29

@@ -464,3 +464,113 @@ sources:
         stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-07-29
+  everystudent-hi:
+    name: EveryStudent — Hindi (EveryStudent.in)
+    status: in-progress
+    languages:
+      hi:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-ta:
+    name: EveryStudent — Tamil (UngalThervuEnna.com)
+    status: in-progress
+    languages:
+      ta:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-my:
+    name: EveryStudent — Burmese (EveryMyanmarStudent.com)
+    status: in-progress
+    languages:
+      my:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-te:
+    name: EveryStudent — Telugu (EveryTeluguStudent.com)
+    status: in-progress
+    languages:
+      te:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-sl:
+    name: EveryStudent — Slovenian (VsakStudent.com)
+    status: in-progress
+    languages:
+      sl:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-ne:
+    name: EveryStudent — Nepali (NepaliStudent.net)
+    status: in-progress
+    languages:
+      ne:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-om:
+    name: EveryStudent — Oromo (EveryBarataa.com)
+    status: in-progress
+    languages:
+      om:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-kk:
+    name: EveryStudent — Kazakh (Shakirtter.com)
+    status: in-progress
+    languages:
+      kk:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-ka:
+    name: EveryStudent — Georgian (KoveliStudenti.com)
+    status: in-progress
+    languages:
+      ka:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-sw:
+    name: EveryStudent — Swahili (LipoTumaini.com)
+    status: in-progress
+    languages:
+      sw:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-he:
+    name: EveryStudent — Hebrew (iGod.co.il)
+    status: deferred
+    languages:
+      he:
+        status: deferred
+        stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
+        note: "Entry written and gate-passed, NOT acquired. Three open points, none
+          a defect in the entry. (1) Its sitemap wraps every <loc> in CDATA and
+          discover.ts does not unwrap it, so acquire dies ERR_INVALID_URL — a
+          repo defect, deliberately not fixed on the campaign branch. (2)
+          igod.co.il is not a Cru property: the footer reads '© המכללה למקרא'
+          (HaMichlala LaMikra) and no Cru or EveryStudent marker appears
+          anywhere on the site, so the standard rights line and the 'cru' tag
+          may misattribute it. (3) It holds 1,020 articles, not the ~5 the
+          2026-07-24 recon recorded — the recon counted a <sitemapindex>'s five
+          children as if they were pages. Acquiring it would more than double
+          this campaign's corpus. Awaiting the operator on all three."
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29

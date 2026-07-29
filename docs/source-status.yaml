@@ -561,8 +561,8 @@ sources:
       he:
         status: deferred
         stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
-        note: "Entry written and gate-passed, NOT acquired. Three open points, none
-          a defect in the entry. (1) Its sitemap wraps every <loc> in CDATA and
+        note: "Entry written and gate-passed, NOT acquired. Three open points, none a
+          defect in the entry. (1) Its sitemap wraps every <loc> in CDATA and
           discover.ts does not unwrap it, so acquire dies ERR_INVALID_URL — a
           repo defect, deliberately not fixed on the campaign branch. (2)
           igod.co.il is not a Cru property: the footer reads '© המכללה למקרא'
@@ -572,5 +572,38 @@ sources:
           2026-07-24 recon recorded — the recon counted a <sitemapindex>'s five
           children as if they were pages. Acquiring it would more than double
           this campaign's corpus. Awaiting the operator on all three."
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-uk:
+    name: EveryStudent — Ukrainian (SvitStudentiv.com)
+    status: in-progress
+    languages:
+      uk:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-hy:
+    name: EveryStudent — Armenian (1patasxan.com)
+    status: in-progress
+    languages:
+      hy:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-29
+  everystudent-ti:
+    name: EveryStudent — Tigrinya (EveryTemhari.com)
+    status: in-progress
+    languages:
+      ti:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        note: "tinyld has NO Tigrinya model (no 'tir' entry, 61 languages). Its only
+          Ge'ez-script model is Amharic, so these 14 documents will store
+          language = null or be MISLABELLED 'am' with an out-of-set warning.
+          Declared ['ti'] because the entry records what the source is, not what
+          the detector recognises. Same class of gap as everystudent-om (Oromo),
+          but worse: om has no competing model, ti does. Campaign file 13 #11."
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-07-29

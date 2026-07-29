@@ -20,11 +20,15 @@ next one starts from truth. A stale board is worse than none: it is the exact
 failure `docs/STATUS.md` hit on 2026-07-17, when a narrative doc reported a
 finished cutover as pending.
 
-**Last regenerated: 2026-07-30 (after batch 4)** · **43 of 48 registered ·
-41 acquired · 2 deferred · 5 remaining · 2,181 documents · 0 duplicate-content
+**Last regenerated: 2026-07-30 (after batch 5)** · **46 of 48 registered ·
+44 acquired · 2 deferred · 2 open · 2,276 documents · 0 duplicate-content
 groups**
 
-### ✅ Acquired (41)
+The "2 open" are `lv` (blocked on RIGHTS — needs Jaco, §15) and `ru-ca`
+(**measured a MIRROR of the already-acquired `ru`** — needs Jaco, §16).
+Neither is unwritten-because-unstarted; both are decisions.
+
+### ✅ Acquired (44)
 
 `†` = ships the rule-1e `"html"` fallback + `head` strip.
 
@@ -54,6 +58,9 @@ groups**
 | | | | | | `kk` | shakirtter.com | 17 | `html` |
 | | | | | | `ka` | kovelistudenti.com | 16 | `.contentpadding` † |
 | | | | | | `sw` | lipotumaini.com | 13 | `.contentpadding` † |
+| | | | | | `uk` | svitstudentiv.com | 47 | `html` · **seed** |
+| | | | | | `hy` | 1patasxan.com | 34 | `html` · **seed** |
+| | | | | | `ti` | everytemhari.com | 14 | `.contentpadding` † · **seed** ⚠️ no detect |
 
 ### 🅿️ Deferred (2)
 
@@ -62,15 +69,12 @@ groups**
 | `sr` | studentskikutak.com | 76 | Written, wired, gate-passed. Network blackhole → **[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)**. Do NOT add `/etc/hosts`. |
 | `he` | igod.co.il | **1,020** | Written, wired, gate-passed. **Not a Cru property**; sitemap uses CDATA that `discover.ts` cannot parse; 200× the recon count. Three operator calls — see §4 and §16. |
 
-### ⬜ Not started — no XML sitemap (5) · **recon done 2026-07-29, see §15**
+### ⚠️ Open — needs a decision from Jaco, not more work (2)
 
-| Lang | Domain | HTML map | Articles | Route |
-|---|---|---|---:|---|
-| `ru-ca` | studentstan.com | `/m/karta.html` | 87 | seeds |
-| `lv` | katramstudentam.lv | `/lv/lapas-karte/` | 49 | ⛔ robots |
-| `uk` | svitstudentiv.com | `/m/sitemap.html` | 47 | seeds |
-| `hy` | 1patasxan.com | `/m/sitemap.html` | 37 | seeds |
-| `ti` | everytemhari.com | `/sitemap.html` | 14 | seeds |
+| Lang | Domain | Articles | What blocks it |
+|---|---|---:|---|
+| `ru-ca` | studentstan.com | 87 (**6 unique**) | **Measured a MIRROR of `everystudent-ru`** — 42 of 87 at ≥95% overlap, mean 84.1%. Agent correctly wrote nothing. See §16. |
+| `lv` | katramstudentam.lv | 49 | **RIGHTS, not crawlability.** `robots.txt` disallows `ClaudeBot` by name. Ask Agape Students Latvia; do not out-engineer it. See §15. |
 
 ### 0.1 How to regenerate this board
 
@@ -162,13 +166,50 @@ locally acquired.
   skips — the first perfect batch of the campaign.** `he` is written and
   gate-passed but **deferred**, on three points that are not defects in the
   entry (below). Zero duplicate-content groups across all 43 everystudent keys.
+- ✅ **Batch 5 (4 sitemap-less hosts) — DONE.** `uk` `hy` `ti` written, wired,
+  gated and **acquired (95 documents)**, commit `26e8861`. **All three staged
+  100% with ZERO skips**, so batches 4 and 5 are both perfect. **`ru-ca` was
+  correctly NOT written** — it is a mirror of `everystudent-ru`, see §16.
+  These are **SEED MODE** entries: `baseUrl` + `seedPaths`, no `sitemaps` and
+  therefore no `block`. Zero duplicate-content groups across all 46 keys.
 - 🅿️ **`sr` and `he` are DEFERRED, not pending. Do not try to acquire either.**
-- ⏭️ **NEXT: the 5 sitemap-less domains per §15** (hand-listed seeds, no
-  Firecrawl) — that closes Phases 1–2. **Do NOT run `pnpm index` yet**;
-  indexing happens ONCE, after acquisition is complete (Phase 3).
+- ⚠️ **`ru-ca` and `lv` are OPEN DECISIONS, not unstarted work.** Both are
+  fully reconned. Neither needs another agent; both need Jaco.
+- ⏭️ **NEXT: nothing is blocked. Phase 1–2 are functionally COMPLETE.**
+  The decision is whether to run **Phase 3 (`pnpm index`, ONCE)** now on 44
+  sources, or to settle `ru-ca`/`lv`/`he` first so the index covers everything.
+  ⚠️ **Consider the doctype cleanup FIRST** — see below; it is nearly free
+  now and expensive after embeddings exist.
 
-**Progress: 43 of 48 registry entries written. 41 of 48 acquired
-(2,181 documents). 2 deferred (`sr`, `he`). 5 remaining.**
+**Progress: 46 of 48 registry entries written. 44 of 48 acquired
+(2,276 documents). 2 deferred (`sr`, `he`). 2 open decisions (`ru-ca`, `lv`).**
+
+### ⚠️ Do this BEFORE Phase 3 — the doctype cleanup is free right now
+
+**14 documents across 7 sources carry a literal `<!DOCTYPE html>` at the head
+of their extracted text.** Measured 2026-07-30:
+
+| Source | Docs | | Source | Docs |
+|---|---:|---|---|---:|
+| `everystudent-ru` | 3 | | `everystudent-es` | 2 |
+| `everystudent-hu` | 3 | | `everystudent-fa` | 1 |
+| `everystudent-ro` | 2 | | `everystudent-vi` | 1 |
+| `everystudent-pt` | 2 | | | |
+
+```sql
+select source_key, count(*) from raw_documents
+where source_key like 'everystudent-%' and raw_content like '%<!DOCTYPE%'
+group by 1 order by 2 desc;
+```
+
+**All seven are batch-1/batch-2 entries, written BEFORE rule 1e existed.**
+Batches 3, 4 and 5 have **zero** — they append the trailing `"html"` and strip
+`head`. So this is precisely the defect rule 1e was written to fix, still
+sitting in the sources that predate it.
+
+The fix is the rule-1e pattern applied to those 7 entries, then re-acquire.
+**Cost now: 7 plain-HTTP re-fetches. Cost after Phase 3: re-chunking and
+re-embedding.** Nothing has been indexed yet, so this is the cheap moment.
 
 ### 🅿️ `everystudent-he` — deferred, and it needs THREE decisions from Jaco
 
@@ -1062,6 +1103,48 @@ Each cost real investigation. Cite them when they apply.
     If a future Myanmar-script host inverts that ratio, the stored text is not
     retrievable and no charset header will tell you.
 
+19. **⚠️ NEW (batch 5) — Apache directory autoindex is open on some hosts, and
+    it is GROUND TRUTH.** `1patasxan.com` and `everytemhari.com` both return a
+    real `Index of /a` listing at `/a/`. That beats every other net, because it
+    reads the filesystem rather than the site's own links — it shows files that
+    **no map lists and no page links to**.
+
+    It let the `ti` agent *prove* its article count is exactly 14 rather than
+    merely consistent with 14, by cross-checking the directory against the HTML
+    map and the site's own search index. It also exposed two editor leftovers
+    invisible to every other method: `/a/fol copy.html` (2,636 chars, with a
+    literal space in the filename) and `/a/peace copy.html` (**96.0% overlap**
+    with `/a/peace.html`). Both correctly excluded — but a discovery policy
+    that crawled the directory would have staged them.
+
+    **Try `curl <base>/a/` on any host before trusting a map.** It costs one
+    request. Where it works it is definitive; where it 404s you have lost
+    nothing.
+20. **⚠️ NEW (batch 5) — the scripture policy was never applied to
+    `everystudent-ar`, and that source is LIVE IN PROD.** Its seeded
+    `/a/whowas.html` is **23,624 chars of the Gospel of John**. The page's own
+    opening says the passages are «مقتطفات مأخوذة مباشرة من إنجيل يوحنا …
+    **دون إضافة لأي تعليق**» ("excerpts taken directly from the Gospel of John
+    … without adding any commentary"), then runs `يوحنا 3` ("John 3") as a
+    chapter heading over continuous verse text — 17 chapter references in all.
+
+    It is **the same page this campaign blocked on six other hosts**: `bn`
+    (22,236 ch), `te` (23,429), `ms`, `om`, `sq`, `uk`. And `everystudent-ar`
+    is the entry that **set the precedent** — its docstring excludes four
+    `/bible/**.pdf` files with the exact wording the 2026-07-29 estate-wide
+    policy later quoted. It simply never applied that reasoning to its own
+    `/a/whowas.html`. Its `/john.html` seed (1,473 ch) is the signup page every
+    other sibling also excludes.
+
+    **Checked, and the finding is exactly one document.** The other two prod
+    sources are clean: `-fr`'s `/a/215bible.html` ("Pourquoi Vous Pouvez Croire
+    la Bible", 31,558 ch) and `everystudent`'s `/features/bible.html` ("Can You
+    Trust the Bible?", 22,711 ch) are both apologetics *about* the Bible and
+    correctly kept.
+
+    **NOT for this branch** — it touches a prod source, same reasoning as #128.
+    Belongs with #123/#128 as prod-corpus work. §13 #13.
+
 ### Ingest-stage notes (Phase 3 — not acquisition concerns)
 
 Recorded here so they are not lost, but **do not act on them during Phase 1–2**:
@@ -1485,6 +1568,25 @@ is what let 5 broken entries through the pilot.
     content itself is squarely seeker-facing apologetics and reads as in-scope;
     the attribution and the scale are what need a decision.
 
+13. **NEW (batch 5) — `ru-ca` is a mirror; which of three routes?** See §16 for
+    the full measurement and the three options. **Not an agent's call**, and
+    the recon needed for any of them is already done.
+14. **NEW (batch 5) — `everystudent-ar` carries a full Gospel of John in prod.**
+    Rule 20 has the evidence. One document, one prod source, and the policy it
+    violates is the one that source's own docstring established. Needs an issue
+    of its own, not this branch.
+15. **NEW (batch 5) — clean up the 14 doctype-leaking documents before Phase 3?**
+    See §4. Seven batch-1/2 entries predate rule 1e. The fix is mechanical and
+    costs 7 plain-HTTP re-fetches **now**, versus re-chunking and re-embedding
+    **after** `pnpm index`. This is the cheap moment and it closes shortly.
+16. **NEW (batch 5) — `ti` will be MISLABELLED, not merely unlabelled.** Worse
+    than `om` (#11). `tinyld` carries 61 languages with no `tir` entry, and its
+    only Ge'ez-script model is Amharic — so each of the 14 Tigrinya documents
+    lands as `null` or as **`'am'` with an out-of-set warning**. `om` at least
+    has no competing model to be wrong about. With only 14 documents there is
+    no margin for them to be both mislabelled and dropped from `language:ti`
+    retrieval. Same root cause as #11; worth one ruling covering both.
+
 ## 14. Resume hint (cold start)
 
 ### Repo state, exactly
@@ -1505,18 +1607,19 @@ is what let 5 broken entries through the pilot.
   `9c60b40` `bg` + estate-wide scripture policy ·
   the docs commits recording batch 2, the `sr` deferral (#129), and §0 ·
   `0e8b1e9` batch-3 entries (12 domains) · the batch-3 docs update and the §10
-  prompt rewrite · `4fce4ee` batch-4 entries (11 domains) · then this file's
-  batch-4 update.
+  prompt rewrite · `4fce4ee` batch-4 entries (11 domains) · the batch-4 docs
+  update · `26e8861` batch-5 entries (3 seed-mode domains) · then this file's
+  batch-5 update.
 - **Nothing is pushed and there is no PR** — that is Phase 6, after all 48 land.
   Do not open one early.
 - Working tree clean apart from an untracked `.playwright-mcp/` (unrelated).
 - Local Postgres container `jesusfilm-rag-db` on port 5434 must be running.
   Query it with:
   `docker exec jesusfilm-rag-db psql -U jesusfilm_rag -d jesusfilm_rag -c "…"`
-- Last full gate: green **2026-07-30**, re-run AFTER the batch-4 acquire —
-  depcruise (188 modules, 0 violations) · lint · typecheck · db:check ·
-  status:check · **722 tests** (was 650 before batch 4, 575 before batch 3,
-  496 before batch 2).
+- Last full gate: green **2026-07-30**, re-run AFTER the batch-5 acquire —
+  depcruise · lint · typecheck · db:check · status:check · **739 tests**
+  (was 722 after batch 4, 650 before it, 575 before batch 3, 496 before
+  batch 2).
 
 ⚠️ **Dates in this file and in the registry docstrings are the dates the work was
 MEASURED** — `2026-07-28` for batch 1 (matching `6a31631`), `2026-07-29` for
@@ -1525,9 +1628,9 @@ date — `9a0fec3`/`9c60b40` are batch 2, `0e8b1e9` is batch 3). Cross-check
 against `git log` and they will agree.
 
 ### Where the work stands
-**All four batches are through Phase 2, with two deferrals.**
-41 sources acquired locally, **2,181 documents**, **zero duplicate-content
-groups across all 43 everystudent keys**, `acquire: green` recorded for each.
+**All five batches are through Phase 2. Phase 1-2 are functionally COMPLETE.**
+44 sources acquired locally, **2,276 documents**, **zero duplicate-content
+groups across all 46 everystudent keys**, `acquire: green` recorded for each.
 Per-source counts and full skip accounting: §8.
 
 **Nothing is half-finished.** Both deferrals are decisions, not omissions:
@@ -1542,55 +1645,76 @@ the 5 sitemap-less hosts in §15.
 
 Nothing has been indexed — Phase 3 runs ONCE, after acquisition is complete.
 
-### Do this next — the 5 sitemap-less domains (§15)
+### Do this next — decisions, then Phase 3 (no crawling left)
 0. **Render §0's board back to Jaco as your opening message.** He asked for the
    state as tables, not prose. Regenerate the counts from the DB first (§0.1) —
    do not retype what §0 currently says without checking it.
-1. **Read §9 rules 1b–1f, 2, 4, 12, 13, 16 and 17 before writing any entry.**
-   The newest ones reverse or correct earlier advice: **1f** (`.articletitle`
-   is a shadow trap that extracts a plausible non-zero number), **2** (probe
-   `#x` as well as `.x` — two hosts hide the container in an ID, and #111's
-   outlier flags proved wrong in *both* directions), **16** (CDATA sitemaps
-   break discovery), **17** (the Slavic word-boundary guard fabricates evidence
-   on Indic scripts). Rules 1d and 1e still stand.
-2. **These 5 need a different shape from batches 1–4** — no XML sitemap, so
-   hand-listed `seedPaths` harvested from each site's own HTML map, **no
-   `sitemaps` field and therefore no `block` array** (the seed list *is* the
-   filter). Precedents: `everystudent-ar` (68 seeds) and `everystudent-bg`
-   (84). **Do NOT reach for Firecrawl** — §15 explains why at length; 4 of the
-   5 are bare Apache serving 200.
-   ⚠️ **`lv` is blocked on RIGHTS, not crawlability**, and needs Jaco's answer
-   first (§13 #3). ⚠️ **Verify every harvested URL with a HEAD sweep before
-   seeding** — `sr` taught us a map can list dead URLs.
-3. The §10 prompt is written for discovery mode. **It needs adapting** for
-   seed-only hosts before you reuse it — do not hand it over unchanged.
-4. Wire `src/registry/index.ts` yourself — agents must not touch the barrel.
-5. Full gate → `--dry-run` per key → the **mandatory live-extraction gate**
-   (§6 Phase 1 step 4). Batch 1 passed the first two with five entries that
-   extracted nothing; only the third catches that. Batches 2, 3 and 4 passed
-   all three, which is what makes their 782 + 567 + 233 documents trustworthy.
-6. Commit, then Phase 2 (§6) including the duplicate-content SQL.
-   ⚠️ **Re-run the full gate AFTER the acquire too**, not just after the code
-   change — integration tests query the live Postgres.
-7. **Regenerate §0's board before you finish** (§0.1). This is the last step of
+1. **There is no crawling left to do.** Every acquirable host in the 48 has
+   been acquired. Do NOT spawn entry-writing agents — read §13 #12–#15 and put
+   the four decisions to Jaco instead.
+2. **⚠️ Strongly consider the doctype cleanup FIRST (§4, §13 #15).** 14
+   documents across 7 batch-1/2 sources leak `<!DOCTYPE html>`. Applying rule
+   1e to those entries and re-acquiring costs 7 plain-HTTP fetches now; after
+   `pnpm index` it costs re-chunking and re-embedding. **This window closes the
+   moment Phase 3 runs.**
+3. **Then Phase 3 — `pnpm index`, ONCE.** Drains every pending row across all
+   44 acquired sources. This is the expensive step (embeddings); it is
+   idempotent on re-run. Expect ~2,276 documents from this campaign plus the
+   pre-existing corpus.
+   ⚠️ **Re-run the FULL verify gate after ingest**, not just after code changes
+   — integration tests query the live Postgres and a data-only change can turn
+   them red (slice #3 precedent).
+4. **Then Phase 4** (per-language retrieval smoke, scripted — do not hand-run
+   44 times) and **Phase 5** (eval, §7), remembering the mandatory env
+   override: `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval`.
+   `pnpm eval` has **no resume** and one transient blip discards the whole run.
+5. **Then Phase 6 — ONE PR** for the campaign, lowercase title (commitlint),
+   `gh auth switch --user jaco-brink` first.
+6. **Regenerate §0's board before you finish** (§0.1). This is the last step of
    every session, not an optional tidy-up.
-8. That closes Phases 1–2 and unlocks Phase 3 (`pnpm index`, ONCE).
 
-**Expect an agent to refuse occasionally, and treat that as success.** `bg`'s
-agent wrote nothing and escalated a robots `Disallow: /`; that was correct.
-(Batches 3 and 4 had zero refusals — but batch 4's `he` agent did the next best
-thing: it wrote the entry AND escalated the three things it could not decide.)
+**If you DO end up writing another entry** (e.g. Jaco picks option 2 for
+`ru-ca`, or answers `lv`): read §9 rules 1b–1f, 2, 4, 12, 13, 16, 17 and 19
+first. The newest reverse or correct earlier advice — **1f** (`.articletitle`
+is a shadow trap extracting a plausible non-zero number), **2** (probe `#x` as
+well as `.x`; #111's outlier flags were wrong in *both* directions), **16**
+(CDATA sitemaps break discovery), **17** (the Slavic word-boundary guard
+fabricates evidence on Indic scripts), **19** (try `curl <base>/a/` — Apache
+autoindex is ground truth where it is open). For a seed-mode host the §10
+prompt must be adapted, as it was for batch 5: `baseUrl` + `seedPaths`, no
+`sitemaps` and therefore no `block`, and **HEAD-sweep every harvested URL**.
 
-### Waiting on Jaco (none of it blocks the last 5 except `lv`)
-**Twelve** open questions in §13. Answered on 2026-07-29: the scripture policy,
-`bg`, and `sr` (deferred → #129). Still open — the eval shortlist (#1), #128
-timing (#2), **the `lv` rights call (#3 — this one DOES block one of the last
-five)**, the `--probe` flag (#4), the `extractContent` root-cause fix (#5), the
-three-way `zh` collision (#6), **robots.txt not being enforced anywhere in the
-acquire path (#7 — now hand-patched five times)**, film-transcript pages (#8),
-`normalizeUrl` scheme canonicalisation (#9), **the CDATA defect (#10, new)**,
-**Oromo being undetectable (#11, new)** and **whether `he` is in scope at all
-(#12, new)**. #7, #9 and #10 each deserve their own issue.
+**Expect an agent to refuse occasionally, and treat that as success.** Three
+have now done it and all three were right: `bg` hit a robots `Disallow: /` and
+wrote nothing; `he` wrote the entry AND escalated the three things it could not
+decide; `ru-ca` measured an 84.1% mirror and wrote nothing. **The refusals have
+been among the most valuable outputs of this campaign** — each one caught
+something no gate downstream would have.
+
+### Waiting on Jaco — this is now the critical path
+**Sixteen** open questions in §13, and they are now the only thing between
+this campaign and Phase 3. Answered on 2026-07-29: the scripture policy, `bg`,
+and `sr` (deferred → #129).
+
+**The four that decide what happens next:**
+
+| # | Question | Why it is urgent |
+|---|---|---|
+| **#15** | Clean up the 14 doctype-leaking documents? | **Free now, expensive after `pnpm index`.** This window closes at Phase 3. |
+| **#12** | Is `he` (igod.co.il) in scope — not a Cru property, 1,020 docs? | Decides whether the corpus grows by 47% |
+| **#13** | `ru-ca` — drop it, 6-seed key, or fold into `ru`? | §16; last unresolved domain of the 48 |
+| **#3** | `lv` rights — ask Agape Students Latvia? | Only remaining host nobody has permission to crawl |
+
+**Still open, none blocking:** the eval shortlist (#1), #128 timing (#2), the
+`--probe` flag (#4), the `extractContent` root-cause fix (#5), the three-way
+`zh` collision (#6), **robots.txt not being enforced anywhere in the acquire
+path (#7 — now hand-patched five times)**, film-transcript pages (#8),
+`normalizeUrl` scheme canonicalisation (#9), the CDATA defect (#10), Oromo
+being undetectable (#11), **`everystudent-ar` carrying a full Gospel of John in
+PROD (#14)**, and **`ti` being actively MISLABELLED `am` rather than merely
+unlabelled (#16)**.
+
+#7, #9, #10 and #14 each deserve their own issue. #11 and #16 are one ruling.
 
 ---
 
@@ -1684,3 +1808,104 @@ permission**, not to out-engineer their robots file. If the answer is no, drop
 honour by hand, because **the acquire path does not read `robots.txt` at all**
 (§13 #7). `sq` needed a manual URL block for the same reason. That gap is now
 load-bearing twice over.
+
+---
+
+## 16. `ru-ca` (studentstan.com) — a MIRROR, not a sibling (2026-07-30)
+
+**The batch-5 agent wrote nothing and escalated. That was correct.** This is
+the campaign's second correct refusal, after `bg`.
+
+### The measurement
+
+12-word shingle overlap of **all 87** studentstan articles against the **full
+99-article** `everystudent-ru` corpus (mirstudentov.com) — not a sample:
+
+| Best-match band | Articles |
+|---|---:|
+| **≥95% — effectively identical** | **42** |
+| 80–95% | 25 |
+| 50–80% | 14 |
+| 20–50% | 0 |
+| **<20% — genuinely new** | **6** |
+
+**Mean 84.1%.** Same-slug pairs alone: mean 89.3%, median 94.6%. Worked
+examples: `/a/christianstvo.html` **99.8%**, `/a/dostoy.html` **99.7%**,
+`/a/abdul.html` **99.4%**.
+
+### Why the LOW scores are not evidence of independence
+
+The agent hand-diffed the lowest same-slug pair, `/a/ad.html` at **52.7%**, and
+found the bodies **word-for-word the same translation**. The score is depressed
+only because mirstudentov prepends a section kicker and title, and uses
+en-dashes where studentstan uses hyphens. **True content identity is HIGHER
+than the numbers show.** Do not re-run this and conclude "only half overlap".
+
+Two corroborating signals: **78 of 87 slugs are byte-identical filenames**, and
+studentstan's own `/a/fol.html` reads «Я координатор проекта
+**Mirstudentov.com**» — the sibling's signup page, not even re-branded.
+
+### Calibration — the same test on genuinely independent hosts
+
+| Pair | Overlap | Verdict |
+|---|---|---|
+| `ru-ca` vs `ru` | **84.1% mean** | **MIRROR** |
+| `uk` vs `ru` | 0.00–0.04% | independent, both kept |
+| `ti` vs `am` | 0.0% on all 5 same-slug pairs | independent, both kept |
+| `hr` vs `sr` (batch 3) | 0.4–0.9% | independent, both kept |
+| `cs` vs `sk` (batch 3) | 0.00% | independent, both kept |
+
+The test discriminates cleanly. A mirror is not a close call.
+
+### Why this matters mechanically
+
+**The ingest dedup gate keys on `(sourceKey, canonicalUrl)`.** Two source keys
+means two sets of rows, so ~81 near-duplicate Russian articles would be
+chunked, embedded and left to compete with each other in retrieval. Nothing
+downstream catches this. It is the same mechanism that let `ro` stage 25
+byte-identical homepages (rule 1c), one level up.
+
+### The 6 genuinely unique articles (~31,500 chars)
+
+`/a/aborti.html` (4,679) · `/a/uznat.html` (6,650 — studentstan uses the Four
+Spiritual Laws tract where mirstudentov uses «Знать Бога лично») ·
+`/a/svetlana.html` (3,273) · `/a/mutniye.html` (12,675) · `/a/rashmor.html`
+(3,700) · `/a/jfil.html` (488).
+
+⚠️ Two are judgement calls: **`/a/jfil.html` is 488 chars of film-promo copy**,
+and **`/a/mutniye.html` is Carl Wieland / Answers in Genesis material** — a
+third-party copyright our `rights` line would misattribute, same shape as the
+`et`/`bn`/`te`/`sl` Bible-society catches.
+
+### The options, none of which an agent should pick
+
+1. **Drop `ru-ca` from the 48.** Record `deferred`, reason "mirror of
+   `everystudent-ru`". Campaign becomes 47 domains. Cleanest.
+2. **Register a 6-seed `everystudent-ru-ca`.** Honours ADR-0006
+   (one domain = one key) and keeps the estate complete, at the cost of a
+   6-document source. Everything needed is already measured — one pass to write.
+3. **Add the 6 paths to `everystudent-ru`'s `seedPaths`.** Cheapest in
+   documents-per-effort, but **violates ADR-0006** by serving two domains from
+   one key, and would store mirstudentov `canonical_url`s for pages that live
+   on studentstan. Not recommended.
+
+### Recon already done, if option 2 is chosen
+
+Seed mode (`/sitemap.xml`, `/sitemap_index.xml`, `/sitemap.xml.gz`,
+`/wp-sitemap.xml`, `/robots.txt` all **404** on the canonical `www` host; apex
+301s to `www`). **No robots.txt at all**, so no rights blocker. `/m/karta.html`
+lists 86 articles; the href sweep adds `/a/fol.html` and `/n/nedos.html`, the
+latter a **404** (site-wide typo for `/m/nedos.html`, repeated on 10 pages).
+
+**This host is NOT the FreeFind template** — it is a WordPress theme, and the
+container is **`.post-content`** (86/87 pages, 488–25,282 chars, zero empties).
+`.content4` matched **0 pages, 0 chars**; it does not exist here in class or ID
+form. Ship `[".post-content", "html"]`. Strip `.sectionlink` — this host's CTA,
+**7,591 chars across 85 pages**, and the legacy FreeFind strip list is 100%
+dead here.
+
+⚠️ **`/a/bibliya.html` is a broken-markup rescue case**: its wrappers are
+absent, `#content` closes after 55 chars, and the `"html"` fallback recovers
+**32,980 chars** of a genuine apologetics essay about the Bible. It is not
+scripture (no chapter-and-verse run, no Bible-society copyright) and must not
+be dropped for its markup — rule 1e.

@@ -11,6 +11,96 @@ _Branch: `feat/everystudent-siblings` · Started: 2026-07-28 · Status: in-progr
 
 ---
 
+## 0. Board — OPEN EVERY SESSION WITH THIS
+
+🔴 **Mandatory, both directions.** **Start** every session by rendering §0 back
+to the operator as the tables below — that is how Jaco wants the state
+delivered, not as prose. **End** every session by regenerating it (§0.1) so the
+next one starts from truth. A stale board is worse than none: it is the exact
+failure `docs/STATUS.md` hit on 2026-07-17, when a narrative doc reported a
+finished cutover as pending.
+
+**Last regenerated: 2026-07-29** · **20 of 48 registered · 19 acquired ·
+1 deferred · 28 remaining · 1,381 documents**
+
+### ✅ Acquired (19)
+
+| Lang | Domain | Docs | Container |
+|---|---|---:|---|
+| `zh-cn` | xinshengming.com | 128 | `.cb-entry-content` |
+| `ru` | mirstudentov.com | 95 | `.contentpadding` |
+| `bg` | everystudent.bg | 84 | `.article-content` ⚠️ staging |
+| `hu` | everystudent.hu | 83 | `.contentpadding` |
+| `mn` | tailal.mn | 82 | `html` |
+| `ja` | studentinjapan.com | 79 | `.content4` |
+| `pl` | kazdystudent.pl | 77 | `.contentpadding` |
+| `sq` | pyetjetejetes.com | 77 | `html` |
+| `es` | cadaestudiante.com | 76 | `.contentpadding` |
+| `fa` | everypersianstudent.com | 75 | `.contentpadding` |
+| `pt` | suaescolha.com | 75 | `.contentpadding` |
+| `cs` | everystudent.cz | 74 | `.content` ⚠️ IPv6 flag |
+| `tr` | tanriyitanimak.com | 71 | `.contentpadding` |
+| `vi` | everyvietstudent.com | 67 | `.contentpadding` |
+| `ro` | everystudent.ro | 64 | `.contentpadding` |
+| `et` | tudengielu.net | 46 | `.contentleftpadding` |
+| `zh-tw` | everystudent.com.tw | 46 | `.entry-content` |
+| `de` | duentscheidest.com | 45 | `.contentpadding` |
+| `ko` | everykoreanstudent.com | 37 | `html` |
+
+### 🅿️ Deferred (1)
+
+| Lang | Domain | Expected | Why |
+|---|---|---:|---|
+| `sr` | studentskikutak.com | 76 | Written, wired, gate-passed. Network blackhole → **[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)**. Do NOT add `/etc/hosts`. |
+
+### ⬜ Not started — reachable sitemap (23)
+
+| Lang | Domain | URLs | | Lang | Domain | URLs |
+|---|---|---:|---|---|---|---:|
+| `id` | mahasiswakeren.com | 67 | | `ur` | zindagikaysawalat.com | 42 |
+| `mk` | studentskiodgovori.com | 65 | | `hi` | everystudent.in | 40 |
+| `ms` | persoalanhidup.com | 61 | | `ta` | ungalthervuenna.com | 40 |
+| `lt` | kiekvienamstudentui.lt | 60 | | `te` | everytelugustudent.com | 39 |
+| `bn` | everybengalistudent.com | 57 | | `my` | everymyanmarstudent.com | 38 |
+| `hr` | vrlovazno.com | 54 | | `sl` | vsakstudent.com | 30 |
+| `th` | everythaistudent.com | 52 | | `om` | everybarataa.com | 29 |
+| `am` | habeshastudent.com | 50 | | `ne` | nepalistudent.net | 28 |
+| `it` | ognistudente.com | 50 | | `ka` | kovelistudenti.com | 25 |
+| `sk` | everystudent.sk | 44 | | `kk` | shakirtter.com | 25 |
+| `el` | everystudent.gr | 43 | | `sw` | lipotumaini.com | 21 |
+| | | | | `he` | igod.co.il | 5 |
+
+### ⬜ Not started — no XML sitemap (5) · **recon done 2026-07-29, see §15**
+
+| Lang | Domain | HTML map | Articles | Route |
+|---|---|---|---:|---|
+| `ru-ca` | studentstan.com | `/m/karta.html` | 87 | seeds |
+| `lv` | katramstudentam.lv | `/lv/lapas-karte/` | 49 | ⛔ robots |
+| `uk` | svitstudentiv.com | `/m/sitemap.html` | 47 | seeds |
+| `hy` | 1patasxan.com | `/m/sitemap.html` | 37 | seeds |
+| `ti` | everytemhari.com | `/sitemap.html` | 14 | seeds |
+
+### 0.1 How to regenerate this board
+
+Counts come from the **database**, never from memory or from this file's prose.
+
+```bash
+docker exec jesusfilm-rag-db psql -U jesusfilm_rag -d jesusfilm_rag -c "
+  select source_key, count(*) docs
+  from raw_documents
+  where source_key like 'everystudent-%'
+    and source_key not in ('everystudent-ar','everystudent-fr')
+  group by 1 order by 2 desc;"
+```
+
+`everystudent`, `-ar` and `-fr` are the three WALLED banners and are **not** part
+of this campaign — exclude them or the totals will not match.
+
+Then: move any newly-acquired row from a ⬜ table into ✅, update the counts line,
+stamp "Last regenerated", and confirm the totals add to 48.
+
+---
+
 ## 1. The goal
 
 Acquire, ingest and evaluate the **48 non-walled EveryStudent sibling-language
@@ -435,11 +525,17 @@ deliberately not seeded). Expect overlap between the two estates.
 ⚠️ **`hr` and `mk` are Serbian's neighbours.** `sr` measured Ekavian Serbian in
 Latin script with no Cyrillic tree; do not assume the same for those two.
 
-**No reachable sitemap (5) — SAVE FOR LAST**, they need a different discovery
-route (site's own HTML sitemap page, or hand-listed seeds):
+**No reachable sitemap (5) — recon DONE 2026-07-29, see §15.** Route decided:
+**hand-listed seeds from each site's own HTML map, NOT Firecrawl** — 4 of the 5
+are bare Apache serving 200, so there is no wall to pay for. ~234 documents.
 
-`hy` 1patasxan.com · `lv` katramstudentam.lv · `ru-ca` studentstan.com ·
-`ti` everytemhari.com · `uk` svitstudentiv.com
+`ru-ca` studentstan.com (87) · `lv` katramstudentam.lv (49) ·
+`uk` svitstudentiv.com (47) · `hy` 1patasxan.com (37) ·
+`ti` everytemhari.com (14).
+
+⛔ **`lv` is blocked on RIGHTS, not on crawlability** — its `robots.txt`
+disallows `ClaudeBot` by name and declares `Content-Signal: ai-train=no`. §15
+has the full text and the recommendation (ask Cru, don't out-engineer it).
 
 **Known outliers already flagged by #111:** `cs` (everystudent.cz) uses
 `.content .content-13` / `.main`, not the shared template. `ka`
@@ -831,9 +927,14 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 2. **When to fix #128** — before the 48 land, after, or on its own schedule.
    Note the scope shrank: batch 2 measured `sitelevel_noindex` **well-formed** on
    6 of 11 hosts, so #128 is host-specific (rule 4, corrected).
-3. **The 5 sitemap-less domains** — hand-list seeds from their HTML sitemap
-   pages, or defer them out of this campaign entirely? `bg` now provides a
-   worked precedent for a hand-listed entry on a modern host.
+3. ~~**The 5 sitemap-less domains**~~ — **ANSWERED 2026-07-29, see §15.**
+   Hand-listed seeds from each site's own HTML map; **no Firecrawl** (4 of 5 are
+   bare Apache serving 200 — there is no wall to pay for). ~234 docs.
+   **One residual decision for Jaco: `lv` (katramstudentam.lv).** Its
+   `robots.txt` disallows `ClaudeBot` and `CloudflareBrowserRenderingCrawler` by
+   name and declares `Content-Signal: ai-train=no,use=reference`. Recommendation
+   is to ask Agape Students Latvia (a Cru partner) rather than crawl it. Needs a
+   yes/no from you; everything else in §15 is unblocked.
 4. **Make the live-extraction gate a checked-in script?** (2026-07-28.) It has
    now been hand-rebuilt from this file **twice**. It caught nothing in batch 2
    — because the agents were told to measure — but it is what *proves* that,
@@ -863,26 +964,21 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 
 ### Repo state, exactly
 - Branch **`feat/everystudent-siblings`**, tracking `origin/main`.
-- **8 unpushed commits.** Verify with `git log --oneline origin/main..HEAD` —
-  expect these, newest first:
-  1. `docs(campaign): defer everystudent-sr to #129 rather than work around it`
-     ← HEAD, the commit that last touched this section (hash not quoted — it
-     changes on amend).
-  2. `docs(campaign): record batch 2 and correct three rules it disproved`
-     — `55c1521`.
-  3. `feat(registry): everystudent-bg + estate-wide scripture policy`
-     — `9c60b40`, the `bg` entry, the `sq`/`es` scripture blocks and the
-     batch-2 `acquire: green` records.
-  4. `feat(registry): register 11 more everystudent sibling domains (batch 2)`
-     — `9a0fec3`.
-  5. `docs(campaign): make the state file a clean cold-start contract`
-     — `4cbd1d2`.
-  6. `fix(registry): correct 5 broken containers, acquire batch 1 (600 docs)`
-     — `6a31631`.
-  7. `docs(campaign): capture the #111 sibling-domain state file and #128`
-     — `2807832`.
-  8. `feat(registry): register 8 non-walled everystudent sibling domains`
-     — `6e7f492`, the original batch-1 entries.
+- **Unpushed commits — read them, do not trust a number written here.**
+  ```bash
+  git log --oneline origin/main..HEAD
+  ```
+  ⚠️ This file previously hardcoded the count and it went stale **three times in
+  one session** — every commit invalidates it, including the commit that
+  updates it. Do not reintroduce a number. The commits are self-describing;
+  the command above is the source of truth.
+
+  The campaign's own history, oldest first, as anchors that will not change:
+  `6e7f492` batch-1 entries · `2807832` state file + #128 ·
+  `6a31631` container fixes + batch-1 acquire · `4cbd1d2` cold-start contract ·
+  `9a0fec3` batch-2 entries (11 domains) ·
+  `9c60b40` `bg` + estate-wide scripture policy ·
+  then the docs commits recording batch 2, the `sr` deferral (#129), and §0.
 - **Nothing is pushed and there is no PR** — that is Phase 6, after all 48 land.
   Do not open one early.
 - Working tree clean apart from an untracked `.playwright-mcp/` (unrelated).
@@ -911,6 +1007,9 @@ was considered and rejected on purpose.
 Nothing has been indexed — Phase 3 runs ONCE, after all 48 are acquired.
 
 ### Do this next — batch 3
+0. **Render §0's board back to Jaco as your opening message.** He asked for the
+   state as tables, not prose. Regenerate the counts from the DB first (§0.1) —
+   do not retype what §0 currently says without checking it.
 1. **Read §9 rules 1b, 1c, 1d and 4 before writing any new entry.** Rule 1d and
    the rule-4 correction are new from batch 2 and both **reverse advice this
    file previously gave**. In particular: there is **no** safe default
@@ -927,6 +1026,8 @@ Nothing has been indexed — Phase 3 runs ONCE, after all 48 are acquired.
    extracted nothing; only the third catches that. Batch 2 passed all three,
    which is what makes its 782 documents trustworthy.
 5. Commit, then Phase 2 (§6) including the duplicate-content SQL.
+6. **Regenerate §0's board before you finish** (§0.1). This is the last step of
+   every session, not an optional tidy-up.
 
 **Expect an agent to refuse occasionally, and treat that as success.** `bg`'s
 agent wrote nothing and escalated a robots `Disallow: /`; that was correct, and
@@ -939,3 +1040,96 @@ and `sr` (deferred → #129). Still open — the eval shortlist (#1), #128 timin
 `extractContent` root-cause fix (#5), the three-way `zh` collision (#6), and
 the fact that **robots.txt is not enforced anywhere in the acquire path** (#7),
 which is worth its own issue.
+
+---
+
+## 15. The 5 sitemap-less domains — recon and route (2026-07-29)
+
+Answers open question #3. **All five were probed live**; nothing here is
+inferred from the other 43.
+
+### Verdict: hand-listed seeds. **Do NOT use Firecrawl.**
+
+**Firecrawl solves a bot wall, not a missing sitemap.** They are different
+problems and the campaign has conflated them before. ADR-0012 makes Firecrawl a
+per-source opt-in for hosts whose *bytes* are unreachable to plain HTTP; a
+missing `sitemap.xml` is a *discovery* problem, and discovery has a cheaper
+answer these sites already provide — their own HTML map page.
+
+Measured 2026-07-29: **4 of 5 are bare Apache serving HTTP 200** to a plain
+request with a full Chrome UA. Not one returns a Cloudflare challenge or block
+page. Spending Firecrawl credits here would buy nothing.
+
+The pattern is already proven twice in this estate — `everystudent-ar`
+(68 hand-listed seeds) and `everystudent-bg` (84). Both are seed-only: no
+`sitemaps` field, and therefore no `block` array, because the seed list IS the
+filter.
+
+| Lang | Domain | Server | HTML map | Articles | Route |
+|---|---|---|---|---:|---|
+| `ru-ca` | studentstan.com | Apache | `/m/karta.html` | 87 | seeds |
+| `uk` | svitstudentiv.com | Apache | `/m/sitemap.html` | 47 | seeds |
+| `hy` | 1patasxan.com | Apache | `/m/sitemap.html` | 37 | seeds |
+| `ti` | everytemhari.com | Apache | `/sitemap.html` | 14 | seeds |
+| `lv` | katramstudentam.lv | Cloudflare | `/lv/lapas-karte/` | 49 | ⛔ see below |
+
+~234 documents in total — roughly one normal batch.
+
+### Per-host notes
+
+- **`hy` `ru-ca` `uk` `ti`** — the standard FreeFind/Apache banner, same family
+  as batch 1–2. `robots.txt` is 404 on `hy`, `ru-ca` and `uk` (no rules exist);
+  200 on `ti`. Harvest the HTML map, then **verify every harvested URL with a
+  HEAD sweep before seeding** — `sr` taught us that a map can list dead URLs,
+  and `mn`/`cs` that a map can hold articles the XML never had.
+- **`ru-ca` (studentstan.com)** is the largest at 87 and will collide with `ru`
+  (mirstudentov.com) on the `ru` language label — the same ambiguity as `zh`
+  (§13 #6). Record it; do not try to solve it here.
+- **`ti` (everytemhari.com)** yields only ~14 articles. Cheap, but check whether
+  it is worth a source key at all before writing the entry.
+
+### ⛔ `lv` (katramstudentam.lv) — a RIGHTS blocker, not a technical one
+
+Do not treat this as "the hard one to crawl". Technically it is easy: the
+apex serves a **meta-refresh** to `/lv/` (which `curl -L` does not follow —
+that is why it first looked empty/JS-rendered, and it is neither). Behind it is
+ordinary server-rendered HTML, 43 internal links on the homepage and a
+`/lv/lapas-karte/` map listing 49 article-shaped pages.
+
+The blocker is what its `robots.txt` says. Fetched live 2026-07-29:
+
+```
+User-agent: *
+Content-Signal: search=yes,ai-train=no,use=reference
+Allow: /
+
+User-agent: ClaudeBot                       Disallow: /
+User-agent: GPTBot                          Disallow: /
+User-agent: CCBot                           Disallow: /
+User-agent: Google-Extended                 Disallow: /
+User-agent: CloudflareBrowserRenderingCrawler   Disallow: /
+… (also Amazonbot, Applebot-Extended, Bytespider, meta-externalagent)
+```
+
+Three things follow, and they matter:
+
+1. **`ClaudeBot` is disallowed by name.**
+2. **`CloudflareBrowserRenderingCrawler` is disallowed by name** — that is
+   precisely the class of headless renderer Firecrawl belongs to. Reaching for
+   Firecrawl here would not be a neutral technical choice; it would be
+   circumventing a preference the operator wrote down explicitly.
+3. **`Content-Signal: ai-train=no, use=reference`.** There is a genuine reading
+   under which *this* corpus is permitted — we do retrieval with attribution,
+   which is `reference`, not `ai-train`. That reading may well be right. **It is
+   still not an agent's call to make**, and it does not override the explicit
+   `ClaudeBot Disallow`.
+
+**Recommendation:** do not crawl `lv`. The site is Agape Students Latvia — a Cru
+partner — so the cheap, correct route is to **ask them for the content or for
+permission**, not to out-engineer their robots file. If the answer is no, drop
+`lv` from the 48 and record it `deferred` with the reason.
+
+⚠️ Note this is the second host in this campaign whose robots policy we can only
+honour by hand, because **the acquire path does not read `robots.txt` at all**
+(§13 #7). `sq` needed a manual URL block for the same reason. That gap is now
+load-bearing twice over.

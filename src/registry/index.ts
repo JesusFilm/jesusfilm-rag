@@ -58,6 +58,9 @@ import { everystudentSl } from "./everystudent-sl.js";
 import { everystudentSw } from "./everystudent-sw.js";
 import { everystudentTa } from "./everystudent-ta.js";
 import { everystudentTe } from "./everystudent-te.js";
+import { everystudentHy } from "./everystudent-hy.js";
+import { everystudentTi } from "./everystudent-ti.js";
+import { everystudentUk } from "./everystudent-uk.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
 
@@ -209,6 +212,13 @@ export const SOURCES: readonly SourceEntry[] = [
   // marker appears anywhere on the site. (3) It holds 1,020 articles, not the ~5
   // #111's recon recorded. All three await the operator; see the campaign file.
   everystudentHe,
+  // #111 sibling-language domains with NO XML sitemap — batch 5, 2026-07-30.
+  // SEED MODE: hand-listed paths harvested from each site's own HTML map and
+  // verified live with a HEAD sweep. No `sitemaps`, and therefore no `block` —
+  // the seed list IS the filter. Precedent: everystudent-ar, everystudent-bg.
+  everystudentUk,
+  everystudentHy,
+  everystudentTi,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

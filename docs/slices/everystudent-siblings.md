@@ -945,8 +945,23 @@ Recorded here so they are not lost, but **do not act on them during Phase 1–2*
 
 ## 10. The agent prompt that worked (reuse verbatim, swap the facts)
 
-Preserved so a fresh session need not re-derive it. Substitute the **bold**
-placeholders per domain.
+🔴 **This is the batch-3 version, rewritten 2026-07-29. Use THIS, not your
+memory of the earlier one.** It differs from the batch-1/2 prompt in five ways
+that each cost real investigation, and the old text actively contradicts the
+current rules:
+
+| Was | Now | Why |
+|---|---|---|
+| "ship ONE selector, never a fallback" | append `"html"` LAST when the primary has no 0-char matches | rule 1e — three real articles were nearly lost to this |
+| "`.contentpadding` is the real container" | there is **no** safe default | rule 1d — `.contentpadding` was the 0-char shadow on `sq` |
+| "`.shareiconsmenupg` REQUIRED, markup is malformed" | measure it; it is a 0-char no-op on most hosts | rule 4 correction |
+| "falls back to `<body>`" | usually falls back to the **whole document** | rule 1c correction — `<body>` is absent on most of this estate |
+| (no scripture guidance) | block full Bible books | §12 decision, 2026-07-29 |
+
+Substitute the **bold** placeholders per domain. Append any per-host warning
+from §0/§8 (script neighbours, template outliers, tiny yields) as a SPECIAL
+CARE block at the top — batch 3 did that for `sk`, `hr`, `mk` and `ms` and all
+four warnings paid off, two by being disproved.
 
 ```
 Write ONE new source registry entry for the jesusfilm-rag repo at
@@ -974,90 +989,174 @@ TARGET: EveryStudent sibling domain — **<LANGUAGE> (`<code>`)**, host
 
 ## Read first
 `src/registry/types.ts`, `src/registry/everystudent-fr.ts` (field shape +
-docstring standard), `src/registry/thelife-fr.ts` (discovery-mode precedent),
-`src/registry/everystudent-fr.test.ts` (test pattern),
+docstring standard), `src/registry/everystudent-pl.ts` and
+`src/registry/everystudent-sq.ts` (a clean `.contentpadding` host and an
+`html`-container host), `src/registry/thelife-fr.ts` (discovery-mode
+precedent), `src/registry/everystudent-fr.test.ts` (test pattern),
 `src/acquisition/extract.ts` (how selectors are actually applied).
 
 ## Recon you must actually perform — measure, never assume
 1. robots.txt — fetch it. Record Disallow rules and whether they touch articles.
+   NOTE: the acquire path does NOT enforce robots.txt, so anything robots
+   disallows must be blocked by URL BY HAND in your entry. If robots says
+   `Disallow: /` for `*`, STOP, write nothing, and report it — that is a
+   correct outcome, not a failure.
 2. Sitemap — fetch `/sitemap.xml` (try with and without `www.`). Count URLs.
-   Work out the article pattern vs nav/index pages.
+
+   ⚠️ **ALSO try `/sitemap_index.xml`, and read the sitemap's own generation
+   date.** `everystudent.sk` was catalogued at "44 URLs" from a `/sitemap.xml`
+   that turned out to be a **2014 fossil**; the live Yoast index had 103, and
+   the real yield was 83 documents. The URL count in your brief is RECON, not a
+   measurement — verify it and report any delta.
+
+   ⚠️ **Check the SCHEME of the `<loc>`s.** `everystudent.gr` publishes
+   `http://` URLs, and `discover.ts` filters the RAW `<loc>` string without
+   normalising, so an `^https://` pin would discover ZERO. Use `^https?://` if
+   the sitemap is http, and say which you used.
+
    THEN cross-check against the site's own HTML sitemap page (/mapa.html,
-   /sitemap.html, /plan.html …). These sitemaps are STALE: one sibling's was
-   missing 17% of its articles, another lists 25 dead URLs. If the HTML map has
-   articles the XML sitemap lacks, pin them in `seedPaths` — acquire.ts unions
-   seeds with discovered URLs.
-3. At least 3 real article pages. Determine which selector wraps the body — and
-   verify by EXTRACTED TEXT LENGTH using node-html-parser exactly as
-   extract.ts does, NOT by grepping for the class name. Every host declares
-   .content4 in an inline <style> block, so a grep false-positives every time.
+   /sitemap.html, /plan.html, /m/sitemap.html, /peta.html …). These sitemaps
+   are STALE: one sibling's was missing 17% of its articles, another lists 25
+   dead URLs, one omits a whole section. If the HTML map has articles the XML
+   sitemap lacks, pin them in `seedPaths` — acquire.ts unions seeds with
+   discovered URLs. Also harvest every internal href across the pages you
+   fetch; batch 3 found live articles that were in NEITHER map that way.
+3. At least 3 real article pages, and check candidates on MORE THAN ONE page.
+   Determine which selector wraps the body — and verify by EXTRACTED TEXT
+   LENGTH using node-html-parser exactly as extract.ts does, NOT by grepping
+   for the class name. Every FreeFind host declares .content4 in an inline
+   <style> block, so a grep false-positives every time.
 
    ⚠️ READ THIS TWICE — it broke 5 of the 8 pilot entries. `contentSelectors`
    is NOT a fallback chain. extract.ts binds the FIRST selector that matches an
    ELEMENT, even when that element extracts 0 characters, and then stops. A
-   zero-text match SHADOWS every working selector after it. On most of these
-   hosts `.content4` is an empty spacer `<div class="content4"> </div>` (0 ch)
-   and `.content4b` does not exist; the real container is `.contentpadding`.
-   Listing the shared template "outermost first as fallbacks" makes every page
-   extract 0 chars and skip as `too-thin` on an HTTP 200 — silent, and the unit
-   tests cannot see it.
+   zero-text match SHADOWS every working selector after it.
 
-   So: measure EVERY candidate and report each one's char count. Then ship
-   `contentSelectors` with the SINGLE selector you measured extracting the
-   article — not a chain, not the sibling list. If you are tempted to add a
-   fallback, don't: state in your report why you think one is needed and let
-   the orchestrator decide.
-4. Chrome to strip — check `sitelevel_noindex` (a custom ELEMENT, not a class),
-   `.fccell`, `.fctable`, `.hr2`, `.articledivider`, `.relatedbottom`, and
-   `.shareiconsmenupg` (REQUIRED — sitelevel_noindex's markup is malformed and
-   does not contain the share widget). Measure what each removes.
+   ⚠️ AND THERE IS NO SAFE DEFAULT. Do not assume `.contentpadding` just
+   because most siblings use it — on `pyetjetejetes.com` it matched 52 of 78
+   pages and extracted **0 chars on every one**, and the only container was
+   `html`. NINE generators have been measured across 32 hosts:
+   `.contentpadding`, `html`, `.content4`, **`#content4` (an ID, not a class)**,
+   `.cb-entry-content`, `.entry-content`, `.post-content`, `.contentleftpadding`,
+   `.article-content`, `.content`. Measure EVERY candidate on THIS host and
+   report each one's char count — including the zeros. "`.content4` matched,
+   0 chars" is a required line in your report.
+
+   **Then ship the SINGLE measured selector FIRST**, never the sibling list.
+   ✅ **You MAY append `"html"` as a LAST entry** — and should, if the primary
+   has ZERO matched-but-empty pages. It cannot shadow anything (nothing follows
+   it), it only fires when the primary misses, and it beats extract.ts's
+   implicit `?? root` because `<html>` is a real element and carries no literal
+   `<!DOCTYPE html>` text node. Pair it with `"head"` in `stripSelectors` (0
+   chars on healthy pages; drops the duplicated `<title>` on the fallback path —
+   safe because extract.ts reads the title from `root` at line 43, BEFORE the
+   strip loop at line 52). If the primary CAN match at 0 chars, the fallback
+   never fires — that host needs `["html"]` outright.
+4. Chrome to strip — check `sitelevel_noindex` (a custom ELEMENT, not a class,
+   hence no leading dot), `.fccell`, `.fctable`, `.hr2`, `.articledivider`,
+   `.relatedbottom`, `.a2a_kit` and `.shareiconsmenupg`. **Measure what each
+   actually removes and say so honestly.** `sitelevel_noindex` is NOT malformed
+   on every host: on most measured hosts it is well-formed and already contains
+   the share widget, making `.shareiconsmenupg` a **0-char no-op** kept only as
+   a drift guard. Do NOT repeat "REQUIRED because the markup is malformed"
+   unless you measured malformation HERE. `.relatedbottom` has been dead config
+   on every host so far. If this is a non-FreeFind generator (WordPress, Yii,
+   Angular) these may be absent entirely — say so and OMIT them rather than
+   carrying parity no-ops that can never bind.
 5. Language — READ THE CONTENT YOURSELF and say what you read, quoting a phrase.
    Confirm it is genuinely <LANGUAGE>, not untranslated English (a real failure
    mode: cru.org's Spanish path served English bodies). Do NOT use, install or
    mention any language-detection library.
 
+   ⚠️ **Do not trust `<html lang>`** — `persoalanhidup.com` declares `lang="id"`
+   and serves Malay. ⚠️ **Count with WORD BOUNDARIES** if you are separating
+   close languages: naive substring counts gave the *opposite* answer on
+   Croatian vs Serbian (`ko` scored 1,354 inside "kako"/"tko", and 0 with
+   `(?<!\p{L})…(?!\p{L})`). ⚠️ For a non-Latin script, also fetch the response
+   headers: several hosts serve UTF-8 with a bare `content-type: text/html` and
+   NO charset parameter — confirm the text is not mojibake.
+
 ## Shape of the entry
 - DISCOVERY mode (`sitemaps` + `allow` + `articleHints` + `block`), not
   hand-listed seeds — except seeds pinned per step 2. Precedent: thelife-fr.ts.
-- OMIT `fetchStrategy` — not walled, plain HTTP is the default. If you DO find a
-  Cloudflare 403 block page, STOP, write nothing, and report it.
+- OMIT `fetchStrategy` — not walled, plain HTTP is the default. ⚠️ Cloudflare's
+  PRESENCE is not a wall: classify on the BLOCK-PAGE SIGNATURE, not the CDN
+  header. Hosts have passed traffic while Cloudflare-fronted, and one serves a
+  Turnstile CAPTCHA on its mail forms and still returns 200 with full HTML. If
+  you DO find a genuine Cloudflare 403 block page, STOP, write nothing, report.
 - `languages`: the ISO 639-1 code detection emits (regional variants declare the
   base code, e.g. zh-cn → ["zh"]; note the variant in key/name/docstring).
 - `key`: `everystudent-<code>`, matching /^[a-z0-9-]+$/.
 - `maxPages`: sitemap count + headroom. `minContentLength: 250`.
-  `requestDelayMs: 1000` unless probes suggest otherwise.
+  `requestDelayMs: 1000` unless probes suggest otherwise (a slow PHP host
+  wanted 2000).
 - `trust: "partner"`, `ingestionMode: "html-scrape"`, `defaultCategory: "article"`,
   tags `["everystudent","cru","topic:seeker","lang:<code>"]`, a `rights` line
   matching the siblings.
+- ⚠️ **Check the canonical host both ways.** Most siblings 301 apex → `www.`,
+  but `everystudent.sk` does the REVERSE (`www.` 301s to the bare apex). Pin
+  `domain`/`baseUrl`/every regex to whichever actually serves, or every filter
+  misses.
 - BLOCK the localized Gospel-of-John signup page and the "adventure/pack" email
-  series — they clear minContentLength and only a URL block catches them.
+  series — they clear minContentLength and only a URL block catches them. Some
+  hosts have neither; report an absence you MEASURED rather than omitting
+  silently.
+- ⚠️ **BLOCK FULL SCRIPTURE — estate-wide policy, 2026-07-29.** Several siblings
+  carry complete or abridged Bible books on article URLs (98k–100k chars).
+  Policy: "public-domain Scripture text rather than ministry writing — outside
+  what this corpus answers from." Watch for a third-party Bible-society
+  copyright too (© Eesti Piibliselts, © Tyndale House Foundation) — our
+  `rights` line would misattribute it. An apologetics essay *about* the Bible
+  is NOT scripture: keep it, and say how you told them apart.
 - BLOCK the homepage, nav/menu indexes, and ANY sitemap URL you find redirecting
   (301/302) to the homepage. ⚠️ Never argue "minContentLength will drop it".
   When no contentSelector matches, extract.ts does NOT return empty — it falls
-  back to <body> and returns the whole nav page, typically 800+ chars, well over
-  the 250 floor. A sibling shipped 25 unblocked dead URLs on that reasoning and
-  staged 25 byte-identical copies of its homepage. If you do not want a page,
-  block it by URL. Report any redirecting URLs you find with the exact list.
+  back to `<body> ?? root`, and `<body>` is ABSENT from the parsed tree on most
+  of this estate, so the real fallback is the WHOLE DOCUMENT. A sibling shipped
+  25 unblocked dead URLs on that reasoning and staged 25 byte-identical copies
+  of its homepage. If you do not want a page, block it by URL. Report any
+  redirecting URLs you find with the exact list.
+- ⚠️ **Do NOT block a real article just because its markup is broken.** If a
+  page's container collapses (an unclosed `<span>`, a `</h1>` closing an
+  `<h2>`, a `<sup>` missing its `>`), the step-3 `"html"` fallback fixes it.
+  Three genuine articles were nearly lost this way in batch 3. Report such
+  pages; do not silently drop them.
+- ⚠️ Mixed-case slugs exist (`/a/pomoshch-ot-Boga.html`, `/articulos/Dios.html`).
+  Use `[^/]+`, not `[a-z0-9-]+`. If slugs carry non-Latin script or `%XX`
+  escapes, say so — an ASCII-only hint would drop every one.
 
 ## Docstring
 Match the siblings' standard, but ONLY claim what you MEASURED. Stamp measured
 facts "verified <DATE>: …". Never write a measurement you did not take. Note the
 separate-key-per-domain rule (ADR-0006).
 
+⚠️ **Never write `*/` inside the docstring** — not even in a code span like
+`` `/category/*/` ``. It terminates the JSDoc block and turns the rest of the
+file into code; it cost 20 typecheck errors on `everystudent-it.ts`, none of
+which named the real cause. Write `` `/category/<slug>/` `` instead.
+
 ## Tests
 Model on everystudent-fr.test.ts. Assert what would be costly to silently undo:
-domain, languages, discovery-vs-seed mode, the selectors you measured binding,
-the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
+domain, languages, discovery-vs-seed mode, the selector you measured binding
+FIRST, the absence of the 0-char shadow selector, the strip list,
+separate-key-per-domain, and any URL block encoding a real decision (scripture,
+dead redirects, robots). 4–6 focused tests. Do not pad. **Do not write a test
+that asserts a field equals what you typed for its own sake** — that tautology
+is what let 5 broken entries through the pilot.
 
 ## eslint: `max-lines: 300` (comments excluded) on the entry file.
 
 ## Report back — tight
-- domain + sitemap count + article pattern + any HTML-map cross-check delta
-- EVERY candidate selector with its measured extracted char count (including
-  the zero ones — "`.content4` matched, 0 chars" is a required line), and which
-  single one you shipped
-- robots.txt verdict
-- language confirmation in your own words, quoting a phrase you read
+- domain + sitemap count (and any delta from the brief's recon number) + which
+  sitemap file you used + the `<loc>` scheme + article pattern + HTML-map
+  cross-check delta, listing any URLs you pin as seedPaths
+- EVERY candidate selector with its measured extracted char count across at
+  least 2 pages (including the zero ones — "`.content4` matched, 0 chars" is a
+  required line), which one you shipped FIRST, and whether you appended `"html"`
+- robots.txt verdict, and any path you blocked by hand to honour it
+- language confirmation in your own words, quoting a phrase you read; plus
+  script/encoding notes for a non-Latin host
+- what each strip selector actually removed, in chars (0 is a fine answer)
 - anything surprising, or any call the orchestrator must make
 ```
 
@@ -1230,7 +1329,9 @@ the strip list, separate-key-per-domain. 4–6 focused tests. Do not pad.
 
 ⚠️ **Dates in this file and in the registry docstrings are the dates the work was
 MEASURED** — `2026-07-28` for batch 1 (matching `6a31631`), `2026-07-29` for
-batch 2. Cross-check against `git log` and they will agree.
+batches 2 **and** 3 (they ran on the same day; tell them apart by commit, not by
+date — `9a0fec3`/`9c60b40` are batch 2, `0e8b1e9` is batch 3). Cross-check
+against `git log` and they will agree.
 
 ### Where the work stands
 **Batches 1, 2 and 3 are all through Phase 2, with one exception.**

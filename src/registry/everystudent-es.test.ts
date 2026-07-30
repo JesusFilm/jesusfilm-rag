@@ -141,7 +141,15 @@ describe("everystudent-es registry entry", () => {
     // the first that yields text, so any of those listed ahead of
     // .contentpadding silently extracts nothing and every page skips
     // `too-thin` on a 200. This assertion is the guard against that regression.
-    expect(crawl.contentSelectors).toEqual([".contentpadding"]);
+    // The MEASURED container must bind first. A trailing "html" (rule 1e) is
+    // allowed and is what rescues pages whose container collapses — it can
+    // shadow nothing, because nothing follows it. What must never appear is a
+    // selector that matches at 0 chars ahead of the real one.
+    expect(crawl.contentSelectors[0]).toBe(".contentpadding");
+    expect(crawl.contentSelectors.at(-1)).toBe("html");
+    expect(crawl.contentSelectors).not.toContain(".content4");
+    expect(crawl.contentSelectors).not.toContain(".content4b");
+    expect(crawl.contentSelectors).not.toContain(".articletitle");
   });
 
   it("strips the CTA and share chrome that survive inside .contentpadding", () => {

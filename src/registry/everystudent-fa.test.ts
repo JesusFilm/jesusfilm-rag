@@ -124,7 +124,15 @@ describe("everystudent-fa registry entry", () => {
     // that MATCHES AN ELEMENT, not the first that yields text, so any of them
     // listed here would silently extract nothing and every article would skip
     // as `too-thin` on a 200 (#128). This is the guard against that.
-    expect(fa().crawl.contentSelectors).toEqual([".contentpadding"]);
+    // The MEASURED container must bind first. A trailing "html" (rule 1e) is
+    // allowed and is what rescues pages whose container collapses — it can
+    // shadow nothing, because nothing follows it. What must never appear is a
+    // selector that matches at 0 chars ahead of the real one.
+    expect(fa().crawl.contentSelectors[0]).toBe(".contentpadding");
+    expect(fa().crawl.contentSelectors.at(-1)).toBe("html");
+    expect(fa().crawl.contentSelectors).not.toContain(".content4");
+    expect(fa().crawl.contentSelectors).not.toContain(".content4b");
+    expect(fa().crawl.contentSelectors).not.toContain(".articletitle");
   });
 
   it("strips the share/CTA chrome, and `head` for the one page with a flattened DOM", () => {

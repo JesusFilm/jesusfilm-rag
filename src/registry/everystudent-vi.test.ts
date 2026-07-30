@@ -111,7 +111,15 @@ describe("everystudent-vi registry entry", () => {
     // that MATCHES AN ELEMENT, not the first that yields text: the chain
     // [".content4", ".content4b", ".articletitle", ".contentpadding"] extracted
     // 0 chars on 67/67 pages, every article skipping `too-thin` on a 200.
-    expect(vi().crawl.contentSelectors).toEqual([".contentpadding"]);
+    // The MEASURED container must bind first. A trailing "html" (rule 1e) is
+    // allowed and is what rescues pages whose container collapses — it can
+    // shadow nothing, because nothing follows it. What must never appear is a
+    // selector that matches at 0 chars ahead of the real one.
+    expect(vi().crawl.contentSelectors[0]).toBe(".contentpadding");
+    expect(vi().crawl.contentSelectors.at(-1)).toBe("html");
+    expect(vi().crawl.contentSelectors).not.toContain(".content4");
+    expect(vi().crawl.contentSelectors).not.toContain(".content4b");
+    expect(vi().crawl.contentSelectors).not.toContain(".articletitle");
   });
 
   it("strips the nav/CTA/share chrome so citations stay clean", () => {

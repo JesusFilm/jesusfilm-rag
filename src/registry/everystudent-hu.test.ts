@@ -129,7 +129,15 @@ describe("everystudent-hu registry entry", () => {
     // chain: any zero-text selector listed ahead of .contentpadding shadows it,
     // every page extracts nothing and skips `too-thin` on a 200 — silent, and
     // invisible to these tests. This equality is the guard against that.
-    expect(hu().crawl.contentSelectors).toEqual([".contentpadding"]);
+    // The MEASURED container must bind first. A trailing "html" (rule 1e) is
+    // allowed and is what rescues pages whose container collapses — it can
+    // shadow nothing, because nothing follows it. What must never appear is a
+    // selector that matches at 0 chars ahead of the real one.
+    expect(hu().crawl.contentSelectors[0]).toBe(".contentpadding");
+    expect(hu().crawl.contentSelectors.at(-1)).toBe("html");
+    expect(hu().crawl.contentSelectors).not.toContain(".content4");
+    expect(hu().crawl.contentSelectors).not.toContain(".content4b");
+    expect(hu().crawl.contentSelectors).not.toContain(".articletitle");
   });
 
   it("strips only the chrome measured to remove text, and omits the no-ops", () => {

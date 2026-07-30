@@ -105,7 +105,15 @@ describe("everystudent-ro registry entry", () => {
     // ELEMENT, not the first that yields text, so either of those listed ahead
     // of .contentpadding silently extracts nothing and every page skips
     // `too-thin` on a 200. This is the guard against that regression.
-    expect(ro().crawl.contentSelectors).toEqual([".contentpadding"]);
+    // The MEASURED container must bind first. A trailing "html" (rule 1e) is
+    // allowed and is what rescues pages whose container collapses — it can
+    // shadow nothing, because nothing follows it. What must never appear is a
+    // selector that matches at 0 chars ahead of the real one.
+    expect(ro().crawl.contentSelectors[0]).toBe(".contentpadding");
+    expect(ro().crawl.contentSelectors.at(-1)).toBe("html");
+    expect(ro().crawl.contentSelectors).not.toContain(".content4");
+    expect(ro().crawl.contentSelectors).not.toContain(".content4b");
+    expect(ro().crawl.contentSelectors).not.toContain(".articletitle");
   });
 
   it("strips the share widget that sitelevel_noindex does NOT cover on this host", () => {

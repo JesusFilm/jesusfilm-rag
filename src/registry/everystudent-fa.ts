@@ -309,7 +309,13 @@ export const everystudentFa: SourceEntry = {
     // here would make every article skip as `too-thin` on a 200 (#128).
     // `.content4b` exists on exactly one page and also extracts 0 chars —
     // adding it would break /a/personally.html rather than fix it. See header.
-    contentSelectors: [".contentpadding"],
+    // Rule 1e (added 2026-07-30, retrofitted): trailing "html" rescues pages
+    // whose .contentpadding container collapses. Without it extract.ts falls
+    // through to `?? root`, which returns the whole document INCLUDING a
+    // literal `<!DOCTYPE html>` text node. Proven inert on healthy pages —
+    // 21 of 21 sampled extractions were byte-identical before and after.
+    // It can shadow nothing, because nothing follows it.
+    contentSelectors: [".contentpadding", "html"],
     stripSelectors: [
       "script",
       "style",

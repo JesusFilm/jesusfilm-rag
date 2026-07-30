@@ -107,7 +107,15 @@ describe("everystudent-pt registry entry", () => {
     // selector that MATCHES AN ELEMENT, not the first that yields text, so
     // either of those listed ahead of .contentpadding silently extracts nothing
     // and every page skips `too-thin` on a 200. This is the guard against that.
-    expect(contentSelectors).toEqual([".contentpadding"]);
+    // The MEASURED container must bind first. A trailing "html" (rule 1e) is
+    // allowed and is what rescues pages whose container collapses — it can
+    // shadow nothing, because nothing follows it. What must never appear is a
+    // selector that matches at 0 chars ahead of the real one.
+    expect(contentSelectors[0]).toBe(".contentpadding");
+    expect(contentSelectors.at(-1)).toBe("html");
+    expect(contentSelectors).not.toContain(".content4");
+    expect(contentSelectors).not.toContain(".content4b");
+    expect(contentSelectors).not.toContain(".articletitle");
   });
 
   it("strips the share/CTA chrome so citations stay clean", () => {

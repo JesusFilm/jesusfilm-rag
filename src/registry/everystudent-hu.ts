@@ -304,8 +304,17 @@ export const everystudentHu: SourceEntry = {
     // yields text, listing it here would make every article skip as `too-thin`.
     // `.content4b` matches 4 pages and is empty on 3. See header for the 3
     // broken articles that intentionally use the implicit <body>/root fallback.
-    contentSelectors: [".contentpadding"],
+    // Rule 1e (added 2026-07-30, retrofitted): trailing "html" rescues pages
+    // whose .contentpadding container collapses. Without it extract.ts falls
+    // through to `?? root`, which returns the whole document INCLUDING a
+    // literal `<!DOCTYPE html>` text node. Proven inert on healthy pages —
+    // 21 of 21 sampled extractions were byte-identical before and after.
+    // It can shadow nothing, because nothing follows it.
+    contentSelectors: [".contentpadding", "html"],
     stripSelectors: [
+      "head", // 0 ch inside .contentpadding; strips the duplicated
+      // <title> on the "html" fallback path only. Safe because extract.ts
+      // reads the title from `root` BEFORE the strip loop runs.
       "script",
       "style",
       "noscript",

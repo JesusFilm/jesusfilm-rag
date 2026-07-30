@@ -20,15 +20,37 @@ next one starts from truth. A stale board is worse than none: it is the exact
 failure `docs/STATUS.md` hit on 2026-07-17, when a narrative doc reported a
 finished cutover as pending.
 
-**Last regenerated: 2026-07-30 (after the batch-5 follow-ups)** · **47 of 48
+**Last regenerated: 2026-07-31 (after the language sweep)** · **47 of 48
 registered · 45 acquired · 2 deferred · 1 open · 2,281 documents · 0
-duplicate-content groups · 0 doctype leaks**
+duplicate-content groups · 0 doctype leaks · 0 null-language**
 
-**Phases 1–2 are CLOSED. PHASE 3 IS IN PROGRESS** — `everystudent-am` indexed
-as a canary (41 docs / 163 chunks, all clean), and the bulk `pnpm index` over
-the remaining 44 sources was **started 2026-07-30 and has not yet reported**.
-⚠️ **Do not record bulk totals here until they are measured** — regenerate from
-the database (§0.1) rather than assuming completion.
+**Phases 1–2 are CLOSED. PHASE 3 IS COMPLETE.** The bulk `pnpm index` ran to
+completion on 2026-07-30 (operator-approved) through the ADR-0015 gateway.
+
+**Measured state, 2026-07-30 (queries in §0.1):**
+
+| Metric | Value |
+|---|---|
+| Ingested | **2,281 / 2,281** · **0 pending** |
+| Bulk run itself | 2,219 inserted · 0 updated · 0 unchanged · **0 skipped** · 0 unknown-source · **12,974 chunks** |
+| Wall clock | **~95 min** at 23.5 docs/min (2.55 s/doc) |
+| Corpus totals | declared **47,618** = actual chunks **47,618** = embeddings **47,618** |
+| `embedding_model` | **one** distinct value, `qwen/qwen3-embedding-8b` — the wire alias never leaked |
+| Retries / fallbacks | **0 / 0** across the entire run |
+| Idempotency | re-run drained **0 rows** |
+| Gate | **761 tests green** |
+| Language | ✅ **FIXED 2026-07-31** — 225 `null` → **0**; 182 mislabelled → **0**. See §0.4 |
+
+Per-stage state: **45 sources at `acquire: green` + `ingest: green`**;
+`retrieve`/`evaluate` still `pending` (Phases 4–5). `sr` and `he` remain
+`deferred` with every stage pending — they were correctly NOT flipped.
+
+The 8 `everystudent-zh-cn` documents left by the earlier stopped run were
+**kept**, not rolled back; the bulk run drained the remaining 120 and skipped
+them. That closes the open keep-or-rollback decision.
+
+⚠️ **Counts here are measured, not assumed.** Regenerate from the database
+(§0.1) rather than trusting this prose after any further ingest.
 
 Everything acquirable has been acquired.
 - `sr` and `he` are deferred by decision → [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129), [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)
@@ -83,6 +105,254 @@ Everything acquirable has been acquired.
 | Lang | Domain | Articles | What blocks it |
 |---|---|---:|---|
 | `lv` | katramstudentam.lv | 49 | **RIGHTS, not crawlability** → **[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)**. `robots.txt` disallows `ClaudeBot` by name. Ask Agape Students Latvia; do not out-engineer it. See §15. |
+
+### 0.2 ✅ RESOLVED — nine campaign languages were INVISIBLE to the ingest-time detector
+
+> ✅ **Fixed 2026-07-31 by the language sweep — see §0.4 for the run record.**
+> The diagnosis below is kept because it explains *why* the corpus was wrong and
+> it is the reason `--mode full`, not `--mode blanks`, was the right tool. The
+> per-language counts in the table are the **pre-sweep** state; every one of them
+> now reads 100% correct. Do not re-run anything on the strength of this section.
+
+Measured 2026-07-30 from the `everystudent-sw` gateway canary, then generalised
+by reading `tinyld`'s own exported list. **This was the single biggest surprise of
+Phase 3 and it affected 274 documents (12% of the campaign).**
+
+`tinyld` — the detector `decideLanguage` uses at ingest — models **62**
+languages. Nine of this campaign's declared languages are **not among them**, so
+tinyld cannot ever return the right answer for those sources. Check it yourself:
+
+```bash
+node -e "const {supportedLanguages}=require('tinyld'); console.log(supportedLanguages.length)"
+```
+
+What happens splits into two very different outcomes, and the bad one is not the
+one you would guess. **A null is honest; a confident wrong answer is not.**
+
+**MEASURED after the full bulk run** (predictions were from the 4 longest docs
+per source, which overestimated mislabels exactly as flagged — 156 actual vs
+227 predicted; the balance landed as honest nulls instead):
+
+| Lang | Docs | tinyld guesses | 🔴 mislabelled | ⚪ null | Collides with a real corpus language? |
+|---|---:|---|---:|---:|---|
+| `sq` Albanian | 77 | `nl` | **38** `nl` | 39 | no Dutch source exists → the whole `nl` bucket is wrong |
+| `ms` Malay | 52 | `id` | **47** `id` | 5 | **YES** — `id` bucket is 54 real + 47 Malay = 101 |
+| `hr` Croatian | 41 | `sr` | **30** `sr` | 11 | **YES** — see `sr` below |
+| `sl` Slovenian | 23 | `sr` | **6** `sr` | 17 | **YES** — see `sr` below |
+| `ne` Nepali | 20 | `hi` | **20** `hi` (all) | 0 | **YES** — `hi` bucket is 34 real + 20 Nepali = 54 |
+| `ti` Tigrinya | 14 | `am` | **14** `am` (all) | 0 | **YES** — `am` bucket is 41 real + 14 Tigrinya = 55 |
+| `om` Oromo | 18 | `fi`/`ber` | 1 `ber` | 17 | — |
+| `ka` Georgian | 16 | *nothing* @ 0.000 | 0 | 16 | — no Georgian script model at all |
+| `sw` Swahili | 13 | `rn` (Kirundi) | 0 | 13 | — |
+| **total** | **274** | | **156** | **118** | |
+
+🔴 **The `sr` bucket was 100% wrong.** `everystudent-sr` is deferred and never
+acquired (#129), so all **36** documents labelled `sr` were mislabelled Croatian
+(30) or Slovenian (6). Same for `nl`: 38 Albanian documents and no Dutch source.
+✅ Both buckets are now **empty** — the sweep moved every row to `hr`/`sl`/`sq`.
+
+⚠️ **This table UNDERCOUNTED the damage by 26 documents.** It omits
+`everystudent-fa`, which §0.3 filed as a nulls-only problem. The database showed
+**26 Persian documents labelled `ar`**, colliding with the 65 genuinely-Arabic
+documents in `everystudent-ar` — a source already evaluated and live in prod.
+**The real mislabel total was 182, not 156.** Lesson: derive the fix list from a
+query against the registry's declared `languages`, never from a hand-maintained
+table. The query is in §0.4.
+
+### 0.3 ✅ RESOLVED — a THIRD failure mode: modelled languages that still miss the gate
+
+> ✅ **Fixed 2026-07-31 by the same sweep — see §0.4.** Counts below are pre-sweep.
+
+Not every null comes from §0.2. **107 of the 225 corpus nulls are on languages
+tinyld *does* model**, where two same-script neighbours split the confidence
+below 0.75:
+
+| Source | Nulls | Of total | tinyld's read |
+|---|---:|---:|---|
+| `everystudent-fa` Persian | **47** | 75 | oscillates `fa`/`ar` at **0.503–0.746** — Persian and Arabic share a script |
+| `everystudent-sk` Slovak | **17** | 83 | correct `sk`, but **0.620–0.815** — Czech/Slovak/Polish split it |
+| `es` `et` `zh-cn` `id` `pt` `it` `mn` `cs` `el` `ru` | 1–7 each | | scattered near-gate cases |
+| pre-existing (`everystudent` 9, `ar` 2, `fr` 1) | 12 | | untouched by this campaign |
+
+`fa` is the headline: **63% of Persian documents are unlabelled**, and it was
+never on any watch list because `fa` *is* in tinyld's 62. The lesson is that
+"modelled" does not mean "detected" — a language with a same-script sibling can
+sit under the gate indefinitely. **The `lang:sweep` LLM pass fixes these too.**
+
+The 0.75 confidence gate (`CONFIDENCE_GATE`) is what separates the two columns,
+and it is doing its job well: `sw`'s highest-scoring document reached **0.744**,
+missing the gate by 0.006. The ADR-0007 500-char floor is **not** involved —
+every document sampled ran 3,330–33,649 chars.
+
+⚠️ **The five "YES" rows are the real damage.** A `language:hi` filtered query
+would return Nepali documents; `language:am` would return Tigrinya. That breaks
+the Phase-4 per-language smoke and any language-filtered eval — silently, because
+nothing errors.
+
+#### ✅ The fix is cheap, and it is NOT a re-embed
+
+`pnpm lang:sweep` wires a **completely different, far more capable detector** —
+an LLM (`google/gemini-2.5-flash-lite`) via the `LanguageDetector` port, not
+tinyld. Proven on the `sw` canary (dry-run, 2026-07-30):
+
+```
+sweeping everystudent-sw … 13 scanned, 13 change(s)
+13 filled (∅ → sw), every one detected sw@1.00, 0 left null
+```
+
+And `decideSweep` (`src/ingestion/resolve-language.ts:218`) explicitly allows a
+confident detection to **override an existing label** — `reason: "relabel"` —
+so the six mislabelled sources are fixable by the same pass, not just the three
+nulls. `language` is a plain column on `documents`; correcting it touches **no
+chunks and no embeddings**, so this costs an LLM pass over 274 documents and
+nothing else.
+
+✅ **Done 2026-07-31 — see §0.4 for what was actually run and what it found.**
+`--mode full` re-scans every row, which is what let it fix a non-null mislabel;
+`--mode blanks` would only have touched the nulls and left all 182 mislabelled
+documents wrong. Every run wrote a `changelog-*.jsonl` that `--revert` consumes,
+so the pass stays reversible.
+
+⚠️ **`everystudent-am` was already indexed and labelled `am`.** Until the sweep
+ran, `language:am` covered Tigrinya too. ✅ Now clean: `am` = 41 docs from
+`everystudent-am` only. **Any `am` retrieval number measured before 2026-07-31
+is invalid — re-measure.**
+
+ⓘ **Correction to this file's earlier prediction (§13 #11/#16):** it named only
+`om` and `ti`. The real list is nine, and `ti`'s "may be mislabelled `am`" was
+**measured at confidence 1.000 on 4 of 4** — not a maybe. `ka` was also recorded
+as detectable; tinyld returns nothing at all for Georgian.
+
+### 0.4 ✅ The language sweep — run record (2026-07-31)
+
+**Outcome in one line: the corpus went from 225 null + 182 mislabelled to
+`0 null` across all 13,969 documents, and every everystudent source now matches
+its registry-declared language.**
+
+Detector: `google/gemini-2.5-flash-lite` over OpenRouter (ADR-0009), **not**
+`tinyld`. Label-only — no chunks and no embeddings were touched. Local DB only.
+
+**How the fix list was derived** (do this, not a hand-kept table — that is what
+missed `fa`):
+
+```sql
+with per as (
+  select s.key, coalesce(d.language,'(NULL)') label, count(*) docs
+  from documents d join sources s on s.id=d.source_id
+  where s.key like 'everystudent%' group by 1,2),
+expect as (select key,
+  case when key='everystudent' then 'en' when key like '%zh-%' then 'zh'
+       when key='everystudent-ru-ca' then 'ru'
+       else replace(key,'everystudent-','') end exp
+  from (select distinct key from per) t)
+select p.key, e.exp should_be, p.label actual, p.docs
+from per p join expect e on e.key=p.key where p.label <> e.exp order by p.docs desc;
+```
+
+⚠️ **Two rows in that query are FALSE ALARMS — do not sweep them.**
+`everystudent-zh-tw` (46 docs labelled `zh`) and `everystudent-ru-ca` (5 labelled
+`ru`) are correct: both declare the base ISO 639-1 code in the registry
+(`languages: ["zh"]` / `["ru"]`). Regional variants are *supposed* to collapse.
+
+#### What ran
+
+**Step 1 — dry-run, 8 mislabelled sources, `--mode full`.** All eight came back
+100% resolved to the declared language, `0` left null, `0` rows in the report's
+"Eyeball these" list. That is what justified applying without a per-source pause.
+
+**Step 2 — apply, same 8 sources, `--mode full` — 317 rows written, 0 skipped by
+the optimistic guard:**
+
+| Source | Scanned | Relabelled | Filled from null | Confidence |
+|---|---:|---|---:|---|
+| `everystudent-fa` | 75 | 26 `ar`→`fa` | 47 | 1.00 |
+| `everystudent-sq` | 77 | 38 `nl`→`sq` | 38 | 1.00 |
+| `everystudent-ms` | 52 | 47 `id`→`ms` | 5 | 0.99–1.00 |
+| `everystudent-hr` | 41 | 30 `sr`→`hr` | 11 | 1.00 |
+| `everystudent-sl` | 23 | 6 `sr`→`sl` | 17 | 1.00 |
+| `everystudent-ne` | 20 | 20 `hi`→`ne` | 0 | 1.00 |
+| `everystudent-om` | 18 | 1 `ber`→`om` | 17 | 1.00 |
+| `everystudent-ti` | 14 | 14 `am`→`ti` | 0 | 0.99–1.00 |
+| **total** | **320** | **182** | **135** | |
+
+**Step 3 — apply, 16 null-only sources, `--mode blanks` — 89 rows, 0 skipped:**
+`sk` 17 · `ka` 16 · `sw` 13 · `everystudent` 9 · `et` 7 · `es` 7 · `zh-cn` 6 ·
+`id` 3 · `ar` 2 · `it` 2 · `pt` 2 · `fr` 1 · `el` 1 · `cs` 1 · `ru` 1 · `mn` 1.
+
+**Total: 406 documents relabelled or filled. Cost ≈ 15 cents** (~730 detector
+calls including the dry-run pass, at Flash-Lite rates — an estimate from
+published pricing, not a metered figure).
+
+#### Collision buckets — before and after
+
+| Bucket | Before | After |
+|---|---|---|
+| `ar` | 65 Arabic **+ 26 Persian** | 67, `everystudent-ar` only |
+| `hi` | 34 Hindi **+ 20 Nepali** | 34, `everystudent-hi` only |
+| `am` | 41 Amharic **+ 14 Tigrinya** | 41, `everystudent-am` only |
+| `id` | 54 Indonesian **+ 47 Malay** | 57, `everystudent-id` only |
+| `sr` | 36 docs, **100% fake** | **0** — bucket gone |
+| `nl` | 38 docs, **100% fake** | **0** — bucket gone |
+
+Every one of the 14 affected language buckets is now exactly one source.
+
+#### Three findings worth carrying forward
+
+1. 🟢 **Gemini Flash Lite detects every language `tinyld` cannot — including the
+   ones this file predicted were undetectable.** `om` (Oromo) resolved **18/18 at
+   confidence 1.00**; `ka` (Georgian) **16/16 at 1.00**, where `tinyld` returns
+   *nothing at all*. **This retires the §13 #11 concern.** The registry's
+   `languages: ["om"]` declaration was right and is now backed by real labels.
+2. 🟡 **`fa` was mis-triaged as a nulls-only problem and was actually the worst
+   collision.** 26 Persian pages sat in the `ar` bucket that `everystudent-ar` —
+   already evaluated, already in prod — draws from. Any `language:ar` eval number
+   taken before 2026-07-31 measured a polluted corpus.
+3. 🔴 **One transient detector failure in 409 documents, and it is a real defect
+   — NOT YET FILED, needs an issue (see §11).**
+   `pyetjetejetes.com/a/rastesisht.html` failed with `response was not JSON` —
+   but the logged fragment shows the model answered **correctly** and the JSON was
+   truncated mid-`evidence` string: `{"language": "sq", "confidence": 1,
+   "evidence": "A gjendemi këtu`. Cause is `DEFAULT_MAX_OUTPUT_TOKENS = 200`
+   (`openrouter-language-detector.ts:34`) being consumed by a long evidence quote
+   in a diacritic-heavy language that tokenises poorly. The sweep behaved
+   correctly — logged it as an anomaly, left the row untouched, never crashed —
+   and a plain re-run fixed it. **But it fails SILENTLY into a null**, so on a
+   larger run it would look like an honest abstain rather than a bug.
+
+#### Reverting
+
+Each source has its own changelog under `reports/` (git-ignored), so a bad
+relabel reverts per-source without touching the others:
+
+```bash
+pnpm lang:sweep --revert reports/changelog-everystudent-<key>-<ts>.jsonl --apply
+```
+
+#### ⚠️ This does NOT carry to production
+
+**These labels live in the LOCAL database only.** Phase 7 runs
+`acquire:production` (§6) — prod re-fetches and re-ingests, and ingest detects
+with **`tinyld`**, not the LLM. So **prod will reproduce all 225 nulls and all
+182 mislabels from scratch.** ADR-0008's `coalesce(new, existing)` protects an
+established label *within* one database; it cannot carry one across two.
+
+The same is true of the `copy-raws.sh` path (not used here) — it copies
+`raw_documents` only, and `index:production` re-detects just the same.
+
+**Phase 7 must re-run both passes against prod, after `index:production`:**
+
+```bash
+for k in fa ms sq hr ne ti sl om; do
+  pnpm lang:sweep:production --source everystudent-$k --mode full --apply
+done
+for k in sk ka sw et es zh-cn id ar it pt fr el cs ru mn; do
+  pnpm lang:sweep:production --source everystudent-$k --mode blanks --apply
+done
+pnpm lang:sweep:production --source everystudent --mode blanks --apply
+```
+
+Prod runs need `JFRAG_ALLOW_PROD_WRITE=1` and Doppler credentials — see
+`docs/ops/language-sweep.md` → "Running against production".
 
 ### 0.1 How to regenerate this board
 
@@ -186,7 +456,34 @@ locally acquired.
 
 ## 4. You are here
 
-**Last updated: 2026-07-30**
+**Last updated: 2026-07-31**
+
+> ⚠️ **This section below is STALE from 2026-07-30 and contradicts §0.** It still
+> says "Phase 3 HAS NOT RUN". Phase 3 **is complete** — §0 is the truth. The
+> batch history below is accurate; only the "NEXT" framing is wrong. Left in
+> place rather than rewritten because the batch record is worth keeping; read §0
+> and the box immediately below for current state.
+
+### ⏭️ Actual next action (2026-07-31)
+
+**Phase 3 (index) is CLOSED. The language sweep is CLOSED (§0.4).**
+Language is no longer a blocker for anything downstream — 0 nulls, 0 mislabels,
+every bucket single-source.
+
+**Next: Phase 4 — the per-language retrieve smoke** (§6 Phase 4). It is now
+worth running for the first time: before the sweep, `language:<code>` filters
+were returning the wrong corpus for six languages and returning nothing for
+`ka`/`sw`/`om`, so any earlier smoke result was meaningless.
+
+Two things Phase 4 must respect:
+- **Re-measure `am`, `ar`, `hi`, `id` from scratch.** Any number taken before
+  2026-07-31 was measured against a polluted bucket (§0.4).
+- **`ka` `sw` `om` `ti` `ne` are now eligible for golden cases for the first
+  time** — they were 100% null or 100% mislabelled, so `/golden` guardrail 3a
+  would have dropped every candidate. §7's eval shortlist (§13 #1) was decided
+  when those languages could not produce cases at all, and may be worth revisiting.
+
+One unfiled defect from the sweep needs an issue — see §11, last entry.
 
 - ✅ **Batch 1 (pilot, 8 sources) — DONE.** Written, wired, acquired.
 - ✅ **Batch 2 (12 sources) — DONE.** 11 acquired (782 docs); `sr` deferred.
@@ -215,10 +512,17 @@ locally acquired.
 **Progress: 47 of 48 registry entries written. 45 of 48 acquired
 (2,281 documents). 2 deferred (`sr` #129, `he` #132). 1 open (`lv` #133).**
 **Phases 1–2 are CLOSED — there is nothing left to crawl.**
-**Phase 3 is UNDERWAY**: `everystudent-am` canary indexed clean (41/41 docs,
-163/163 chunks embedded, 0 null-language, idempotent, gate green); bulk run over
-the other 44 sources launched 2026-07-30. Full canary evidence and the two
-operational findings it produced are in §6 Phase 3.
+**Phase 3 HAS NOT RUN and is the next action, on Jaco's explicit go-ahead.**
+`everystudent-am` canary indexed clean (41/41 docs, 163/163 chunks embedded,
+0 null-language, idempotent, gate green). A bulk run was started unsanctioned on
+2026-07-30 and stopped after 8 `everystudent-zh-cn` documents — see §0 for the
+measured state and the open keep-or-rollback decision on those 8. Full canary
+evidence and the two operational findings it produced are in §6 Phase 3.
+
+🔴 **`pnpm index` over the remaining 2,232 documents is an expensive,
+operator-gated step. Do not launch it without Jaco saying so in that turn.**
+The canary exists so he can inspect it *before* the spend; running both in one
+go removes the decision point it was created to provide.
 
 ### ✅ DONE — the doctype cleanup, before Phase 3 (2026-07-30)
 
@@ -512,13 +816,106 @@ the `ja` mixed-host anomaly surfaced.
 Then `pnpm status:add-source` + `status:set … acquire=green` per source.
 
 ### Phase 3 — index (after all acquisition is done)
+
+🔴 **Run it under Doppler, or you silently get the OLD embedding provider.**
+`origin/main` was merged into this branch on 2026-07-30 (merge `77d8d3e`,
+bringing `9a34634` / **ADR-0015**): embedding is now **JFP AI gateway primary
+with a logged hosted-OpenRouter fallback**, and gateway mode activates *only*
+when `EMBED_BASE_URL` is set. That variable lives in Doppler, **not** in local
+`.env` — so a bare `pnpm index` runs the pre-gateway OpenRouter-only path with
+all the routing variance (#58: 1–11s per call, batches to ~40s) this change
+exists to remove.
+
 ```bash
-pnpm index                              # drains every pending row
-pnpm index --source everystudent-<key>  # ⓘ per-source IS supported
+# ✅ the ONLY sanctioned way — gateway-primary, no local config
+doppler run -p forge-rag -c dev -- pnpm index
+doppler run -p forge-rag -c dev -- pnpm index --source everystudent-<key>
+
+# 🔎 force the OpenRouter-only path, for an A/B
+EMBED_BASE_URL="" pnpm index
 ```
-Drains every pending row across all acquired sources. **45 sources / 2,281
-documents** are pending as of 2026-07-30. This is the expensive step
-(embeddings). Re-run is idempotent — a second run drains 0.
+
+⛔ **Do NOT put the gateway trio in `.env` — it turns the test suite RED.**
+Tried on 2026-07-30 and reverted. Three tests fail with the trio present:
+
+| Test | Failure | Why |
+|---|---|---|
+| `tests/env-gateway-guard.test.ts` | `expected getEnv to throw` | The test `delete`s `EMBED_API_KEY`, then re-imports `env.js`. `loadDotEnv()` re-reads `.env` from disk and **puts the key straight back**, so the credential guard never fires. |
+| `tests/wire-embed-policy.test.ts` ×2 | got **4** attempts, expected 2; got **20**, expected 10 | With `EMBED_BASE_URL` set, `wire()` builds a `FallbackEmbedder`: the primary burns its full retry budget, then the whole call re-runs on the fallback. Retry counts **double**. |
+
+The first one is not fixable by any env override — the test deletes the variable
+*before* importing, and the loader then reads the file. The credential simply
+cannot live in `.env` while that test exists. This is exactly why
+`.env.example` ships the three commented out and says prefer `doppler run`;
+treat that as binding, not advisory.
+
+**So: always use `doppler run` for gateway work.** `EMBED_BASE_URL=""` in the
+real environment is the off-switch when you want the OpenRouter path.
+
+⚠️ **`EMBED_MODEL_ID` must stay `qwen/qwen3-embedding-8b`.** It is the canonical
+identity written to `chunk_embeddings.embedding_model` per row, and
+`retrieve.ts` fails loud on a query/corpus mismatch against the ~11k rows
+already embedded. The gateway's wire alias (`embeddings`) belongs in
+`EMBED_WIRE_MODEL_ID` and **nowhere else**. `OPENROUTER_API_KEY` also stays
+required — it is the fallback credential plus language-detect and LLM review.
+ⓘ `.env.example` deliberately ships these three commented out and prefers
+`doppler run`; Option B is a convenience, not the sanctioned home.
+⓵ `pnpm index` accepts `--source`, `--limit`, `--force`, `--force-all`.
+⓶ **Doppler `forge-rag/dev` defines NO `DATABASE_URL`**, so the local `.env`
+value (`localhost:5434`) still wins — running under Doppler does **not** point
+you at prod. Verified 2026-07-30.
+
+**2,232 documents across 44 sources are pending** as of 2026-07-30 (49 already
+ingested — see §0). This is the expensive step (embeddings). Re-run is
+idempotent — a second run drains 0.
+
+#### ✅ Gateway canary — `everystudent-sw`, 2026-07-30
+
+The first source indexed through the ADR-0015 gateway. 13 documents, chosen as
+the smallest pending source so the gateway was the only variable.
+
+| Check | Result |
+|---|---|
+| Ingested | **13 / 13** — 0 updated, 0 unchanged, 0 skipped, 0 unknown-source |
+| Chunks | **105 declared = 105 actual** |
+| Embeddings | **105 / 105** in `chunk_embeddings` |
+| **`embedding_model` recorded** | **`qwen/qwen3-embedding-8b`** on all 105 — the wire alias `embeddings` did **NOT** leak into row identity, which was ADR-0015's headline risk |
+| Fallback activations | **0** — no `↯`, no `query_embed_fallback`; the gateway served every batch |
+| Embed retries | **0** — compare the `am` OpenRouter canary, which needed several timeout retries. This is the #58 latency win, visible on the first run |
+| Idempotency | re-run drained **0 rows** |
+| Corpus arithmetic | docs 11,737 → 11,750 (+13) · chunks 34,539 → 34,644 (+105) · embeddings = chunks · pending 2,232 → **2,219** |
+| Retrieval | Swahili "Mungu ni nani?" → `/a/mungu-ni-nani.html` at **0.758** |
+| Language | 🔴 **13 of 13 `null`** — not a gateway fault, see §0.2 |
+
+**Verdict: the gateway path is good for the bulk run.** Zero retries and zero
+fallbacks over 105 chunks, and row identity is intact.
+
+#### ✅ Gateway verified from this machine, 2026-07-30 (read-only)
+
+All tests used `pnpm query` against the already-indexed `everystudent-am`, so
+no writes and no embedding spend on the corpus.
+
+⚠️ **The similarity score does NOT tell you which provider served the embed.**
+Gateway and hosted OpenRouter both return `/a/isthere.html` at **0.756** for the
+same Amharic query. That agreement is the good news — the two providers produce
+equivalent vectors, which is what lets ADR-0015 claim no re-embed and keeps
+`retrieve.ts`'s model-mismatch guard satisfied — but it means **you cannot use
+the score to confirm your config is live.** Break a key instead:
+
+| Test | Expected | Observed |
+|---|---|---|
+| Gateway configured, `OPENROUTER_API_KEY` broken | succeeds — gateway is primary, fallback never needed | ✅ hit at 0.756 |
+| `EMBED_BASE_URL=""`, `OPENROUTER_API_KEY` broken | fails — OpenRouter was the only provider | ✅ `401 Unauthorized — "User not found."` |
+| Gateway configured, `EMBED_API_KEY` broken | falls back, loudly | ✅ `event=query_embed_fallback provider=openrouter reason=http_401`, still returns the hit |
+
+`EMBED_BASE_URL=""` is a valid off-switch — the schema's `emptyAsUnset` reads an
+empty string as unset, and because `loadDotEnv()` only fills keys that are still
+`undefined`, an empty value in the real environment also **beats** a populated
+`.env` line. That is the one-shot way to A/B the two providers.
+
+The fallback is **logged, never silent** — grep a long run for `↯` and
+`query_embed_fallback` to see whether the gateway quietly stopped carrying
+traffic.
 
 ⚠️ **Correction to this file's own §2 table:** it says `pnpm index` takes "no
 `--source`". That is wrong — `scripts/index.ts` accepts `--source`, `--limit`,
@@ -579,6 +976,15 @@ red (slice #3 precedent). Verified green after the canary.
 Per-language smoke: a `language:<code>` filtered query returns non-zero hits, all
 in that language. Script it; do not hand-run 48 times.
 
+✅ **Prerequisite met 2026-07-31 — the language sweep (§0.4) is what makes this
+phase meaningful.** Before it, `language:hi` returned Nepali, `language:am`
+returned Tigrinya, `language:ar` returned Persian, `language:id` returned Malay,
+and `language:ka`/`sw`/`om` returned nothing at all. A smoke run before the sweep
+would have passed on the wrong corpus.
+
+⚠️ **Discard any Phase-4 number taken before 2026-07-31** for `am`, `ar`, `hi`
+or `id` — those buckets were polluted by a second language.
+
 ### Phase 5 — eval (batched, see §7)
 ```bash
 QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval
@@ -597,6 +1003,11 @@ Per `docs/ops/prod-ingest.md`. These are **non-walled**, so the normal
 `acquire:production` path applies — re-fetching over plain HTTP is free.
 **Do NOT suggest `copy-raws.sh`** for these; that path exists to avoid paying
 Firecrawl twice and there is no Firecrawl here.
+
+🔴 **Then run the language sweep against prod — it is NOT optional and it does
+NOT come along for free.** Prod re-detects with `tinyld` at ingest, so it will
+reproduce all 225 nulls and all 182 mislabels that §0.4 just fixed locally. The
+exact commands are in §0.4 → "This does NOT carry to production".
 
 ---
 
@@ -1528,6 +1939,17 @@ is what let 5 broken entries through the pilot.
   asking Agape Students Latvia. Also records that robots compliance on this
   estate has now been hand-patched **five times** because the acquire path
   never reads `robots.txt` (§13 #7).
+- 🔴 **NOT YET FILED — needs an issue (found 2026-07-31, §0.4 finding 3).** The
+  LLM language detector's `DEFAULT_MAX_OUTPUT_TOKENS = 200`
+  (`src/adapters/openrouter/openrouter-language-detector.ts:34`) can truncate a
+  correct response mid-`evidence`-string, which the adapter then rejects as
+  `response was not JSON`. Hit **1 document in 409** (an Albanian page —
+  diacritic-heavy text tokenises poorly). The row is left untouched and logged as
+  an anomaly, which is correct behaviour, **but the failure is indistinguishable
+  from an honest abstain in the report's "Left null" section** — on a big run it
+  reads as a detection limit rather than a bug. Two candidate fixes: raise the
+  cap, or cap the `evidence` field length in `SYSTEM_PROMPT`. A plain re-run
+  fixed this instance.
 
 ## 12. Decisions made
 
@@ -1556,7 +1978,10 @@ is what let 5 broken entries through the pilot.
 | **2026-07-30** | **Batch 4 sized at 11 (all that remained), and it held a third time** | 11 concurrent agents, zero scratch collisions, 11 clean entries, 0 refusals, and **all 10 acquirable hosts staged 100% with zero skips** — the campaign's first perfect acquire. The §10 prompt's corrections-first design is now proven three consecutive rounds. |
 | **2026-07-30** | **`he` deferred rather than acquired, on THREE grounds** | Orchestrator call, escalating rather than deciding. The entry is sound and gate-passed, but (1) `discover.ts` cannot parse its CDATA sitemap, (2) igod.co.il is **not a Cru property** — footer `© המכללה למקרא`, zero Cru/EveryStudent markers site-wide — so our `rights` line and `cru` tag would misattribute it, and (3) at **1,020 articles** it is 47% of the campaign corpus, which is a composition question, not a technical one. Only (1) is answerable in code. Same escalation shape as `bg` on 2026-07-29. |
 | **2026-07-30** | **The CDATA fix to `discover.ts` NOT made on this branch** | Consistent with `extract.ts` (#5) and `normalizeUrl` (#9): shared acquisition code changes get their own issue. Noted honestly that this one is *provably* inert for the other 42 sources — a `<loc>` beginning `<![CDATA[` can only crash or be dropped today — so the argument for deferring is consistency and reviewability, not risk. §13 #10. |
-| **2026-07-30** | **`om` shipped as `languages: ["om"]` despite the detector being unable to emit it** | The registry declares what the source *is*, not what the detector can recognise. `tinyld` has no Oromo model, so 17 of 18 documents will store `language = null` and one stores `'ber'`. Declaring anything else would be a lie in the entry to paper over a gap in a different module. Recorded as §13 #11. |
+| **2026-07-30** | **`om` shipped as `languages: ["om"]` despite the detector being unable to emit it** | The registry declares what the source *is*, not what the detector can recognise. `tinyld` has no Oromo model, so 17 of 18 documents will store `language = null` and one stores `'ber'`. Declaring anything else would be a lie in the entry to paper over a gap in a different module. Recorded as §13 #11. ✅ **Vindicated 2026-07-31:** the LLM sweep labelled all 18 `om` at confidence 1.00. Declaring the truth and letting a *different* module catch up was the right call. |
+| **2026-07-31** | **Language corrected with `--source … --mode full` per source, NOT `--all`** | The corpus is 13,969 documents and had already had a full sweep before this campaign. `--all --mode full` would re-audit ~13,000 already-correct rows to fix 406. Eight sources needed `full` (they carried wrong labels); sixteen needed only `blanks`. Per-source also means per-source changelogs, so a bad relabel reverts without touching the others. Ran as 8 dry-runs → review → 8 applies → 16 blanks-applies. |
+| **2026-07-31** | **Applied all eight `--mode full` relabels without a per-source operator pause** | The Step-1 dry-runs returned 100% resolution to the declared language at confidence 0.99–1.00, with **zero** rows in the report's "Eyeball these" list and zero left null. There was no ambiguous call to escalate. Had any source come back mixed, or with a relabel *away* from its declared language, that would have been a stop. |
+| **2026-07-31** | **§0.2's hand-maintained damage table treated as untrustworthy; fix list re-derived by SQL** | The table undercounted by 26 documents — it filed `everystudent-fa` under §0.3 as nulls-only and missed that 26 Persian pages were labelled `ar`, colliding with a source already live in prod. A table maintained by hand across five batches drifts; a query against the registry's declared `languages` cannot. Query preserved in §0.4. |
 | **2026-07-29** | **`sr` deferred, and the `/etc/hosts` workaround explicitly rejected** | Jaco's call, reversing the earlier "add a hosts entry" decision. A host our own network filters cannot be listed as a publicly available retrieval source on the strength of a machine-local override — the workaround would hide the question rather than answer it. Tracked in [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129). Note the domain IS publicly resolvable (both DoH providers return the real IP); what needs deciding is why our gateway blackholes it. |
 
 ## 13. Open questions for the operator
@@ -1657,8 +2082,16 @@ is what let 5 broken entries through the pilot.
     thing that makes `he` un-acquirable in code terms. **Deserves its own
     issue**, like #7 and #9. Unlike those two, this fix is provably inert for
     every other source, so it is the cheapest of the three to land.
-11. **NEW (batch 4) — `om` (Oromo) cannot be language-detected at all, and this
-    is not fixable in the registry.** `tinyld` has no Oromo model. Pushed
+11. ✅ **ANSWERED 2026-07-31 — no ruling needed.** The premise was wrong: `om` is
+    undetectable *by `tinyld`*, not undetectable. The LLM sweep (§0.4) labelled
+    **all 18 documents `om` at confidence 1.00**, including the `'ber'` row. Same
+    for `ka` (Georgian, 16/16 at 1.00), which `tinyld` cannot read at all. The
+    original text is kept below because it is the correct diagnosis of the
+    *ingest-time* detector, which is unchanged and will do this again on the next
+    Oromo source and in prod (§0.4, "does NOT carry to production").
+
+    ~~**NEW (batch 4) — `om` (Oromo) cannot be language-detected at all, and this
+    is not fixable in the registry.**~~ `tinyld` has no Oromo model. Pushed
     through the real `decideLanguage` (gate 0.75, floor 500) on all 18 acquired
     articles:
 
@@ -1673,7 +2106,9 @@ is what let 5 broken entries through the pilot.
     (expected, excluded from eval, surfaced on the dashboard) — but that policy
     was written for scattered short documents, not for **94% of one source**.
     The `'ber'` row is the part that is arguably a bug rather than a gap.
-    **Not blocking; needs a ruling at Phase 3.**
+    ~~**Not blocking; needs a ruling at Phase 3.**~~ Resolved by the sweep — the
+    real lesson is that a source whose language `tinyld` cannot model needs a
+    sweep pass wired in **per environment**, not a policy exception.
 12. **NEW (batch 4) — is `he` (igod.co.il) in scope at all?** See §4. Three
     questions in one: the code fix (#10 above), whether a **non-Cru** ministry
     belongs under the EveryStudent campaign key with our standard `rights` line
@@ -1829,12 +2264,17 @@ and `sr` (deferred → #129).
 `--probe` flag (#4), the `extractContent` root-cause fix (#5), the three-way
 `zh` collision (#6), **robots.txt not being enforced anywhere in the acquire
 path (#7 — now hand-patched five times)**, film-transcript pages (#8),
-`normalizeUrl` scheme canonicalisation (#9), the CDATA defect (#10), Oromo
-being undetectable (#11), **`everystudent-ar` carrying a full Gospel of John in
-PROD (#14)**, and **`ti` being actively MISLABELLED `am` rather than merely
-unlabelled (#16)**.
+`normalizeUrl` scheme canonicalisation (#9), the CDATA defect (#10),
+~~Oromo being undetectable (#11)~~ ✅ **closed 2026-07-31 by the sweep (§0.4)**,
+**`everystudent-ar` carrying a full Gospel of John in PROD (#14)**, and
+~~`ti` being actively MISLABELLED `am` (#16)~~ ✅ **closed 2026-07-31 — all 14
+`ti` documents relabelled at confidence 0.99–1.00**.
 
-#7, #9, #10 and #14 each deserve their own issue. #11 and #16 are one ruling.
+#7, #9, #10 and #14 each deserve their own issue. ~~#11 and #16 are one ruling.~~
+✅ **Both answered by the language sweep, no ruling needed** — the LLM detector
+reads every language `tinyld` cannot. One NEW unfiled defect replaced them: the
+detector's 200-token output cap can truncate a correct verdict into a silent null
+(§11, last entry).
 
 ---
 

@@ -1,6 +1,6 @@
 # ADR-0014 — Bulk-copy `raw_documents` local→prod: an optional promotion path for walled/metered sources
 
-- Status: Accepted (an **optional, situational** path — not a replacement for `acquire:production`)
+- Status: Accepted (an **optional, situational** path — not a replacement for `acquire:production`). ⚠️ **Its "copy the full corpus" alternative is superseded by [ADR-0016](./0016-promote-validated-corpus-not-raw-inputs.md)** — see the note below. The `copy-raws.sh` decision itself stands unchanged.
 - Date: 2026-07-28
 - Issue/PR: [#115](https://github.com/JesusFilm/jesusfilm-rag/issues/115) (spec) · [#120](https://github.com/JesusFilm/jesusfilm-rag/pull/120) (mechanism) · part of [#112](https://github.com/JesusFilm/jesusfilm-rag/issues/112)
 - Related: [ADR-0012](./0012-firecrawl-fetch-strategy-walled-sources.md) (walled-source fetch via Firecrawl); the prod-promotion ops model in [`docs/ops/prod-ingest.md`](../ops/prod-ingest.md) ([#29](https://github.com/JesusFilm/jesusfilm-rag/issues/29)).
@@ -32,7 +32,9 @@ Adopt an **optional** promotion path, `scripts/copy-raws.sh`, whose justifying c
 ## Alternatives rejected
 
 - **Always `acquire:production`, even for walled sources.** Pays Firecrawl twice for identical content. Avoiding that double spend is the entire justification for this path.
-- **Copy the full corpus (`documents`/`chunks`/`chunk_embeddings`) local→prod to skip prod embedding too.** Requires UUID foreign-key remapping across four tables (`sources`→`documents`→`chunks`→`chunk_embeddings`) and moves large embedding blobs. Embedding twice is cheap by comparison, so the added complexity and risk are not worth it (considered in #115).
+- ~~**Copy the full corpus (`documents`/`chunks`/`chunk_embeddings`) local→prod to skip prod embedding too.** Requires UUID foreign-key remapping across four tables (`sources`→`documents`→`chunks`→`chunk_embeddings`) and moves large embedding blobs. Embedding twice is cheap by comparison, so the added complexity and risk are not worth it (considered in #115).~~
+
+  ⚠️ **SUPERSEDED 2026-07-31 by [ADR-0016](./0016-promote-validated-corpus-not-raw-inputs.md).** Both premises were measured and both were wrong. The remap is **one scalar substitution in two columns** (`documents.source_id`, `chunks.source_id`), not a four-table exercise — every other uuid copies verbatim. The whole 48-source estate moved in **24.7 s** with the HNSW index live, byte-identical by checksum. And the load-bearing claim, "embedding twice is cheap", was a **cost** argument that assumed local and prod converge: they do not. `index:production` re-detects language with `tinyld`, so re-deriving the locally-validated #111 corpus in prod reproduces **225 null-language and 182 mislabelled documents** that a local LLM sweep had already corrected. The rejection stands as a fair call on the evidence available in 2026-07; it does not survive the evidence from 2026-07-31.
 - **Make bulk-copy the general promotion path for any source.** Invites the extra copy step and its handling into cases where `acquire:production` does the job at no cost saving. Scoped to metered sources instead, where it earns its keep.
 - **Mandate new guardrails for the local run.** The laptop-shutdown consideration is the pre-existing *general* local-prod-op hazard (already documented in `prod-ingest.md`), not something bulk-copy introduces. No new risk class → no new mandate.
 

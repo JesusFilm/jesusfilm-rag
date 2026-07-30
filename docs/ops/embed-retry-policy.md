@@ -54,9 +54,13 @@ retry budget does the whole call re-run on hosted OpenRouter
 (`OPENROUTER_API_KEY`) under the same posture. Worst case doubles accordingly
 (query ≈ 16.5s, corpus ≈ 11.6 min per batch, both providers down). Retry lines
 gain a provider tag (`[gateway]` / `provider=gateway`); every fallback logs
-`  ↯ corpus embed: gateway failed (…); falling back to hosted OpenRouter` or
-`[retrieval] event=query_embed_fallback provider=openrouter reason=…` — a
-sustained stream of those means the gateway is down, not the RAG.
+`↯ corpus embed: gateway failed (…); falling back to hosted OpenRouter` or
+`[retrieval] event=query_embed_fallback provider=openrouter reason=…`. A
+sustained stream of those means gateway REQUESTS are failing — the RAG itself
+is healthy, but ANY primary error triggers fallback (ADR-0015), so check
+gateway availability, the `EMBED_API_KEY` credential, and the
+`EMBED_WIRE_MODEL_ID` alias (the `reason=` code says which: `http_401` ⇒
+credential, `http_404` ⇒ model/route, `timeout`/`network` ⇒ availability).
 
 ## Reading the logs
 

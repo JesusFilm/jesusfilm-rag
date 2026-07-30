@@ -37,7 +37,9 @@ import {
   OpenRouterEmbedder,
   OpenRouterLanguageDetector,
   OpenRouterReviewer,
+  type EmbedFallbackInfo,
   type EmbedRetryInfo,
+  type OpenRouterEmbedderOptions,
 } from "@/adapters/openrouter/index.js";
 import { createRetriever } from "@/retrieval/index.js";
 import { closeDb, getDb } from "@/db/index.js";
@@ -176,67 +178,64 @@ function buildEmbedders(env: Env): { embedder: Embedder; queryEmbedder: Embedder
     ...sharedEmbedderOptions,
     apiKey: env.OPENROUTER_API_KEY,
   };
+  // One retry posture (policy + log style) in, one embedder out: the gateway-
+  // primary/fallback pair when gateway mode is on, the plain single-provider
+  // instance when off.
+  const buildEmbedderPair = (
+    policy: Partial<OpenRouterEmbedderOptions>,
+    retryLog: (provider?: string) => (info: EmbedRetryInfo) => void,
+    onFallback: (info: EmbedFallbackInfo) => void,
+  ): Embedder =>
+    gatewayEmbedderOptions
+      ? new FallbackEmbedder({
+          primary: new OpenRouterEmbedder({
+            ...gatewayEmbedderOptions,
+            ...policy,
+            onRetry: retryLog("gateway"),
+          }),
+          fallback: new OpenRouterEmbedder({
+            ...openRouterEmbedderOptions,
+            ...policy,
+            onRetry: retryLog("openrouter"),
+          }),
+          onFallback,
+        })
+      : new OpenRouterEmbedder({
+          ...openRouterEmbedderOptions,
+          ...policy,
+          onRetry: retryLog(),
+        });
   // Corpus/document embedder — PATIENT: a transient blip aborting a long index
   // run throws away hours (#64), so it rides out ~47s of backoff per batch.
-  const corpusPolicy = { maxAttempts: env.EMBED_MAX_ATTEMPTS };
-  const embedder: Embedder = gatewayEmbedderOptions
-    ? new FallbackEmbedder({
-        primary: new OpenRouterEmbedder({
-          ...gatewayEmbedderOptions,
-          ...corpusPolicy,
-          onRetry: corpusRetryLog("gateway"),
-        }),
-        fallback: new OpenRouterEmbedder({
-          ...openRouterEmbedderOptions,
-          ...corpusPolicy,
-          onRetry: corpusRetryLog("openrouter"),
-        }),
-        onFallback: ({ operation, error }) => {
-          const what = operation === "query" ? "query embed" : "corpus embed";
-          console.warn(
-            `  ↯ ${what}: gateway failed (${retryReason(error)}); falling back to hosted OpenRouter`,
-          );
-        },
-      })
-    : new OpenRouterEmbedder({
-        ...openRouterEmbedderOptions,
-        ...corpusPolicy,
-        onRetry: corpusRetryLog(),
-      });
+  const embedder = buildEmbedderPair(
+    { maxAttempts: env.EMBED_MAX_ATTEMPTS },
+    corpusRetryLog,
+    ({ operation, error }) => {
+      const what = operation === "query" ? "query embed" : "corpus embed";
+      console.warn(
+        `  ↯ ${what}: gateway failed (${retryReason(error)}); falling back to hosted OpenRouter`,
+      );
+    },
+  );
   // Query embedder — FAST-FAIL: embeds the caller's query text at request time
   // (every /v1/search does this), where the caller has typically given up
   // within seconds. Few attempts, tight per-attempt timeout, one short delay.
   // Event-style log (matches forge's seeker convention) so a Railway reader
   // sees request-time query embedding, not a corpus embed job.
   // See docs/ops/embed-retry-policy.md.
-  const queryPolicy = {
-    maxAttempts: env.QUERY_EMBED_MAX_ATTEMPTS,
-    timeoutMs: env.QUERY_EMBED_TIMEOUT_MS,
-    retryBaseDelayMs: 250,
-  };
-  const queryEmbedder: Embedder = gatewayEmbedderOptions
-    ? new FallbackEmbedder({
-        primary: new OpenRouterEmbedder({
-          ...gatewayEmbedderOptions,
-          ...queryPolicy,
-          onRetry: queryRetryLog("gateway"),
-        }),
-        fallback: new OpenRouterEmbedder({
-          ...openRouterEmbedderOptions,
-          ...queryPolicy,
-          onRetry: queryRetryLog("openrouter"),
-        }),
-        onFallback: ({ error }) => {
-          console.warn(
-            `[retrieval] event=query_embed_fallback provider=openrouter reason=${retryReason(error)}`,
-          );
-        },
-      })
-    : new OpenRouterEmbedder({
-        ...openRouterEmbedderOptions,
-        ...queryPolicy,
-        onRetry: queryRetryLog(),
-      });
+  const queryEmbedder = buildEmbedderPair(
+    {
+      maxAttempts: env.QUERY_EMBED_MAX_ATTEMPTS,
+      timeoutMs: env.QUERY_EMBED_TIMEOUT_MS,
+      retryBaseDelayMs: 250,
+    },
+    queryRetryLog,
+    ({ error }) => {
+      console.warn(
+        `[retrieval] event=query_embed_fallback provider=openrouter reason=${retryReason(error)}`,
+      );
+    },
+  );
   return { embedder, queryEmbedder };
 }
 

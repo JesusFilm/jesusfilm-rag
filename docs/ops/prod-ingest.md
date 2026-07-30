@@ -111,6 +111,13 @@ credentials come **strictly from the environment**, typically injected by
 | `OPENROUTER_API_KEY` | `OPENROUTER_API_KEY` → `JFRAG_OPENROUTER_API_KEY` |
 | `EMBED_MODEL_ID` | `EMBED_MODEL_ID` → `JFRAG_OPENROUTER_EMBED_MODEL_ID` → default |
 
+The gateway-primary embedding vars (ADR-0015) need no resolution machinery:
+`EMBED_BASE_URL`, `EMBED_API_KEY`, and `EMBED_WIRE_MODEL_ID` live under their
+plain names in the `forge-rag` Doppler configs (`dev` and `prd`), so
+`doppler run` injects them and `getEnv()` picks them up directly. When they are
+present, embedding runs gateway-first with hosted OpenRouter as the logged
+fallback; absent, everything behaves exactly as before (OpenRouter only).
+
 ```sh
 # Read-only smoke test, fully unattended:
 doppler run --project forge-rag --config prd -- \

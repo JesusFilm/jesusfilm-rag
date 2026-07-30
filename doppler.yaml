@@ -16,6 +16,12 @@
 # additionally filled into OPENROUTER_API_KEY by src/env.ts when the plain
 # name isn't set, so local embed flows work under `doppler run` too.
 #
+# The gateway-primary embedding vars (ADR-0015) — EMBED_BASE_URL,
+# EMBED_API_KEY, EMBED_WIRE_MODEL_ID — are environment-agnostic (same gateway
+# for local and prod) and live under their PLAIN names in the dev and prd
+# configs, like EMBED_QUERY_INSTRUCTION: injecting them into a local command
+# is desired, and none of them points at prod data.
+#
 # Migrated from the interim shared `resources`/`prd` home on 2026-07-06 (#53);
 # history: docs/ops/dashboard-secret-access.md.
 setup:

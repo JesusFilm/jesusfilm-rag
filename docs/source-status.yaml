@@ -607,3 +607,22 @@ sources:
           but worse: om has no competing model, ti does. Campaign file 13 #11."
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-07-29
+  everystudent-ru-ca:
+    name: EveryStudent — Russian, Central Asia (СтудентСтан)
+    status: in-progress
+    languages:
+      ru:
+        status: in-progress
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
+        note: "MIRROR of everystudent-ru: 42 of studentstan.com's 87 articles
+          overlap at >=95%, mean 84.1%, and the lowest same-slug pair (52.7%) is
+          word-for-word identical on inspection. This key deliberately seeds
+          ONLY the 5 measured-unique articles, not the 86 its site map lists. Do
+          NOT complete the seed list — the ingest dedup gate keys on (sourceKey,
+          canonicalUrl), so ~81 near-duplicates would be chunked and embedded
+          with nothing downstream to catch them. /a/jfil.html was the 6th unique
+          page and is excluded as JESUS-film promo copy (~400 ch of prose before
+          nav), same class as everystudent-ro's skipped /v/filmuliisus.html.
+          Campaign file 16."
+    slice_file: docs/slices/everystudent-siblings.md
+    last_updated: 2026-07-30

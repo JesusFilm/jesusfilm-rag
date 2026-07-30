@@ -60,6 +60,7 @@ import { everystudentTa } from "./everystudent-ta.js";
 import { everystudentTe } from "./everystudent-te.js";
 import { everystudentHy } from "./everystudent-hy.js";
 import { everystudentTi } from "./everystudent-ti.js";
+import { everystudentRuCa } from "./everystudent-ru-ca.js";
 import { everystudentUk } from "./everystudent-uk.js";
 
 export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
@@ -82,21 +83,45 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *  three are Cloudflare-walled and fetched through Firecrawl.
  *
  *  It ALSO spans ~48 NON-walled sibling-language domains (#111), each its own key
- *  under the same one-domain-one-source rule. 32 are registered here — the
+ *  under the same one-domain-one-source rule. **47 are registered here** — the
  *  2026-07-28 pilot batch (`-es` `-zh-cn` `-ru` `-ro` `-ja` `-pt` `-de` `-ko`),
  *  the 2026-07-29 batch 2 (`-sq` `-fa` `-mn` `-tr` `-cs` `-hu` `-pl` `-sr` `-et`
- *  `-vi` `-zh-tw` `-bg`) and batch 3 (`-sk` `-id` `-ms` `-mk` `-lt` `-bn` `-th`
- *  `-hr` `-am` `-it` `-ur` `-el`). Unlike the walled three these are plain HTTP —
- *  no `fetchStrategy`, no Firecrawl credits — and they use sitemap DISCOVERY, with
- *  `seedPaths` only to patch a stale sitemap.
+ *  `-vi` `-zh-tw` `-bg`), batch 3 (`-sk` `-id` `-ms` `-mk` `-lt` `-bn` `-th`
+ *  `-hr` `-am` `-it` `-ur` `-el`), the 2026-07-30 batch 4 (`-hi` `-ta` `-my`
+ *  `-te` `-sl` `-ne` `-om` `-kk` `-ka` `-sw` `-he`) and batch 5 (`-uk` `-hy`
+ *  `-ti` `-ru-ca`). Unlike the walled three these are plain HTTP — no
+ *  `fetchStrategy`, no Firecrawl credits.
+ *
+ *  Most use sitemap DISCOVERY, with `seedPaths` only to patch a stale sitemap.
+ *  **Batch 5 is SEED MODE instead** — `-uk` `-hy` `-ti` `-ru-ca` publish no XML
+ *  sitemap at all, so each carries `baseUrl` + `seedPaths` and NO `sitemaps`,
+ *  `allow`, `articleHints` or `block`: the seed list IS the filter. Precedent:
+ *  `-ar` (68 seeds) and `-bg` (84).
+ *
+ *  ⚠️ TWO are registered but deliberately NOT acquired, both recorded
+ *  `deferred` in docs/source-status.yaml with their full reason:
+ *    - `-sr` (studentskikutak.com) — DNS-blackholed from this network (#129).
+ *      Do NOT add an /etc/hosts line; that was considered and rejected.
+ *    - `-he` (igod.co.il) — not a Cru property (its footer reads
+ *      "© המכללה למקרא"), 1,020 articles rather than the ~5 #111 recorded, and
+ *      its CDATA-wrapped sitemap cannot be parsed by `discover.ts` at all.
+ *
+ *  ⚠️ `-ru-ca` (studentstan.com) is a MIRROR of `-ru`: 42 of its 87 articles
+ *  overlap at >=95%, mean 84.1%. It seeds ONLY the 5 measured-unique articles.
+ *  Do not "complete" that seed list from the site's own map.
  *
  *  **There is no shared template.** The ".content4 family" claim in the walled
- *  entries describes a MINORITY of the estate. Measured across 32 hosts with the
+ *  entries describes a MINORITY of the estate. Measured across 47 hosts with the
  *  repo's own parser (`extract.ts`, node-html-parser), containers are:
  *    - `.contentpadding` — `-es` `-ru` `-ro` `-pt` `-de` `-pl` `-hu` `-tr` `-vi`
- *      `-fa` `-sr` `-id` `-ms` `-mk` `-bn` `-th` `-hr` `-am`. On most of these
- *      `.content4` MATCHES and extracts 0 chars.
- *    - `html` — `-ko` `-sq` `-mn` `-lt`. Malformed FreeFind markup pops the
+ *      `-fa` `-sr` `-id` `-ms` `-mk` `-bn` `-th` `-hr` `-am` `-hi` `-my` `-ne`
+ *      `-om` `-ka` `-sw` `-ti`. On most of these `.content4` MATCHES and
+ *      extracts 0 chars.
+ *    - `#contentpadding` — `-sl` (vsakstudent.com), where `contentpadding` is an
+ *      ID, NOT a class. `.contentpadding` matches NOTHING there. The second host
+ *      to hide its container behind the class-vs-ID distinction, after `-el`.
+ *      ⚠️ ALWAYS probe both `.x` and `#x`.
+ *    - `html` — `-ko` `-sq` `-mn` `-lt` `-ta` `-te` `-kk` `-uk` `-hy`. Malformed FreeFind markup pops the
  *      element stack, destroying `.content4`, `.contentpadding` AND `<body>`;
  *      the article ends up as flat children of `<html>`. On `-ko` `-sq` `-mn` the
  *      culprit is a `<sitelevel_noindex>` closing inside `.contentpadding`; on
@@ -108,8 +133,15 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *    - `.cb-entry-content` — `-zh-cn`, WordPress (Chosen theme).
  *    - `.entry-content` — `-zh-tw`, WordPress (Enfold/Avia), and `-sk`,
  *      WordPress + Elementor. Same selector, two unrelated themes.
- *    - `.post-content` — `-it`, WordPress (`sight2016`). A THIRD WordPress theme
- *      with a THIRD container — one WP host never predicts another.
+ *    - `.post-content` — `-it`, WordPress (`sight2016`), and `-ru-ca`, a
+ *      different WordPress theme again. A THIRD WordPress container — one WP
+ *      host never predicts another.
+ *    - `.elementor-widget-theme-post-content` — `-he`, WordPress + Elementor
+ *      with the `hello-elementor` theme. NOT `.entry-content`, even though
+ *      `-sk` is also Elementor. On `-he`, `.entry-content` is the trap: it
+ *      matches 44 of 51 pages at a CONSTANT 286 chars — a related-post teaser,
+ *      byte-identical across unrelated articles, and non-zero so the floor
+ *      cannot catch it either.
  *    - `.contentleftpadding` — `-et`, an older hand-rolled layout. None of the
  *      .content4-family selectors exist here at all.
  *    - `.content` — `-cs`, a bespoke Yii PHP app. #111's ".content .content-13"
@@ -119,6 +151,15 @@ export type { SourceEntry, CrawlPolicy, FetchStrategy } from "./types.js";
  *    - `.article-content` — `-bg`, an Angular build.
  *
  *  Also measured on this estate and easy to trip over:
+ *    - ⚠️ `.articletitle` is a SHADOW TRAP that extracts a plausible NON-zero
+ *      number (4-79 chars — an `<h1>`). It sits third in the sibling selector
+ *      list, so on any host where `.content4`/`.content4b` miss, inheriting
+ *      that list binds the headline and stages ~20-char documents with no error
+ *      anywhere. NEVER list it.
+ *    - `-he`'s sitemap wraps every `<loc>` in `<![CDATA[...]]>` and
+ *      `discover.ts` reads `loc.text` raw, so a sitemapindex child is queued as
+ *      the literal wrapper string and `fetch` throws `Invalid URL`. A repo
+ *      defect, unfixed; it is why `-he` cannot acquire.
  *    - `-el`'s sitemap publishes `http://` `<loc>`s. `discover.ts` filters the RAW
  *      `<loc>` string and never rewrites the scheme, so the `^https://` pin every
  *      sibling uses discovers ZERO URLs there. Its filters use `^https?://`.
@@ -219,6 +260,12 @@ export const SOURCES: readonly SourceEntry[] = [
   everystudentUk,
   everystudentHy,
   everystudentTi,
+  // ⚠️ studentstan.com is a MIRROR of everystudent-ru — 42 of its 87 articles
+  // overlap at >=95%, mean 84.1%. This entry seeds ONLY the 5 articles measured
+  // NOT to duplicate it. Do not "complete" its seed list from the site's map:
+  // the ingest dedup gate keys on (sourceKey, canonicalUrl), so ~81 near
+  // duplicates would be chunked and embedded with nothing to catch them.
+  everystudentRuCa,
 ];
 
 /** Look up a source by its stable key; undefined if unknown. */

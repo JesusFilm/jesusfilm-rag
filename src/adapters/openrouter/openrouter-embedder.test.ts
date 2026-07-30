@@ -127,6 +127,36 @@ describe("OpenRouterEmbedder", () => {
     await expect(embedder.embed(["x"])).rejects.toThrow(/width 2 ≠ expected 3/);
   });
 
+  it("sends wireModel on the wire while .model keeps the canonical identity", async () => {
+    const spy = stubEmbeddings(ones(3));
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      model: "qwen/qwen3-embedding-8b",
+      wireModel: "embeddings", // the gateway's serving alias (ADR-0015)
+    });
+
+    await embedder.embed(["x"]);
+
+    const sent = JSON.parse(spy.mock.calls[0][1]!.body as string) as { model: string };
+    expect(sent.model).toBe("embeddings");
+    expect(embedder.model).toBe("qwen/qwen3-embedding-8b"); // what ingestion records
+  });
+
+  it("defaults the wire model to the canonical model when wireModel is unset", async () => {
+    const spy = stubEmbeddings(ones(3));
+    const embedder = new OpenRouterEmbedder({
+      apiKey: "k",
+      dimensions: 3,
+      model: "qwen/qwen3-embedding-8b",
+    });
+
+    await embedder.embed(["x"]);
+
+    const sent = JSON.parse(spy.mock.calls[0][1]!.body as string) as { model: string };
+    expect(sent.model).toBe("qwen/qwen3-embedding-8b");
+  });
+
   it("embedQuery returns a single vector; empty query throws", async () => {
     stubEmbeddings(ones(4));
     const embedder = new OpenRouterEmbedder({ apiKey: "k", dimensions: 4 });

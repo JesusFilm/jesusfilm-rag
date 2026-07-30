@@ -33,9 +33,11 @@ import { HttpFetcher } from "@/adapters/http-fetch/index.js";
 import { FirecrawlFetcher } from "@/adapters/firecrawl/index.js";
 import { resolveFetchStrategy, type SourceEntry } from "@/registry/index.js";
 import {
+  FallbackEmbedder,
   OpenRouterEmbedder,
   OpenRouterLanguageDetector,
   OpenRouterReviewer,
+  type EmbedRetryInfo,
 } from "@/adapters/openrouter/index.js";
 import { createRetriever } from "@/retrieval/index.js";
 import { closeDb, getDb } from "@/db/index.js";
@@ -120,51 +122,130 @@ function makeFetcherFor(env: Env): (entry: SourceEntry) => Fetcher {
   };
 }
 
-/** Build the storage + HTTP + embedding adapters; injected into the contexts by the runners. */
-export function wire(): Wiring {
-  const env = getEnv();
-  const { db } = getDb();
-  const corpusSearchStore = new PostgresCorpusSearchStore(db);
+// Retry log in ingest-CLI progress style; `operation` names the work so this
+// line can never read as request-time query activity. `provider` is labelled
+// only in gateway mode — the single-provider format predates it and is
+// locked by tests/wire-embed-policy.test.ts.
+const corpusRetryLog =
+  (provider?: string) =>
+  ({ operation, attempt, maxAttempts, delayMs, error }: EmbedRetryInfo) => {
+    const what = operation === "query" ? "query embed" : "corpus embed";
+    const tag = provider ? ` [${provider}]` : "";
+    console.warn(
+      `  ⟳ ${what}${tag} attempt ${attempt}/${maxAttempts} failed (${retryReason(error)}); retrying in ${delayMs}ms`,
+    );
+  };
+
+const queryRetryLog =
+  (provider?: string) =>
+  ({ attempt, maxAttempts, delayMs, error }: EmbedRetryInfo) => {
+    const tag = provider ? `provider=${provider} ` : "";
+    console.warn(
+      `[retrieval] event=query_embed_retry ${tag}attempt=${attempt}/${maxAttempts} reason=${retryReason(error)} delay_ms=${delayMs}`,
+    );
+  };
+
+/**
+ * Build the corpus + query embedders — the two retry postures of
+ * docs/ops/embed-retry-policy.md, each optionally wrapped in the
+ * gateway-primary/OpenRouter-fallback split of ADR-0015.
+ */
+function buildEmbedders(env: Env): { embedder: Embedder; queryEmbedder: Embedder } {
   // Everything both embedders must agree on — model above all (the corpus and
   // the queries must live in one vector space; retrieve.ts guards this).
   const sharedEmbedderOptions = {
-    apiKey: env.OPENROUTER_API_KEY,
     model: env.EMBED_MODEL_ID,
-    baseUrl: env.EMBED_BASE_URL,
     queryInstruction: env.EMBED_QUERY_INSTRUCTION,
     truncateToDimensions: env.EMBED_TRUNCATE_DIMENSIONS,
   };
+  // Embedding provider split (ADR-0015): with EMBED_BASE_URL set, that endpoint
+  // (the JFP AI gateway) is the PRIMARY provider — its own credential and its
+  // own wire-level model alias — and hosted OpenRouter is the logged FALLBACK.
+  // Unset ⇒ hosted OpenRouter serves alone, exactly the pre-gateway wiring.
+  // Either way the canonical EMBED_MODEL_ID is what ingestion records per row.
+  const gatewayEmbedderOptions = env.EMBED_BASE_URL
+    ? {
+        ...sharedEmbedderOptions,
+        // getEnv()'s superRefine rejects EMBED_BASE_URL without EMBED_API_KEY.
+        apiKey: env.EMBED_API_KEY as string,
+        baseUrl: env.EMBED_BASE_URL,
+        wireModel: env.EMBED_WIRE_MODEL_ID,
+      }
+    : null;
+  const openRouterEmbedderOptions = {
+    ...sharedEmbedderOptions,
+    apiKey: env.OPENROUTER_API_KEY,
+  };
   // Corpus/document embedder — PATIENT: a transient blip aborting a long index
   // run throws away hours (#64), so it rides out ~47s of backoff per batch.
-  // Ingest-CLI progress style; `operation` names the work so this line can
-  // never read as request-time query activity.
-  const embedder = new OpenRouterEmbedder({
-    ...sharedEmbedderOptions,
-    maxAttempts: env.EMBED_MAX_ATTEMPTS,
-    onRetry: ({ operation, attempt, maxAttempts, delayMs, error }) => {
-      const what = operation === "query" ? "query embed" : "corpus embed";
-      console.warn(
-        `  ⟳ ${what} attempt ${attempt}/${maxAttempts} failed (${retryReason(error)}); retrying in ${delayMs}ms`,
-      );
-    },
-  });
+  const corpusPolicy = { maxAttempts: env.EMBED_MAX_ATTEMPTS };
+  const embedder: Embedder = gatewayEmbedderOptions
+    ? new FallbackEmbedder({
+        primary: new OpenRouterEmbedder({
+          ...gatewayEmbedderOptions,
+          ...corpusPolicy,
+          onRetry: corpusRetryLog("gateway"),
+        }),
+        fallback: new OpenRouterEmbedder({
+          ...openRouterEmbedderOptions,
+          ...corpusPolicy,
+          onRetry: corpusRetryLog("openrouter"),
+        }),
+        onFallback: ({ operation, error }) => {
+          const what = operation === "query" ? "query embed" : "corpus embed";
+          console.warn(
+            `  ↯ ${what}: gateway failed (${retryReason(error)}); falling back to hosted OpenRouter`,
+          );
+        },
+      })
+    : new OpenRouterEmbedder({
+        ...openRouterEmbedderOptions,
+        ...corpusPolicy,
+        onRetry: corpusRetryLog(),
+      });
   // Query embedder — FAST-FAIL: embeds the caller's query text at request time
   // (every /v1/search does this), where the caller has typically given up
   // within seconds. Few attempts, tight per-attempt timeout, one short delay.
   // Event-style log (matches forge's seeker convention) so a Railway reader
   // sees request-time query embedding, not a corpus embed job.
   // See docs/ops/embed-retry-policy.md.
-  const queryEmbedder = new OpenRouterEmbedder({
-    ...sharedEmbedderOptions,
+  const queryPolicy = {
     maxAttempts: env.QUERY_EMBED_MAX_ATTEMPTS,
     timeoutMs: env.QUERY_EMBED_TIMEOUT_MS,
     retryBaseDelayMs: 250,
-    onRetry: ({ attempt, maxAttempts, delayMs, error }) => {
-      console.warn(
-        `[retrieval] event=query_embed_retry attempt=${attempt}/${maxAttempts} reason=${retryReason(error)} delay_ms=${delayMs}`,
-      );
-    },
-  });
+  };
+  const queryEmbedder: Embedder = gatewayEmbedderOptions
+    ? new FallbackEmbedder({
+        primary: new OpenRouterEmbedder({
+          ...gatewayEmbedderOptions,
+          ...queryPolicy,
+          onRetry: queryRetryLog("gateway"),
+        }),
+        fallback: new OpenRouterEmbedder({
+          ...openRouterEmbedderOptions,
+          ...queryPolicy,
+          onRetry: queryRetryLog("openrouter"),
+        }),
+        onFallback: ({ error }) => {
+          console.warn(
+            `[retrieval] event=query_embed_fallback provider=openrouter reason=${retryReason(error)}`,
+          );
+        },
+      })
+    : new OpenRouterEmbedder({
+        ...openRouterEmbedderOptions,
+        ...queryPolicy,
+        onRetry: queryRetryLog(),
+      });
+  return { embedder, queryEmbedder };
+}
+
+/** Build the storage + HTTP + embedding adapters; injected into the contexts by the runners. */
+export function wire(): Wiring {
+  const env = getEnv();
+  const { db } = getDb();
+  const corpusSearchStore = new PostgresCorpusSearchStore(db);
+  const { embedder, queryEmbedder } = buildEmbedders(env);
   const onLangRetry = ({
     attempt,
     maxAttempts,

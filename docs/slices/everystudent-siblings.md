@@ -24,7 +24,13 @@ finished cutover as pending.
 registered · 45 acquired · 2 deferred · 1 open · 2,281 documents · 0
 duplicate-content groups · 0 doctype leaks**
 
-Phases 1–2 are **CLOSED**. Everything acquirable has been acquired.
+**Phases 1–2 are CLOSED. PHASE 3 IS IN PROGRESS** — `everystudent-am` indexed
+as a canary (41 docs / 163 chunks, all clean), and the bulk `pnpm index` over
+the remaining 44 sources was **started 2026-07-30 and has not yet reported**.
+⚠️ **Do not record bulk totals here until they are measured** — regenerate from
+the database (§0.1) rather than assuming completion.
+
+Everything acquirable has been acquired.
 - `sr` and `he` are deferred by decision → [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129), [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)
 - `lv` is the single open item, and it is a **rights** question → [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)
 - `ru-ca` is **RESOLVED** — registered with 5 seeds, not 87, because it is a
@@ -94,6 +100,29 @@ docker exec jesusfilm-rag-db psql -U jesusfilm_rag -d jesusfilm_rag -c "
 `everystudent`, `-ar` and `-fr` are the three WALLED banners and are **not** part
 of this campaign — exclude them or the totals will not match.
 
+**Phase 3 onward, also check ingest progress** — `raw_documents.ingested_at` is
+the truth, not the console log of a run that may still be going:
+
+```bash
+docker exec jesusfilm-rag-db psql -U jesusfilm_rag -d jesusfilm_rag -c "
+  select count(*) filter (where ingested_at is null)     still_pending,
+         count(*) filter (where ingested_at is not null) ingested
+  from raw_documents
+  where source_key like 'everystudent-%'
+    and source_key not in ('everystudent-ar','everystudent-fr');"
+```
+
+⚠️ **`documents` and `chunks` key on `source_id`, NOT `source_key`** — only
+`raw_documents` carries the key directly. Join through `sources`:
+```sql
+select coalesce(d.language,'(NULL)') lang, count(*) docs, sum(d.chunk_count) chunks
+from documents d join sources s on d.source_id = s.id
+where s.key = 'everystudent-<code>' group by 1 order by 2 desc;
+```
+Embeddings live in a separate table, `chunk_embeddings` (`chunk_id`,
+`embedding halfvec(1536)`, `embedding_model`) — there is no `embedding` column
+on `chunks`.
+
 Then: move any newly-acquired row from a ⬜ table into ✅, update the counts line,
 stamp "Last regenerated", and confirm the totals add to 48.
 
@@ -124,7 +153,7 @@ More importantly, **only acquisition is per-source**. Verified in the CLIs:
 | Stage | Command | Scope |
 |---|---|---|
 | Acquire | `pnpm acquire --source <key>` | **per source** — the only fan-out |
-| Ingest | `pnpm index` (no `--source`) | drains **all** pending rows, one run |
+| Ingest | `pnpm index` | drains **all** pending rows, one run. ⓘ `--source <key>` IS supported and was used for the Phase-3 canary — a bare run simply needs no fan-out |
 | Eval | `pnpm eval` (no `--source`) | **whole corpus**, one run |
 | Prod ingest | `pnpm index:production` | one run |
 | Prod eval | `pnpm eval:production` | one run |
@@ -186,6 +215,10 @@ locally acquired.
 **Progress: 47 of 48 registry entries written. 45 of 48 acquired
 (2,281 documents). 2 deferred (`sr` #129, `he` #132). 1 open (`lv` #133).**
 **Phases 1–2 are CLOSED — there is nothing left to crawl.**
+**Phase 3 is UNDERWAY**: `everystudent-am` canary indexed clean (41/41 docs,
+163/163 chunks embedded, 0 null-language, idempotent, gate green); bulk run over
+the other 44 sources launched 2026-07-30. Full canary evidence and the two
+operational findings it produced are in §6 Phase 3.
 
 ### ✅ DONE — the doctype cleanup, before Phase 3 (2026-07-30)
 
@@ -478,16 +511,69 @@ the `ja` mixed-host anomaly surfaced.
 
 Then `pnpm status:add-source` + `status:set … acquire=green` per source.
 
-### Phase 3 — index (ONCE, after all 48 acquired)
+### Phase 3 — index (after all acquisition is done)
 ```bash
-pnpm index
+pnpm index                              # drains every pending row
+pnpm index --source everystudent-<key>  # ⓘ per-source IS supported
 ```
-Drains every pending row across all 48. Expect **~2,900 documents**. This is the
-expensive step (embeddings). Re-run is idempotent.
+Drains every pending row across all acquired sources. **45 sources / 2,281
+documents** are pending as of 2026-07-30. This is the expensive step
+(embeddings). Re-run is idempotent — a second run drains 0.
+
+⚠️ **Correction to this file's own §2 table:** it says `pnpm index` takes "no
+`--source`". That is wrong — `scripts/index.ts` accepts `--source`, `--limit`,
+`--force` and `--force-all`. What the table *meant* is that a bare run drains
+everything, so ingest does not need to fan out. Both are true.
+
+#### ✅ Canary run — `everystudent-am`, 2026-07-30
+
+Operator's call: index one source first, verify, then bulk. **The rule "Phase 3
+runs ONCE" is about not indexing mid-acquisition** — it existed to stop someone
+embedding batch 1 before batch 5 was written. With acquisition complete, a
+canary costs one small source and is safe: chunking is per-document and
+embedding is per-chunk, with **no corpus-wide fitting** that a partial run could
+skew.
+
+| Check | Result |
+|---|---|
+| Ingested | **41 / 41** — 0 skipped, 0 unknown-source |
+| Chunks | **163 declared = 163 actual** (no `chunk_count` mismatch) |
+| Embeddings | **163 / 163** present in `chunk_embeddings` |
+| Language | **41 `am`, ZERO `null`** — no ADR-0007 floor casualties |
+| Idempotency | re-run drained **0 rows** |
+| Pending after | 2,240 = 2,281 − 41 ✅ |
+| Gate | green, **744 tests** |
+| Retrieval | Amharic "እግዚአብሔር አለ ወይ?" → `/a/isthere.html` at **0.756** |
+
+⚠️ **A clean `am` run proves nothing about `om` or `ti`.** Amharic is the one
+Ge'ez-script language `tinyld` actually models. §13 #11/#16 predict `om` lands
+17/18 `null` plus one mislabelled `'ber'`, and `ti` may be mislabelled `'am'`
+outright. **Verify those two specifically after the bulk run** — see the
+per-source language query in Phase 4.
+
+#### Two operational findings from the canary
+
+1. **Ingest-side embed timeouts are normal and self-heal.** Several
+   `corpus embed attempt N/10 failed (timeout); retrying` lines appeared and
+   **every one succeeded on retry**. Same OpenRouter flakiness as slice #8
+   (#64), absorbed by the ingest retry policy. Expect more across 2,240 docs;
+   they are not a failure signal.
+2. 🔴 **The QUERY side is NOT so forgiving, and this bites Phase 4 too.** An
+   ad-hoc `pnpm query` died outright with
+   `DOMException [AbortError]: This operation was aborted` — ad-hoc queries
+   inherit the **fast-fail posture built for `/v1/search`** (2 attempts, short
+   timeout). The same override this file already mandates for Phase 5 fixes it,
+   and it is needed for **any** retrieval work, not just eval:
+   ```bash
+   QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm query …
+   ```
+   ⚠️ Also note `pnpm query` takes **flags BEFORE the query string** —
+   `pnpm query --source <key> --top-k 3 "…"`. A trailing `--limit 3` is
+   swallowed into the query text and silently changes what you searched for.
 
 ⚠️ Re-run the **full verify gate after ingest**, not just after code changes —
 integration tests query the live Postgres and a data-only change can turn them
-red (slice #3 precedent).
+red (slice #3 precedent). Verified green after the canary.
 
 ### Phase 4 — retrieve spot-check
 Per-language smoke: a `language:<code>` filtered query returns non-zero hits, all
@@ -1154,6 +1240,11 @@ Each cost real investigation. Cite them when they apply.
 
 ### Ingest-stage notes (Phase 3 — not acquisition concerns)
 
+✅ **The 500-char/CJK worry below did NOT materialise on the first source
+indexed.** `everystudent-am` came out **41/41 `am`, zero `null`** — see §6
+Phase 3. That is one source and a non-CJK one; the CJK note still stands
+untested until `zh-cn` / `zh-tw` / `ja` / `ko` land.
+
 Recorded here so they are not lost, but **do not act on them during Phase 1–2**:
 
 - The **500-char detection floor** (ADR-0007) interacts badly with CJK: a full
@@ -1679,7 +1770,12 @@ Nothing has been indexed — Phase 3 runs ONCE, after acquisition is complete.
    [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132) and
    [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133), and **none of
    them blocks Phase 3.**
-2. **Phase 3 — `pnpm index`, ONCE.** Drains every pending row across all
+2. **Phase 3 — `pnpm index`.** ⓘ **A canary run is sanctioned and was used**:
+   `everystudent-am` was indexed alone first, verified, then bulk. See §6
+   Phase 3 for the checks that make a canary trustworthy and the two
+   operational findings it produced (ingest-side embed timeouts self-heal; the
+   QUERY side needs `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000`
+   or it aborts outright). Drains every pending row across all
    45 acquired sources. This is the expensive step (embeddings); it is
    idempotent on re-run. Expect ~2,281 documents from this campaign plus the
    pre-existing corpus.

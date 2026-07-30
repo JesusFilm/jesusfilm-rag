@@ -20,15 +20,17 @@ next one starts from truth. A stale board is worse than none: it is the exact
 failure `docs/STATUS.md` hit on 2026-07-17, when a narrative doc reported a
 finished cutover as pending.
 
-**Last regenerated: 2026-07-30 (after batch 5)** · **46 of 48 registered ·
-44 acquired · 2 deferred · 2 open · 2,276 documents · 0 duplicate-content
-groups**
+**Last regenerated: 2026-07-30 (after the batch-5 follow-ups)** · **47 of 48
+registered · 45 acquired · 2 deferred · 1 open · 2,281 documents · 0
+duplicate-content groups · 0 doctype leaks**
 
-The "2 open" are `lv` (blocked on RIGHTS — needs Jaco, §15) and `ru-ca`
-(**measured a MIRROR of the already-acquired `ru`** — needs Jaco, §16).
-Neither is unwritten-because-unstarted; both are decisions.
+Phases 1–2 are **CLOSED**. Everything acquirable has been acquired.
+- `sr` and `he` are deferred by decision → [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129), [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)
+- `lv` is the single open item, and it is a **rights** question → [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)
+- `ru-ca` is **RESOLVED** — registered with 5 seeds, not 87, because it is a
+  mirror of `ru` (§16)
 
-### ✅ Acquired (44)
+### ✅ Acquired (45)
 
 `†` = ships the rule-1e `"html"` fallback + `head` strip.
 
@@ -61,6 +63,7 @@ Neither is unwritten-because-unstarted; both are decisions.
 | | | | | | `uk` | svitstudentiv.com | 47 | `html` · **seed** |
 | | | | | | `hy` | 1patasxan.com | 34 | `html` · **seed** |
 | | | | | | `ti` | everytemhari.com | 14 | `.contentpadding` † · **seed** ⚠️ no detect |
+| | | | | | `ru-ca` | studentstan.com | 5 | `.post-content` † · **seed** ⚠️ mirror |
 
 ### 🅿️ Deferred (2)
 
@@ -69,12 +72,11 @@ Neither is unwritten-because-unstarted; both are decisions.
 | `sr` | studentskikutak.com | 76 | Written, wired, gate-passed. Network blackhole → **[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)**. Do NOT add `/etc/hosts`. |
 | `he` | igod.co.il | **1,020** | Written, wired, gate-passed. **Not a Cru property**; sitemap uses CDATA that `discover.ts` cannot parse; 200× the recon count. Three operator calls — see §4 and §16. |
 
-### ⚠️ Open — needs a decision from Jaco, not more work (2)
+### ⚠️ Open — one item, and it is a rights question (1)
 
 | Lang | Domain | Articles | What blocks it |
 |---|---|---:|---|
-| `ru-ca` | studentstan.com | 87 (**6 unique**) | **Measured a MIRROR of `everystudent-ru`** — 42 of 87 at ≥95% overlap, mean 84.1%. Agent correctly wrote nothing. See §16. |
-| `lv` | katramstudentam.lv | 49 | **RIGHTS, not crawlability.** `robots.txt` disallows `ClaudeBot` by name. Ask Agape Students Latvia; do not out-engineer it. See §15. |
+| `lv` | katramstudentam.lv | 49 | **RIGHTS, not crawlability** → **[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)**. `robots.txt` disallows `ClaudeBot` by name. Ask Agape Students Latvia; do not out-engineer it. See §15. |
 
 ### 0.1 How to regenerate this board
 
@@ -181,35 +183,40 @@ locally acquired.
   ⚠️ **Consider the doctype cleanup FIRST** — see below; it is nearly free
   now and expensive after embeddings exist.
 
-**Progress: 46 of 48 registry entries written. 44 of 48 acquired
-(2,276 documents). 2 deferred (`sr`, `he`). 2 open decisions (`ru-ca`, `lv`).**
+**Progress: 47 of 48 registry entries written. 45 of 48 acquired
+(2,281 documents). 2 deferred (`sr` #129, `he` #132). 1 open (`lv` #133).**
+**Phases 1–2 are CLOSED — there is nothing left to crawl.**
 
-### ⚠️ Do this BEFORE Phase 3 — the doctype cleanup is free right now
+### ✅ DONE — the doctype cleanup, before Phase 3 (2026-07-30)
 
-**14 documents across 7 sources carry a literal `<!DOCTYPE html>` at the head
-of their extracted text.** Measured 2026-07-30:
+**14 documents across 7 sources** carried a literal `<!DOCTYPE html>` at the
+head of their extracted text (`ru` 3, `hu` 3, `ro` 2, `pt` 2, `es` 2, `fa` 1,
+`vi` 1). All seven were batch-1/2 entries written **before rule 1e existed**;
+batches 3–5 had zero.
 
-| Source | Docs | | Source | Docs |
-|---|---:|---|---|---:|
-| `everystudent-ru` | 3 | | `everystudent-es` | 2 |
-| `everystudent-hu` | 3 | | `everystudent-fa` | 1 |
-| `everystudent-ro` | 2 | | `everystudent-vi` | 1 |
-| `everystudent-pt` | 2 | | | |
+Fixed in commit `2b6f8a0` by retrofitting rule 1e — trailing `"html"` plus
+`head` in `stripSelectors` — then re-acquiring all 7 over plain HTTP.
 
+**Proven inert before anything changed.** 35 sampled pages (the 14 leaking plus
+3 healthy per source) were extracted under both the old and new policies:
+
+| Outcome | Pages |
+|---|---:|
+| **identical, byte for byte** (healthy) | **21 / 21** |
+| changed (leaking; lost only 17–134 ch of doctype + duplicate title) | 14 / 14 |
+| **still leaking afterwards** | **0** |
+
+Verify it stayed fixed:
 ```sql
 select source_key, count(*) from raw_documents
 where source_key like 'everystudent-%' and raw_content like '%<!DOCTYPE%'
-group by 1 order by 2 desc;
+group by 1;   -- expect ZERO rows
 ```
 
-**All seven are batch-1/batch-2 entries, written BEFORE rule 1e existed.**
-Batches 3, 4 and 5 have **zero** — they append the trailing `"html"` and strip
-`head`. So this is precisely the defect rule 1e was written to fix, still
-sitting in the sources that predate it.
-
-The fix is the rule-1e pattern applied to those 7 entries, then re-acquire.
-**Cost now: 7 plain-HTTP re-fetches. Cost after Phase 3: re-chunking and
-re-embedding.** Nothing has been indexed yet, so this is the cheap moment.
+⚠️ **The 7 entries' tests were rewritten to assert intent, not the literal
+array** — the measured container binds FIRST, `"html"` is last, and the 0-char
+shadows (`.content4`, `.content4b`, `.articletitle`) are absent. A test pinning
+`toEqual([".contentpadding"])` would have blocked this fix for no benefit.
 
 ### 🅿️ `everystudent-he` — deferred, and it needs THREE decisions from Jaco
 
@@ -1414,6 +1421,22 @@ is what let 5 broken entries through the pilot.
   2026-07-29) — whether `everystudent-sr` is a listable retrieval source at all,
   given our own network blackholes it. Blocks only `sr`. **The fix is NOT an
   `/etc/hosts` line** — see §4.
+- **[#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131)** (new,
+  2026-07-30) — `everystudent-ar` seeds a **full Gospel of John** (23,624 ch),
+  **live in prod**, against the scripture policy that entry itself established.
+  Exactly one document; the other two prod sources were checked and are clean.
+  Deletion, not re-acquisition — no Firecrawl credits. Rule 20.
+- **[#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)** (new,
+  2026-07-30) — whether `everystudent-he` (igod.co.il) belongs in the corpus:
+  **not a Cru property**, 1,020 articles rather than the ~5 #111 recorded, and
+  a CDATA sitemap `discover.ts` cannot parse. Carries the full recon so the
+  entry is a short write if the answer is yes.
+- **[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)** (new,
+  2026-07-30) — `lv` (katramstudentam.lv): `robots.txt` disallows `ClaudeBot`
+  **by name**, so this is a rights question, not a crawling one. Recommends
+  asking Agape Students Latvia. Also records that robots compliance on this
+  estate has now been hand-patched **five times** because the acquire path
+  never reads `robots.txt` (§13 #7).
 
 ## 12. Decisions made
 
@@ -1650,27 +1673,26 @@ Nothing has been indexed — Phase 3 runs ONCE, after acquisition is complete.
    state as tables, not prose. Regenerate the counts from the DB first (§0.1) —
    do not retype what §0 currently says without checking it.
 1. **There is no crawling left to do.** Every acquirable host in the 48 has
-   been acquired. Do NOT spawn entry-writing agents — read §13 #12–#15 and put
-   the four decisions to Jaco instead.
-2. **⚠️ Strongly consider the doctype cleanup FIRST (§4, §13 #15).** 14
-   documents across 7 batch-1/2 sources leak `<!DOCTYPE html>`. Applying rule
-   1e to those entries and re-acquiring costs 7 plain-HTTP fetches now; after
-   `pnpm index` it costs re-chunking and re-embedding. **This window closes the
-   moment Phase 3 runs.**
-3. **Then Phase 3 — `pnpm index`, ONCE.** Drains every pending row across all
-   44 acquired sources. This is the expensive step (embeddings); it is
-   idempotent on re-run. Expect ~2,276 documents from this campaign plus the
+   been acquired, and the pre-Phase-3 cleanup is done. Do NOT spawn
+   entry-writing agents. The three remaining decisions are filed as
+   [#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131),
+   [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132) and
+   [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133), and **none of
+   them blocks Phase 3.**
+2. **Phase 3 — `pnpm index`, ONCE.** Drains every pending row across all
+   45 acquired sources. This is the expensive step (embeddings); it is
+   idempotent on re-run. Expect ~2,281 documents from this campaign plus the
    pre-existing corpus.
    ⚠️ **Re-run the FULL verify gate after ingest**, not just after code changes
    — integration tests query the live Postgres and a data-only change can turn
    them red (slice #3 precedent).
-4. **Then Phase 4** (per-language retrieval smoke, scripted — do not hand-run
-   44 times) and **Phase 5** (eval, §7), remembering the mandatory env
+3. **Then Phase 4** (per-language retrieval smoke, scripted — do not hand-run
+   45 times) and **Phase 5** (eval, §7), remembering the mandatory env
    override: `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval`.
    `pnpm eval` has **no resume** and one transient blip discards the whole run.
-5. **Then Phase 6 — ONE PR** for the campaign, lowercase title (commitlint),
+4. **Then Phase 6 — ONE PR** for the campaign, lowercase title (commitlint),
    `gh auth switch --user jaco-brink` first.
-6. **Regenerate §0's board before you finish** (§0.1). This is the last step of
+5. **Regenerate §0's board before you finish** (§0.1). This is the last step of
    every session, not an optional tidy-up.
 
 **If you DO end up writing another entry** (e.g. Jaco picks option 2 for
@@ -1692,18 +1714,20 @@ been among the most valuable outputs of this campaign** — each one caught
 something no gate downstream would have.
 
 ### Waiting on Jaco — this is now the critical path
-**Sixteen** open questions in §13, and they are now the only thing between
-this campaign and Phase 3. Answered on 2026-07-29: the scripture policy, `bg`,
+**Sixteen** open questions in §13; **two have been answered and closed since**
+(#13 `ru-ca`, #15 the doctype cleanup), and three are now filed as GitHub
+issues (#131, #132, #133). Nothing blocks Phase 3. Answered on 2026-07-29: the scripture policy, `bg`,
 and `sr` (deferred → #129).
 
 **The four that decide what happens next:**
 
 | # | Question | Why it is urgent |
 |---|---|---|
-| **#15** | Clean up the 14 doctype-leaking documents? | **Free now, expensive after `pnpm index`.** This window closes at Phase 3. |
-| **#12** | Is `he` (igod.co.il) in scope — not a Cru property, 1,020 docs? | Decides whether the corpus grows by 47% |
-| **#13** | `ru-ca` — drop it, 6-seed key, or fold into `ru`? | §16; last unresolved domain of the 48 |
-| **#3** | `lv` rights — ask Agape Students Latvia? | Only remaining host nobody has permission to crawl |
+| ~~#15~~ | ~~Clean up the 14 doctype-leaking documents~~ | ✅ **DONE** 2026-07-30, commit `2b6f8a0`. 0 leaks remain. |
+| ~~#13~~ | ~~`ru-ca` — drop, separate key, or fold into `ru`?~~ | ✅ **DONE** 2026-07-30, commit `185a090`. Separate key, 5 seeds. §16. |
+| **#12** | Is `he` (igod.co.il) in scope — not a Cru property, 1,020 docs? | Filed as **[#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)**. Decides whether the corpus grows by ~45% |
+| **#3** | `lv` rights — ask Agape Students Latvia? | Filed as **[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)**. Only host nobody has permission to crawl |
+| **#14** | `everystudent-ar`'s Gospel of John, live in prod | Filed as **[#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131)**. One document; deletion, no re-fetch |
 
 **Still open, none blocking:** the eval shortlist (#1), #128 timing (#2), the
 `--probe` flag (#4), the `extractContent` root-cause fix (#5), the three-way
@@ -1812,6 +1836,17 @@ load-bearing twice over.
 ---
 
 ## 16. `ru-ca` (studentstan.com) — a MIRROR, not a sibling (2026-07-30)
+
+> ## ✅ RESOLVED 2026-07-30 — commit `185a090`
+> Registered as `everystudent-ru-ca` with **5 seeds, not 87** (operator's call:
+> option 2 below, the one that HONOURS ADR-0006). Acquired 5/5, zero skips, and
+> **zero rows share an md5 with any `everystudent-ru` document**.
+> `/a/jfil.html` — the 6th unique page — was excluded as JESUS-film promo copy
+> (~400 ch of prose before the nav), the same class as `everystudent-ro`'s
+> skipped `/v/filmuliisus.html`. One line to reverse.
+> 🔴 **Do NOT "complete" that seed list from the site's own map.** Its test
+> asserts `toHaveLength(5)` and names four of the ≥99% duplicates precisely to
+> stop that.
 
 **The batch-5 agent wrote nothing and escalated. That was correct.** This is
 the campaign's second correct refusal, after `bg`.

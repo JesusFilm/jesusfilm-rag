@@ -151,12 +151,44 @@ sources were checked against that test on 2026-07-30 and are **clean** —
 agent prompt live in **[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md)**
 — point a fresh agent at that file and it can resume unaided.
 
-**Position at 2026-07-30 (branch `feat/everystudent-siblings`, unpushed, no PR):**
+**Position at 2026-07-31 (branch `feat/everystudent-siblings`, unpushed, no PR):**
+**NEXT: Phase 4 (retrieve smoke) + Phase 5 (eval).**
 **Phases 1–2 CLOSED — nothing left to crawl.** 47 of 48 registered, **45
 acquired locally = 2,281 documents**, zero duplicate-content groups, zero
-doctype leaks, gate green at 744 tests. **Nothing indexed yet** — Phase 3
-(`pnpm index`) runs ONCE and is the next action. Counts come from the database,
-never from prose; the regeneration query is §0.1 of the state file.
+doctype leaks, gate green at 744 tests.
+
+**Phase 3 (`pnpm index`) is COMPLETE — ran 2026-07-30 through the new ADR-0015
+embedding gateway.** All **2,281 documents ingested, 0 pending**: 2,219 in the
+bulk run (0 skipped, 12,974 chunks) plus the 41-doc `am` canary, the 13-doc `sw`
+gateway canary and 8 `zh-cn` rows from an earlier stopped run. Corpus-wide,
+declared chunks = actual chunks = embeddings = **47,618**, all under a single
+`embedding_model` (`qwen/qwen3-embedding-8b`). **Zero embed retries and zero
+provider fallbacks** across the whole run; a re-run drains 0. Gate green at 761
+tests. 45 sources now sit at `acquire: green` + `ingest: green`.
+
+**The language sweep is COMPLETE (2026-07-31)** — commit `13be622`, run record
+in §0.4 of the state file. Ingest labelled **225 documents `null` and 182 with
+the WRONG language**, because `tinyld` does not model 9 of the campaign's
+languages and sits under its confidence gate on Persian and Slovak. Malay was
+filed as `id`, Nepali as `hi`, Tigrinya as `am`, Croatian/Slovenian as `sr`,
+Albanian as `nl`, **Persian as `ar`**. `pnpm lang:sweep` (LLM detector,
+`gemini-2.5-flash-lite`, label-only — no re-embed) fixed all 407 rows for ~15
+cents.
+
+**Verified in the database 2026-07-31: 13,969 documents, `0` null, and every one
+of the 14 affected language buckets now resolves to exactly one source.** The
+`sr` and `nl` buckets — which were 100% fabricated — are gone entirely.
+
+⚠️ **`fa` was the worst of them and was nearly missed.** 26 Persian pages sat in
+the `ar` bucket that `everystudent-ar` (already evaluated, already in prod)
+draws from, so **any `language:ar` eval number taken before 2026-07-31 measured a
+polluted corpus.** Derive a fix list from a SQL diff of declared-vs-actual, never
+a hand-kept table.
+
+⚠️ **These labels are LOCAL only and do NOT carry to production.** Phase 7's
+`index:production` re-detects with `tinyld`, so prod will reproduce all 225 nulls
+and all 182 mislabels from scratch. The sweep must be re-run against prod after
+`index:production` — see §0.4 "This does NOT carry to production".
 
 Three domains are unacquired **by decision**, none blocking Phase 3:
 `everystudent-sr` (network blackhole →

@@ -483,6 +483,29 @@ Two things Phase 4 must respect:
   would have dropped every candidate. §7's eval shortlist (§13 #1) was decided
   when those languages could not produce cases at all, and may be worth revisiting.
 
+**Then: Phase 5 — eval.** The operator's stated plan (2026-07-31) is that the
+next session runs **retrieve and eval together**. Phase 4 is the gate on Phase 5,
+not a separate sitting: the smoke proves the per-language filters resolve, and
+`pnpm eval` is one whole-corpus run (§2).
+
+Three things Phase 5 must respect before anyone spends a curation pass:
+
+1. 🔴 **`pnpm eval` has NO resume and inherits the fast-fail query posture.**
+   The env override in §6 Phase 5 is **mandatory**, not optional — one transient
+   blip discards the entire run, and it killed two runs in slice #9:
+   ```bash
+   QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval
+   ```
+2. ⚠️ **§7's eval shortlist is STALE and was decided under false constraints.**
+   It proposed `/golden` for `es` `zh` `ru` `pt` `de` `ja` `ko` and `deferred`
+   for everything else, at a time when `ka` `sw` `om` `ti` `ne` were 100% null or
+   100% mislabelled and could not produce a single golden case. They can now.
+   Re-decide the shortlist rather than inheriting it.
+3. ⚠️ **Any pre-2026-07-31 `language:ar` number is void** (§0.4) — the `ar`
+   bucket held 26 Persian pages. `everystudent-ar` carries 13 of the corpus's
+   existing golden cases, so this is the one prior eval result the sweep
+   actually invalidates. Re-measure before comparing.
+
 One unfiled defect from the sweep needs an issue — see §11, last entry.
 
 - ✅ **Batch 1 (pilot, 8 sources) — DONE.** Written, wired, acquired.

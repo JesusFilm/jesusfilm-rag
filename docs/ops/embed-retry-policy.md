@@ -41,11 +41,26 @@ retry for a request whose caller was already gone.
 
 Shared by both instances (they must agree or retrieval is silent garbage —
 `retrieve.ts` guards this): `EMBED_MODEL_ID`, `EMBED_BASE_URL`,
-`EMBED_QUERY_INSTRUCTION`, `EMBED_TRUNCATE_DIMENSIONS`, the API key.
+`EMBED_QUERY_INSTRUCTION`, `EMBED_TRUNCATE_DIMENSIONS`, the API keys.
 
 What counts as transient (retried): request timeout (`AbortError`), network
 drop, HTTP 429/5xx. Never retried on either path: data-integrity errors
 (vector width/count mismatch) and non-429 4xx — a retry can't fix them.
+
+**Gateway mode (ADR-0015).** With `EMBED_BASE_URL` set, each posture above
+runs against the JFP AI gateway FIRST (`EMBED_API_KEY`, wire alias
+`EMBED_WIRE_MODEL_ID`), and only after the gateway exhausts that posture's
+retry budget does the whole call re-run on hosted OpenRouter
+(`OPENROUTER_API_KEY`) under the same posture. Worst case doubles accordingly
+(query ≈ 16.5s, corpus ≈ 11.6 min per batch, both providers down). Retry lines
+gain a provider tag (`[gateway]` / `provider=gateway`); every fallback logs
+`↯ corpus embed: gateway failed (…); falling back to hosted OpenRouter` or
+`[retrieval] event=query_embed_fallback provider=openrouter reason=…`. A
+sustained stream of those means gateway REQUESTS are failing — the RAG itself
+is healthy, but ANY primary error triggers fallback (ADR-0015), so check
+gateway availability, the `EMBED_API_KEY` credential, and the
+`EMBED_WIRE_MODEL_ID` alias (the `reason=` code says which: `http_401` ⇒
+credential, `http_404` ⇒ model/route, `timeout`/`network` ⇒ availability).
 
 ## Reading the logs
 

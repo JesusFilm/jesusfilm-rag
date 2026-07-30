@@ -11,6 +11,11 @@ export {
   type EmbedRetryInfo,
 } from "./openrouter-embedder.js";
 export {
+  FallbackEmbedder,
+  type EmbedFallbackInfo,
+  type FallbackEmbedderOptions,
+} from "./fallback-embedder.js";
+export {
   OpenRouterLanguageDetector,
   OpenRouterReviewer,
   isRetryableLangDetectError,

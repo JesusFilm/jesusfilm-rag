@@ -48,6 +48,12 @@ services:
       EMBED_MODEL_ID: ${EMBED_MODEL_ID:-qwen/qwen3-embedding-8b}
       # Query-side asymmetric instruction (documents embed raw) — qwen quality.
       EMBED_QUERY_INSTRUCTION: ${EMBED_QUERY_INSTRUCTION:-Given a web search query, retrieve relevant passages that answer the query}
+      # Gateway-primary embedding (ADR-0015) — optional pass-through from .env.
+      # Empty reads as "not configured" (src/env.ts treats "" as unset) and the
+      # container serves query embeds via hosted OpenRouter alone.
+      EMBED_BASE_URL: ${EMBED_BASE_URL:-}
+      EMBED_API_KEY: ${EMBED_API_KEY:-}
+      EMBED_WIRE_MODEL_ID: ${EMBED_WIRE_MODEL_ID:-}
       PORT: 8080
       # Dev bearer token → all sources. Change here for a different local token.
       SERVE_BEARER_TOKENS: '{"local-dev-token":["*"]}'

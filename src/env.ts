@@ -69,6 +69,17 @@ export function applyNamespacedEnvFallbacks(
 applyNamespacedEnvFallbacks();
 loadDotEnv();
 
+/**
+ * Treat an empty/whitespace env value as unset. docker-compose pass-throughs
+ * (`${VAR:-}`) materialize absent vars as "" — that must read as "not
+ * configured", never fail `.url()`/`.min(1)` validation.
+ */
+const emptyAsUnset = <S extends z.ZodTypeAny>(schema: S): z.ZodEffects<S> =>
+  z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    schema,
+  );
+
 // The schema validates exactly what the running code consumes: the DB, the
 // embedder, the embedding model, and (build step 6) the HTTP serving adapter.
 // The serving vars are OPTIONAL here so the CLI runners (acquire/index/query),
@@ -98,9 +109,22 @@ const envSchema = z.object({
   // call, in ms. Default 4000 — generous against a normal sub-second query
   // embed, but an order of magnitude tighter than the document path's 30s.
   QUERY_EMBED_TIMEOUT_MS: z.coerce.number().int().positive().default(4000),
-  // Embeddings endpoint base URL. Defaults to OpenRouter; point at a self-hosted
-  // vLLM `/v1` for on-prem serving. Consumed by the Embedder adapter (main.ts).
-  EMBED_BASE_URL: z.string().url().optional(),
+  // Embeddings endpoint base URL. Unset ⇒ hosted OpenRouter alone (pre-gateway
+  // behavior). Set (the JFP AI gateway, or any self-hosted `/v1`) ⇒ that
+  // endpoint is the PRIMARY embedding provider and hosted OpenRouter becomes
+  // the logged fallback — see FallbackEmbedder (main.ts) and ADR-0015.
+  EMBED_BASE_URL: emptyAsUnset(z.string().url().optional()),
+  // Credential for the EMBED_BASE_URL endpoint — REQUIRED when EMBED_BASE_URL
+  // is set (the gateway has its own key; enforced by the superRefine below).
+  // OPENROUTER_API_KEY stays the credential for the hosted-OpenRouter fallback
+  // and for every non-embedding OpenRouter call (language detect, review).
+  EMBED_API_KEY: emptyAsUnset(z.string().min(1).optional()),
+  // Model id sent ON THE WIRE to the EMBED_BASE_URL endpoint — the JFP AI
+  // gateway serves qwen3-embedding-8b under the alias "embeddings". The
+  // canonical identity recorded per row (chunk_embeddings.embedding_model) and
+  // guarded by retrieve.ts remains EMBED_MODEL_ID. Unset ⇒ EMBED_MODEL_ID goes
+  // on the wire. Ignored when EMBED_BASE_URL is unset.
+  EMBED_WIRE_MODEL_ID: emptyAsUnset(z.string().min(1).optional()),
   // Instruction-aware query task for Qwen3-Embedding-class models. When set,
   // embedQuery encodes `Instruct: {…}\nQuery: {text}` (documents stay raw).
   // Unset ⇒ symmetric encoding; set it for qwen (see docs/ops/prod-reembed.md).
@@ -132,6 +156,19 @@ const envSchema = z.object({
   // JSON map of bearer token → allowed source keys (["*"] = all). Parsed by the
   // serving adapter (src/serving/http/auth.ts); required only by `pnpm serve`.
   SERVE_BEARER_TOKENS: z.string().min(1).optional(),
+}).superRefine((v, ctx) => {
+  // A gateway endpoint without its credential would 401 on every call and ride
+  // the fallback forever — fail loud at startup instead of burning OpenRouter
+  // spend silently.
+  if (v.EMBED_BASE_URL && !v.EMBED_API_KEY) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["EMBED_API_KEY"],
+      message:
+        "required when EMBED_BASE_URL is set — the gateway has its own key " +
+        "(OPENROUTER_API_KEY only covers the hosted-OpenRouter fallback)",
+    });
+  }
 });
 
 export type Env = z.infer<typeof envSchema>;

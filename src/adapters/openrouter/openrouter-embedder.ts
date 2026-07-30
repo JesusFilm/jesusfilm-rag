@@ -54,6 +54,15 @@ const RETRY_MAX_DELAY_MS = 8_000; // ceiling so a high maxAttempts can't wait mi
 export interface OpenRouterEmbedderOptions {
   apiKey: string;
   model?: string;
+  /**
+   * Model id sent ON THE WIRE to the endpoint, when it differs from `model` —
+   * the canonical identity exposed as `.model`, recorded per row in
+   * `chunk_embeddings.embedding_model`, and guarded by retrieve.ts. The JFP AI
+   * gateway serves qwen3-embedding-8b under the alias "embeddings"; setting
+   * `wireModel: "embeddings"` keeps the corpus identity stable across
+   * providers. Unset ⇒ `model` goes on the wire (OpenRouter behavior).
+   */
+  wireModel?: string;
   dimensions?: number;
   baseUrl?: string;
   maxBatch?: number;
@@ -151,6 +160,7 @@ export class OpenRouterEmbedder implements Embedder {
   readonly model: string;
   readonly dimensions: number;
   private readonly apiKey: string;
+  private readonly wireModel: string;
   private readonly baseUrl: string;
   private readonly maxBatch: number;
   private readonly interBatchDelayMs: number;
@@ -165,6 +175,7 @@ export class OpenRouterEmbedder implements Embedder {
     if (!opts.apiKey) throw new Error("OpenRouterEmbedder: apiKey is required");
     this.apiKey = opts.apiKey;
     this.model = opts.model ?? DEFAULT_MODEL;
+    this.wireModel = opts.wireModel ?? this.model;
     this.dimensions = opts.dimensions ?? DEFAULT_DIMENSIONS;
     this.baseUrl = (opts.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
     this.maxBatch = opts.maxBatch ?? DEFAULT_MAX_BATCH;
@@ -254,7 +265,7 @@ export class OpenRouterEmbedder implements Embedder {
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          model: this.model,
+          model: this.wireModel,
           input: inputs,
           dimensions: this.dimensions,
         }),

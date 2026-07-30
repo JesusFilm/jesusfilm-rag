@@ -111,6 +111,21 @@ credentials come **strictly from the environment**, typically injected by
 | `OPENROUTER_API_KEY` | `OPENROUTER_API_KEY` → `JFRAG_OPENROUTER_API_KEY` |
 | `EMBED_MODEL_ID` | `EMBED_MODEL_ID` → `JFRAG_OPENROUTER_EMBED_MODEL_ID` → default |
 
+The gateway-primary embedding vars (ADR-0015) need no resolution machinery:
+`EMBED_BASE_URL`, `EMBED_API_KEY`, and `EMBED_WIRE_MODEL_ID` live under their
+plain names in the `forge-rag` Doppler configs (`dev` and `prd`), so
+`doppler run` injects them and `getEnv()` picks them up directly. When they are
+present, embedding runs gateway-first with hosted OpenRouter as the logged
+fallback; absent, everything behaves exactly as before (OpenRouter only).
+
+Note the asymmetry with the prompted credentials above: the INTERACTIVE flow
+prompts only for `DATABASE_URL` / `OPENROUTER_API_KEY` / `EMBED_MODEL_ID` and
+never asks about the gateway. An interactive `pnpm index:production` run
+therefore embeds via the gateway ONLY if the three gateway vars are already in
+the shell environment (e.g. the run is itself wrapped in
+`doppler run --project forge-rag --config prd -- …`); in a bare shell it stays
+OpenRouter-only — the safe pre-gateway behavior, not an error.
+
 ```sh
 # Read-only smoke test, fully unattended:
 doppler run --project forge-rag --config prd -- \

@@ -32,6 +32,7 @@ as sources are registered:
 | `thelife` | thelife (Cru Canada — successor to Power to Change) |
 | `thelife-fr` | thelife — French (laviejenparle.com) — language variant |
 | `thelife-zh` | thelife — Chinese (uwota.com) — language variant |
+| `everystudent-<lang>` | **47 non-walled EveryStudent sibling domains** (#111) — one domain = one key (ADR-0006), each plain HTTP with no Firecrawl. Not listed individually here; see the campaign section below and **[the state file](./slices/everystudent-siblings.md)** §0 for the full board. Includes two regional variants that share a base language code — `everystudent-zh-cn` / `everystudent-zh-tw` (both `zh`) and `everystudent-ru` / `everystudent-ru-ca` (both `ru`) |
 
 (Only registered sources appear; the rest get a key when their slice begins.
 `familylife` is also registered — see the backlog table — and is now bilingual
@@ -119,6 +120,7 @@ schedule, not folded into unrelated source work.
 |---|---|---|---|
 | **[#128](https://github.com/JesusFilm/jesusfilm-rag/issues/128)** — share-widget chrome embedded as body text, **live in prod** | `everystudent` 97/117 docs · `everystudent-ar` **67/67** · `everystudent-fr` **67/67** (232 chunks) | UI text ("Share this article" / "شارك مع أخرين" / "PARTAGER CETTE PAGE:") sits inside the embedding vector and can surface in a citation | Add `.shareiconsmenupg` to `stripSelectors` on the three entries, then re-extract. **No re-fetch, no Firecrawl credits** — the `raw_documents` rows are already stored. |
 | **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** — content soundness, estate-wide | found in `everystudent-ar`, confirmed in `everystudent-fr` | false factual claims, modalism, suicide content with no help signposted | content decision, not an engine fix |
+| **[#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131)** — a **full Gospel of John** seeded as an article, **live in prod** | `everystudent-ar` — exactly **1** document, `/a/whowas.html`, 23,624 chars | Scripture text, not ministry writing. The page says so itself: excerpts "directly from the Gospel of John … **without adding any commentary**", 17 chapter headings over continuous verse text. Violates the estate-wide scripture policy **that this very entry established** for its `/bible/**.pdf` files. The #111 campaign blocks the same page on six sibling hosts. | Remove `/a/whowas.html` from `seedPaths` (and decide on `/john.html`, the 1,473-char signup twin), delete the row, re-index. **A deletion — no re-fetch, no Firecrawl credits.** |
 
 **Why #128 was missed for three slices:** all three entries strip
 `sitelevel_noindex`, which *should* wrap the share block — but it is a custom
@@ -129,6 +131,17 @@ can reach"; that is **wrong** — `.shareiconsmenupg` reaches it. Found
 independently by all eight agents authoring the [#111](https://github.com/JesusFilm/jesusfilm-rag/issues/111)
 sibling entries, which already carry the fix.
 
+**Why #131 was missed:** `everystudent-ar`'s docstring reasons carefully about
+Scripture for its four `/bible/**.pdf` files and never applies that reasoning to
+its own `/a/whowas.html`, which is an *article* URL. Length was not the signal —
+at 23,624 chars it sits in the same band as the apologetics essays that were
+correctly kept. What identifies it is **structure**: continuous chapter-and-verse
+text with commentary explicitly removed, versus argument in an author's voice
+closing on a secondary-source bibliography. The other two prod EveryStudent
+sources were checked against that test on 2026-07-30 and are **clean** —
+`everystudent-fr` `/a/215bible.html` (31,558 ch) and `everystudent`
+`/features/bible.html` (22,711 ch) are both essays *about* the Bible.
+
 ---
 
 ## EveryStudent sibling-language estate (#111) — campaign in progress
@@ -137,6 +150,25 @@ sibling entries, which already carry the fix.
 `/slice` runs**. Full plan, per-source findings, rules learned and the reusable
 agent prompt live in **[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md)**
 — point a fresh agent at that file and it can resume unaided.
+
+**Position at 2026-07-30 (branch `feat/everystudent-siblings`, unpushed, no PR):**
+**Phases 1–2 CLOSED — nothing left to crawl.** 47 of 48 registered, **45
+acquired locally = 2,281 documents**, zero duplicate-content groups, zero
+doctype leaks, gate green at 744 tests. **Nothing indexed yet** — Phase 3
+(`pnpm index`) runs ONCE and is the next action. Counts come from the database,
+never from prose; the regeneration query is §0.1 of the state file.
+
+Three domains are unacquired **by decision**, none blocking Phase 3:
+`everystudent-sr` (network blackhole →
+[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)),
+`everystudent-he` (not a Cru property, 1,020 articles, CDATA sitemap →
+[#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)) and `lv`
+(robots disallows `ClaudeBot` by name → 
+[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)).
+
+⚠️ `everystudent-ru-ca` carries **5 seeds deliberately** — it is a mirror of
+`everystudent-ru` (42 of 87 articles ≥95% overlap). Do not complete its seed
+list from the site's own map.
 
 ---
 

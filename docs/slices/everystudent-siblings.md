@@ -20,7 +20,7 @@ next one starts from truth. A stale board is worse than none: it is the exact
 failure `docs/STATUS.md` hit on 2026-07-17, when a narrative doc reported a
 finished cutover as pending.
 
-**Last regenerated: 2026-07-31 (after the language sweep)** · **47 of 48
+**Last regenerated: 2026-08-03 (after the Phase-4 retrieve smoke)** · **47 of 48
 registered · 45 acquired · 2 deferred · 1 open · 2,281 documents · 0
 duplicate-content groups · 0 doctype leaks · 0 null-language**
 
@@ -39,6 +39,7 @@ completion on 2026-07-30 (operator-approved) through the ADR-0015 gateway.
 | Retries / fallbacks | **0 / 0** across the entire run |
 | Idempotency | re-run drained **0 rows** |
 | Gate | **761 tests green** |
+| Retrieve (Phase 4) | ✅ **47 / 47, zero wrong-language hits** (2026-08-03) — see §0.5 |
 | Language | ✅ **FIXED 2026-07-31** — 225 `null` → **0**; 182 mislabelled → **0**. See §0.4 |
 
 Per-stage state: **45 sources at `acquire: green` + `ingest: green`**;
@@ -354,6 +355,60 @@ pnpm lang:sweep:production --source everystudent --mode blanks --apply
 Prod runs need `JFRAG_ALLOW_PROD_WRITE=1` and Doppler credentials — see
 `docs/ops/language-sweep.md` → "Running against production".
 
+### 0.5 ✅ Phase 4 — per-language retrieve smoke (2026-08-03): 47 / 47
+
+**Every `language:<code>` filter returned only documents genuinely in that
+language. Zero wrong-language hits across 47 sources.** The seed document ranked
+**#1 in 43 of 47** and #2 in the other four.
+
+Method matters here: each hit's language was resolved from the database by
+`(sourceKey, canonicalUrl)`, **never inferred from the source key** — a source
+can hold more than one language (`cru` is en+es+fr), so key-based inference
+would have passed a broken filter.
+
+The rows that were broken before the sweep, now measured clean:
+
+| Source | Before the sweep | Phase 4 result |
+|---|---|---|
+| `ti` Tigrinya | 100% filed as `am` | 5 hits, all `ti`, self @1, top **0.722** |
+| `ne` Nepali | 100% filed as `hi` | 5 hits, all `ne`, self @1, **0.810** |
+| `ms` Malay | 47 of 52 filed as `id` | 5 hits, all `ms`, self @2, **0.677** |
+| `hr` Croatian | 30 filed as `sr` | 5 hits, all `hr`, self @1, **0.881** (best in run) |
+| `sq` Albanian | 38 filed as `nl` | 5 hits, all `sq`, self @2, **0.712** |
+| `fa` Persian | 26 in the `ar` bucket + 47 null | 3 hits, all `fa`, self @1, **0.628** |
+| `ka` `sw` `om` | 100% null — unreachable by filter | 4 / 5 / 5 hits, all correct |
+| `am` `ar` `hi` `id` | polluted buckets | re-measured clean |
+
+✅ **Regional collapse behaves as designed** — this was the most likely source of
+a false failure. `language:zh` returns `zh-cn` **and** `zh-tw`; `language:ru`
+returns `ru` **and** `ru-ca`; `language:es`/`fr` reach `cru` and `thelife-fr`.
+Correct: those sources genuinely share one ISO 639-1 code.
+
+ⓘ Five sources returned fewer than 5 hits (`de` 1, `fa`/`id`/`te`/`th` 3). That
+is the `minScore 0.37` cutoff on a small subcorpus, **not** a filter fault —
+every hit returned was right.
+
+#### The script — reuse it verbatim for Phase 7 against prod
+
+Lives at `.tmp-diag/phase4-smoke.ts` (git-ignored; `.tmp-diag/` is in
+`.git/info/exclude`). It must live INSIDE the repo for the `@/` alias to
+resolve. Run:
+
+```bash
+QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 \
+  doppler run -p forge-rag -c dev -- npx tsx .tmp-diag/phase4-smoke.ts
+```
+
+It wires once and loops, rather than spawning 47 `pnpm query` processes. Shape:
+pull one seed title per source from `documents`, build an exact
+`"sourceKey|url" → language` map, then for each source
+`retriever.search(title, { language, topK: 5 })` and assert (a) hits > 0 and
+(b) every hit's looked-up language equals the filter.
+
+⚠️ **The env override is required, not cosmetic** — ad-hoc retrieval inherits
+`/v1/search`'s fast-fail posture (2 attempts, 4 s) and dies `AbortError` without
+it. See §6 Phase 3, finding 2.
+
 ### 0.1 How to regenerate this board
 
 Counts come from the **database**, never from memory or from this file's prose.
@@ -466,27 +521,23 @@ locally acquired.
 
 ### ⏭️ Actual next action (2026-07-31)
 
-**Phase 3 (index) is CLOSED. The language sweep is CLOSED (§0.4).**
-Language is no longer a blocker for anything downstream — 0 nulls, 0 mislabels,
-every bucket single-source.
+**Phase 3 (index) is CLOSED. The language sweep is CLOSED (§0.4).
+Phase 4 (retrieve smoke) is CLOSED — 47/47, see §0.5.**
 
-**Next: Phase 4 — the per-language retrieve smoke** (§6 Phase 4). It is now
-worth running for the first time: before the sweep, `language:<code>` filters
-were returning the wrong corpus for six languages and returning nothing for
-`ka`/`sw`/`om`, so any earlier smoke result was meaningless.
+**➡️ NEXT SESSION STARTS AT PHASE 5 (eval).** Nothing is blocked. There is one
+decision to take first, and it is §7's shortlist — see below.
 
-Two things Phase 4 must respect:
-- **Re-measure `am`, `ar`, `hi`, `id` from scratch.** Any number taken before
-  2026-07-31 was measured against a polluted bucket (§0.4).
-- **`ka` `sw` `om` `ti` `ne` are now eligible for golden cases for the first
-  time** — they were 100% null or 100% mislabelled, so `/golden` guardrail 3a
-  would have dropped every candidate. §7's eval shortlist (§13 #1) was decided
-  when those languages could not produce cases at all, and may be worth revisiting.
+⚠️ **A claim that stood here until 2026-08-03 was WRONG, and it is worth naming
+so nobody re-derives it.** This box previously said §7's eval shortlist "was
+decided when those languages could not produce cases at all" because guardrail
+3a drops null-language documents. **That is not why §7 deferred them.** §7 is
+dated 2026-07-28; the language-label problem was not discovered until 07-30, so
+it cannot have motivated a decision two days earlier. §7's actual sentence is:
 
-**Then: Phase 5 — eval.** The operator's stated plan (2026-07-31) is that the
-next session runs **retrieve and eval together**. Phase 4 is the gate on Phase 5,
-not a separate sitting: the smoke proves the per-language filters resolve, and
-`pnpm eval` is one whole-corpus run (§2).
+> *"Golden cases need someone who can read the language. Nobody can curate
+> Oromo, Tigrigna and Georgian answer keys."*
+
+The blocker was, and still is, **human curation capacity** — see §7.
 
 Three things Phase 5 must respect before anyone spends a curation pass:
 
@@ -1035,6 +1086,51 @@ exact commands are in §0.4 → "This does NOT carry to production".
 ---
 
 ## 7. Eval strategy — the one place 48 still bites
+
+### 🔴 OPERATOR DIRECTION, 2026-08-03 — read this before the proposal below
+
+Jaco, on being shown the shortlist: *"don't understand why some would be
+deferred from shortlist before, but if they are now capable of getting golden
+treatment they should."*
+
+**So the default flips: capability, not convenience, decides.** A language is
+`evaluate: deferred` only if there is a *stated, specific* reason it cannot be
+curated — never as the residue of a blanket "everything else".
+
+To act on that, the next session must separate **two independent blockers** that
+have been conflated (including by an earlier version of §4's next-action box):
+
+| Blocker | What it stopped | Applies to | Status |
+|---|---|---|---|
+| **Guardrail 3a** — `/golden` may never credit a null-language document (`.claude/skills/golden/SKILL.md:76`) | Candidate *generation* — the SQL returns nothing | `ka` `sw` `om` `ti` `ne` (100% null/mislabelled) + `sq` `fa` partially | ✅ **GONE** — the §0.4 sweep cleared it |
+| **Nobody here reads the language** | Candidate *verification* — you cannot approve an answer key you cannot read | `om` `ti` `ka` `am` `bn` `ur` `th` `mk` `lt` `my` `te` `ta` `ne` … | ⛔ **UNCHANGED** |
+
+**Only the first one lifted.** The sweep made those languages *mechanically*
+eligible; it did nothing about who can read Tigrinya. Any plan that treats
+"labels are fixed" as "we can now curate these" is wrong.
+
+§13 #1 already named the right axis and it stands:
+
+> *"Worth splitting the decision by **who can read it**, not by *is it new*."*
+
+**The real question for the next session, which only Jaco can answer:** what
+counts as "can read it"? The options are not equal, and the choice sets the
+scope of Phase 5:
+
+1. **Only languages someone on the team reads** — the narrowest reading, close
+   to the original shortlist, and the only one needing no new process.
+2. **Any language a Cru/JFP native speaker can be asked to check** — the estate
+   is a Cru property in ~44 languages; the reviewers may already exist. Costs
+   coordination time, not tokens.
+3. **Accept LLM-assisted verification** for languages with no human reviewer,
+   recorded as a lower evidence tier so the numbers are never confused with
+   human-approved cases.
+
+Until that is answered, **do not write `evaluate: deferred` into
+`docs/source-status.yaml` for anything** — a deferral recorded for the wrong
+reason is harder to undo than one never written.
+
+### The original proposal (2026-07-28), superseded in default but not in facts
 
 Golden cases need someone who can read the language. Nobody can curate Oromo,
 Tigrigna and Georgian answer keys. **Proposed, and awaiting the operator's

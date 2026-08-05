@@ -328,6 +328,15 @@ a useful signal about phrasing or about gaps in the source's coverage.
   sides are in English, and future agents re-review the living relevant sets
   from them. A non-English case without both is incomplete — do not write it.
   (See docs/eval-approach.md → "Multilingual eval".)
+- **Non-English cases MUST also carry `evidence_tier`** — `human-verified` when
+  the operator could read the language or sanity-check the translation,
+  `llm-translated` when nobody available can verify it (added 2026-08-03 for the
+  45-language #111 campaign; see docs/eval-approach.md → "Evidence tiers").
+  Ask which applies rather than assuming — it is a fact about the *reviewer*,
+  not about the language. It is **not** a quality gate: nothing is discounted or
+  excluded, `pnpm eval` just reports the buckets apart so a machine-translated
+  language's number is never averaged into a checked one. **Never backfill a tier
+  onto an existing untagged case** — that asserts something nobody can now check.
 - **Negatives** → save the list to the source's slice file (Stage 4 section) — do
   **not** put them in `qa-golden.yaml` (`eval.ts` would miscount them as misses).
 

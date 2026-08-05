@@ -13,6 +13,7 @@ import {
   computeMetrics,
   coverageByLanguage,
   coverageBySource,
+  coverageByTier,
   firstMatchingRank,
   renderMarkdown,
   returnedRelevant,
@@ -170,8 +171,60 @@ describe("coverageByLanguage — a multi-language source blends its languages in
   });
 });
 
+describe("coverageByTier — machine-translated evidence is never averaged into checked evidence", () => {
+  it("splits cases by evidence_tier and keeps untagged cases in their own bucket", () => {
+    // The campaign shape: a language the operator can check retrieves well, one
+    // they approved on a machine translation does not. A single mean would read
+    // as 0.5 and say nothing about which half to trust.
+    const checked = gcase({
+      id: "de1",
+      evidence_tier: "human-verified",
+      relevant: { [CRU]: ["/x.html"] },
+    });
+    const translated = gcase({
+      id: "ti1",
+      evidence_tier: "llm-translated",
+      relevant: { [CRU]: ["/y.html"] },
+    });
+    const legacy = gcase({ id: "old1", relevant: { [CRU]: ["/z.html"] } });
+    const results = [
+      result(checked, hitsWith({ 1: "/x.html" }), "de"),
+      result(translated, hitsWith({}), "ti"),
+      result(legacy, hitsWith({ 1: "/z.html" }), "en"),
+    ];
+
+    const byTier = coverageByTier(results);
+    expect(byTier.map((t) => t.tier)).toEqual([
+      "(untagged)",
+      "human-verified",
+      "llm-translated",
+    ]);
+    expect(byTier.find((t) => t.tier === "human-verified")!.recall_at_10).toBeCloseTo(1, 5);
+    expect(byTier.find((t) => t.tier === "llm-translated")!.recall_at_10).toBeCloseTo(0, 5);
+  });
+
+  it("does NOT retro-label an untagged case as human-verified", () => {
+    // The 130 pre-campaign cases predate the tier. Defaulting them to
+    // "human-verified" would assert something nobody can now check.
+    const byTier = coverageByTier([
+      result(gcase({ id: "old" }), hitsWith({ 1: "/a.html" })),
+    ]);
+    expect(byTier.map((t) => t.tier)).toEqual(["(untagged)"]);
+  });
+
+  it("rejects an evidence_tier outside the sanctioned set", () => {
+    const parsed = GoldenCaseSchema.safeParse({
+      id: "c",
+      question: "q",
+      evidence_tier: "vibes",
+      relevant: { [CRU]: ["/a.html"] },
+    });
+    expect(parsed.success).toBe(false);
+  });
+});
+
 describe("renderMarkdown", () => {
-  it("includes coverage, per-source + per-language coverage, and a per-case coverage column", () => {
+  it("includes coverage, per-source + per-language + per-tier coverage, and a per-case coverage column", () => {
     const c = gcase();
     const results = [result(c, hitsWith({ 1: "/a.html", 2: "/x.html" }))];
     const md = renderMarkdown({
@@ -182,10 +235,12 @@ describe("renderMarkdown", () => {
       metrics: computeMetrics(results),
       perSource: coverageBySource(results),
       perLanguage: coverageByLanguage(results),
+      perTier: coverageByTier(results),
     });
     expect(md).toContain("| coverage |");
     expect(md).toContain("## Per-source coverage");
     expect(md).toContain("## Per-language coverage");
+    expect(md).toContain("## Per-evidence-tier coverage");
     expect(md).toContain("first rank");
   });
 });

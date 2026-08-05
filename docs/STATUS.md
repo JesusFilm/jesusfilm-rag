@@ -376,8 +376,13 @@ This is a **batched campaign, NOT 48 `/slice` runs** — only acquisition is
 per-source; ingest and eval are already whole-corpus single commands. Do not run
 `/slice` for these.
 
-_You are here (2026-07-30, commit `a5aebac`):_ **PHASES 1–2 ARE CLOSED. There is
-nothing left to crawl.**
+_You are here (2026-08-04):_ **PHASES 1–4 ARE CLOSED. PHASE 5 IS IN PROGRESS —
+14 of 45 golden suites written.**
+
+⚠️ **This block was STALE until 2026-08-03** — it reported "Indexed: NOTHING YET"
+and "Next: Phase 3" for four days after Phase 3 finished. That is the precise
+failure this file hit on 2026-07-17 and the reason the campaign file's §0 exists.
+**The campaign file is the truth; this is a pointer to it.**
 
 | | |
 |---|---|
@@ -385,17 +390,35 @@ nothing left to crawl.**
 | Acquired locally | **45** — 2,281 documents |
 | Duplicate-content groups | **0** |
 | Doctype leaks | **0** (14 cleaned up 2026-07-30, before Phase 3) |
-| Gate | green — depcruise · lint · typecheck · db:check · status:check · **744 tests** |
-| Indexed | **NOTHING YET** — Phase 3 runs ONCE |
+| Gate | green — depcruise · lint · typecheck · db:check · status:check · **764 tests** |
+| Indexed (Phase 3) | ✅ **2,281 / 2,281**, 12,974 chunks, ~95 min, 0 retries · 2026-07-30 |
+| Language labels | ✅ 225 null + 182 mislabelled → **0** (LLM sweep, 2026-07-31) |
+| Retrieve (Phase 4) | ✅ **47 / 47**, zero wrong-language hits · 2026-08-03 |
+| Eval (Phase 5) | 🔵 **IN PROGRESS** — Part A ✅ closed; Part B **14 of 45 suites** written |
+| Eval, latest | **270 cases** · recall@10 **1.000** · coverage **0.841** · P@1 **0.759** · `eval/results-2026-08-04-batch1-tierA-keep.md` |
+| Suites written | `zh-cn` `ru` `bg` + tier-A batch 1 (`sk` `hu` `mn` `ja` `pl` `sq` `es` `fa` `pt` `cs` `tr`) |
+| Control | the 130 pre-campaign cases moved **0.721 → 0.720** — 110 new cases disturbed nothing |
 
 Five batches: 8 pilot (599 docs) · 12 → 11 acquired (782) · 12 (567) · 11 → 10
 acquired (233) · 4 → 3 acquired + 1 partial (100). **Batches 4 and 5 both staged
 100% with ZERO skips.**
 
-_Next:_ **Phase 3 — `pnpm index`, ONCE**, over all 45 sources. Then Phase 4
-(scripted per-language retrieval smoke), Phase 5 (eval — the
-`QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000` override is
-MANDATORY, `pnpm eval` has no resume), Phase 6 (ONE PR), Phase 7 (prod).
+_Next:_ **BATCH B — 14 mid-tier sources (41–67 docs), drafted in PARALLEL and
+approved in ONE turn.** The operator ended the one-source-at-a-time loop on
+2026-08-04; do not reinstate it. Then batch C (9) and D (8), **then the mandatory
+closing Part A sweep** — bulk removed the per-source version, so the living
+relevant sets must be re-reviewed once at the end or the keys go stale.
+
+≈150 cases remain across 31 sources, taking the suite to roughly 420. Then Phase
+6 (ONE PR), Phase 7 (prod — which **must** re-run `lang:sweep:production`; the
+Persian text itself contains Arabic characters, so ingest will reproduce the
+mislabels from scratch). **The full brief for a cold start is the campaign
+file's §0 and §0.12.**
+
+⚠️ The `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000` override on
+`pnpm eval` is MANDATORY — it has no resume. Also: `pnpm eval` is **not
+run-to-run deterministic** (recall@3 drifts ~0.9% relative between identical
+runs); recall@10 and coverage are the stable primaries.
 ⚠️ **Re-run the FULL gate after ingest**, not just after code changes —
 integration tests query the live Postgres.
 
@@ -418,6 +441,12 @@ Filed on the way:
   one document; the other two prod sources were checked and are clean.
 - **[#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)**,
   **[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)** — as above.
+- **[#138](https://github.com/JesusFilm/jesusfilm-rag/issues/138)** (2026-08-03) —
+  the LLM language detector's 200-token output cap can truncate a **correct**
+  reply mid-`evidence`-string, which the adapter then rejects as
+  `response was not JSON`. Hit 1 document in 409. The row is left null and logged
+  as an anomaly, so **the bug is indistinguishable from an honest abstain** in
+  the report. Fix is a bigger cap and/or a shorter evidence quote.
 
 ⚠️ **`everystudent-ru-ca` (studentstan.com) carries only 5 seeds, deliberately.**
 It is a **mirror** of `everystudent-ru` — 42 of its 87 articles overlap at ≥95%,

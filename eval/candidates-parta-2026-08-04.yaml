@@ -1,0 +1,275 @@
+# Phase 5 PART A — re-review of the 18 existing `es` / `zh` cases against the
+# 2,281 campaign documents (#111). Working record. NOTHING here has been written
+# to eval/qa-golden.yaml — guardrail #4 gates that on an explicit operator
+# approval turn.
+#
+# Produced by: QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 \
+#                npx tsx .tmp-diag/phase5-parta.ts        (2026-08-04)
+# Then every candidate document was re-read IN FULL from the database (title +
+# opening 1,200–1,500 chars, plus the retrieved chunk) — guardrail #5 (curate on
+# content, never on titles) and #6 §2 (judge the WHOLE document, never chunk 0).
+#
+# Run shape: 18 cases · 75 raw candidates ≥ 0.45 · 26 accepted · 11 flagged for
+# the operator · 38 rejected.
+#
+# NOTE ON evidence_tier: these 18 are PRE-EXISTING cases and are `(untagged)`.
+# Adding credits to them must NOT add a tier — guardrail: "Never backfill a tier
+# onto an existing untagged case." No `evidence_tier` key appears below.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ACCEPTED — 26 credits across 8 cases. Additive only; no existing path removed.
+# ─────────────────────────────────────────────────────────────────────────────
+
+accepted:
+
+  - case: tlzh-skeptic-tianzai        # THE headline fix — 1 credit → 11
+    # EN: "If there really is a loving God, why are there so many natural
+    #      disasters and man-made tragedies in the world?"
+    currently: { thelife-zh: ["/q-and-a"] }          # its only credit lands at rank 7
+    add:
+      everystudent-zh-cn:
+        - "/a/isgodgood.html"      # 0.741 rank 1 · EN: "Is God loving?" — opens verbatim with
+                                   #   "Is God loving? If so, why is there pain and evil?" then the
+                                   #   free-will argument. The single best answer in the corpus.
+        - "/a/pack4.html"          # 0.683 · EN: "Spiritual Adventure #4" — takes suffering as the
+                                   #   strongest rational case AGAINST God and answers it head-on.
+        - "/a/why.html"            # 0.655 · EN: "Why is life so hard?" — cancer, earthquakes,
+                                   #   why the world is not a better place.
+        - "/a/director.html"       # 0.639 · EN: "Is God a good director?" — "what is wrong with the
+                                   #   world? why is there evil and pain?" via a film-director analogy.
+        - "/a/tragedy.html"        # 0.612 · EN: "Where is God when disaster strikes?" — the 天灾
+                                   #   (natural-disaster) half of the question, directly.
+        - "/a/whyworship.html"     # 0.606 · EN: "God allowed a child to be raped — why worship him?"
+                                   #   — the 人祸 (man-made-tragedy) half, directly.
+      everystudent-zh-tw:
+        - "/content/Enigmas/BadThings605"   # 0.658 · EN: "Why do bad things happen?" — free will,
+                                            #   C.S. Lewis's 80%, God as ultimate judge.
+        - "/content/Enigmas/Suffering631"   # 0.651 · EN: "Why so much suffering in life?" — splits
+                                            #   general vs personal suffering; answers both.
+        - "/content/Enigmas/Tragic601"      # 0.595 · EN: "When disaster strikes, does believing in
+                                            #   God make a difference?" — traditional-Chinese twin
+                                            #   of /a/tragedy.html.
+        - "/content/Enigmas/Lost612"        # 0.587 · EN: "A lost world — how could a world of
+                                            #   suffering be made by a loving God?" — Darwin's
+                                            #   daughter Annie, Attenborough's eye-worm.
+
+  - case: cru-es-skeptic-jesus-hombre
+    # EN: "I don't buy that a guy from 2,000 years ago is God. What proof is there
+    #      he wasn't just another teacher?"
+    currently: { cru: [3 existing paths, unchanged] }
+    add:
+      everystudent-es:
+        - "/articulos/quienjesus.html"   # 0.678 · EN: "Who is Jesus?" — states the objection in the
+                                         #   asker's own words ("maybe a great moral teacher, but he
+                                         #   couldn't have been God") and answers it.
+        - "/articulos/verdadero.html"    # 0.676 · EN: "Which is the real Jesus?" — media, artists and
+                                         #   scholars' Jesus vs the historical one.
+        - "/articulos/fe.html"           # 0.633 · EN: "Beyond blind faith" (Paul Little) — "talk is
+                                         #   cheap, anyone can make claims — what evidence do we have?"
+        - "/articulos/jesusdios.html"    # 0.633 · EN: "Is Jesus Christ God?" — biblical AND secular
+                                         #   evidence, incl. Josephus. The proof the skeptic asks for.
+        - "/articulos/alguna.html"       # 0.565 · EN: "Did Jesus ever say he was God?" — the claim
+                                         #   itself, sourced.
+
+  - case: cru-es-seeker-vacio
+    # EN: "I have work, a partner, everything that's supposed to make me happy,
+    #      and inside I feel empty. What am I missing?"
+    currently: { cru: ["/mx/es/conoce-a-dios/mi-historia-una-vida-cambiada/si-estas-con-el-quien-contra-ti.html"] }
+    add:
+      everystudent-es:
+        - "/articulos/verdadera.html"    # 0.618 · EN: "Real life" — three people who reached the top
+                                         #   and still felt empty. Opens "did you ever feel there must
+                                         #   be more to life?" — this question, verbatim.
+        - "/articulos/proposito.html"    # 0.569 · EN: "What is my purpose in life?" — the hammer
+                                         #   parable; unfulfilled until used for what it was made for.
+        - "/articulos/lafuente.html"     # 0.515 · EN: "The source of a changed life" (Josh McDowell)
+                                         #   — "Who am I? Why am I here? Where am I going?"
+
+  - case: tlzh-seeker-yiyi
+    # EN: "I'm rushed off my feet every day but feel empty inside — what am I
+    #      even living for?"
+    currently: { thelife-zh: ["/life-meanings","/life-purpose","/vacuum-in-heart","/a-meaningful-life"] }
+    add:
+      everystudent-zh-cn:
+        - "/a/purpose.html"    # 0.585 rank 1 · EN: "What is my life's purpose?" — the hammer parable.
+        - "/a/now.html"        # 0.496 · EN: "Now" — "is this all there is? you want more but don't
+                               #   know what" → the living-water conversation. Squarely the question.
+      everystudent-zh-tw:
+        - "/content/LifeIssues/LifePurpose"   # 0.535 · EN: "What is my life's purpose?" — the SAME
+                                              #   article in Traditional Chinese.
+
+  - case: tlzh-seeker-yali
+    # EN: "The pressure of work and life is crushing me, I can't take much more —
+    #      is there a way out?"
+    currently: { thelife-zh: ["/stress-free","/stress","/overcome-pressure","/grow-in-pressure"] }
+    add:
+      everystudent-zh-cn:
+        - "/a/stress.html"                    # 0.540 · EN: "Relieving stress" — causes of excess
+                                              #   stress and the steps out of it. 19k chars, the
+                                              #   longest treatment in the Chinese corpus.
+      everystudent-zh-tw:
+        - "/content/LifeIssues/Stress505"     # 0.465 · EN: "Relieving the stress of university
+                                              #   life" — the SAME article in Traditional Chinese.
+
+  - case: tlzh-newcomer-xinzhu
+    # EN: "I want to believe in Jesus but don't know how to start — what's the
+    #      first step?"
+    currently: { thelife-zh: ["/pray","/new-born"] }
+    add:
+      everystudent-zh-cn:
+        - "/a/personally.html"   # 0.543 rank 15 · EN: "Knowing God personally" — the Four Spiritual
+                                 #   Laws in full: the four principles, the two circles, and the
+                                 #   receiving-Christ prayer. This IS "the first step", and the
+                                 #   engine ranked it LAST of the nine campaign hits. See the
+                                 #   BOILERPLATE-TAIL finding below — that is why.
+
+  - case: cru-es-believer-dios-callado
+    # EN: "I ask God for the same thing over and over and get no answer. Why is
+    #      he silent with me?"
+    currently: { cru: [4 existing paths, unchanged] }
+    add:
+      everystudent-es:
+        - "/articulos/oraciones.html"   # 0.710 · EN: "Prayers God answers" — "which prayers does God
+                                        #   answer? will he answer yours?" with a section headed
+                                        #   "Obstacles in the way". Directly on unanswered prayer.
+
+  - case: tlzh-seeker-waiyu
+    # EN: "I found out my spouse had an affair and my heart is broken — can this
+    #      marriage still be saved?"
+    currently: { thelife-zh: ["/affairs","/overcomeaffairs","/marriage-crisis"] }
+    add:
+      everystudent-zh-cn:
+        - "/a/marriage.html"   # 0.509 · EN: "Can a marriage really last?" — why marriages fail, and
+                               #   the author's account of "thousands of couples reconciled". The
+                               #   weakest accept in this batch: it answers "can it be saved",
+                               #   not "after infidelity" specifically.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FLAGGED — 11 candidates that are defensible but which I did NOT accept.
+# Operator's call. Each one is a genuine 0.5–0.7 relevance, not a 0.9.
+# ─────────────────────────────────────────────────────────────────────────────
+
+flagged:
+  - {case: tlzh-newcomer-chengzhang, doc: "everystudent-zh-cn /a/pack7.html", score: 0.538,
+     for: "EN: 'Spiritual Adventure #7' — what God has prepared for those who believe, and how your
+           outlook changes over time as you get to know him.",
+     against: "It describes what you RECEIVE on believing, not what you DO next. The case asks how
+               to grow."}
+  - {case: tlzh-seeker-yiyi, doc: "everystudent-zh-cn /a/quench.html", score: 0.465,
+     for: "EN: 'Quenching the deepest thirst' — the void, and what actually fills it.",
+     against: "Its frame is drinking culture as a substitute for real relationship, not 'what am I
+               living for'."}
+  - {case: tlzh-seeker-yiyi, doc: "everystudent-zh-cn /a/startanewlife.html", score: 0.468,
+     for: "EN: 'How do I start a new life?' — emptiness is the through-line.",
+     against: "It is a drugs-and-bad-relationships recovery testimony, not a meaning-of-life article."}
+  - {case: tlzh-believer-raoshu, doc: "everystudent-zh-cn /a/fanxuede9.html", score: 0.568,
+     for: "EN: 'Chapter 9 — Experiencing God'. A long passage on being convicted about refusing to
+           forgive a friend who betrayed him.",
+     against: "The document is a conversion memoir chapter; forgiveness is an episode in it, not its
+               subject. It teaches nobody HOW to forgive."}
+  - {case: cru-es-believer-pecado-recurrente, doc: "everystudent-es /articulos/toxico.html", score: 0.525,
+     for: "EN: 'Finding freedom from pornography addiction' — has a real 'is there a way out?' section
+           on breaking a repeating cycle.",
+     against: "The case asks about besetting sin generally. Crediting a porn-specific article would
+               make the answer key over-broad."}
+  - {case: cru-es-seeker-desanimo, doc: "everystudent-es /articulos/soledad.html", score: 0.603,
+     for: "EN: 'What to do with loneliness' — hiding empty feelings, avoidance, someone who
+           understands.",
+     against: "Loneliness is not low mood. The case asks whether God cares how I feel."}
+  - {case: cru-es-seeker-desanimo, doc: "everystudent-es /articulos/blues.html", score: "<0.45 HERE",
+     for: "EN: 'Ninth-floor blues' — a first-person account of emotional pain and suicidal thoughts,
+           and getting free. It is the closest thing everystudent-es has to depression content.",
+     against: "The ENGINE did not return it for this question — it surfaced at 0.481 for the
+               *emptiness* case instead. Crediting it puts my reading above the engine's ranking.
+               See the RETRIEVAL GAP note below; this may be the more useful finding."}
+  - {case: cru-es-seeker-vacio, doc: "everystudent-es /articulos/sacia.html", score: 0.570,
+     for: "EN: 'Quench your real thirst' — filling the void, and what actually satisfies.",
+     against: "Framed around binge drinking as the substitute."}
+  - {case: cru-es-seeker-vacio, doc: "everystudent-es /articulos/laura.html", score: 0.565,
+     for: "EN: 'In search of lasting beauty' — a Christian Dior model who got everything she wanted
+           and then questioned her values. A had-it-all-felt-empty testimony.",
+     against: "Its subject is beauty and self-esteem."}
+  - {case: cru-es-seeker-vacio, doc: "everystudent-es /articulos/paz-mental.html", score: 0.645,
+     for: "Rank 1 for this question.",
+     against: "EN: 'Peace of mind in an unstable world' — it is about stability when the world
+               shakes, not about inner emptiness when life is going fine. RANK 1 AND WRONG: a
+               reminder that top-1 is not evidence."}
+  - {case: cru-es-skeptic-jesus-hombre, docs: ["everystudent-es /articulos/jesus-y-islam.html 0.583",
+                                               "everystudent-es /articulos/religiones.html 0.576"],
+     for: "Both contain the exact sub-argument the skeptic makes — 'why not just see Jesus as a
+           prophet?' (jesus-y-islam) and 'no other world-religion founder claimed to be God'
+           (religiones).",
+     against: "Both are framed for a different reader (a Muslim; someone comparing religions). The
+               case is a Western skeptic asking for historical proof."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# THE ONE SYSTEMATIC FINDING — the boilerplate-tail false positive
+# ─────────────────────────────────────────────────────────────────────────────
+# 38 of the 75 candidates were rejected, and MOST of them failed the same way.
+#
+# Almost every everystudent article ends with the same closing move: a short
+# gospel summary and an invitation prayer ("Jesus, I believe in you, thank you
+# for dying for me, come into my life…"). That tail is its own chunk. So a
+# question about *how to begin believing* matches the TAIL of articles about
+# homosexuality, pornography, dating, world religions and stress — while the one
+# article that is actually about beginning (/a/personally.html, the Four
+# Spiritual Laws) ranks LAST.
+#
+# tlzh-newcomer-xinzhu is the clean specimen. Nine campaign hits; ranks 1–14 are
+# all boilerplate tails; the correct answer is rank 15:
+#   rank  1  0.660  /a/gaylesbian.html   EN: "Homosexuals — does God love you?"
+#   rank  4  0.625  /a/religion.html     EN: "Are all religions the same?"
+#   rank  5  0.620  /a/toxicnew.html     EN: "Breaking free from pornography"
+#   rank 12  0.552  /a/wolves.html       EN: "Dances with wolves" (sex and dating)
+#   rank 15  0.543  /a/personally.html   EN: "Knowing God personally"  ← THE ANSWER
+#
+# This is a THIRD trap of the same family as the two title traps already on
+# record (§0.7 /a/hochsten.html, §0.8 /a/yesno.html). §0.9 said "a third trap
+# should be assumed to exist" — this is it, and it is worse than the other two
+# because it is not one document, it is a template across the whole estate.
+#
+# Rule for the remaining 44 Part B suites: a hit whose matched chunk is the
+# closing invitation prayer is evidence about the TEMPLATE, not about the
+# document. Read the opening of the document before crediting it.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TWO CONTENT GAPS, both verified against the database, neither a defect
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. HELL — cru-es-skeptic-infierno gets ZERO campaign credits, and that is
+#    correct. All seven of its candidates (malas, bueno, escoger, porque,
+#    horribles, tragedia, ayuda-de-Dios) are about suffering and evil, which is
+#    the question's premise, not its subject. everystudent-es HAS NO ARTICLE ON
+#    HELL — the whole afterlife shelf is /articulos/cielo.html ("What is heaven
+#    like?"), /articulos/inevitable.html ("Facing death and dying" — read in
+#    full; fear of death, not judgment) and /articulos/reencarnacion.html.
+#    The Chinese sibling DOES have it: /a/punish.html, EN: "How could a loving
+#    God allow people to go to hell?" — it surfaced at 0.615 under the Chinese
+#    disaster question, where it does not belong.
+#    → A corpus-composition fact about the Spanish estate. Nothing to fix.
+#
+# 2. DEPRESSION — cru-es-seeker-desanimo gets zero. everystudent-es does hold
+#    /articulos/blues.html (emotional pain, suicidal thoughts), but the engine
+#    ranked it for the *emptiness* question instead and left it under 0.45 here.
+#    → A retrieval observation, not a curation one. eval-approach.md's rule
+#    applies: keep the honest phrasing and let the eval record the gap.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MECHANICAL CHECKS — both run, both green
+# ─────────────────────────────────────────────────────────────────────────────
+# Guardrail #8 §3 — every proposed (source, path) resolves to EXACTLY ONE
+#   document: 26 / 26. Query returned 0 offending rows.
+# Guardrail #3a — no proposed credit is a null-language document: 26 / 26 carry
+#   a real language. Same query, `min(d.language) is null` clause.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ALSO SEEN — one data point on the open /john/ question (§0.8)
+# ─────────────────────────────────────────────────────────────────────────────
+# /john/john37.html surfaced at 0.526, rank 14, for tlzh-newcomer-chengzhang
+# ("I just came to faith — what do I do next to grow?"). NOT credited: §0.9 rule
+# 2 blocks /john/** until the escalation is settled.
+# Worth knowing because §0.8 recorded "zero /john/ lessons appeared in any top
+# 8" for the ten Chinese questions. That still holds — but this is the first
+# /john/ document to surface anywhere in an eval-facing query, and it surfaced
+# for the discipleship-growth question, which is exactly what a correspondence
+# course serves. Evidence FOR the course being usefully retrievable, on the one
+# question shape it fits. One sentence from Jaco closes it either way.

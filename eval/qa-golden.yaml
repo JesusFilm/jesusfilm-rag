@@ -9,11 +9,30 @@
 #   cases:
 #     - id: short-stable-id            # required, unique
 #       question: "natural-language question"   # required
+#       language: "de"                 # optional; pin when derivation is ambiguous
+#       evidence_tier: llm-translated  # optional; see below
 #       relevant:                      # required; >=1 source, each with >=1 path
 #         starting-with-god:
 #           - "/path/one.html"
 #         cru:
 #           - "/us/en/.../lesson.html"
+#
+# `evidence_tier` records how well the OPERATOR could see what they approved —
+# NOT how good the case is. Nothing is discounted or excluded by it; `pnpm eval`
+# simply reports the buckets separately so a machine-translated language's
+# number is never averaged into one a reviewer could check.
+#
+#   human-verified  approved on content a reviewer could read, or on a
+#                   translation they could sanity-check
+#   llm-translated  approved on a machine translation nobody available can
+#                   verify (the #111 campaign's low-resource languages)
+#   (absent)        authored before the tier existed — reported as "(untagged)".
+#                   Do NOT backfill these to human-verified: nobody now can say
+#                   which of them the reviewer could read unaided.
+#
+# Every non-English case still needs its `# EN:` question translation and a
+# `# RETRIEVED` block of English-translated results (docs/eval-approach.md) —
+# the tier records how checkable that translation was, it does not replace it.
 #
 # `pnpm eval` reports recall@3 / recall@10 / COVERAGE (fraction of the relevant
 # set returned) + per-source coverage; P@1/MRR are secondary (ranking is the
@@ -1238,6 +1257,14 @@ cases:
       thelife-zh:
         - "/pray"
         - "/new-born"
+      everystudent-zh-cn:
+        - "/a/personally.html"
+  # PART A (2026-08-04, campaign #111) — +1 credit, judged on full document text:
+  #   0.543 rank 15 /a/personally.html — EN: "Knowing God personally". The Four Spiritual Laws in
+  #   full: the four principles, the two circles, and the receiving-Christ prayer. This IS "the
+  #   first step", and the engine ranked it LAST of nine campaign hits — ranks 1–14 were all the
+  #   estate's shared closing invitation-prayer chunk on unrelated articles (gaylesbian, toxicnew,
+  #   wolves). See the boilerplate-tail finding in eval/candidates-parta-2026-08-04.yaml.
   # RETRIEVED (qwen, zh-scoped, 2026-07-02) — EN translations for human verification:
   #   1. 0.654 /changing-power — EN: "The power to change" (gospel transformation)
   #   2. 0.632 /new-born — EN: "Lesson 1: Understanding your relationship with Christ Jesus"
@@ -1259,6 +1286,16 @@ cases:
         - "/life-purpose"
         - "/vacuum-in-heart"
         - "/a-meaningful-life"
+      everystudent-zh-cn:
+        - "/a/purpose.html"
+        - "/a/now.html"
+      everystudent-zh-tw:
+        - "/content/LifeIssues/LifePurpose"
+  # PART A (2026-08-04, campaign #111) — +3 credits, judged on full document text:
+  #   0.585 rank 1 /a/purpose.html — EN: "What is my life's purpose?" (the hammer parable)
+  #   0.535 /content/LifeIssues/LifePurpose — EN: the SAME article in Traditional Chinese
+  #   0.496 /a/now.html — EN: "Now" — "is this all there is? you want more but can't name what"
+  #                       → the living-water conversation. Squarely this question.
   # RETRIEVED (qwen, zh-scoped, 2026-07-02):
   #   1. 0.534 /midlife — EN: "A new benchmark for life — midlife"
   #   2. 0.520 /life-purpose — EN: "Searching for life's purpose"
@@ -1318,6 +1355,12 @@ cases:
         - "/affairs"
         - "/overcomeaffairs"
         - "/marriage-crisis"
+      everystudent-zh-cn:
+        - "/a/marriage.html"
+  # PART A (2026-08-04, campaign #111) — +1 credit, judged on full document text:
+  #   0.509 /a/marriage.html — EN: "Can a marriage really last?" — why marriages fail, and the
+  #   author's account of thousands of couples reconciled. The weakest accept of the Part A batch:
+  #   it answers "can it be saved", not "after infidelity" specifically.
   # RETRIEVED (qwen, zh-scoped, 2026-07-02; found only after the iterative-scan fix):
   #   1. 0.545 /preventing-affairs — EN: "How to prevent an affair?"
   #   2. 0.539 /affairs — EN: "An affair? (rebuilding after my husband's affair)"
@@ -1380,6 +1423,15 @@ cases:
         - "/stress"
         - "/overcome-pressure"
         - "/grow-in-pressure"
+      everystudent-zh-cn:
+        - "/a/stress.html"
+      everystudent-zh-tw:
+        - "/content/LifeIssues/Stress505"
+  # PART A (2026-08-04, campaign #111) — +2 credits, judged on full document text:
+  #   0.540 /a/stress.html — EN: "Relieving stress" — the causes of excess stress and the steps
+  #                          out of it; 19k chars, the longest treatment in the Chinese corpus.
+  #   0.465 /content/LifeIssues/Stress505 — EN: "Relieving the stress of university life" — the
+  #                          SAME article in Traditional Chinese.
   # RETRIEVED (qwen, zh-scoped, 2026-07-02):
   #   1. 0.563 /overcome-pressure — EN: "Overcoming pressure"
   #   2. 0.516 /grow-in-pressure — EN: "Growing under pressure"
@@ -1399,6 +1451,38 @@ cases:
     relevant:
       thelife-zh:
         - "/q-and-a"
+      everystudent-zh-cn:
+        - "/a/isgodgood.html"
+        - "/a/pack4.html"
+        - "/a/why.html"
+        - "/a/director.html"
+        - "/a/tragedy.html"
+        - "/a/whyworship.html"
+      everystudent-zh-tw:
+        - "/content/Enigmas/BadThings605"
+        - "/content/Enigmas/Suffering631"
+        - "/content/Enigmas/Tragic601"
+        - "/content/Enigmas/Lost612"
+  # PART A (2026-08-04, campaign #111) — +10 credits, judged on full document text. This case had
+  # ONE credited document and it lands at rank 7; the campaign owns ranks 1–6. EN translations:
+  #   0.741 rank 1 /a/isgodgood.html — "Is God loving?" — opens verbatim with "Is God loving? If so,
+  #                          why is there pain and evil?" then the free-will argument.
+  #   0.683 /a/pack4.html — "Spiritual Adventure #4" — takes suffering as the strongest rational
+  #                          case AGAINST God and answers it head-on.
+  #   0.658 /content/Enigmas/BadThings605 — "Why do bad things happen?" — free will, C.S. Lewis's
+  #                          80%, God as ultimate judge.
+  #   0.655 /a/why.html — "Why is life so hard?" — cancer, earthquakes, why the world isn't better.
+  #   0.651 /content/Enigmas/Suffering631 — "Why so much suffering in life?" — splits general vs
+  #                          personal suffering and answers both.
+  #   0.639 /a/director.html — "Is God a good director?" — "what is wrong with the world? why is
+  #                          there evil and pain?" via a film-director analogy.
+  #   0.612 /a/tragedy.html — "Where is God when disaster strikes?" — the 天灾 half, directly.
+  #   0.606 /a/whyworship.html — "God allowed a child to be raped — why worship him?" — the 人祸 half.
+  #   0.595 /content/Enigmas/Tragic601 — traditional-Chinese twin of /a/tragedy.html.
+  #   0.587 /content/Enigmas/Lost612 — "A lost world — how could a world of suffering be made by a
+  #                          loving God?" — Darwin's daughter Annie, Attenborough's eye-worm.
+  # NOT credited: /a/punish.html 0.615 (hell, not disaster), /a/miracle2.html 0.585 and
+  #   /content/WhoIsHe/prove 0.574 (why God doesn't prove himself), /a/exist.html 0.552 (existence).
   # RETRIEVED (qwen, zh-scoped, 2026-07-02):
   #   1. 0.618 /q-and-a — EN: "Faith Q&A (incl. 'If God is good, why is there evil and suffering?')"
   #   2. 0.507 /massacre — EN: "Reflections on a school massacre"
@@ -1475,6 +1559,12 @@ cases:
         - "/mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/cosas-que-hacer-cuando-dios-guarda-silencio.html"
         - "/mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/dios-siempre-responde-a-la-oracion.html"
         - "/mx/es/crecer-y-equipar/vida-y-relaciones/emotions/when-god-seems-distant.html"
+      everystudent-es:
+        - "/articulos/oraciones.html"
+  # PART A (2026-08-04, campaign #111) — +1 credit, judged on full document text:
+  #   0.710 /articulos/oraciones.html — EN: "Prayers God answers" — "which prayers does God answer?
+  #   will he answer yours?", with a section headed "Obstacles in the way". Directly on the
+  #   experience of praying the same thing and hearing nothing.
   # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
   #   rank 2 · 0.712 /mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/5-cosas-que-hacer-cuando-dios-parece-silencioso.html — same article, two URLs. Corpus hygiene issue.
   #   rank 1 · 0.734 /mx/es/crecer-y-equipar/crecimiento-espiritual/oracion/cosas-que-hacer-cuando-dios-guarda-silencio.html — EN: '5 things to do when God seems to keep silent'. Strongest hit in the Spanish set.
@@ -1539,6 +1629,19 @@ cases:
     relevant:
       cru:
         - "/mx/es/conoce-a-dios/mi-historia-una-vida-cambiada/si-estas-con-el-quien-contra-ti.html"
+      everystudent-es:
+        - "/articulos/verdadera.html"
+        - "/articulos/proposito.html"
+        - "/articulos/lafuente.html"
+  # PART A (2026-08-04, campaign #111) — +3 credits, judged on full document text:
+  #   0.618 /articulos/verdadera.html — EN: "Real life" — three people who reached the top and
+  #          still felt empty. Opens "did you ever feel there must be more to life?" — this
+  #          question, verbatim.
+  #   0.569 /articulos/proposito.html — EN: "What is my purpose in life?" — the hammer parable.
+  #   0.515 /articulos/lafuente.html — EN: "The source of a changed life" (Josh McDowell) —
+  #          "Who am I? Why am I here? Where am I going?"
+  # NOT credited: /articulos/paz-mental.html was RANK 1 at 0.645 and is about stability when the
+  #   world shakes, not inner emptiness when life is going fine. Top-1 is not evidence.
   # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
   #   rank 1 · 0.621 /mx/es/conoce-a-dios/mi-historia-una-vida-cambiada/si-estas-con-el-quien-contra-ti.html — testimony: 'I felt empty even though I had everything'.
   # EN: "If God is so good, how is it justifiable for him to send people to burn forever?"
@@ -1559,6 +1662,25 @@ cases:
         - "/mx/es/conoce-a-dios/jesus-dios-o-simplemente-buen-hombre.html"
         - "/mx/es/conoce-a-dios/jesus-realmente-resucito.html"
         - "/mx/es/crecer-y-equipar/crecimiento-espiritual/core-christian-beliefs/beyond-blind-faith.html"
+      everystudent-es:
+        - "/articulos/quienjesus.html"
+        - "/articulos/verdadero.html"
+        - "/articulos/fe.html"
+        - "/articulos/jesusdios.html"
+        - "/articulos/alguna.html"
+  # PART A (2026-08-04, campaign #111) — +5 credits, judged on full document text:
+  #   0.678 /articulos/quienjesus.html — EN: "Who is Jesus?" — states the objection in the asker's
+  #          own words ("maybe a great moral teacher, but he couldn't have been God") and answers it.
+  #   0.676 /articulos/verdadero.html — EN: "Which is the real Jesus?" — the media's, the artists'
+  #          and the scholars' Jesus against the historical one.
+  #   0.633 /articulos/fe.html — EN: "Beyond blind faith" (Paul Little) — "talk is cheap, anyone
+  #          can make claims — what evidence do we have?"
+  #   0.633 /articulos/jesusdios.html — EN: "Is Jesus Christ God?" — biblical AND secular evidence,
+  #          incl. Josephus. The proof the skeptic asks for.
+  #   0.565 /articulos/alguna.html — EN: "Did Jesus ever say he was God?" — the claim itself, sourced.
+  # NOT credited: /articulos/marcia.html 0.648 (astrology testimony), /articulos/hayundios.html
+  #   0.631 (God's existence, not Jesus' deity), /articulos/homosexual-lesbiana.html 0.599
+  #   (boilerplate invitation tail).
   # RETRIEVED (qwen, es-scoped, 2026-07-14) — EN translations for human verification:
   #   rank 2 · 0.630 /mx/es/conoce-a-dios/jesus-dios-o-simplemente-buen-hombre.html — the question's exact frame.
   #   rank 5 · 0.564 /mx/es/conoce-a-dios/jesus-realmente-resucito.html — the evidence.
@@ -2200,3 +2322,2599 @@ cases:
   #   1. 0.747 esfr /a/502mariage.html — EN: "A marriage that lasts; marriage statistics"
   #   2. 0.676 tlfr /pourquoi-se-marier — EN: "Why get married?"
   #   5. 0.617 tlfr /les-enfants-de-divorces-et-le-mariage — EN: "Children of divorce, and marriage"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # everystudent-zh-cn (xinshengming.com) — #111 campaign, Phase 5 Part B.
+  # Approved by the operator 2026-08-03. Drafted from the §0.7 canonical topic
+  # menu; each question AUTHORED IN CHINESE (not translated from English), then
+  # run through the wired Retriever before being finalised — max score 0.689, so
+  # no paraphrase smell. Every credited document judged on its chunk TEXT: this
+  # source carries a title trap (/a/yesno.html reads "six reasons to believe God
+  # exists" but is about free will) and it is deliberately NOT credited.
+  # Cross-source credits (thelife-zh, zh-tw) are deferred to Part A, which reads
+  # those documents; expect zh-cn coverage to read low until then.
+  # Full working: eval/candidates-everystudent-zh-cn.yaml
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends all say believing in God is just self-comfort with no basis. Is there really any reason that holds up?"
+  - id: "zhcn-skeptic-shenzai"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "我朋友都说信神只是自我安慰，根本没有依据。真的有什么站得住脚的理由吗？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/pack1.html"
+        - "/a/pack2.html"
+        - "/a/atheist.html"
+        - "/a/miracle2.html"
+        - "/a/fanxuede5.html"
+        - "/a/who2.html"
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   1. 0.670 zhcn /a/pack1.html — EN: "Spiritual Adventure Pack, message #1"
+  #   2. 0.666 zhcn /a/fanxuede5.html — EN: "Chapter 5: The struggle of reason"
+  #   3. 0.663 zhcn /a/atheist.html — EN: "How an atheist found God"
+  #   5. 0.625 zhcn /a/miracle2.html — EN: "Why doesn't God prove himself by performing miracles?"
+
+  # EN: "What is God actually like? In my mind there is only a vague force, no concrete form."
+  - id: "zhcn-newcomer-shenshi"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "神到底是什么样的？我脑子里只有一个模糊的力量，没有具体的样子。"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/whois1.html"
+        - "/a/where.html"
+        - "/a/whypick.html"
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   1. 0.578 zhcn /a/whois1.html — EN: "Who is God — six qualities of God's character"
+  #   2. 0.551 zhcn /a/where.html — EN: "Where is God?"
+  #   3. 0.512 zhcn /a/whypick.html — EN: "Longing for God, and finding the ideal God"
+
+  # EN: "A friend of mine died in an accident last year, and nobody can tell me why a good God would allow that."
+  - id: "zhcn-skeptic-kunan"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "我一个朋友去年出事故走了，没有人能告诉我，一位良善的神为什么会容许这种事。"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/why.html"
+        - "/a/isgodgood.html"
+        - "/a/whyworship.html"
+        - "/a/pack4.html"
+        - "/a/tragedy.html"
+  # ⚠️ Three of the top four hits are OTHER zh sources (zh-tw BadThings605 0.689,
+  #    thelife-zh /massacre 0.651, zh-tw Suffering631 0.628). Part A credits them.
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   3. 0.637 zhcn /a/why.html — EN: "Why is life so full of hardship?"
+  #   5. 0.627 zhcn /a/pack4.html — EN: "Spiritual Adventure Pack, message #4"
+  #   6. 0.607 zhcn /a/isgodgood.html — EN: "Is God loving?"
+  #   7. 0.605 zhcn /a/whyworship.html — EN: "God allowed a child to be raped — why still worship him?"
+
+  # EN: "At the end of every day I feel nothing was left behind. What am I actually living for?"
+  - id: "zhcn-seeker-mubiao"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "每天结束的时候，我都觉得这一天什么也没留下。我到底为了什么活着？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/purpose.html"
+        - "/a/startanewlife.html"
+        - "/a/then.html"
+  # 🔴 The weakest case in this suite, KEPT DELIBERATELY. 7 of 8 hits are thelife-zh
+  #    and zh-cn's own purpose article ranks 5th at 0.511 — thelife-zh simply
+  #    publishes more life-purpose material. A case that always passes measures
+  #    nothing (golden guardrail #8 #2); this one records a real gap.
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   1. 0.530 tlzh /fear-of-death · 2. 0.520 tlzh /life-purpose · 3. 0.516 tlzh /midlife
+  #   5. 0.511 zhcn /a/purpose.html — EN: "What is the goal of my life?"
+
+  # EN: "I am anxious almost all the time. Does God have anything to offer for that?"
+  - id: "zhcn-seeker-jiaolv"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "我几乎一直处在焦虑里。神对这种状态有什么可给的吗？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/coronavirus.html"
+        - "/a/fears.html"
+        - "/a/peace.html"
+        - "/a/why.html"
+  # ⓘ /a/coronavirus.html is titled "COVID-19 — how to cope with anxiety"; it is this
+  #    source's main anxiety article, not an off-topic pandemic page.
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   2. 0.672 zhcn /a/coronavirus.html — EN: "Coronavirus (COVID-19) — how to cope with anxiety"
+  #   3. 0.624 zhcn /a/fears.html — EN: "Finding peace in hardship — facing earthquake fear"
+  #   4. 0.617 zhcn /a/why.html — EN: "Why is life so full of hardship?"
+  #   6. 0.578 zhcn /a/peace.html — EN: "Finding inner peace in an unstable world"
+
+  # EN: "Christians treat Jesus' death as a big deal, but I do not understand what his death actually accomplished."
+  - id: "zhcn-newcomer-yesusi"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "基督徒把耶稣的死看得很重，可我不明白祂的死到底成就了什么。"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/jesusinislam.html"
+        - "/a/bbfaith.html"
+        - "/a/reallife.html"
+  # ⓘ No /john/ course lesson appeared, despite 37 being in the corpus and this being
+  #    the crucifixion topic — evidence the course is a poor retrieval target (§0.8).
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   2. 0.582 zhcn /a/bbfaith.html — EN: "Who is Jesus? Is Jesus God? Evidence, not blind faith"
+  #   3. 0.564 zhcn /a/jesusinislam.html — EN: "Jesus and Islam"
+  #   4. 0.544 zhcn /a/reallife.html — EN: "In real life: finding fulfilment, acceptance and truth"
+
+  # EN: "The Bible was written thousands of years ago and hand-copied down the generations. How can anyone be sure what we read now is still the original?"
+  - id: "zhcn-skeptic-shengjing"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "圣经是几千年前写的，又一代代手抄下来。怎么能确定现在读到的还是原来的内容？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/bible.html"
+        - "/a/jesusinislam.html"
+  # ⓘ The Islam article ranking FIRST is correct, not drift: scripture-corruption
+  #    (tahrif) is where this estate treats Bible reliability. Same shape as the
+  #    existing esar-skeptic-tahrif case. Do not "fix" this.
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   1. 0.661 zhcn /a/jesusinislam.html — EN: "Jesus and Islam"
+  #   3. 0.625 zhcn /a/bible.html — EN: "History of the Bible, who wrote it, why it is credible"
+
+  # EN: "I have prayed about the same thing for a long time with no response at all. Am I doing something wrong?"
+  - id: "zhcn-believer-daogao"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "同一件事我祷告了很久，却一直没有任何回应。是我哪里做错了吗？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/prayers.html"
+  # ⓘ ONE credit, deliberately. /a/fanxuede6.html matched on prayer vocabulary but is a
+  #    CRITIQUE of self-interested "ask and receive" prayer culture, not an answer to
+  #    unanswered prayer. Judged on text, not title (guardrail #5).
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   1. 0.689 zhcn /a/prayers.html — EN: "How to pray — how God answers prayer — what prayer is for"
+  #   2. 0.657 zh-tw /content/TheExperience/AnswerPrayer306 (cross-source, Part A)
+
+  # EN: "Almost everyone just follows whichever religion they were born into. On what basis would one be more true than another?"
+  - id: "zhcn-skeptic-zongjiao"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "每个人差不多都是跟着自己出生的环境信一个宗教。凭什么说其中一个比别的更真实？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/religion.html"
+        - "/a/difference.html"
+        - "/a/elephant.html"
+        - "/a/hatereligion.html"
+        - "/a/whypick.html"
+  # ⓘ /a/difference.html is credited but did NOT surface in this question's top 8 — a
+  #    genuine vocabulary gap, kept so the eval records it rather than hiding it.
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   2. 0.526 zhcn /a/religion.html — EN: "Are they all the same? Hindu gods, Buddhism, Islam, Christianity, New Age compared"
+  #   4. 0.488 zhcn /a/hatereligion.html — EN: "Why I hate religion but love Jesus"
+  #   6. 0.481 zhcn /a/elephant.html — EN: "Is God an elephant?"
+
+  # EN: "Christians say there is only one God, but then talk about three persons. How is that different from three gods?"
+  - id: "zhcn-newcomer-sanwei"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    question: "基督徒说只有一位神，却又讲三个位格。这跟三个神有什么区别？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/trinity.html"
+        - "/a/hspirit.html"
+  # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+  #   1. 0.645 zhcn /a/trinity.html — EN: "How do you explain the Trinity?"
+  #   8. 0.448 zhcn /a/hspirit.html — EN: "Who is the Holy Spirit?"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # everystudent-ru (mirstudentov.com) — 95 documents. Campaign #111 tier A,
+  # source 2 of 14. Written 2026-08-04 after operator approval; full working
+  # (every rejection with its reason) in eval/candidates-everystudent-ru.yaml.
+  # 10 cases · 29 credits · personas skeptic 4 · newcomer 3 · seeker 2 · believer 1.
+  # Engine-checked twice (guardrail #8 §2): 0 paraphrase smells, max top score
+  # 0.738. All 29 paths verified to resolve to exactly one document (#8 §3).
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # EN: "All my friends think believing in God is just self-deception for the weak. Is there anything solid behind it at all?"
+  - id: "esru-skeptic-dokazatelstva"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Все мои друзья считают, что вера в Бога — это просто самообман для слабых. Есть ли под этим хоть что-то серьёзное?"
+    relevant:
+      everystudent-ru:
+        - "/a/estli.html"
+        - "/a/dokazivat.html"
+        - "/a/rukovodstvo.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   3. 0.641 /a/rukovodstvo.html — EN: "A guide to finding faith" (written at the agnostic who would rather not look)
+  #   4. 0.635 /a/dokazivat.html — EN: "Can you prove God exists?" — Gregory Ganssle PhD
+  #   5. 0.633 /a/estli.html — EN: "Is there a God? Six direct grounds"
+  #  NOT credited: 1. /a/vibirat.html (what God is LIKE — case 2), 2. /a/chudo.html (why no stunning miracle)
+
+  # EN: "People say 'God' and I picture some faceless energy. What is he actually like?"
+  - id: "esru-newcomer-kakoyon"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Мне говорят «Бог», а я представляю себе какую-то безликую энергию. А какой Он на самом деле?"
+    relevant:
+      everystudent-ru:
+        - "/a/vibirat.html"
+        - "/a/ktoeto.html"
+        - "/a/gdyebog.html"
+        - "/a/ktoto2.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.610 /a/vibirat.html — EN: "How to choose your God" — opens "How do you picture God?", this question verbatim
+  #   2. 0.605 /a/ktoto2.html — EN: "Someone 2" — the conclusion of the Nothing→Something→Who→Who-2 cosmological
+  #            series, where the Eternal Something is argued to be a PERSON rather than a force.
+  #   3. 0.599 /a/ktoeto.html — EN: "God — who is he? What is he like? Six attributes of God's personhood"
+  #   5. 0.587 /a/gdyebog.html — EN: "Where is God?" — the flatland analogy; answers "vague force somewhere" directly
+  #  Dropped after the engine check: /a/znat.html ("What does it mean to know God?") — its subject is the
+  #  RELATIONSHIP, not what God is like, and it fell out of the top 10.
+  #
+  # ⓘ /a/ktoto2.html ADDED 2026-08-04 for cross-suite consistency. The everystudent-pt suite drafted a
+  # near-identical question ("a vague energy… is he someone real with a personality, or just a force?") and
+  # credited /a/quem2.html — the same estate article, the one that argues God is a PERSON. It had surfaced
+  # at rank 2 in this case's own engine check and been rejected here. Portuguese made the better call:
+  # for "person or force?", the personhood article is the answer. Additive, retrieves, costs no coverage.
+
+  # EN: "A friend of mine was killed last summer in a senseless accident. And nobody can explain why a good God allows that."
+  - id: "esru-skeptic-avariya"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "У меня прошлым летом погиб друг — нелепая авария. И никто не может объяснить, почему добрый Бог такое допускает."
+    relevant:
+      everystudent-ru:
+        - "/a/steysi2.html"
+        - "/a/pochemu.html"
+        - "/a/gdebog.html"
+        - "/a/stradaniy.html"
+        - "/a/kinor.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.690 /a/steysi2.html — EN: "Why do so many bad things happen?" — Stacy James, paralysed in a diving accident
+  #   2. 0.680 /a/pochemu.html — EN: "Why is life so hard?" — cancer, earthquakes destroying cities
+  #   3. 0.662 /a/gdebog.html — EN: "Where is God when disaster comes?"
+  #   6. 0.624 /a/stradaniy.html — EN: "Doesn't evil and suffering prove God doesn't care?"
+  #   8. 0.620 /a/kinor.html — EN: "Is God a good film director?"
+  #  NOT credited: 4. /a/poman.html and 7. /a/steysi1.html — testimonies; steysi2 carries the argument
+
+  # EN: "Every evening I go to bed feeling the day was wasted. It has been years like this. What is it all for?"
+  - id: "esru-seeker-vpustuyu"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Каждый вечер ложусь с ощущением, что день прошёл впустую. И так уже который год. Ради чего всё это?"
+    relevant:
+      everystudent-ru:
+        - "/a/smisl.html"
+        - "/a/istochnik.html"
+        - "/a/nastoy.html"
+        - "/a/filosofii.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.636 /a/smisl.html — EN: "What is the meaning of life?" — the hammer parable
+  #   5. 0.552 /a/istochnik.html — EN: "The source of a changed life" (Josh McDowell) — "Who am I? Why am I on
+  #            earth?" Russian twin of everystudent-es /articulos/lafuente.html, credited in Part A for this shape
+  #   6. 0.527 /a/nastoy.html — EN: "Real life" — three people who reached the summit and were still empty
+  #   7. 0.526 /a/filosofii.html — EN: "The value of philosophy" — "Why are we here? What is our purpose?"
+  #  NOT credited: 2. /a/sigaretoy.html — EN: "Ninth-floor blues", a depression/suicide testimony. It is the
+  #  Russian twin of everystudent-es /articulos/blues.html, which behaved identically in Part A: retrieving for
+  #  the EMPTINESS question rather than the depression one. Same cross-source quirk, observed twice.
+
+  # EN: "I am almost constantly on edge with anxiety, even when objectively everything is fine. Can faith actually help with that at all?"
+  - id: "esru-seeker-trevoga"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Меня почти постоянно потряхивает от тревоги, даже когда объективно всё нормально. Может ли вера тут вообще чем-то помочь?"
+    relevant:
+      everystudent-ru:
+        - "/a/chakr.html"
+        - "/a/pokoy.html"
+        - "/a/pomoshch-ot-Boga.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   2. 0.656 /a/chakr.html — EN: "Anxiety and chakra healing" — a woman's account of chronic anxiety,
+  #            depression and loneliness, through Buddhism, yoga, New Age, psychics and a USD200 energy-healing
+  #            course, and what she found instead. ⚠ A TITLE-ONLY reviewer would reject this as New Age content.
+  #            Its subject IS chronic anxiety, and it is the best anxiety document in the source.
+  #   3. 0.631 /a/pokoy.html — EN: "Peace of mind in an unstable world"
+  #   7. 0.613 /a/pomoshch-ot-Boga.html — EN: "God's help in hard times"
+  #  🔴 RANK 1 REJECTED: /a/gdebog.html 0.661 is the DISASTER article (credited to esru-skeptic-avariya).
+  #  Chronic anxiety with nothing objectively wrong is not a disaster. Top-1 is not evidence.
+
+  # EN: "Why couldn't he just forgive people? Why did Jesus have to die on a cross?"
+  - id: "esru-newcomer-krest"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Почему нельзя было просто простить людей? Зачем понадобилось, чтобы Иисус умер на кресте?"
+    relevant:
+      everystudent-ru:
+        - "/a/dovyeryat.html"
+        - "/a/uznat.html"
+  # 🟡 THIS CASE SITS ON THE RETRIEVAL BOUNDARY AND ITS RESULT WILL FLAP BETWEEN RUNS.
+  # Operator-approved 2026-08-04 expecting recall@10 = 0. THE MEASURED RESULT WAS BETTER:
+  # `pnpm eval` returned **1 of 2 credits at rank 7** (results-2026-08-04-partb-ru-keep.md).
+  # The pre-write check 20 minutes earlier found NEITHER credit in the top 10. The two runs
+  # differ by 0.001 on the top score (0.734 vs 0.733), so a credit that was sitting just
+  # outside k=10 crossed the line — the run-to-run tie-reordering documented in
+  # docs/slices/everystudent-siblings.md §0.6. DO NOT read a future 0/2 here as a regression,
+  # and do not "fix" this case by crediting a tail. It is the one case in the campaign that
+  # measures the estate's boilerplate-tail defect rather than working around it.
+  #
+  # everystudent-ru has NO article whose subject is what the cross accomplished. The atonement is
+  # taught inside the two "begin a relationship with God" pages credited above — which are exactly
+  # the pages the estate's shared closing invitation-prayer chunk buries.
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04) — neither credit appears; all ten are tail matches:
+  #   1. 0.734 /a/nastoy.html — EN: "Real life" (three fulfilment testimonies)
+  #   2. 0.715 /a/reinkarn.html — EN: "Reincarnation, karma and life after death"
+  #   3. 0.706 /a/katolikom.html — EN: "Is there a difference between a Catholic and a Christian?"
+  #   4. 0.699 /a/zhizni.html · 5. 0.697 /a/soyed.html · 7. 0.662 /a/znat.html · 8. 0.661 /a/estli.html
+  #   ✗ /a/dovyeryat.html — EN: "What does it mean to 'trust' Christ?" — "we need forgiveness of our sins
+  #     and to understand that Jesus died for them. Only through his death on the cross can we be forgiven."
+  #   ✗ /a/uznat.html — EN: "Knowing God personally" — the Four Spiritual Laws; the cross as the bridge
+  # TWO phrasings were tested and both behaved identically at check time, so this is NOT a
+  # phrasing problem:
+  #   v1 "…I don't understand what exactly it changed"  → both credits outside top 10
+  #   v2 "…why did Jesus have to die on a cross?" (kept) → both credits outside top 10
+  # Same defect Part A found in Chinese (/a/personally.html at rank 15) — now confirmed independently
+  # in a second language. See docs/slices/everystudent-siblings.md §0.9.
+
+  # EN: "The Bible was copied by hand for two thousand years. How does anyone even know anything of the original text survives?"
+  - id: "esru-skeptic-perepisivali"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Библию переписывали от руки две тысячи лет. Откуда вообще известно, что там осталось хоть что-то от изначального текста?"
+    relevant:
+      everystudent-ru:
+        - "/a/bibliya.html"
+        - "/a/bogod.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.679 /a/bibliya.html — EN: "Why the Bible is worth trusting" — opens "what is the history of the
+  #            Bible's writing, and why can we trust the Bible that reached our time?"
+  #   3. 0.611 /a/bogod.html — EN: "What does it mean that the Bible is God-breathed?" — 40 authors, 1,500 years
+  #  NOT credited: 5. /a/razvye.html ("Doesn't modern science disprove the Bible?") — a different objection
+
+  # EN: "I have been praying about the same thing for months now and get silence in return. Am I doing something wrong?"
+  - id: "esru-believer-tishina"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Молюсь об одном и том же уже который месяц, а в ответ тишина. Я что-то делаю не так?"
+    relevant:
+      everystudent-ru:
+        - "/a/molitvi.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.685 /a/molitvi.html — EN: "Does God answer our prayers?" — asks "if so, why doesn't God answer
+  #            everyone?" and answers it. Russian twin of everystudent-es /articulos/oraciones.html,
+  #            credited in Part A for the same question shape.
+  #  NOT credited: 3. /a/imyeyet.html ("Does it matter which God you pray to?") — about the OBJECT of prayer
+
+  # EN: "Christianity, Islam, Buddhism — to me they all say roughly the same thing in different words. What is the fundamental difference?"
+  - id: "esru-skeptic-odnoitozhe"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "Христианство, ислам, буддизм — по-моему, все они говорят примерно одно и то же разными словами. В чём принципиальная разница?"
+    relevant:
+      everystudent-ru:
+        - "/a/soyed.html"
+        - "/a/relig.html"
+        - "/a/put.html"
+        - "/a/slon.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.667 /a/soyed.html — EN: "Connecting with God — Islam, Hinduism, Buddhism, Christianity, New Age:
+  #            all about the same thing?" This question, verbatim, as the article's own subtitle
+  #   2. 0.625 /a/relig.html — EN: "What is the difference between Jesus and the world religions?"
+  #   5. 0.592 /a/put.html — EN: "Is Jesus the only way to God? Isn't that claim naive?"
+  #   9. 0.539 /a/slon.html — EN: "Is God an elephant?" — the blind-men-and-the-elephant analogy used to argue
+  #            all religions are valid paths, and why it fails. Attacks the asker's premise directly.
+  #  NOT credited: 3. /a/christianstvo.html (an Alexander Men lecture transcript), 8. /a/katolikom.html (intra-Christian)
+
+  # EN: "At church they pray to Jesus, then the Father, then the Spirit. I can't work out whether that's the same one or actually different ones."
+  - id: "esru-newcomer-troye"
+    language: "ru"
+    evidence_tier: "llm-translated"
+    question: "В церкви молятся то Иисусу, то Отцу, то Духу. Я никак не пойму — это один и тот же или всё-таки разные?"
+    relevant:
+      everystudent-ru:
+        - "/a/troitsu.html"
+        - "/a/svyatoyduh.html"
+  # RETRIEVED (qwen, ru-scoped, 2026-08-04):
+  #   1. 0.738 /a/troitsu.html — EN: "Could you explain the Trinity?"
+  #   2. 0.638 /a/svyatoyduh.html — EN: "Who is the Holy Spirit?" — "a person fully equal with God the Father
+  #            and God the Son… the third person of the Trinity"
+  # ⚠️ REWORDED AFTER THE FIRST ENGINE CHECK (guardrail #8 §2). v1 was
+  #   "Говорят, что Бог один, но при этом всё время упоминают Отца, Сына и Духа. Получается, их всё-таки трое?"
+  #   → top score 0.807, a PARAPHRASE SMELL: it restated /a/troitsu.html's own opening. v2 reframes it as
+  #   something a newcomer NOTICES in a service. Result: 0.807 → 0.738, still rank 1. Target kept, softball gone.
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # everystudent-bg (everystudent.bg) — 84 documents. Campaign #111 tier A,
+  # source 3 of 14. Written 2026-08-04 after operator approval; full working in
+  # eval/candidates-everystudent-bg.yaml.
+  # 10 cases · 25 credits · personas skeptic 4 · newcomer 3 · seeker 2 · believer 1.
+  # Engine-checked twice: round 1 had 4 paraphrase smells and 1 non-retrieving
+  # credit; round 2 has 0 smells (max top score 0.746). All 25 credited titles
+  # verified to resolve to exactly one document (#8 §3); 0 null-language (#3a).
+  #
+  # ⚠️ PATHS BELOW ARE PERCENT-ENCODED CYRILLIC and are 150–250 chars each.
+  # eval-metrics.ts matches on `new URL(url).pathname`, i.e. this encoded form.
+  # DO NOT hand-edit them — resolve from the database by title. A decoded path
+  # and an English title follow each case for human review.
+  #
+  # ⚠️ ONE TITLE IS DUPLICATED IN THIS SOURCE: `Исус Бог ли е?` exists at two
+  # paths. Neither is credited, but title-keyed tooling here must dedupe first.
+  #
+  # 🟢 esbg-newcomer-krast IS THE CONTROL FOR THE RUSSIAN GAP. everystudent-ru's
+  # equivalent (esru-newcomer-krest) cannot retrieve its credits because Russian
+  # has no atonement article. Bulgarian HAS one and it retrieves at rank 3. Same
+  # estate, same embedder, same topic — so the Russian result is a CONTENT gap in
+  # that source, not a systemic retrieval defect.
+  #
+  # ⚠️ esbg-skeptic-katastrofa CARRIES ONE NON-RETRIEVING CREDIT ON PURPOSE.
+  # Rewording the question away from the article's own opening line (to kill a
+  # 0.752 paraphrase smell) dropped `Добър ли е Бог?` out of the top 10. Both the
+  # honest phrasing and the credit were kept — guardrail #8 §2, "keep the honest
+  # phrasing and let the eval record the gap". Expect coverage 3/4 there.
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends think faith in God is a fiction for people who cannot cope on their own. Is there anything serious behind it?"
+  - id: "esbg-skeptic-izmislitsa"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Приятелите ми смятат, че вярата в Бог е измислица за хора, които не могат да се справят сами. Има ли нещо сериозно зад нея?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D0%B7%D0%B0%D1%89%D0%BE-%D0%B5%D0%B4%D0%B8%D0%BD-%D1%80%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D0%B5%D0%BD-%D1%87%D0%BE%D0%B2%D0%B5%D0%BA-%D0%B2%D1%8F%D1%80%D0%B2%D0%B0-%D0%B2-%D0%91%D0%BE%D0%B3.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D0%B2-%D1%82%D1%8A%D1%80%D1%81%D0%B5%D0%BD%D0%B5-%D0%BD%D0%B0-%D0%B8%D1%81%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%82%D0%B0-%D0%B2%D1%8F%D1%80%D0%B0.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D0%BA%D0%B0%D0%BA-%D0%B5%D0%B4%D0%B8%D0%BD-%D0%B0%D1%82%D0%B5%D0%B8%D1%81%D1%82-%D0%B5-%D0%BD%D0%B0%D0%BC%D0%B5%D1%80%D0%B8%D0%BB-%D0%91%D0%BE%D0%B3.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /въпроси-за-Бог/защо-един-рационален-човек-вярва-в-Бог.html
+  #     BG: Защо един рационален човек вярва в Бог?
+  #   /въпроси-за-Бог/в-търсене-на-истинската-вяра.html
+  #     BG: Как агностиците могат да разберат дали Бог съществува
+  #   /въпроси-за-Бог/как-един-атеист-е-намерил-Бог.html
+  #     BG: Как един атеист е намерил Бог
+
+  # EN: "When I hear God I picture some impersonal force somewhere far away. Is he even a person?"
+  - id: "esbg-newcomer-lichnost"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Когато чуя „Бог“, си представям някаква безлична сила някъде далеч. Той изобщо личност ли е?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D1%82%D1%8A%D1%80%D1%81%D0%B5%D0%BD%D0%B5-%D0%BD%D0%B0-%D0%B8%D0%B4%D0%B5%D0%B0%D0%BB%D0%BD%D0%B8%D1%8F-%D0%91%D0%BE%D0%B3.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D0%BA%D0%BE%D0%B9-%D0%B5-%D0%91%D0%BE%D0%B3.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D0%BA%D0%BE%D0%B9-2.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%91%D0%BE%D0%B3/%D0%BA%D1%8A%D0%B4%D0%B5-%D0%B5-%D0%91%D0%BE%D0%B3.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /въпроси-за-Бог/търсене-на-идеалния-Бог.html
+  #     BG: В търсене на идеалния Бог
+  #   /въпроси-за-Бог/кой-е-Бог.html
+  #     BG: Защо можем да разчитаме на Бог?
+  #   /въпроси-за-Бог/кой-2.html
+  #     BG: Как Бог е разкрил себе си - Вечният Някой
+  #   /въпроси-за-Бог/къде-е-Бог.html
+  #     BG: Невидим ли е Бог?
+
+  # EN: "I lost a friend in a crash last year. Since then I cannot work out how that squares with the idea of a loving God."
+  - id: "esbg-skeptic-katastrofa"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Загубих приятел при катастрофа миналата година. Оттогава не мога да си отговоря как това се връзва с представата за любящ Бог."
+    relevant:
+      everystudent-bg:
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D0%B7%D0%B0%D1%89%D0%BE-%D0%B8%D0%BC%D0%B0-%D1%81%D1%82%D1%80%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D0%BA%D1%8A%D0%B4%D0%B5-%D0%B5-%D0%91%D0%BE%D0%B3-%D0%B2-%D1%82%D1%80%D1%83%D0%B4%D0%BD%D0%B8%D1%82%D0%B5-%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%B0.html"
+        - "/%D0%B4%D1%80%D1%83%D0%B3%D0%B8-%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8/%D0%B7%D0%B0%D1%89%D0%BE-%D0%B4%D0%B0-%D0%BF%D0%BE%D1%87%D0%B8%D1%82%D0%B0%D0%BC-%D0%91%D0%BE%D0%B3.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D0%B4%D0%BE%D0%B1%D1%8A%D1%80-%D0%BB%D0%B8-%D0%B5-%D0%91%D0%BE%D0%B3.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /въпроси-за-живота/защо-има-страдание.html
+  #     BG: Защо има страдание?
+  #   /въпроси-за-живота/къде-е-Бог-в-трудните-времена.html
+  #     BG: Къде е Бог в трудните времена?
+  #   /други-въпроси/защо-да-почитам-Бог.html
+  #     BG: Защо да почитам Бог, който позволява да се случват ужасни неща?
+  #   /въпроси-за-живота/добър-ли-е-Бог.html
+  #     BG: Добър ли е Бог?
+
+  # EN: "Every day passes and at the end I feel nothing remains of it. What am I actually living for?"
+  - id: "esbg-seeker-nishto-ne-ostava"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Всеки ден минава, а накрая усещам, че нищо не остава от него. За какво всъщност живея?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D0%BF%D0%BE%D0%B2%D0%B5%D1%87%D0%B5-%D0%B2-%D1%82%D0%BE%D0%B7%D0%B8-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D1%81%D0%BC%D0%B8%D1%81%D1%8A%D0%BB%D1%8A%D1%82-%D0%BD%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D1%84%D1%83%D0%BD%D0%B4%D0%B0%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D0%BB%D0%BD%D0%B8%D1%82%D0%B5-%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D0%B8%D1%81%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B8-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D0%B8%D0%B7%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA%D1%8A%D1%82-%D0%BD%D0%B0-%D0%BF%D1%80%D0%BE%D0%BC%D0%B5%D0%BD%D0%B5%D0%BD-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /въпроси-за-живота/повече-в-този-живот.html
+  #     BG: Има ли нещо повече в този живот?
+  #   /въпроси-за-живота/смисълът-на-живота.html
+  #     BG: Какъв е смисълът на живота ми?
+  #   /въпроси-за-живота/фундаменталните-въпроси-за-живота.html
+  #     BG: Фундаменталните въпроси за живота
+  #   /въпроси-за-живота/истински-живот.html
+  #     BG: Истински смисъл в живота
+  #   /въпроси-за-живота/източникът-на-променен-живот.html
+  #     BG: Казвали ли сте си някога „мразя живота си“?
+
+  # EN: "I am anxious almost constantly, even when there is no specific reason. Does faith have anything to offer for that?"
+  - id: "esbg-seeker-trevoga"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Тревожа се почти постоянно, дори когато няма конкретна причина. Има ли вярата какво да предложи за това?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D1%8F%D0%BD%D0%B5-%D1%81-%D0%B1%D0%B5%D0%B7%D0%BF%D0%BE%D0%BA%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%BE%D1%82%D0%BE.html"
+        - "/%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8-%D0%B7%D0%B0-%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%B0/%D1%81%D0%BF%D0%BE%D0%BA%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D0%B5-%D0%B2-%D0%BD%D0%B5%D1%81%D0%BF%D0%BE%D0%BA%D0%BE%D0%B5%D0%BD-%D1%81%D0%B2%D1%8F%D1%82.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /въпроси-за-живота/справяне-с-безпокойството.html
+  #     BG: Как да се справим с безпокойството?
+  #   /въпроси-за-живота/спокойствие-в-неспокоен-свят.html
+  #     BG: Как да имаме спокойствие в този неспокоен свят?
+
+  # EN: "I do not understand why someone had to die for my sins to be forgiven. Why did God not just forgive?"
+  - id: "esbg-newcomer-krast"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Не разбирам защо е трябвало някой да умира, за да ми бъдат простени греховете. Защо Бог просто не прости?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B4%D0%B0-%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BC%D0%B5-%D0%91%D0%BE%D0%B3/%D0%B7%D0%B0%D1%89%D0%BE-%D1%83%D0%BC%D1%80%D1%8F-%D0%98%D1%81%D1%83%D1%81.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /да-познаваме-Бог/защо-умря-Исус.html
+  #     BG: Разпъването на Исус - Защо умря Исус?
+
+  # EN: "The Bible was copied by hand for centuries. How do I know todays text is the same as the original?"
+  - id: "esbg-skeptic-prepisvana"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Библията е преписвана на ръка векове наред. Откъде да знам, че днешният текст е същият като първоначалния?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B4%D0%B0-%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BC%D0%B5-%D0%91%D0%BE%D0%B3/%D0%B7%D0%B0%D1%89%D0%BE-%D0%B4%D0%B0-%D0%B2%D1%8F%D1%80%D0%B2%D0%B0%D0%BC-%D0%BD%D0%B0-%D0%91%D0%B8%D0%B1%D0%BB%D0%B8%D1%8F%D1%82%D0%B0.html"
+        - "/%D0%B4%D1%80%D1%83%D0%B3%D0%B8-%D0%B2%D1%8A%D0%BF%D1%80%D0%BE%D1%81%D0%B8/%D0%B8%D0%BC%D0%B0-%D0%BB%D0%B8-%D0%BF%D1%80%D0%BE%D1%82%D0%B8%D0%B2%D0%BE%D1%80%D0%B5%D1%87%D0%B8%D1%8F-%D0%B2-%D0%91%D0%B8%D0%B1%D0%BB%D0%B8%D1%8F%D1%82%D0%B0.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /да-познаваме-Бог/защо-да-вярвам-на-Библията.html
+  #     BG: Защо да вярвам на Библията? - История на Библията
+  #   /други-въпроси/има-ли-противоречия-в-Библията.html
+  #     BG: Има ли много противоречия в Библията?
+
+  # EN: "I have been praying for the same thing for months and there is no answer. Am I getting something wrong?"
+  - id: "esbg-believer-bez-otgovor"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Моля се за едно и също нещо от месеци, а отговор няма. Греша ли в нещо?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B4%D0%B0-%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BC%D0%B5-%D0%91%D0%BE%D0%B3/%D0%BE%D1%82%D0%B3%D0%BE%D0%B2%D0%B0%D1%80%D1%8F-%D0%BB%D0%B8-%D0%91%D0%BE%D0%B3-%D0%BD%D0%B0-%D0%BC%D0%BE%D0%BB%D0%B8%D1%82%D0%B2%D0%B8%D1%82%D0%B5-%D0%BD%D0%B8.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /да-познаваме-Бог/отговаря-ли-Бог-на-молитвите-ни.html
+  #     BG: Отговаря ли Бог на молитвите ни?
+
+  # EN: "Christianity, Islam, Buddhism - it seems to me they all claim the same thing in different words. Where is the real difference?"
+  - id: "esbg-skeptic-edno-i-sashto"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "Християнство, ислям, будизъм — струва ми се, че всички твърдят едно и също с различни думи. Къде е реалната разлика?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B4%D0%B0-%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BC%D0%B5-%D0%91%D0%BE%D0%B3/%D1%81%D0%B2%D1%8A%D1%80%D0%B7%D0%B2%D0%B0%D0%BD%D0%B5-%D1%81-%D0%91%D0%BE%D0%B6%D0%B5%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BE%D1%82%D0%BE.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /да-познаваме-Бог/свързване-с-Божественото.html
+  #     BG: 5 световни религии
+
+  # EN: "At the service they address Jesus, then the Father, then the Holy Spirit. Does that mean Christians worship more than one God?"
+  - id: "esbg-newcomer-trima"
+    language: "bg"
+    evidence_tier: "llm-translated"
+    question: "На службата се обръщат ту към Исус, ту към Отца, ту към Светия Дух. Значи ли това, че християните почитат повече от един Бог?"
+    relevant:
+      everystudent-bg:
+        - "/%D0%B4%D0%B0-%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BC%D0%B5-%D0%91%D0%BE%D0%B3/%D0%BC%D0%BE%D0%B6%D0%B5%D1%82%D0%B5-%D0%BB%D0%B8-%D0%B4%D0%B0-%D0%BE%D0%B1%D1%8F%D1%81%D0%BD%D0%B8%D1%82%D0%B5-%D0%A2%D1%80%D0%BE%D0%B8%D1%86%D0%B0%D1%82%D0%B0.html"
+        - "/%D0%B4%D0%B0-%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BC%D0%B5-%D0%91%D0%BE%D0%B3/%D0%BA%D0%BE%D0%B9-%D0%B5-%D0%A1%D0%B2%D0%B5%D1%82%D0%B8%D1%8F%D1%82-%D0%94%D1%83%D1%85.html"
+  # CREDITED (decoded paths + EN titles — the encoded form above is what eval matches):
+  #   /да-познаваме-Бог/можете-ли-да-обясните-Троицата.html
+  #     BG: Можете ли да обясните Троицата?
+  #   /да-познаваме-Бог/кой-е-Светият-Дух.html
+  #     BG: Кой е Светият Дух?
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-sk — 10 cases · 33 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-sk.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends treat faith in God as something a person talks himself into when times are hard. Does that faith have any rational basis at all?"
+  - id: "essk-skeptic-podklad"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Kamaráti berú vieru v Boha ako niečo, čo si človek nahovorí, keď mu je ťažko. Má tá viera vôbec nejaký rozumný podklad?"
+    relevant:
+      everystudent-sk:
+        - "/pribeh-ateistky"
+        - "/tomas"
+        - "/existuje-boh"
+        - "/preco-boh-nedokaze-ze-existuje"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.729:
+  #    1. 0.729 /pribeh-ateistky
+  #       EN: An atheist who found God — 'As an atheist I kept asking believers: how do you KNOW God is real? Most reacted irritably.' Answers the it-is-just-self-t
+  #    2. 0.700 /tomas
+  #       EN: 'There is no God, full stop!' — 🔴 TITLE TRAP: the title is the OBJECTION, not the article's position. Body opens with the objection verbatim ('Christ
+  #    7. 0.684 /existuje-boh
+  #       EN: Does God exist? — the source's flagship apologetics piece, 13.3k chars: complexity of the universe, biology, physics, genetics, astronomy
+  #    8. 0.682 /preco-boh-nedokaze-ze-existuje
+  #       EN: Why doesn't God prove he exists with a miracle? — Philip Yancey on faith suffering from a surplus of freedom. Answers 'if it were real you would not h
+
+  # EN: "When someone says 'God' I picture some impersonal energy somewhere in the universe. Can anything more concrete be said about him?"
+  - id: "essk-newcomer-neosobna-sila"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Keď sa povie Boh, predstavím si nejakú neosobnú energiu kdesi vo vesmíre. Dá sa o ňom povedať niečo konkrétnejšie?"
+    relevant:
+      everystudent-sk:
+        - "/vznik-vesmiru-4"
+        - "/vznik-vesmiru-3"
+        - "/aky-je-boh"
+        - "/ako-najst-boha"
+        - "/je-boh-zena"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.659:
+  #    1. 0.659 /vznik-vesmiru-4
+  #       EN: Who? (Origin of the universe IV) — 🔴 TITLE TRAP. The title reads as a cosmology-series instalment; the body is the personhood argument: 'the Eternal 
+  #    2. 0.649 /vznik-vesmiru-3
+  #       EN: Someone (Origin of the universe III) — same trap, same series. Argues there can be only ONE Eternal Something and that it must be a Someone rather tha
+  #    3. 0.649 /aky-je-boh
+  #       EN: What is God like? Discover 6 attributes of God — 'God is knowable, not an anonymous higher power… he wants to be known personally, not through books, 
+  #    5. 0.636 /ako-najst-boha
+  #       EN: How do you find God? And which God is the real one? — five criteria: a God greater than us, a God who understands you and can be personally known
+  #    7. 0.632 /je-boh-zena
+  #       EN: Is God a woman? — 'God is a spiritual being and has no physical human attributes.' Narrow, but it is squarely about God's nature and it answers what k
+
+  # EN: "A friend of mine died in an accident last year. Since then I cannot understand why God just watched it happen, if he is supposed to be good."
+  - id: "essk-skeptic-nehoda"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Kamarát mi vlani zomrel pri nehode. Odvtedy neviem pochopiť, prečo sa na to Boh len tak prizeral, keď má byť dobrý."
+    relevant:
+      everystudent-sk:
+        - "/preco-je-zivot-taky-tazky"
+        - "/ak-je-boh-dobry-preco-existuje-zlo-a-utrpenie"
+        - "/existencia-zla"
+        - "/kde-je-boh-uprostred-tragedii"
+        - "/preco-boh-dopusti-znasilnenie"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.717:
+  #    1. 0.717 /preco-je-zivot-taky-tazky
+  #       EN: Why is life so hard? — 'why do people get cancer, why are there accidents, floods, wars? Why is there so much evil in the world?'
+  #    6. 0.689 /ak-je-boh-dobry-preco-existuje-zlo-a-utrpenie
+  #       EN: If God is good, why doesn't he stop suffering and evil? — the Kreeft/Tacelli four-proposition formulation of the problem of evil
+  #    7. 0.688 /existencia-zla
+  #       EN: The existence of evil: proof that God doesn't care? — 'how can you believe in God when there is so much evil?'
+  #    9. 0.679 /kde-je-boh-uprostred-tragedii
+  #       EN: Where is God in the middle of tragedies? — 13.6k chars, opens 'Have you ever asked in the middle of hardship: God, WHERE ARE YOU?!'
+  #   10. 0.665 /preco-boh-dopusti-znasilnenie
+  #       EN: Why does God allow a child to be raped? — framed as 'why should I worship a God who allows terrible things to happen'
+
+  # EN: "Every evening I feel the whole day led nowhere again. What is all of it actually for?"
+  - id: "essk-seeker-nic-z-toho"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Každý večer mám pocit, že celý deň zase nikam neviedol. Načo to všetko vlastne je?"
+    relevant:
+      everystudent-sk:
+        - "/viktor"
+        - "/preco-som-na-svete"
+        - "/zmenil-sa-mi-zivot"
+        - "/peta"
+        - "/miska"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.61:
+  #    1. 0.610 /viktor
+  #       EN: I struggled with aimlessness — 'the biggest thing I fought was aimlessness: I had no meaning. I kept asking: why am I here? Is there more?' Written at
+  #    2. 0.601 /preco-som-na-svete
+  #       EN: Why am I in the world? — the HAMMER PARABLE (a hammer with a soul, left in the toolbox). Slovak twin of the Bulgarian 'What is the meaning of my life?
+  #    4. 0.566 /zmenil-sa-mi-zivot
+  #       EN: A changed life: I wanted to prove God doesn't exist — 🔴 TITLE TRAP. Title reads as an atheism testimony; the body OPENS 'Do you know the feeling when
+  #    7. 0.522 /peta
+  #       EN: I was always searching for something — sport, then university, then trying to fit in, and the restlessness underneath it
+  #    9. 0.511 /miska
+  #       EN: I was lonely and empty — 'by the end of primary school I was a very lonely girl, completely empty inside'; the emptiness stayed through the relationsh
+
+  # EN: "I carry tension inside me almost constantly, even when nothing in particular is happening. Can faith do anything about that?"
+  - id: "essk-seeker-napatie"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Napätie v sebe nosím skoro stále, aj keď sa nič konkrétne nedeje. Vie s tým viera niečo urobiť?"
+    relevant:
+      everystudent-sk:
+        - "/ako-najst-vnutorny-pokoj"
+        - "/vnutorny-pokoj-v-nestalom-svete"
+        - "/uzkost-a-strach"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.681:
+  #    1. 0.681 /ako-najst-vnutorny-pokoj
+  #       EN: How to find inner peace amid problems and difficulties — 'many people imagine peace as the ABSENCE of problems… real inner peace persists despite them
+  #    2. 0.672 /vnutorny-pokoj-v-nestalom-svete
+  #       EN: Stressed? Find inner peace — 17.0k chars, the longest treatment: 'how do you avoid anxiety and worry?'
+  #    3. 0.652 /uzkost-a-strach
+  #       EN: How to overcome anxiety and fear — 10.5k chars, the source's dedicated anxiety article: money, unstable work, illness, addictions, the news cycle, 'bu
+
+  # EN: "Why did someone have to die for God to be able to forgive me? Could he not simply have forgiven?"
+  - id: "essk-newcomer-kriz"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Prečo musel niekto zomrieť na to, aby mi Boh mohol odpustiť? Nemohol jednoducho odpustiť?"
+    relevant:
+      everystudent-sk:
+        - "/preco-a-ako-zomrel-jezis"
+        - "/spoznaj-boha"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.736:
+  #    1. 0.736 /preco-a-ako-zomrel-jezis
+  #       EN: Why and how did Jesus die? — a DEDICATED atonement article: 'the real reason for his death is far deeper and more surprising… what it means for us tod
+  #    4. 0.700 /spoznaj-boha
+  #       EN: How to know God? 4 steps — the Four Spiritual Laws page. Step 2–3 IS the substitution teaching: 'sin is paid for with death, so that we would not have
+
+  # EN: "I do not know how I am supposed to take seriously a book written thousands of years ago that has passed through who knows how many hands since."
+  - id: "essk-skeptic-prepisovanie"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Neviem, ako mám brať vážne knihu, ktorá vznikla pred tisíckami rokov a odvtedy prešla neviem koľkými rukami."
+    relevant:
+      everystudent-sk:
+        - "/je-biblia-pravdiva"
+        - "/skutocne-zil-jezis"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.662:
+  #    1. 0.662 /je-biblia-pravdiva
+  #       EN: Can the Bible be trusted? What does the evidence say? — 36.6k chars, the LARGEST document in the source. Its own table of contents includes 'Did the B
+  #    9. 0.498 /skutocne-zil-jezis
+  #       EN: Did Jesus really live? Is there evidence? — Tacitus and Josephus, the extra-biblical attestation. ⚠️ BOUNDARY CREDIT, see below
+
+  # EN: "I have been praying about one thing for months and there is still silence. Is the fault in me?"
+  - id: "essk-believer-ticho"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Za jednu vec sa modlím už mesiace a stále ticho. Je chyba vo mne?"
+    relevant:
+      everystudent-sk:
+        - "/ako-sa-modlit"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.731:
+  #    1. 0.731 /ako-sa-modlit
+  #       EN: How do you pray? And why does God sometimes not answer? — 'let us look at which prayers God hears and which stay unanswered', and directly at this ask
+
+  # EN: "I grew up being told that everyone should find their own way to God and that the ways are basically equivalent. Why would the Christian one be special?"
+  - id: "essk-skeptic-rovnake"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Vyrastal som v tom, že každý si má nájsť svoju vlastnú cestu k Bohu a že sú v podstate rovnocenné. Prečo by mala byť práve tá kresťanská výnimočná?"
+    relevant:
+      everystudent-sk:
+        - "/astrologia-a-hladanie-boha"
+        - "/jezis-a-nabozenstva"
+        - "/vedu-vsetky-cesty-k-bohu"
+        - "/ako-radikalny-moslim-nasiel-jezisa"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.682:
+  #    1. 0.682 /astrologia-a-hladanie-boha
+  #       EN: Astrology and the road of searching for God — 🔴 A CANDIDATE A TITLE-ONLY REVIEWER WOULD REJECT, and it is rank 1. 13.5k chars: spiritual guides, medi
+  #    2. 0.656 /jezis-a-nabozenstva
+  #       EN: Jesus and religions: what is the difference? — 'in other religions a person spends a lifetime trying to reach God; in Christianity God stoops to us in
+  #    3. 0.652 /vedu-vsetky-cesty-k-bohu
+  #       EN: Do all roads lead to the same god? A comparison of religions — 9.7k chars working Hinduism, Buddhism, Islam, New Age and Christianity in turn. This is
+  #    4. 0.635 /ako-radikalny-moslim-nasiel-jezisa
+  #       EN: How a radical Muslim found Jesus — 12.9k chars: Pakistan, Saudi Arabia, Wahhabism, studying the Qur'an from age twelve, and the comparison he ran betw
+
+  # EN: "A friend of mine prays to Jesus, but also calls him the Son of God, and on top of that mentions the Holy Spirit. I do not follow who is who."
+  - id: "essk-newcomer-traja"
+    language: "sk"
+    evidence_tier: "llm-translated"
+    question: "Kamarátka sa modlí k Ježišovi, ale hovorí o ňom aj ako o Božom Synovi a ešte spomína Ducha Svätého. Nechápem, kto je teda kto."
+    relevant:
+      everystudent-sk:
+        - "/co-je-svata-trojica"
+        - "/kto-je-duch-svaty"
+  # RETRIEVED (qwen, sk-scoped, 2026-08-04) — top score 0.699:
+  #    1. 0.699 /co-je-svata-trojica
+  #       EN: What is the Holy Trinity? Is God one, or are there three? — the three-dimensions-of-a-book analogy and the 1×1×1=1 formulation, the same one `bg` cred
+  #  NOT IN TOP 10. not returned /kto-je-duch-svaty
+  #       EN: Who is the Holy Spirit? — 'not an impersonal energy or an ethereal puff of steam, but a PERSON with all the divine attributes, equally with God the Fa
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-hu — 10 cases · 27 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-hu.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends think believing in God is just wishful thinking. Is there anything factual that backs it up, or is the whole thing really just a feeling?"
+  - id: "eshu-skeptic-vagyalom"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "A barátaim szerint az istenhit csak vágyálom. Van bármi tényleges, ami alátámasztja, vagy tényleg csak érzés az egész?"
+    relevant:
+      everystudent-hu:
+        - "/a/ateista.html"
+        - "/a/bizonyitani.html"
+        - "/a/utmutato.html"
+        - "/a/letezik.html"
+        - "/a/dns.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.744:
+  #    1. 0.744 /a/ateista.html
+  #       EN: How an atheist found God — Marilyn Adamson: 'I methodically examined five OBJECTIVE reasons for believing God exists… I realised my belief was not emo
+  #    2. 0.720 /a/bizonyitani.html
+  #       EN: Can you prove God exists? — Gregory Ganssle, PhD, on why 'you can't prove it' is itself a dogma
+  #    4. 0.704 /a/utmutato.html
+  #       EN: A guide to finding faith — written at the agnostic who would rather not look
+  #    6. 0.697 /a/letezik.html
+  #       EN: Does God exist? Six arguments that he does (Marilyn Adamson) — the source's flagship apologetics article, 23.5k chars, argued as courtroom evidence
+  #  NOT IN TOP 10. not returned /a/dns.html
+  #       EN: Does God exist? What does our DNA say about it? — Antony Flew's reversal, DNA as a written program. 🔴 KEPT DELIBERATELY, see below.
+
+  # EN: "When someone says 'God', what comes to my mind is some hazy energy somewhere up there. Is he even a person?"
+  - id: "eshu-newcomer-milyen"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "Ha valaki azt mondja, hogy „Isten”, nekem valami ködös energia jut eszembe valahol fent. Ő egyáltalán személy?"
+    relevant:
+      everystudent-hu:
+        - "/a/tokeletes.html"
+        - "/a/milyen.html"
+        - "/a/kicsoda2.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.71:
+  #    1. 0.710 /a/tokeletes.html
+  #       EN: Seeking — and finding — the 'perfect God'. 🔴 TITLE TRAP: the title ('Keresni – és megtalálni') names no subject at all. The body is an enumerated lis
+  #    2. 0.654 /a/milyen.html
+  #       EN: What might God be like? — 'Who is God? What is he like? SIX PERSONALITY TRAITS characteristic of God': knowable, approachable… The Hungarian twin of t
+  #    4. 0.649 /a/kicsoda2.html
+  #       EN: Who 2. — part 4 of the cosmological series; this is where the 'Eternal Someone' is argued to be a PERSON and not a machine, and where God's invisibili
+
+  # EN: "A friend of mine died in an accident last year. I still cannot square that in my own head with a good God."
+  - id: "eshu-skeptic-baleset"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "Tavaly meghalt egy barátom egy balesetben. Azóta sem tudom összerakni magamban, hogy ez hogyan fér össze egy jóságos Istennel."
+    relevant:
+      everystudent-hu:
+        - "/a/miert.html"
+        - "/a/szornyu.html"
+        - "/a/jo.html"
+        - "/a/faj.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.726:
+  #    1. 0.726 /a/miert.html
+  #       EN: Why is life so hard? — 'Why does someone get cancer? Why do earthquakes destroy whole cities?' Then: the girl next door is abducted, a relative gets c
+  #    3. 0.706 /a/szornyu.html
+  #       EN: Why worship a God who allows terrible things? — framed around a child being raped and around war
+  #    4. 0.700 /a/jo.html
+  #       EN: Is God really good? — a 1.5k video transcript: 'If he is, why is there so much suffering and evil?' The free-will theodicy, square circles and all. Hu
+  #    7. 0.694 /a/faj.html
+  #       EN: Where is God when it really hurts? (Marilyn Adamson) — 14.8k chars; 'disasters and free will' is its own section
+
+  # EN: "Every day of mine passes the same way, and at night I go to bed feeling nothing remained of it. What is the point of any of it?"
+  - id: "eshu-seeker-uresen"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "Minden napom ugyanúgy telik, és este azzal fekszem le, hogy semmi nem maradt belőle. Mi értelme az egésznek?"
+    relevant:
+      everystudent-hu:
+        - "/a/celom.html"
+        - "/a/valddi.html"
+        - "/a/forrasa.html"
+        - "/a/filozofia.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.66:
+  #    1. 0.660 /a/celom.html
+  #       EN: What is my purpose in life? — the hammer parable, told at length
+  #    2. 0.636 /a/valddi.html
+  #       EN: Real life — three people who reached the summit and were still empty (the mountaineer, the Champions League winner, the graduate)
+  #    5. 0.593 /a/forrasa.html
+  #       EN: The source of a changed life (Josh McDowell) — 'Who am I? Why am I here? Where is my life going?' Hungarian twin of the Spanish /articulos/lafuente.ht
+  #    7. 0.582 /a/filozofia.html
+  #       EN: The value of philosophy — 'Why are we here? What is our purpose? What brings fulfilment, what gives life meaning?' (Socrates, Plato, Peter Kreeft)
+
+  # EN: "I am anxious almost constantly, even when nothing specific is actually wrong. Does faith offer anything at all for that?"
+  - id: "eshu-seeker-szorongas"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "Szinte állandóan szorongok, akkor is, amikor épp semmi konkrét bajom nincs. Kínál erre a hit bármit is?"
+    relevant:
+      everystudent-hu:
+        - "/a/koronavirus.html"
+        - "/a/beke.html"
+        - "/a/csakra.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.677:
+  #    1. 0.677 /a/koronavirus.html
+  #       EN: Coronavirus — what do we do with our fears? (Marilyn Adamson). 🔴 REVERSE TITLE TRAP: the TITLE is 'Fear of coronavirus', which reads as a dated 2020 
+  #    2. 0.645 /a/beke.html
+  #       EN: Peace of mind in an uncertain world — 'whatever the future holds, it is possible to live without worry and fear'
+  #    3. 0.630 /a/csakra.html
+  #       EN: Anxiety and chakra healing — Rachel Fatyanov, who was lonely, depressed and increasingly anxious, went through Buddhism/Zen, yoga, New Age and occult 
+
+  # EN: "The Christians I know talk about the cross as if it changed everything. To me it is just an execution that happened two thousand years ago."
+  - id: "eshu-newcomer-kereszt"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "A keresztény ismerőseim úgy beszélnek a keresztről, mintha az mindent megváltoztatott volna. Nekem viszont csak egy kivégzés, ami kétezer éve történt."
+    relevant:
+      everystudent-hu:
+        - "/a/meghalni.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.71:
+  #    5. 0.686 /a/meghalni.html
+  #       EN: Why did Jesus have to die? — 'What are Jesus' death and resurrection, the crucifixion, actually about?' A DEDICATED atonement article, 17.0k chars, wo
+
+  # EN: "In religious-education class they said the Bible is from God, but to me it is still a book written by people and copied by people over centuries. What makes it any different from any other ancient document?"
+  - id: "eshu-skeptic-masolat"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "Hittanórán azt mondták, a Biblia Istentől van, de nekem attól még egy könyv, amit emberek írtak és emberek másoltak évszázadokon át. Mitől lenne ez más, mint bármelyik régi irat?"
+    relevant:
+      everystudent-hu:
+        - "/a/biblianak.html"
+        - "/a/iszlam.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.709:
+  #    1. 0.709 /a/biblianak.html
+  #       EN: The history of the Bible — who wrote the Bible (31.3k, the source's longest article). Opens 'Can we believe the Bible? How do we know the Bible we use
+  #    2. 0.697 /a/iszlam.html
+  #       EN: Jesus and Islam (25.1k) — six questions, and question 1 IS this one: 'Has the Bible changed from the original? Or was it rewritten over time?' It answ
+
+  # EN: "I have been praying for the same thing for months and all I get back is silence. Am I doing something wrong?"
+  - id: "eshu-believer-csend"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "Hónapok óta ugyanazért imádkozom, és csak csend a válasz. Rosszul csinálok valamit?"
+    relevant:
+      everystudent-hu:
+        - "/a/imadsagra.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.713:
+  #    1. 0.713 /a/imadsagra.html
+  #       EN: Does God answer prayer? — 'What does it take for God to answer our prayers?' Told by a former atheist watching a praying friend week after week. Hunga
+
+  # EN: "Among my colleagues there is a Muslim and a Buddhist, and each speaks about their own faith with as much conviction as my Christian acquaintances do. Why would any one of them be more right than the others?"
+  - id: "eshu-skeptic-ugyanaz"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "A kollégáim között van muszlim és buddhista is, és mindegyik ugyanolyan meggyőződéssel beszél a saját hitéről, mint a keresztény ismerőseim. Miért lenne bármelyiküknek jobban igaza?"
+    relevant:
+      everystudent-hu:
+        - "/a/istenkereses.html"
+        - "/a/kulonbseg.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.734:
+  #    1. 0.734 /a/istenkereses.html
+  #       EN: The ways of seeking God (Marilyn Adamson, 19.8k) — 'How do the major religions view God: Hinduism, Buddhism, Islam, Christianity and the New Age movem
+  #    2. 0.683 /a/kulonbseg.html
+  #       EN: What is the difference between Christianity and other world religions? — 'other religions reach one-sidedly toward their god, while in Christ God stoo
+
+  # EN: "At church they address Jesus, then the Father, then the Holy Spirit. So do Christians worship more than one God?"
+  - id: "eshu-newcomer-harman"
+    language: "hu"
+    evidence_tier: "llm-translated"
+    question: "A templomban hol Jézushoz, hol az Atyához, hol a Szentlélekhez szólnak. Akkor a keresztények most több istent imádnak?"
+    relevant:
+      everystudent-hu:
+        - "/a/szentharomsagot.html"
+        - "/a/szentlelek.html"
+  # RETRIEVED (qwen, hu-scoped, 2026-08-04) — top score 0.708:
+  #    1. 0.708 /a/szentharomsagot.html
+  #       EN: Can you explain the 'Trinity'? — the three-dimensions analogy and the 1×1×1=1 formulation, explicitly 'the Bible speaks clearly of God the Son, God th
+  #    2. 0.655 /a/szentlelek.html
+  #       EN: Who is the Holy Spirit? — 'not a hazy otherworldly shadow, nor an impersonal force. He is a person, equal in every respect to God the Father and God t
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-mn — 10 cases · 30 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-mn.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends say God is just something people made up. Is there any real ground or evidence for holding that he actually exists?"
+  - id: "esmn-skeptic-notolgoo"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Найзууд маань Бурхан гэдэг зүгээр л хүний зохиосон зүйл гэж ярьдаг. Түүнийг үнэхээр байдаг гэж үзэх ямар нэг бодит үндэслэл, нотолгоо байдаг юм уу?"
+    relevant:
+      everystudent-mn:
+        - "/a/101Yertontsiyn.html"
+        - "/a/100erdemted.html"
+        - "/a/100yertontsiig.html"
+        - "/a/100boditoi.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.704:
+  #    8. 0.673 /a/101Yertontsiyn.html
+  #       EN: Is there a God? Six grounds for his existence — Marilyn Adamson. The canonical article; the Mongolian twin of the Russian /a/estli.html
+  #    4. 0.696 /a/100erdemted.html
+  #       EN: Laws of nature that astonished scientists — constants, the speed of light, the earth's rotation: why is the universe this ordered?
+  #    7. 0.680 /a/100yertontsiig.html
+  #       EN: Did God create the universe? — the Big Bang, a singular beginning point, and what has to be outside time and space to cause it
+  #  NOT IN TOP 10. not returned /a/100boditoi.html
+  #       EN: Is God real? — Antony Flew, the leading atheist philosopher, driven to 'a Super-Intelligence is the only good explanation', and the DNA argument. Dire
+
+  # EN: "When I hear 'God' all I picture is some vague force; nothing else comes to mind. What is he actually like?"
+  - id: "esmn-newcomer-yamarhuu"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "«Бурхан» гэхээр надад ямар нэгэн бүрхэг хүч л төсөөлөгддөг болохоос өөр юу ч ойлгогддоггүй. Тэр яг ямархуу нэгэн юм бэ?"
+    relevant:
+      everystudent-mn:
+        - "/a/109Yertontsiyn.html"
+        - "/a/107Yaagaad.html"
+        - "/a/110Ezen.html"
+        - "/a/204Hen2.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.716:
+  #    1. 0.716 /a/109Yertontsiyn.html
+  #       EN: Who is God? What can he be compared to? God's six distinctive characteristics — and he can be known personally. ⚠ The SLUG says 'Yertontsiyn' ('of the
+  #    2. 0.715 /a/107Yaagaad.html
+  #       EN: Why choose the God of the Bible? — 'we each picture God as whatever is most complete to us', then #1: God's nature, an incomparably greater God. 21k c
+  #    4. 0.685 /a/110Ezen.html
+  #       EN: 'Show me God' — is God invisible, a hidden Lord? The flatland analogy: two-dimensional people on a paper cannot see you touching it. Answers the 'vagu
+  #    6. 0.684 /a/204Hen2.html
+  #       EN: 'Who 2' — closes the cosmological series: the Eternal One cannot be found by us, so to be known he must 'limit' himself. Exactly why an impersonal for
+
+  # EN: "Last year my friend died in an accident. Nobody can explain to me why, if there is a good God, he allowed that."
+  - id: "esmn-skeptic-osol"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Өнгөрсөн жил найз маань осолд орж нас барсан. Сайн Бурхан байдаг юм бол яагаад үүнийг зөвшөөрсөн юм бэ гэдгийг надад хэн ч тайлбарлаж чадахгүй байна."
+    relevant:
+      everystudent-mn:
+        - "/a/605Tegvel.html"
+        - "/a/602Yaagaad.html"
+        - "/a/711Tagalzah.html"
+        - "/a/603Bid.html"
+        - "/a/601Emgenelt.html"
+        - "/a/702Gayzovlon.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.726:
+  #    4. 0.697 /a/605Tegvel.html
+  #       EN: So why do bad things happen? — Stacy James. 'If God is always good and all-powerful, why doesn't he do something?' The ARGUMENT article. Twin of the R
+  #    5. 0.697 /a/602Yaagaad.html
+  #       EN: Why is life so hard? — why cancer, why earthquakes that destroy whole cities. Twin of the Russian /a/pochemu.html.
+  #    6. 0.688 /a/711Tagalzah.html
+  #       EN: Q/A: Why did God create people who would reject him? — the free-will theodicy; its own opening asks 'why does he allow suffering and testing?'. ADDED 
+  #    8. 0.677 /a/603Bid.html
+  #       EN: What now? — from bereavement to healing. Opens 'have you faced a natural disaster, or a close friend leaving this world? Did you get an answer from Go
+  #  NOT IN TOP 10. not returned /a/601Emgenelt.html
+  #       EN: Where is God when fear, natural disaster and grief come? Finding inner strength, reducing distress and fear. The estate's grief article. KEPT — see no
+  #  NOT IN TOP 10. not returned /a/702Gayzovlon.html
+  #       EN: Q/A: Doesn't the existence of suffering mean God doesn't care? — the asker's objection stated as the article's own question. Twin of the Russian /a/st
+
+  # EN: "Every day passes the same and in the end it feels like it reaches nothing. What do people live for anyway? Am I supposed to have some purpose?"
+  - id: "esmn-seeker-zorilgo"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Өдөр бүр адилхан өнгөрч, эцэст нь юунд ч хүрэхгүй юм шиг санагддаг. Хүн ер нь юуны тулд амьдардаг юм бэ? Надад ямар нэг зорилго байх учиртай юу?"
+    relevant:
+      everystudent-mn:
+        - "/a/303Zhinhene.html"
+        - "/a/305Miniy.html"
+        - "/a/302Oorchlogdson.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.677:
+  #    1. 0.677 /a/303Zhinhene.html
+  #       EN: Real life — three people who found satisfaction, acceptance and purpose. Opens with the man who reached the summit he had aimed his whole life at, and
+  #    4. 0.620 /a/305Miniy.html
+  #       EN: What is my life's purpose? — the hammer parable: a hammer in a toolbox is not being what it is for. Twin of the Russian /a/smisl.html.
+  #    5. 0.614 /a/302Oorchlogdson.html
+  #       EN: The source of a changed life — Josh McDowell: 'Who am I? Why am I here in this world? Where am I going?' Twin of the Russian /a/istochnik.html and the
+
+  # EN: "Nothing particular has happened, yet I am anxious and on edge almost all the time. Can faith help with that in any way?"
+  - id: "esmn-seeker-tvgshvvr"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Онцгой болсон юм байхгүй атал би бараг байнга дотроо түгшиж, сандарч байдаг. Үүнд итгэл ямар нэгэн байдлаар тус болох уу?"
+    relevant:
+      everystudent-mn:
+        - "/a/313Doroy.html"
+        - "/a/300amgalan.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.686:
+  #    2. 0.683 /a/313Doroy.html
+  #       EN: Jesus: support for the weak — a Princeton student on being wrung out by coursework stress ('what use is putting hope in a dead carpenter?') and what c
+  #    4. 0.681 /a/300amgalan.html
+  #       EN: Peace in an unstable world — 'whatever happens in the future, you can be at peace and confident.' The estate's peace article; twin of the Russian /a/p
+
+  # EN: "It is clear Christians treat Jesus' death as very important. But I do not understand what exactly his death changed."
+  - id: "esmn-newcomer-zagalmai"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Христэд итгэгчид Есүсийн үхлийг маш чухалчилдаг нь ойлгомжтой. Гэхдээ Түүний үхэл яг юуг өөрчилсөн юм бэ гэдэг нь надад ойлгогдохгүй байна."
+    relevant:
+      everystudent-mn:
+        - "/a/717Itgeh.html"
+        - "/a/401Yertontsiy.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.703:
+  #    3. 0.662 /a/717Itgeh.html
+  #       EN: Q/A: what does it mean to 'believe' in Jesus? — 'we must grasp that Jesus died for our sins… what he did on the cross is the ONLY way our sins are for
+  #  NOT IN TOP 10. not returned /a/401Yertontsiy.html
+  #       EN: Knowing God personally — the Four Spiritual Laws in Mongolian, with the cross as the bridge across the gap our own effort cannot cross. The Mongolian 
+
+  # EN: "They say the Bible was written thousands of years ago and copied by hand. So how does anyone know what we have now is still what it originally was?"
+  - id: "esmn-skeptic-bibli"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Библийг мянга мянган жилийн өмнө бичээд, гараар хуулж ирсэн гэдэг. Тэгээд одоо байгаа зүйл нь анхных нь хэвээрээ гэдгийг хэн яаж мэдэх юм бэ?"
+    relevant:
+      everystudent-mn:
+        - "/a/722Bibliyn.html"
+        - "/a/714Yneheer.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.683:
+  #    1. 0.683 /a/722Bibliyn.html
+  #       EN: Q/A: what does it mean that the Bible is God-breathed? — how the Bible came to be written: God chose people across history, Moses for the first five b
+  #    4. 0.617 /a/714Yneheer.html
+  #       EN: Q/A: how do we know Jesus really lived? — Tacitus (AD 55–120) on Christus executed under Pontius Pilate, and Josephus. The external-corroboration answ
+
+  # EN: "I have been praying for the same thing for months and there is no answer at all. Am I doing something wrong?"
+  - id: "esmn-believer-chimeegvi"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Би нэг л зүйлийн төлөө хэдэн сар залбирсаар байна, гэтэл ямар ч хариу алга. Би ямар нэг зүйлийг буруу хийж байна уу?"
+    relevant:
+      everystudent-mn:
+        - "/a/306Ezen.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.535:
+  #    1. 0.535 /a/306Ezen.html
+  #       EN: Prayers God answers — what is prayer, how to pray, and its own section on 'unanswered' prayer: 'so why doesn't God answer everyone's prayer?'. The onl
+
+  # EN: "Buddhism, Islam, Christianity — to me they all seem to say one and the same thing in different words. What is the fundamental difference?"
+  - id: "esmn-skeptic-ijil"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Буддизм, Лал, Христ шашин — надад бүгд өөр өөр үгээр нэг л зүйлийг ярьж байгаа юм шиг санагддаг. Үндсэн ялгаа нь юу вэ?"
+    relevant:
+      everystudent-mn:
+        - "/a/200kholbogdokh.html"
+        - "/a/206Yesys.html"
+        - "/a/213Zaan.html"
+        - "/a/710Boorhanig.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.738:
+  #    1. 0.738 /a/200kholbogdokh.html
+  #       EN: Connecting with the Divine One — Marilyn Adamson. Subtitle: 'Hinduism, Buddhism, Islam, Christian faith and the New Age', each with its concept of God
+  #    2. 0.650 /a/206Yesys.html
+  #       EN: How is Jesus different from the world religions? — 'unlike other religions where each tries to reach their god their own way, in Jesus Christ God reac
+  #    9. 0.538 /a/213Zaan.html
+  #       EN: Is God an 'ELEPHANT'? — David A. Horner on the four blind men and the elephant, the analogy used to argue every religion describes the same God, and w
+  #  NOT IN TOP 10. not returned /a/710Boorhanig.html
+  #       EN: Does it matter which God you call on? — 'Hindu, Latter-day Saints, Jesus, Allah — people say it makes no difference, they all pray, right?' The asker'
+
+  # EN: "I went to a church once and they named the Father, the Son and the Holy Spirit separately. So do Christians worship more than one god?"
+  - id: "esmn-newcomer-gurav"
+    language: "mn"
+    evidence_tier: "llm-translated"
+    question: "Сүмд нэг удаа очиход Эцэг, Хүү, Ариун Сүнс гэж тус тусад нь нэрлээд байсан. Тэгэхээр Христэд итгэгчид нэгээс олон бурхныг шүтдэг юм уу?"
+    relevant:
+      everystudent-mn:
+        - "/a/709Goorval.html"
+        - "/a/708Arioon.html"
+  # RETRIEVED (qwen, mn-scoped, 2026-08-04) — top score 0.709:
+  #    1. 0.709 /a/709Goorval.html
+  #       EN: Q/A: can you explain the Trinity? — 'three Gods or one?', answered with the three-dimensions analogy
+  #    2. 0.702 /a/708Arioon.html
+  #       EN: Q/A: who is the Holy Spirit? — a real Person who came to live in Jesus' followers, 'another Helper' sent by the Father
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-ja — 10 cases · 25 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-ja.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "A friend laughed at me — 'believing in God is just escapism.' I couldn't answer back. Is there any actual reasoning behind believing?"
+  - id: "esja-skeptic-negaibou"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "友人に「神を信じるなんて現実逃避でしょ」と笑われました。うまく言い返せなかったのですが、信じることに理屈はあるんでしょうか。"
+    relevant:
+      everystudent-ja:
+        - "/a/atheist.html"
+        - "/a/exi3.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.661:
+  #    1. 0.661 /a/atheist.html
+  #       EN: Why I, an atheist, came to believe in God — Marilyn Adamson. She opens by admitting she used the question 'how do you KNOW God exists?' to embarrass C
+  #    3. 0.593 /a/exi3.html
+  #       EN: Six clear proofs that God exists — Marilyn Adamson, 11.2k chars. The source's flagship apologetics article: earth's fine-tuning, DNA, the moral sense.
+
+  # EN: "When I hear 'God' all I can picture is some vague big force. Does the God of the Bible have anything like a character or a personality?"
+  - id: "esja-newcomer-jinkaku"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "「神様」と聞いても、ぼんやりした大きな力みたいなものしか思い浮かびません。聖書の神には、性格とか人格みたいなものがあるんでしょうか。"
+    relevant:
+      everystudent-ja:
+        - "/a/ideal.html"
+        - "/a/exi2.html"
+        - "/a/where.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.741:
+  #    1. 0.741 /a/ideal.html
+  #       EN: What kind of God does the Bible describe? — 12.9k chars, the longest article in the source. Opens 'what is your IDEAL God?' then works through the Bib
+  #    2. 0.646 /a/exi2.html
+  #       EN: The six characteristic traits of God the Bible describes — 'God is not hidden, not distant, not unapproachable; he wants a relationship and to be know
+  #    5. 0.581 /a/where.html
+  #       EN: Where can God be found? — the flatland analogy: two people drawn on a sheet of paper cannot see you, only your fingertip when it enters their plane. G
+
+  # EN: "Last year I lost a friend in an accident. People say 'it couldn't be helped', but if there is a loving God, why didn't he stop it? It has stuck with me ever since."
+  - id: "esja-skeptic-jiko"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "去年、友人を事故で亡くしました。周りは「仕方ない」と言いますが、愛のある神がいるならなぜ止めてくれなかったのか、ずっと引っかかっています。"
+    relevant:
+      everystudent-ja:
+        - "/a/eni3.html"
+        - "/a/eni6.html"
+        - "/a/gods-help.html"
+        - "/a/why.html"
+        - "/a/is-god-good.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.689:
+  #    1. 0.689 /a/eni3.html
+  #       EN: Why is there suffering? — Stacy James, paralysed from the neck down in a university diving accident. 'Why did God allow such a tragedy to happen?' The
+  #    2. 0.676 /a/eni6.html
+  #       EN: Is God there in the middle of tragedy? — Marilyn Adamson, 8.6k chars. Natural disasters, epidemics, famine, terror, unemployment, child abuse, violent
+  #    3. 0.644 /a/gods-help.html
+  #       EN: God's guidance in hard times — a 7:41 video narration. 'When tragedy strikes we ask, where is God?' Answers: knowing God does not remove suffering — w
+  #    4. 0.640 /a/why.html
+  #       EN: 🔴 TITLE TRAP — titled 死の恐れに打ち勝つ方法 ('How to overcome the fear of death'), and it is NOT that article. Body opens 何で人生 大変なのか？ ('Why is life so hard?') 
+  #  NOT IN TOP 10. not returned /a/is-god-good.html
+  #       EN: Is God really good? — a 926-char transcript of a 1:45 video. Opens 神が良い方なら、なぜ苦しみがあるのでしょうか ('If God is good, why is there suffering? Why didn't God mak
+
+  # EN: "I work properly every day and come home, but before bed I feel empty, wondering what today even was. What am I living for?"
+  - id: "esja-seeker-karappo"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "毎日ちゃんと働いて家に帰るのに、寝る前になると今日は何だったんだろうと空っぽになります。何のために生きているんでしょうか。"
+    relevant:
+      everystudent-ja:
+        - "/a/purpose.html"
+        - "/a/value-of-philosophy.html"
+        - "/a/exp1.html"
+        - "/a/exp2.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.553:
+  #    1. 0.553 /a/purpose.html
+  #       EN: Do you want to know your life's purpose? — the hammer parable: a new hammer sits in the toolbox, gets used to split firewood, fix a hubcap, fit a tabl
+  #    2. 0.483 /a/value-of-philosophy.html
+  #       EN: The value of philosophy — 'Why do we exist? What is life's purpose? What gives life fulfilment and meaning?' Socrates, Plato, Aristotle, Peter Kreeft.
+  #    3. 0.463 /a/exp1.html
+  #       EN: Becoming the person you want to be — Josh McDowell. Names his three lifelong questions: 私とは何者なのか / なぜこの世界に存在しているのか / どこに向かっているのか ('Who am I? Why do I 
+  #    4. 0.459 /a/exp2.html
+  #       EN: The meaning of life, life's mission — three recent graduates on finding what they were for. Testimony-shaped, but its declared subject is 生きる意味、人生の使命 
+
+  # EN: "Nothing in particular has happened, yet my chest is always unsettled and I can't calm down. Can something like faith make this easier?"
+  - id: "esja-seeker-fuan"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "特に何かあったわけでもないのに、いつも胸のあたりがざわざわして落ち着きません。信仰みたいなもので、こういうのは楽になりますか。"
+    relevant:
+      everystudent-ja:
+        - "/a/coronavirus.html"
+        - "/a/exp301.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.56:
+  #    1. 0.560 /a/coronavirus.html
+  #       EN: ⚠️ A TITLE-ONLY REVIEWER WOULD REJECT THIS AS A DATED PANDEMIC PAGE. Marilyn Adamson, 5.2k chars. Its declared subject is 心に平安を保つ秘訣 ('the secret of ke
+  #    2. 0.523 /a/exp301.html
+  #       EN: The secret of inner peace in an unstable world — 7.7k chars. 'Whatever happens in the world or in your private life, do you have something to return t
+
+  # EN: "I hear the cross is central to Christianity, but I don't understand what the execution of a man two thousand years ago has to do with me now."
+  - id: "esja-newcomer-juujika"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "キリスト教では十字架が大事だと聞きますが、二千年前に処刑された人の死が、今の自分と何の関係があるのか分かりません。"
+    relevant:
+      everystudent-ja:
+        - "/a/whydid.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.691:
+  #    3. 0.676 /a/whydid.html
+  #       EN: The cross of Jesus — why did Jesus die? 8.7k chars. Opens 'what meaning do Jesus Christ's death on the cross and his resurrection actually have?' A DE
+
+  # EN: "The Bible was copied by hand for thousands of years, right? Where is the guarantee it wasn't rewritten to suit someone along the way?"
+  - id: "esja-skeptic-kakikae"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "聖書は何千年も手書きで写されてきたんですよね。途中で都合よく書き換えられていない保証って、どこにあるんですか。"
+    relevant:
+      everystudent-ja:
+        - "/a/jesus-in-islam.html"
+        - "/a/contradictions.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.615:
+  #    1. 0.615 /a/jesus-in-islam.html
+  #       EN: Islam — what is the difference? 14.5k chars, six questions Muslim readers ask about Jesus. QUESTION 1 IS VERBATIM THIS CASE'S SUBJECT: 聖書は、著者のオリジナルから変
+  #    3. 0.486 /a/contradictions.html
+  #       EN: Aren't there contradictions in the Bible? — 2.3k chars, works the actual textual example: the wording of the inscription on the cross across Matthew, 
+
+  # EN: "I've been praying about the same thing for months and there is no reply at all. Am I praying the wrong way?"
+  - id: "esja-believer-henji"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "同じことをもう何ヶ月も祈っているのに、何の返事もありません。祈り方が間違っているんでしょうか。"
+    relevant:
+      everystudent-ja:
+        - "/a/exp6.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.686:
+  #    1. 0.686 /a/exp6.html
+  #       EN: How should I pray? Suggestions for prayer God answers — Marilyn Adamson, 8.3k chars. Opens with her watching an atheist-era friend get answers week af
+
+  # EN: "My grandparents are Buddhist and we also go to a shrine at New Year. I think all religions are basically the same in the end — can Christianity really claim to be different?"
+  - id: "esja-skeptic-onaji"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "うちは祖父母が仏教で、正月は神社にも行きます。宗教なんて結局どれも同じだと思うのですが、キリスト教だけ違うと言えるんですか。"
+    relevant:
+      everystudent-ja:
+        - "/a/jes205.html"
+        - "/a/jes3.html"
+        - "/a/onlyway.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.653:
+  #    1. 0.653 /a/jes205.html
+  #       EN: The world religions — aren't they all the same in the end? 10.5k chars. Covers Hinduism, spirituality/New Age, Buddhism, SHINTO, Islam and Christianit
+  #    2. 0.644 /a/jes3.html
+  #       EN: Christianity and other religions — where is the difference? 4.1k chars, six points. Opens by quoting the Muromachi-era Zen monk Ikkyū: 'many are the p
+  #    8. 0.575 /a/onlyway.html
+  #       EN: Is salvation only in Christianity? — 'isn't 'you are not saved unless you believe in Jesus' self-righteous and narrow-minded?' Twin of the Russian /a/
+
+  # EN: "At church I heard the phrase 'Father, Son and Holy Spirit'. I was taught there is one God — doesn't that make it three?"
+  - id: "esja-newcomer-sannin"
+    language: "ja"
+    evidence_tier: "llm-translated"
+    question: "教会で父と子と聖霊という言い方を聞きました。神様は一人だと教わったのに、これだと三人いることになりませんか。"
+    relevant:
+      everystudent-ja:
+        - "/a/trinity.html"
+        - "/a/holy-spirit.html"
+  # RETRIEVED (qwen, ja-scoped, 2026-08-04) — top score 0.721:
+  #    1. 0.721 /a/trinity.html
+  #       EN: What is the Trinity? 3.9k chars. ⓘ Its opening is a long analogy about the third-person-singular '-s' in English grammar — you accept it and use it lo
+  #    5. 0.530 /a/holy-spirit.html
+  #       EN: What is the Holy Spirit? — 'the Spirit is not a vague thing, not a shadow, not a force; the Spirit is a person, the third person of the Trinity, equal
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-pl — 10 cases · 28 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-pl.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends keep saying God is an invention and that people believe in him only because they want him to be real. Is there any concrete reason to think otherwise?"
+  - id: "espl-skeptic-mysleniezyczeniowe"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Znajomi powtarzają, że Bóg to wymysł i ludzie wierzą w niego tylko dlatego, że chcą, żeby był prawdziwy. Czy jest jakikolwiek konkretny powód, żeby sądzić inaczej?"
+    relevant:
+      everystudent-pl:
+        - "/a/istnienieboga.html"
+        - "/a/dowod.html"
+        - "/a/ateistka.html"
+        - "/a/wiare.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.713:
+  #    1. 0.713 /a/istnienieboga.html
+  #       EN: Does God exist? Six reasons to believe God exists (Marilyn Adamson) — opens by conceding these are indirect grounds, not proofs. The source's flagship
+  #    2. 0.678 /a/dowod.html
+  #       EN: Can the existence of God be proved? (Dr Gregory Ganssle) — 'you can't prove God exists' has itself been raised to the status of a dogma. Attacks the a
+  #    3. 0.666 /a/ateistka.html
+  #       EN: How an atheist woman came to believe in God — Marilyn Adamson's own account. She kept asking believers 'how do you know?' and kept getting 'well, you 
+  #    5. 0.648 /a/wiare.html
+  #       EN: How to find faith? — written at the agnostic who would rather not look, because looking has consequences.
+
+  # EN: "When someone says 'God', what appears in my head is some impersonal energy somewhere out in space. Do Christians have anything more concrete to say about him?"
+  - id: "espl-newcomer-jakion"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Kiedy ktoś mówi „Bóg”, w mojej głowie pojawia się jakaś bezosobowa energia gdzieś w kosmosie. Czy chrześcijanie mają o Nim coś konkretniejszego do powiedzenia?"
+    relevant:
+      everystudent-pl:
+        - "/a/bogbiblii.html"
+        - "/a/kto2.html"
+        - "/a/bog.html"
+        - "/a/gdzie.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.648:
+  #    1. 0.648 /a/bogbiblii.html
+  #       EN: TITLED 'The nature of God'; the body opens 'IN SEARCH OF THE IDEAL GOD — human nature likes choosing its own God. Why should we choose the God reveale
+  #    2. 0.631 /a/kto2.html
+  #       EN: 'Who 2' — a title carrying literally zero information (part 4 of a series: Nothingness → Something → Who → Who 2). The body argues the Eternal Being p
+  #    7. 0.597 /a/bog.html
+  #       EN: Who is God? Six traits of God's personality — 'God is knowable… he invites us into friendship with himself'.
+  #    8. 0.590 /a/gdzie.html
+  #       EN: Where is God? — the flatland analogy: two-dimensional people cannot see you until you push a fingertip through their paper. God exists outside our dim
+
+  # EN: "Last year a friend of mine was killed in an accident. To this day I cannot fit that together with God supposedly being good."
+  - id: "espl-skeptic-wypadek"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "W zeszłym roku zginął w wypadku mój przyjaciel. Do dziś nie potrafię tego poskładać z tym, że Bóg miałby być dobry."
+    relevant:
+      everystudent-pl:
+        - "/a/dlaczego.html"
+        - "/a/bol.html"
+        - "/a/tragedia.html"
+        - "/a/cierpienie.html"
+        - "/a/Boza-pomoc.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.684:
+  #    1. 0.684 /a/dlaczego.html
+  #       EN: Why is life so hard? — 'Why do people get cancer? Why do earthquakes destroy whole cities?' Then: your parents divorce, someone snatches a little girl
+  #    2. 0.669 /a/bol.html
+  #       EN: Why does God allow suffering? — an unusually honest FAQ: 'we are not sure God answers your question in the Bible… he probably will explain later, most
+  #    3. 0.663 /a/tragedia.html
+  #       EN: Where is God when misfortune, tragedy and grief hit us? Finding the inner strength to face stress and fear (Marilyn Adamson), 14.7k chars.
+  #    5. 0.649 /a/cierpienie.html
+  #       EN: Believe in a God who allows suffering? — framed around the hardest case the estate uses anywhere: 'Why should I worship a God who allows children to b
+  #    7. 0.623 /a/Boza-pomoc.html
+  #       EN: God's help in hard times — a 6.3k video transcript that opens 'When tragedy strikes we often ask: God, where are you?' Shorter companion to /a/tragedi
+
+  # EN: "I finish the day with the feeling that nothing is left of it. And it has been like that for a few years. What is it all for?"
+  - id: "espl-seeker-nicniezostaje"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Kończę dzień i mam wrażenie, że nic z niego nie zostało. I tak od kilku lat. Po co to wszystko?"
+    relevant:
+      everystudent-pl:
+        - "/a/celzycia.html"
+        - "/a/prawdziwezycie.html"
+        - "/a/zrodlo.html"
+        - "/a/filozofii.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.661:
+  #    1. 0.661 /a/celzycia.html
+  #       EN: What is the purpose of my life? — the hammer parable: a hammer with a soul, left in the toolbox, feeling bad without knowing why.
+  #    4. 0.596 /a/prawdziwezycie.html
+  #       EN: Real life — three people describe finding fulfilment, acceptance and purpose. Opens with the man who summited the mountain he had aimed at all his lif
+  #    5. 0.579 /a/zrodlo.html
+  #       EN: The source of a changed life (Josh McDowell) — 'Who am I? Why am I even here? Where am I going?' The Polish twin of the Spanish /articulos/lafuente.ht
+  #    7. 0.552 /a/filozofii.html
+  #       EN: The value of philosophy — 'Why are we here? What is our purpose? What gives fulfilment and meaning?' Socrates, Plato, Aristotle, Peter Kreeft.
+
+  # EN: "There is anxiety sitting in me almost all the time, even when objectively nothing bad is happening. Does faith have any answer to that?"
+  - id: "espl-seeker-lek"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Prawie cały czas siedzi we mnie niepokój, nawet kiedy obiektywnie nic złego się nie dzieje. Czy wiara ma na to jakąkolwiek odpowiedź?"
+    relevant:
+      everystudent-pl:
+        - "/a/pokoj.html"
+        - "/a/koronawirus.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.707:
+  #    1. 0.707 /a/pokoj.html
+  #       EN: Peace of mind in an unstable world — 'how do you find peace of mind instead of worry and fear in uncertain times?' 19.9k chars.
+  #    2. 0.699 /a/koronawirus.html
+  #       EN: 🔴 TITLE TRAP — see below. Titled simply 'Coronavirus'; the body is 'Anxiety connected with the coronavirus' (Marilyn Adamson) and its second paragrap
+
+  # EN: "I do not understand why somebody had to die for me to get forgiveness. Could God not just let it go?"
+  - id: "espl-newcomer-krzyz"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Nie rozumiem, dlaczego ktoś musiał umrzeć, żebym dostał przebaczenie. Bóg nie mógł po prostu odpuścić?"
+    relevant:
+      everystudent-pl:
+        - "/a/dlaczego-umarl.html"
+        - "/a/nieprzebaczenie.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.743:
+  #    1. 0.743 /a/dlaczego-umarl.html
+  #       EN: TITLED 'The crucifixion of Jesus'; the body headline is 'WHY DID JESUS DIE? What is the deal with the death and resurrection of Jesus Christ?' 13.7k c
+  #    3. 0.693 /a/nieprzebaczenie.html
+  #       EN: 🔴 TITLE TRAP IN THE OTHER DIRECTION — 'Why doesn't God forgive everyone?' The title AND the opening question frame religious pluralism ('why can't th
+
+  # EN: "The Bible was copied by hand for hundreds of years. How am I supposed to know that what I read today is still the same text?"
+  - id: "espl-skeptic-przepisywana"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Biblię przepisywano ręcznie przez setki lat. Skąd mam wiedzieć, że to, co dziś czytam, to nadal ten sam tekst?"
+    relevant:
+      everystudent-pl:
+        - "/a/jezusislam.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.705:
+  #    1. 0.705 /a/jezusislam.html
+  #       EN: Jesus and Islam — six questions Muslims most often ask about Jesus. Question ONE is 'Has the original version of the Bible been changed?' The body car
+
+  # EN: "I have been praying about the same one thing for six months and absolutely nothing comes of it. I am starting to wonder whether anyone is listening at all."
+  - id: "espl-believer-cisza"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Od pół roku modlę się o jedną i tę samą sprawę i kompletnie nic z tego nie wynika. Zaczynam się zastanawiać, czy ktokolwiek tego słucha."
+    relevant:
+      everystudent-pl:
+        - "/a/modlitwy.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.706:
+  #    1. 0.706 /a/modlitwy.html
+  #       EN: Does God answer our prayers? What conditions have to be met for God to hear a prayer? (Marilyn Adamson) — asks 'but why doesn't God answer everyone's 
+
+  # EN: "In my group everyone believes something different — one in Allah, someone in karma, me in nothing. Does Christianity really say anything different from the rest?"
+  - id: "espl-skeptic-kazdyswoje"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "W mojej grupie każdy wierzy w co innego — jeden w Allaha, ktoś w karmę, ja w nic. Czy chrześcijaństwo naprawdę mówi coś innego niż reszta?"
+    relevant:
+      everystudent-pl:
+        - "/a/szukanieboga.html"
+        - "/a/roznica.html"
+        - "/a/slon.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.665:
+  #    1. 0.665 /a/szukanieboga.html
+  #       EN: TITLED, verbatim, 'Hinduism, Buddhism, Islam, Christianity, New Age — do the world's great religions really come down to the same thing?'; body header
+  #    4. 0.616 /a/roznica.html
+  #       EN: Jesus and other religions — 'How does the teaching of Jesus differ from the other world religions?' Five numbered contrasts, starting with 'Jesus Chri
+  #    7. 0.597 /a/slon.html
+  #       EN: Is God an elephant? — the blind-men-and-the-elephant parable used to argue every religion describes the same God, and why the analogy fails. Attacks t
+
+  # EN: "A friend says Christians pray to Jesus, to his Father and to some Spirit as well. From the outside that looks to me like three different figures."
+  - id: "espl-newcomer-trzech"
+    language: "pl"
+    evidence_tier: "llm-translated"
+    question: "Kolega mówi, że chrześcijanie modlą się do Jezusa, do jego Ojca i jeszcze do jakiegoś Ducha. Dla mnie z zewnątrz wygląda to na trzy różne postacie."
+    relevant:
+      everystudent-pl:
+        - "/a/trojca.html"
+        - "/a/duchswiety.html"
+  # RETRIEVED (qwen, pl-scoped, 2026-08-04) — top score 0.699:
+  #    1. 0.699 /a/trojca.html
+  #       EN: Could you explain what the Trinity is? — 'the word is not in the Bible, but we use it for what Scripture plainly teaches… three Persons sharing one di
+  #    2. 0.669 /a/duchswiety.html
+  #       EN: Who is the Holy Spirit? — 'a real person… the Holy Spirit is NOT some vague, fleeting shadow or an impersonal force.' Answers the 'some Spirit as well
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-sq — 10 cases · 26 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-sq.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "Atheists say we invented God, not the other way round. I do not know what to say back to them — is there anything tangible on the other side?"
+  - id: "essq-skeptic-shpikje"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Ateistët thonë se Perëndinë e kemi shpikur ne, jo ai ne. Unë s'di ç't'u them — a ka gjë të prekshme nga ana tjetër?"
+    relevant:
+      everystudent-sq:
+        - "/a/ekziston.html"
+        - "/a/ateiste.html"
+        - "/a/provoni.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.748:
+  #    1. 0.748 /a/ekziston.html
+  #       EN: Is there a God? Six honest, direct reasons to believe God exists (Marilyn Adamson), 23.2k chars — the source's flagship apologetics article
+  #    2. 0.743 /a/ateiste.html
+  #       EN: How an atheist found God — Marilyn Adamson: 'How do you know God exists?' … 'It seemed obvious God was completely invented.' Answers the invented-God 
+  #    3. 0.727 /a/provoni.html
+  #       EN: Can you prove God's existence? (Gregory E. Ganssle, PhD) — on why 'you can't prove it' is itself an unexamined dogma
+
+  # EN: "I was not raised in church. When I hear the word 'God' what comes to mind is something big and cold, with no connection to me. Is he actually like that?"
+  - id: "essq-newcomer-si-eshte"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Nuk jam rritur në kishë. Kur dëgjoj «Perëndi» më vjen ndërmend diçka e madhe dhe e ftohtë, pa lidhje me mua. A është vërtet i tillë?"
+    relevant:
+      everystudent-sq:
+        - "/a/zgjedhim.html"
+        - "/a/perendia.html"
+        - "/a/ku.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.71:
+  #    2. 0.697 /a/zgjedhim.html
+  #       EN: Why choose the God of the Bible? — the qualities of the 'ideal' God, '#1: a God greater than us', '#2: a God who can be known personally'
+  #    8. 0.673 /a/perendia.html
+  #       EN: Who is God? What is he like? SIX TRAITS of God's personhood — 'he is knowable… he is approachable'. The direct twin of the Russian /a/ktoeto.html and 
+  #   10. 0.664 /a/ku.html
+  #       EN: Where is God? — the flatland analogy: God exists outside our dimensions, which is why he is hard to 'see'. Answers 'something big and far away' head-o
+
+  # EN: "Last year a friend of mine died in an accident, aged 22. His parents are believers and I cannot understand how they can go on calling God good."
+  - id: "essq-skeptic-aksident"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Vitin e kaluar një shok imi vdiq në aksident, 22 vjeç. Prindërit e tij janë besimtarë dhe unë nuk e kuptoj si mund të vazhdojnë ta quajnë Perëndinë të mirë."
+    relevant:
+      everystudent-sq:
+        - "/a/adhurojme.html"
+        - "/a/pse.html"
+        - "/a/tragjedise.html"
+        - "/a/mire.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.728:
+  #    3. 0.679 /a/adhurojme.html
+  #       EN: Why worship a God who allows terrible things to happen? — framed around a child being raped, and the author says a close relative of hers was
+  #    5. 0.656 /a/pse.html
+  #       EN: Why is life so hard? — 'why do people get cancer? why do earthquakes destroy whole cities?'
+  #    7. 0.652 /a/tragjedise.html
+  #       EN: Where is God in the middle of tragedy? — 'Have you ever asked God where are you?' (Marilyn Adamson), 14.6k chars
+  #  NOT IN TOP 10. not returned /a/mire.html
+  #       EN: Is God good? — a 1.5k video transcript opening 'Is God good? If so, why do suffering and evil exist?' KEPT DELIBERATELY, see below
+
+  # EN: "I end the day with the feeling that nothing remained of it. What am I living all this for?"
+  - id: "essq-seeker-pa-mbetur"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "E mbyll ditën me ndjesinë që nuk mbeti asgjë prej saj. Për çfarë po e jetoj gjithë këtë?"
+    relevant:
+      everystudent-sq:
+        - "/a/qellimi.html"
+        - "/a/vertete.html"
+        - "/a/ndryshuar.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.635:
+  #    2. 0.621 /a/qellimi.html
+  #       EN: What is my purpose in life? — the hammer parable. The estate's standard purpose article
+  #    4. 0.608 /a/vertete.html
+  #       EN: Real life — three people who reached the summit and were still empty. 'Have you ever felt there must be something more to life? More than just existin
+  #  NOT IN TOP 10. not returned /a/ndryshuar.html
+  #       EN: The source of a changed life (Josh McDowell) — 'Have you ever found yourself saying: I hate the life I am living? … I was looking for answers to: Who 
+
+  # EN: "I am anxious almost all the time, even when there is no concrete reason. Does faith have anything to offer here?"
+  - id: "essq-seeker-ankth"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Jam gati gjithë kohës në ankth, edhe kur s'ka ndonjë arsye konkrete. A ka feja diçka për të ofruar këtu?"
+    relevant:
+      everystudent-sq:
+        - "/a/koronavirus.html"
+        - "/a/mendjes.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.722:
+  #    1. 0.722 /a/koronavirus.html
+  #       EN: 🔴 THE TITLE TRAP. Titled only 'Coronavirus (COVID-19)'; the body is 'Coronavirus (COVID-19) - How do we cope with ANXIETY?' by Marilyn Adamson, 17.1k
+  #    3. 0.601 /a/mendjes.html
+  #       EN: Peace of mind in an unstable world — 'in uncertain times, how can you have peace of mind instead of worry and anxiety'
+
+  # EN: "Christians put the cross at the centre of everything. I do not understand what the death of one man two thousand years ago actually changed."
+  - id: "essq-newcomer-kryqi"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Të krishterët e vënë kryqin në qendër të gjithçkaje. Unë s'e kuptoj çfarë ndryshoi konkretisht vdekja e një njeriu para dy mijë vjetësh."
+    relevant:
+      everystudent-sq:
+        - "/a/vdiq.html"
+        - "/a/ungjillin.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.693:
+  #    2. 0.682 /a/vdiq.html
+  #       EN: The death of Jesus — body opens 'Why did Jesus die? Why did the crucifixion happen? Why did Jesus have to die for us?' A DEDICATED atonement article, 
+  #    3. 0.658 /a/ungjillin.html
+  #       EN: The Four Spiritual Laws — '#3: JESUS CHRIST IS GOD'S ONLY PROVISION FOR MAN'S SIN… He died so that we would not have to.' Teaches what the cross accom
+
+  # EN: "Thousands of years and hundreds of copyists stand between the first Bible and the one in my hands. What guarantee is there that it was not changed along the way?"
+  - id: "essq-skeptic-kopjuesit"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Nga Bibla e parë deri te ajo që kam unë në duar kanë kaluar mijëra vjet dhe qindra kopjues. Ç'garanci ka që nuk është ndryshuar rrugës?"
+    relevant:
+      everystudent-sq:
+        - "/a/biblen.html"
+        - "/a/islamizmi.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.733:
+  #    1. 0.733 /a/biblen.html
+  #       EN: Why you can trust the Bible — 'What is the Bible's history and how can we know the Bible we have today is reliable?' 40 authors, 1,600 years, three co
+  #    2. 0.730 /a/islamizmi.html
+  #       EN: Jesus and Islam — its FIRST of six questions is 'Has the Bible been changed from its original? Or has it been corrupted over time?' and it answers at 
+
+  # EN: "There is one thing I have been praying about for a long time and nothing moves. I have started wondering whether God is listening to me at all."
+  - id: "essq-believer-heshtje"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Ka një gjë për të cilën lutem prej kohësh dhe asgjë nuk lëviz. Fillova të pyes veten nëse Perëndia po më dëgjon fare."
+    relevant:
+      everystudent-sq:
+        - "/a/lutjeve.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.727:
+  #    2. 0.721 /a/lutjeve.html
+  #       EN: Does God answer our prayers? — asks 'then why does God not answer everyone's prayers?' and answers it. The Albanian twin of the Russian /a/molitvi.htm
+
+  # EN: "In my town there is a mosque and a church on the same street and each says it is on the right path. Why should I set Jesus apart from all the rest?"
+  - id: "essq-skeptic-njesoj"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Në qytetin tim ka xhami dhe kisha në të njëjtën rrugë dhe secili thotë se është në rrugën e duhur. Përse duhet ta veçoj Jezusin nga të gjitha të tjerat?"
+    relevant:
+      everystudent-sq:
+        - "/a/jezusi3.html"
+        - "/a/ndryshimi.html"
+        - "/a/hyjnoren.html"
+        - "/a/elefant.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.732:
+  #    2. 0.717 /a/jezusi3.html
+  #       EN: Is Jesus the only way? — 'Christianity is the right one - isn't that naive?' Answers the premise directly
+  #    3. 0.689 /a/ndryshimi.html
+  #       EN: What is the difference between Jesus and the world religions? — five contrasts, starting 'God initiates a relationship with us'
+  #    9. 0.656 /a/hyjnoren.html
+  #       EN: Connecting with the Divine — 'Hindu gods, Buddhism, Christianity, Islam, New Age — are they all the same?' (Marilyn Adamson), 18.9k chars. This is the
+  #   10. 0.650 /a/elefant.html
+  #       EN: Is God an elephant? — the blind-men-and-the-elephant analogy used to argue all religions are valid paths, and why it fails
+
+  # EN: "A friend invited me to church and the prayers were addressed sometimes to Jesus, sometimes to the Father, sometimes to the Spirit. I could not work out whether it was the same one or different ones."
+  - id: "essq-newcomer-tre-veta"
+    language: "sq"
+    evidence_tier: "llm-translated"
+    question: "Një shoqe më ftoi në kishë dhe lutjet ia drejtonin herë Jezusit, herë Atit, herë Frymës. S'kuptova nëse bëhej fjalë për të njëjtin apo për të ndryshëm."
+    relevant:
+      everystudent-sq:
+        - "/a/trinine.html"
+        - "/a/shpirti.html"
+  # RETRIEVED (qwen, sq-scoped, 2026-08-04) — top score 0.67:
+  #    2. 0.665 /a/trinine.html
+  #       EN: Could you explain the Trinity? — 'Trinity is a term not found in the Bible… God is three Persons sharing one divine essence', with the water/ice/steam
+  #    3. 0.651 /a/shpirti.html
+  #       EN: Who is the Holy Spirit? — 'not a vague shadow, not an impersonal force. He is a person equal to God the Father and God the Son… the third person of th
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-tr — 10 cases · 26 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-tr.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "All my friends see believing in God as nothing more than wishful thinking. Is there anything tangible to back it up?"
+  - id: "estr-skeptic-kanit"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Arkadaşlarımın hepsi Tanrı'ya inanmayı bir temenniden ibaret görüyor. Elle tutulur bir dayanağı var mı bunun?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/varmi.html"
+        - "/makaleler/ispatlar.html"
+        - "/makaleler/rehber.html"
+        - "/makaleler/ateist.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.704:
+  #    1. 0.704 /makaleler/varmi.html
+  #       EN: Is there a God? — Reasons to believe. 22.0k chars, the source's flagship apologetics article: 'everyone would like someone to produce a simple proof o
+  #    2. 0.691 /makaleler/ispatlar.html
+  #       EN: Can you prove God's existence? — why 'you can't prove it' has itself been elevated into a dogma since Kant. Turkish twin of the Russian /a/dokazivat.h
+  #    3. 0.687 /makaleler/rehber.html
+  #       EN: A guide to faith — written at the person who suspects there might be more but would rather not look. Turkish twin of the Russian /a/rukovodstvo.html, 
+  #    7. 0.651 /makaleler/ateist.html
+  #       EN: How an atheist found God — 17.3k chars, a first-person account by someone who kept asking believers 'how do you know God exists?' and got 'well, we ju
+
+  # EN: "When someone says God, what comes to mind is some vague force standing far away. What is he actually like?"
+  - id: "estr-newcomer-nasilbiri"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Tanrı deyince aklıma uzaklarda duran belirsiz bir güç geliyor. Aslında nasıl biri?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/idealtanri.html"
+        - "/makaleler/boyutlar.html"
+        - "/makaleler/tanrikimdir.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.656:
+  #    1. 0.656 /makaleler/idealtanri.html
+  #       EN: Finding the ideal God — 18.6k chars, the qualities we would expect a real God to have, enumerated '#1: God is greater than us', '#2: God can be known 
+  #    2. 0.643 /makaleler/boyutlar.html
+  #       EN: How do we find an invisible God? — the flatland analogy (two-dimensional people on a sheet of paper who can only see your fingertip). Answers the 'vag
+  #    5. 0.604 /makaleler/tanrikimdir.html
+  #       EN: 🔴 TITLE TRAP — titled 'Why can we trust God?' but the body opens 'What is God like? What are God's personality traits?' and lists SIX personal attrib
+
+  # EN: "I lost a friend in an accident last year. Since then I can't work out how that squares with the idea of a good God."
+  - id: "estr-skeptic-kaza"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Geçen yıl bir arkadaşımı kazada kaybettim. O günden beri bunun iyi bir Tanrı fikriyle nasıl bağdaştığını çözemiyorum."
+    relevant:
+      everystudent-tr:
+        - "/makaleler/trajedi.html"
+        - "/makaleler/Rabiyimidir.html"
+        - "/makaleler/zor.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.614:
+  #    1. 0.614 /makaleler/trajedi.html
+  #       EN: Where is God in the middle of tragedy? — 15.1k chars. 'How do we stand up against the terrorist attacks on our society, the terrible tragedies in our 
+  #    5. 0.596 /makaleler/Rabiyimidir.html
+  #       EN: Is God good? — a 1.4k video transcript opening 'Is God good? If so, why is there pain and evil?', then the free-will argument. Turkish twin of the Chi
+  #    8. 0.583 /makaleler/zor.html
+  #       EN: Why is life so hard? — 'How do we explain the evil we see in this world? Terror attacks, sex trafficking, racism, hunger…' and the wake-up list: our p
+
+  # EN: "At the end of every day I feel like nothing is left of it. It has been like this for years. What is all of this for?"
+  - id: "estr-seeker-bosluk"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Her günün sonunda geriye hiçbir şey kalmamış gibi hissediyorum. Yıllardır böyle. Bütün bunlar ne için?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/yasaminanlami.html"
+        - "/makaleler/simdi.html"
+        - "/makaleler/yasamamaci.html"
+        - "/makaleler/kaynak.html"
+        - "/makaleler/felsefe.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.631:
+  #    1. 0.631 /makaleler/yasaminanlami.html
+  #       EN: 'Gerçek Yaşam' (Real Life) — 15.6k chars. ⚠ MILD TITLE/SLUG MISMATCH: the slug says 'meaning of life', the title says 'Real Life'. Body: 'The real mea
+  #    3. 0.616 /makaleler/simdi.html
+  #       EN: Is there more to this life? — 'Hey! You, looking at the screen! Another moment of your life just went by.' Written at exactly this feeling. Twin of Bu
+  #    4. 0.546 /makaleler/yasamamaci.html
+  #       EN: What is my life's purpose? — the hammer parable (a hammer with a soul, locked in the toolbox, that breaks kindling and is still unfulfilled). Twin of 
+  #    8. 0.532 /makaleler/kaynak.html
+  #       EN: The source of a changed life — 'Have you ever said to yourself, I hate my life?' Josh McDowell's 'Who am I? Why am I on this earth? Where am I going?'
+  #  NOT IN TOP 10. not returned /makaleler/felsefe.html
+  #       EN: The importance of philosophy — opening: 'Neden buradayız? Amacımız ne? Hayata doyum ve anlam katan şeyler nedir?' ('Why are we here? What is our purpo
+
+  # EN: "Even when there is no concrete reason, there is a constant unease inside me. Does faith really offer anything for this?"
+  - id: "estr-seeker-kaygi"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Ortada somut bir sebep yokken bile içimde sürekli bir tedirginlik var. İman bu konuda gerçekten bir şey sunuyor mu?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/ichuzur.html"
+        - "/makaleler/korona.html"
+        - "/makaleler/spiritualizm.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.668:
+  #    3. 0.642 /makaleler/ichuzur.html
+  #       EN: Finding inner peace in an uncertain world — 17.8k chars. 'Whatever happens in the world or in our own individual lives, is there somewhere we can find
+  #    5. 0.638 /makaleler/korona.html
+  #       EN: ⚠️ REVERSE TITLE TRAP — 'Coping with coronavirus fear'. A title-only reviewer bins this as a dated 2020 page. Its own opening generalises immediately:
+  #  NOT IN TOP 10. not returned /makaleler/spiritualizm.html
+  #       EN: ⚠️ REVERSE TITLE TRAP #2 — 'Anksiyete & Çakra İyileşmesi' (Anxiety & Chakra Healing). A title-only reviewer bins this as New Age content. Its opening:
+
+  # EN: "Christians attach enormous significance to Jesus dying on the cross, but I can't work out what exactly that death changed."
+  - id: "estr-newcomer-carmih"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Hristiyanlar İsa'nın çarmıhta ölmesine çok büyük bir anlam yüklüyor ama bu ölümün tam olarak neyi değiştirdiğini anlayamıyorum."
+    relevant:
+      everystudent-tr:
+        - "/makaleler/isanedenolmus.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.701:
+  #    2. 0.683 /makaleler/isanedenolmus.html
+  #       EN: Why did Jesus die? — 16.6k chars, a DEDICATED atonement article: 'everything about the death, resurrection and crucifixion of Jesus Christ'. Works the
+
+  # EN: "The Bible was copied by hand over centuries. How can I know that what we have today is the same as the original?"
+  - id: "estr-skeptic-degistirildi"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Kutsal Kitap yüzyıllar boyunca elle çoğaltılmış. Bugün elimizdekinin aslıyla aynı olduğunu nereden bilebilirim?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/muslumanlik.html"
+        - "/makaleler/kutsalkitap.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.718:
+  #    1. 0.718 /makaleler/muslumanlik.html
+  #       EN: Jesus Christ and Islam — 25.9k chars. Its FIRST of six stated questions is literally 'Kutsal Kitap orijinal halinden değiştirildi mi?' ('Was the Bible
+  #    2. 0.674 /makaleler/kutsalkitap.html
+  #       EN: How can you believe the Bible? — 24.4k chars: 40 authors over 1,600 years across three continents, plus non-Christian Roman, Jewish and Greek historia
+
+  # EN: "I have been praying for the same thing for months but there is nothing in return. Am I doing something wrong?"
+  - id: "estr-believer-sessizlik"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Aylardır aynı şey için dua ediyorum ama karşılığında hiçbir şey yok. Yanlış bir şey mi yapıyorum?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/dualar.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.684:
+  #    1. 0.684 /makaleler/dualar.html
+  #       EN: Does God answer our prayers? — 10.7k chars, and it carries a dedicated section headed 'Ya "Cevapsız" Dualar?' ('What about "unanswered" prayers?'): pe
+
+  # EN: "As far as I'm concerned all religions say the same thing in different words. Where is the real difference?"
+  - id: "estr-skeptic-aynisey"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Bana kalırsa bütün dinler farklı kelimelerle aynı şeyi söylüyor. Aradaki asıl fark nerede?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/neden-farklidir.html"
+        - "/makaleler/farklar.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.646:
+  #    1. 0.646 /makaleler/neden-farklidir.html
+  #       EN: How different are religions from each other? — 19.8k chars, subtitled 'Hinduism, Buddhism, Islam, Christianity and New Age Spiritualism', each describ
+  #    6. 0.544 /makaleler/farklar.html
+  #       EN: What are the differences between Jesus Christ and the world's other religions? — the shorter companion piece: '1. Jesus initiates the relationship. Un
+
+  # EN: "At church they sometimes address Jesus, sometimes the Father, and then there's the Holy Spirit too. So do Christians worship more than one God?"
+  - id: "estr-newcomer-uckisi"
+    language: "tr"
+    evidence_tier: "llm-translated"
+    question: "Kilisede kimi zaman İsa'ya, kimi zaman Baba'ya sesleniliyor, bir de Kutsal Ruh var. Hristiyanlar birden fazla Tanrı'ya mı tapıyor yani?"
+    relevant:
+      everystudent-tr:
+        - "/makaleler/uclubirlik.html"
+        - "/makaleler/KutsalRuh.html"
+  # RETRIEVED (qwen, tr-scoped, 2026-08-04) — top score 0.739:
+  #    1. 0.739 /makaleler/uclubirlik.html
+  #       EN: Could you explain the Trinity? — the three-dimensions analogy and the 1×1×1=1 formulation. 'The Bible speaks plainly of God the Son, God the Father an
+  #    2. 0.703 /makaleler/KutsalRuh.html
+  #       EN: Who is the Holy Spirit? — 'the Holy Spirit is not an imaginary spiritual shadow or an impersonal force'. Twin of the Russian /a/svyatoyduh.html and Bu
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-pt — 10 cases · 28 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-pt.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends think believing in God is just imagination. Is there anything solid behind it, on the science or reason side, or is it only what a person feels?"
+  - id: "espt-skeptic-consolo"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Meus amigos acham que crer em Deus é só imaginação. Existe alguma coisa sólida por trás disso, do lado da ciência ou da razão, ou é só o que a pessoa sente?"
+    relevant:
+      everystudent-pt:
+        - "/a/ateia.html"
+        - "/a/provas.html"
+        - "/a/deusexiste.html"
+        - "/a/universo.html"
+        - "/a/natureza.html"
+        - "/a/deus-e-real.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.692:
+  #    1. 0.692 /a/ateia.html
+  #       EN: How an atheist found God — Marilyn Adamson. 'How do you know God exists?' … 'Obviously God was completely made up.' Then the Golden Gate Bridge analog
+  #    2. 0.678 /a/provas.html
+  #       EN: Can you prove God exists? — Gregory E. Ganssle, PhD, on why 'you can't prove God exists' has itself been raised to the level of unquestioned dogma sin
+  #    4. 0.663 /a/deusexiste.html
+  #       EN: Does God exist? Six clear reasons why concluding God exists is not blind faith (Marilyn Adamson) — the source's flagship apologetics article, 21.7k ch
+  #    5. 0.659 /a/universo.html
+  #       EN: Did God create the universe? — the Big Bang as a singular beginning, and what it costs a non-theist scientist. 10.5k chars
+  #    7. 0.629 /a/natureza.html
+  #       EN: Laws of nature leave scientists baffled — why the speed of light, gravity and cooling coffee never vary, quoting cosmologist Sean Carroll. The fine-tu
+  #  NOT IN TOP 10. not returned /a/deus-e-real.html
+  #       EN: DNA proves God is real — Antony Flew, a leading spokesman for atheism, concluding 'super-intelligence is the only good explanation for the origin of l
+
+  # EN: "When people talk about God, the image that comes to me is a vague energy somewhere. Is he someone real, with a personality, or is he just a force?"
+  - id: "espt-newcomer-energia"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Quando as pessoas falam de Deus, a imagem que me vem é uma energia vaga em algum lugar. Ele é alguém de verdade, com personalidade, ou é só uma força?"
+    relevant:
+      everystudent-pt:
+        - "/a/deusdabiblia.html"
+        - "/a/quemdeus.html"
+        - "/a/quem2.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.676:
+  #    1. 0.676 /a/deusdabiblia.html
+  #       EN: Why choose the God of the Bible? — 18.8k chars. 🔴 TITLE TRAP: the title reads like a which-religion piece. The BODY is a systematic what-is-God-like 
+  #    3. 0.637 /a/quemdeus.html
+  #       EN: Who is God? — 'Uma descrição de como Deus realmente é'. The SIX-ATTRIBUTES article: he can be known, he is approachable, and so on. Portuguese twin of
+  #    7. 0.588 /a/quem2.html
+  #       EN: Who (part 2) — 🔴 TITLE NAMES NOTHING. This is where the Eternal Something is argued to be a PERSON: 'a Alguma Coisa Eterna tem vontade própria; conse
+
+  # EN: "Last year a friend of mine died in a stupid accident. To this day nobody can explain to me how a good God lets something like that happen."
+  - id: "espt-skeptic-acidente"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "No ano passado um amigo meu morreu num acidente idiota. Até hoje ninguém consegue me explicar como um Deus bom deixa uma coisa dessas acontecer."
+    relevant:
+      everystudent-pt:
+        - "/a/coisasruins.html"
+        - "/a/tragedia.html"
+        - "/a/porqueadorar.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.694:
+  #    1. 0.694 /a/coisasruins.html
+  #       EN: Why do bad things happen? — 'Why do people get cancer? Why are there earthquakes that destroy whole cities?' Then: your parents divorce, the girl down
+  #    2. 0.654 /a/tragedia.html
+  #       EN: Where is God in the middle of tragedy? (Marilyn Adamson, 14.4k) — 'Where can we find strength to deal with fears, tragedies, disasters and terrorist a
+  #    3. 0.652 /a/porqueadorar.html
+  #       EN: Why worship a God who allows terrible things to happen? — framed around the rape of a child, and answering with free will: 'não é culpa de Deus que ce
+
+  # EN: "Every day is the same and at night I lie down feeling that none of it was good for anything. What am I here for, after all?"
+  - id: "espt-seeker-vazio"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Todo dia é igual e à noite eu deito com a sensação de que nada daquilo serviu pra nada. Pra que eu estou aqui, afinal?"
+    relevant:
+      everystudent-pt:
+        - "/a/proposito.html"
+        - "/a/vida.html"
+        - "/a/filosofia.html"
+        - "/a/segredo.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.627:
+  #    1. 0.627 /a/proposito.html
+  #       EN: What is my purpose in life? — the hammer parable told at length: a hammer with a soul, left in the toolbox, then used for the wrong thing, and still u
+  #    2. 0.594 /a/vida.html
+  #       EN: Real life — three people on where they found fulfilment, acceptance and purpose. The mountaineer who reached the summit and was disappointed, the foot
+  #    4. 0.576 /a/filosofia.html
+  #       EN: The value of philosophy — 'Porque estamos aqui? Qual é o nosso propósito? O que nos traz realização, dá sentido à vida?' (Socrates, Plato, Peter Kreef
+  #    6. 0.565 /a/segredo.html
+  #       EN: The secret of a changed life (Josh McDowell) — 'Você já se flagrou dizendo pra você mesmo: Eu odeio a minha vida?' … 'Quem sou eu? Por que estou aqui 
+
+  # EN: "I live with an anxiety that almost never lets up, even when nothing concrete is actually wrong. Does faith offer anything for that?"
+  - id: "espt-seeker-ansiedade"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Vivo com uma ansiedade que quase não passa, mesmo quando não tem nada de concreto errado. A fé oferece alguma coisa pra isso?"
+    relevant:
+      everystudent-pt:
+        - "/a/coronavirus.html"
+        - "/a/chakras.html"
+        - "/a/seguranca.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.705:
+  #    1. 0.705 /a/coronavirus.html
+  #       EN: Coronavirus and anxiety (Marilyn Adamson, 10.6k). 🔴 REVERSE TITLE TRAP: the title reads as a dated 2020 piece a reviewer would strike out. The BODY b
+  #    3. 0.659 /a/chakras.html
+  #       EN: Anxiety and chakra healing — Rachel Fatyanov, who fought loneliness, depression and anxiety, went through Zen Buddhism, yoga, New Age and occult pract
+  #    4. 0.658 /a/seguranca.html
+  #       EN: Security in an unstable world (18.5k) — 'Em tempos de incertezas, como se pode ter segurança ao invés de preocupação e ansiedade?'
+
+  # EN: "My Christian friends talk about the cross as if it changed everything. To me it is just an execution that happened two thousand years ago."
+  - id: "espt-newcomer-cruz"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Meus amigos cristãos falam da cruz como se aquilo tivesse mudado tudo. Pra mim é só uma execução que aconteceu há dois mil anos."
+    relevant:
+      everystudent-pt:
+        - "/a/morreu.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.645:
+  #    1. 0.645 /a/morreu.html
+  #       EN: Why did Jesus die? — 'Entenda aqui por que Jesus foi crucificado. Por que ele morreu e ressuscitou?' A DEDICATED atonement article, 16.3k chars, openi
+
+  # EN: "At school they taught me the Bible is God's word, but to me it is still a book people wrote and people copied over centuries. What would make it any different from any other ancient text?"
+  - id: "espt-skeptic-copiado"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Na escola me ensinaram que a Bíblia é palavra de Deus, mas pra mim continua sendo um livro que gente escreveu e gente copiou durante séculos. O que faria dela algo diferente de qualquer outro texto antigo?"
+    relevant:
+      everystudent-pt:
+        - "/a/biblia.html"
+        - "/a/islamismo.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.736:
+  #    1. 0.736 /a/biblia.html
+  #       EN: Why you can believe the Bible — 40.5k chars, THE LONGEST DOCUMENT IN THE CORPUS. It answers the transmission question specifically: over 5,000 New Tes
+  #    2. 0.673 /a/islamismo.html
+  #       EN: Jesus and Islam (27.2k) — six questions, and question 1 IS this one: 'O texto da Bíblia original foi alterado?' … 'A Bíblia é mesmo a Palavra de Deus 
+
+  # EN: "For months I have been praying about the same thing and no answer comes at all. Am I doing something wrong?"
+  - id: "espt-believer-silencio"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Faz meses que eu oro pela mesma coisa e não vem resposta nenhuma. Será que eu estou fazendo alguma coisa errada?"
+    relevant:
+      everystudent-pt:
+        - "/a/oracoes.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.7:
+  #    1. 0.700 /a/oracoes.html
+  #       EN: Does God answer our prayers? (Marilyn Adamson, 12.2k) — 'O que é preciso para que Deus responda as nossas orações?' Told by a former atheist watching 
+
+  # EN: "At my work there are people from every kind of religion, and each speaks about theirs with the same conviction. Why would Christianity of all things be more right than the others?"
+  - id: "espt-skeptic-conviccao"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "No meu trabalho tem gente de tudo quanto é religião, e cada um fala da sua com a mesma convicção. Por que justamente o cristianismo estaria mais certo que os outros?"
+    relevant:
+      everystudent-pt:
+        - "/a/religioes.html"
+        - "/a/divino.html"
+        - "/a/elefante.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.668:
+  #    2. 0.646 /a/religioes.html
+  #       EN: What is the difference between Jesus and the world religions? — 'Ao contrário das religiões que tentam alcançar seu deus, com Cristo vemos Deus nos al
+  #    3. 0.622 /a/divino.html
+  #       EN: Relating to the Divine (Marilyn Adamson, 18.9k) — subtitle: 'Deuses Hindus, Budismo, Cristianismo, Islã e Nova Era são tudo a mesma coisa?' Then each 
+  #    4. 0.582 /a/elefante.html
+  #       EN: Is God an elephant? — the blind-men-and-the-elephant analogy used to argue all religions are valid paths, and why it fails. Directly attacks the asker
+
+  # EN: "At church they pray now to Jesus, now to the Father, now to the Holy Spirit. So do Christians worship more than one God?"
+  - id: "espt-newcomer-tres"
+    language: "pt"
+    evidence_tier: "llm-translated"
+    question: "Na igreja rezam ora pra Jesus, ora pro Pai, ora pro Espírito Santo. Então os cristãos adoram mais de um Deus?"
+    relevant:
+      everystudent-pt:
+        - "/a/trindade.html"
+        - "/a/espirito.html"
+  # RETRIEVED (qwen, pt-scoped, 2026-08-04) — top score 0.683:
+  #    1. 0.683 /a/trindade.html
+  #       EN: Can you explain the Trinity? — the three-dimensions analogy and the 1x1x1=1 formulation, explicitly 'A Bíblia fala claramente de Deus o Filho, Deus o 
+  #    2. 0.638 /a/espirito.html
+  #       EN: Who is the Holy Spirit? — 'O Espírito Santo não é uma sombra vaga e etérea, nem uma força impessoal. Ele é uma pessoa igual em todos os sentidos ao De
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-es — 10 cases · 33 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-es.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends say believing in God is an illusion you invent to feel better. Is there any verifiable evidence for it, or in the end is it just whatever each person wants to believe?"
+  - id: "eses-skeptic-ilusion"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Mis amigos dicen que creer en Dios es una ilusión que uno se inventa para sentirse mejor. ¿Hay algún dato comprobable a favor, o al final es solo lo que cada quien quiera creer?"
+    relevant:
+      everystudent-es:
+        - "/articulos/atea.html"
+        - "/articulos/probar.html"
+        - "/articulos/guia.html"
+        - "/articulos/hayundios.html"
+        - "/articulos/universo.html"
+        - "/articulos/Diosreal.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.647:
+  #    1. 0.647 /articulos/atea.html
+  #       EN: How an atheist found God (Marilyn Adamson, 18.1k) — 'My question seemed to bother religious people. How can you KNOW God exists? Most answers were: we
+  #    2. 0.613 /articulos/probar.html
+  #       EN: Can you prove God exists? (Gregory Ganssle, PhD) — 'since Kant, thinking people insist it is impossible to prove God exists; this claim has been raise
+  #    3. 0.601 /articulos/guia.html
+  #       EN: A guide to finding faith — how does anyone arrive at faith in God; written for the person who suspects it is all self-persuasion
+  #    5. 0.587 /articulos/hayundios.html
+  #       EN: Is there a God? Six solid reasons God is real (Marilyn Adamson, 22.7k) — the source's flagship apologetics article: 'honest, direct reasons, with no y
+  #   10. 0.553 /articulos/universo.html
+  #       EN: Did God create the universe? See the scientific evidence — the Big Bang as a singular beginning. ⚠ FRAGILE, rank 10.
+  #  NOT IN TOP 10. not returned /articulos/Diosreal.html
+  #       EN: DNA says God is real — Antony Flew, 'a leading spokesman for atheism', concluding after the DNA discoveries that 'super-intelligence is the only good 
+
+  # EN: "When someone talks to me about God, what appears in my head is a kind of huge distant energy. Is he someone you can actually have dealings with?"
+  - id: "eses-newcomer-comodios"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Cuando alguien me habla de Dios, en mi cabeza aparece una especie de energía enorme y lejana. ¿Es alguien con quien de verdad se pueda tener trato?"
+    relevant:
+      everystudent-es:
+        - "/articulos/Dios.html"
+        - "/articulos/escoger.html"
+        - "/articulos/donde.html"
+        - "/articulos/quien2.html"
+        - "/articulos/conocer.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.595:
+  #    1. 0.595 /articulos/Dios.html
+  #       EN: Who is God? Six personality traits of God from the Bible — opens 'Who God is… He is KNOWABLE. God, who created the universe in all its magnitude, can 
+  #    2. 0.590 /articulos/escoger.html
+  #       EN: Why choose the God of the Bible? (19.4k) — 'Is there an ideal God? One who meets the criteria many of us would think important for a God?' Then six nu
+  #    3. 0.559 /articulos/donde.html
+  #       EN: Where is God? — the two-dimensional-people-on-a-sheet-of-paper analogy for how a God outside our dimensions can enter them. Aimed exactly at 'a vague 
+  #    4. 0.555 /articulos/quien2.html
+  #       EN: 'Who 2' — 🔴 TITLE TRAP, see below. Part 4 of the source's cosmological series; this instalment is where the argument concludes that the Eternal Somet
+  #  NOT IN TOP 10. not returned /articulos/conocer.html
+  #       EN: What is it like to know God? (Marilyn Adamson, 11.3k) — 'We are not meant to live alone. Here is what God offers and what that relationship is like.' 
+
+  # EN: "A friend of mine died in an accident last year and nobody has been able to explain to me how that squares with a good God."
+  - id: "eses-skeptic-accidente"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "El año pasado murió un amigo mío en un accidente y nadie ha sabido explicarme cómo encaja eso con un Dios bueno."
+    relevant:
+      everystudent-es:
+        - "/articulos/malas.html"
+        - "/articulos/porque.html"
+        - "/articulos/tragedia.html"
+        - "/articulos/bueno.html"
+        - "/articulos/ayuda-de-Dios.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.675:
+  #    1. 0.675 /articulos/malas.html
+  #       EN: Why do bad things happen? (Stacy James) — opens on the exact objection: 'the biggest question about evil is why does God not prevent it? If God is all
+  #    2. 0.673 /articulos/porque.html
+  #       EN: Why is life so hard? Why is there pain and suffering? — 'Our parents divorce. The girl who lives near me is kidnapped. A relative gets cancer. That wa
+  #    3. 0.647 /articulos/tragedia.html
+  #       EN: Where is God in the middle of tragedy? (Marilyn Adamson, 14.8k) — 'Where do we find the inner strength to bear fears, tragedies, disasters?'
+  #    4. 0.647 /articulos/bueno.html
+  #       EN: Is God good? — a 1.6k video transcript: 'Is God good? If he is, why is there suffering and evil?' Short but exactly on the question. ⚠ It is the SECON
+  #    7. 0.622 /articulos/ayuda-de-Dios.html
+  #       EN: God's help in hard times — a 6.7k video transcript opening 'When a tragedy happens we often ask God: where are you?' A sibling of /articulos/tragedia.
+
+  # EN: "You study, get a job, get married, pay off the house, retire and that's it. When I see it laid out like that I wonder what all of it is even for."
+  - id: "eses-seeker-rutina"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Estudias, consigues trabajo, te casas, pagas la casa, te jubilas y se acabó. Cuando lo veo así de seguido me pregunto para qué es todo esto."
+    relevant:
+      everystudent-es:
+        - "/articulos/ahoraque.html"
+        - "/articulos/proposito.html"
+        - "/articulos/filosofia.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.581:
+  #    1. 0.581 /articulos/ahoraque.html
+  #       EN: What happens when you die? — 🔴 TITLE TRAP in the useful direction. The title says death; the article OPENS with this exact treadmill: 'Today you are 
+  #    5. 0.536 /articulos/proposito.html
+  #       EN: What is my purpose in life? — the hammer parable (a hammer with a soul, left in the toolbox, sensing something is missing). ⚠ ALSO credited by the liv
+  #    8. 0.487 /articulos/filosofia.html
+  #       EN: The value of philosophy — 'Why are we here? What is our purpose? What gives life meaning?' The philosophers ask the right questions; here are the answ
+
+  # EN: "For years I have been trying to calm my anxiety with meditation, breathing exercises and self-help books, and it always comes back. Does God offer anything different from all that?"
+  - id: "eses-seeker-ansiedad"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Llevo años intentando calmar la ansiedad con meditación, ejercicios de respiración y libros de autoayuda, y siempre vuelve. ¿Dios ofrece algo distinto de todo eso?"
+    relevant:
+      everystudent-es:
+        - "/articulos/coronavirus.html"
+        - "/articulos/chacras.html"
+        - "/articulos/paz-mental.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.668:
+  #    1. 0.668 /articulos/coronavirus.html
+  #       EN: 🔴 TITLE TRAP — the title is 'Coronavirus (COVID-19)' but the H1 is 'Ansiedad por el coronavirus' and the standfirst is 'a reliable way to deal with a
+  #    2. 0.629 /articulos/chacras.html
+  #       EN: 🔴 TITLE TRAP in the other direction — 'Anxiety and chakra healing' sounds like New Age content. It is Rachel Fatyanov's account of loneliness, depres
+  #   10. 0.555 /articulos/paz-mental.html
+  #       EN: Peace of mind in an unstable world (18.1k) — 'Is there anywhere we can go for stability, no matter what happens in the world or in our own lives?' ⚠ F
+
+  # EN: "The Christians I know talk about the cross as if it changed everything. To me it was just one more execution two thousand years ago. What is it supposed to have achieved?"
+  - id: "eses-newcomer-cruz"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Los cristianos que conozco hablan de la cruz como si hubiera cambiado todo. Para mí fue una ejecución más de hace dos mil años. ¿Qué se supone que consiguió?"
+    relevant:
+      everystudent-es:
+        - "/articulos/murio.html"
+        - "/articulos/conociendo.html"
+        - "/articulos/conociendo-video.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.596:
+  #    1. 0.596 /articulos/murio.html
+  #       EN: Why did Jesus die? (15.6k) — 'This is what the death and resurrection of Jesus meant; the crucifixion of Jesus Christ.' A dedicated atonement article:
+  #    4. 0.565 /articulos/conociendo.html
+  #       EN: Would you like to know God personally? — the Four Spiritual Laws. Principle 3 is the answer to this question: 'Jesus Christ paid…' — the only way acro
+  #    8. 0.546 /articulos/conociendo-video.html
+  #       EN: Short video: how to begin a personal relationship with God — the video transcript sibling of the document above. 'None of these good efforts covers si
+
+  # EN: "I was told the Bible is God's word, but to me it is still a book people wrote and copied over centuries. What makes it different from any other ancient text?"
+  - id: "eses-skeptic-copias"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "A mí me dijeron que la Biblia es palabra de Dios, pero para mí sigue siendo un libro que escribieron y copiaron personas durante siglos. ¿Qué la hace distinta de cualquier otro texto antiguo?"
+    relevant:
+      everystudent-es:
+        - "/articulos/biblia.html"
+        - "/articulos/jesus-y-islam.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.717:
+  #    1. 0.717 /articulos/biblia.html
+  #       EN: Is the Bible reliable? Who wrote the Bible? (12.6k) — 🔴 TITLE TRAP: the stored title is the SEO string 'Libros de la Biblia- Historia de la Biblia- Q
+  #    2. 0.652 /articulos/jesus-y-islam.html
+  #       EN: Jesus and Islam (25.5k) — its FIRST of six questions is 'Has the Bible been modified from the original?' and it answers the corruption charge directly
+
+  # EN: "Every time I sit down to pray I remember everything I did wrong that week and feel I have no right to ask God for anything. Does he listen to someone like that anyway?"
+  - id: "eses-believer-merezco"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Cada vez que me pongo a orar me acuerdo de todo lo que hice mal esa semana y siento que no tengo cara para pedirle nada a Dios. ¿A alguien así lo escucha igual?"
+    relevant:
+      everystudent-es:
+        - "/articulos/oraciones.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.674:
+  #    3. 0.670 /articulos/oraciones.html
+  #       EN: Does God answer our prayers? Which prayers does God answer? Will he answer yours? (Marilyn Adamson, 13.5k) — the section headed 'Obstáculo en el camin
+
+  # EN: "I have Muslim, Buddhist and Hindu colleagues and they all speak about their faith with the same conviction. Why would Christianity be something different rather than one more version of the same thing?"
+  - id: "eses-skeptic-mismolugar"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Tengo compañeros musulmanes, budistas e hindúes y todos hablan de su fe con la misma convicción. ¿Por qué el cristianismo sería algo distinto y no una versión más de lo mismo?"
+    relevant:
+      everystudent-es:
+        - "/articulos/conectando.html"
+        - "/articulos/religiones.html"
+        - "/articulos/guru.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.694:
+  #    2. 0.664 /articulos/conectando.html
+  #       EN: Connecting with the Divine (Marilyn Adamson, 10.9k) — 'What about the best-known religions? Is there any difference?' then Hinduism, New Age, Buddhism
+  #    4. 0.612 /articulos/religiones.html
+  #       EN: What is the difference between Jesus and the world's religions? (3.6k) — a point-by-point contrast, starting from 'Jesus Christ seeks a personal relat
+  #    7. 0.564 /articulos/guru.html
+  #       EN: My experience as a Hindu guru (Rabi Maharaj, 13.1k) — a first-person account from inside Hinduism, including the vows that meant his father never spok
+
+  # EN: "I went to my niece's baptism and they said 'in the name of the Father, the Son and the Holy Spirit'. I was under the impression Christians believe in only one God and I was left not understanding a thing."
+  - id: "eses-newcomer-tresdioses"
+    language: "es"
+    evidence_tier: "llm-translated"
+    question: "Fui al bautizo de mi sobrina y dijeron «en el nombre del Padre, del Hijo y del Espíritu Santo». Yo tenía entendido que los cristianos creen en un solo Dios y me quedé sin entender nada."
+    relevant:
+      everystudent-es:
+        - "/articulos/trinidad.html"
+        - "/articulos/espiritu-santo.html"
+  # RETRIEVED (qwen, es-scoped, 2026-08-04) — top score 0.747:
+  #    2. 0.688 /articulos/trinidad.html
+  #       EN: Can you explain the Trinity? — the three-dimensions analogy: 'God lives without the limits of a three-dimensional world… that is why Jesus the Son can
+  #    3. 0.665 /articulos/espiritu-santo.html
+  #       EN: Who is the Holy Spirit? — 'There is only one God, yet God describes himself as a trinity… The Holy Spirit is not a vague ethereal shadow nor an impers
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-fa — 10 cases · 27 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-fa.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "All my friends say faith in God is just daydreaming. Is there anything in nature itself and in scientific findings that really points to the existence of a creator?"
+  - id: "esfa-skeptic-khiyalbafi"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "دوستانم همه میگویند ایمان به خدا فقط یک خیالبافی است. آیا در خود طبیعت و در یافتههای علمی چیزی هست که واقعاً به وجود یک خالق اشاره کند؟"
+    relevant:
+      everystudent-fa:
+        - "/a/universe.html"
+        - "/a/organized.html"
+        - "/a/isthere.html"
+        - "/a/Godreal.html"
+        - "/a/chance.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.68:
+  #    2. 0.644 /a/universe.html
+  #       EN: How did the universe take shape? — E.O. Wilson on evidence for a guiding supernatural force, then the Big Bang as a single unrepeatable beginning. 10.
+  #    3. 0.638 /a/organized.html
+  #       EN: So organised it is remarkable — gravity, the 24-hour rotation, water freezing at zero, leap seconds. The fine-tuning / laws-of-nature argument. 9.4k c
+  #    5. 0.612 /a/isthere.html
+  #       EN: Does God exist? Six reasons to believe he really is there (Marilyn Adamson) — the source's flagship apologetics article, 22.6k chars, the largest arti
+  #    7. 0.592 /a/Godreal.html
+  #       EN: Is God real? 🔴 TITLE TRAP — the title reads as generic apologetics; the body is specifically 'why the structure of DNA points to God': Antony Flew, a
+  #    9. 0.573 /a/chance.html
+  #       EN: Did we get here by chance? — Q&A: 'is it not possible we arrived by chance over time? Is a God necessary?' Answer: nothing can come from absolutely no
+
+  # EN: "When someone talks about 'God', the only thing that comes to my mind is a vague force somewhere above us. Is he even a person?"
+  - id: "esfa-newcomer-niroo"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "وقتی کسی از «خدا» حرف میزند، تنها چیزی که در ذهن من میآید یک نیروی مبهم است جایی بالای سر ما. اصلاً او یک شخص است؟"
+    relevant:
+      everystudent-fa:
+        - "/a/whypick.html"
+        - "/a/who2.html"
+        - "/a/finger.html"
+        - "/a/whatlike.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.655:
+  #    1. 0.655 /a/whypick.html
+  #       EN: Why have we chosen the God who is in the Bible? 🔴 TITLE TRAP — the title reads as a conversion or apologetics-choice piece. The body is an ENUMERATED
+  #    2. 0.644 /a/who2.html
+  #       EN: 'Who (2)' — part 4 of the four-part cosmological series; this is where the Eternal is argued to be a PERSON rather than a mechanism, and where God's i
+  #    3. 0.642 /a/finger.html
+  #       EN: Where is God? — the FLATLAND analogy: two 2-D people on a sheet of paper cannot see you, only your fingertip. Why an invisible God is hard to 'see'. T
+  #    5. 0.581 /a/whatlike.html
+  #       EN: Who is God — 'Who is God? What is he like? SIX DISTINCT ATTRIBUTES of God's character… God can be known.' The canonical what-is-God-like article, twin
+
+  # EN: "Last year a friend of mine was killed in an accident. To this day nobody has been able to explain to me how that fits with the existence of a loving God."
+  - id: "esfa-skeptic-tasadof"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "پارسال یکی از دوستانم در یک تصادف کشته شد. تا امروز هیچکس نتوانسته برایم توضیح دهد که این چطور با وجود خدایی مهربان جور درمیآید."
+    relevant:
+      everystudent-fa:
+        - "/a/why.html"
+        - "/a/disaster.html"
+        - "/a/wrong.html"
+        - "/a/pain.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.638:
+  #    1. 0.638 /a/why.html
+  #       EN: Why is life so hard? — 'Why do people get cancer? Why do earthquakes destroy whole cities?' Then: our parents split up, the girl next door is abducted
+  #    2. 0.622 /a/disaster.html
+  #       EN: 'Where do we go from here?' 🔴 TITLE NAMES NOTHING — the body is addressed to people recovering from a great loss: 'Are you dealing with the aftermath
+  #    3. 0.614 /a/wrong.html
+  #       EN: Does the existence of evil and pain not prove God does not care? — Q&A taking the objection head-on: free will, God did not create us as robots.
+  #    4. 0.601 /a/pain.html
+  #       EN: Why does God allow pain and suffering? — Q&A, and unusually honest: 'we are not sure God has answered your question in the Bible… he will probably exp
+
+  # EN: "Every night when I put my head on the pillow I feel nothing at all remained of that whole day. What was I even made for?"
+  - id: "esfa-seeker-pooch"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "هر شب که سرم را روی بالش میگذارم حس میکنم از تمام آن روز چیزی باقی نمانده. اصلاً من برای چه ساخته شدهام؟"
+    relevant:
+      everystudent-fa:
+        - "/a/greatest.html"
+        - "/a/reallife.html"
+        - "/a/now.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.587:
+  #    1. 0.587 /a/greatest.html
+  #       EN: What is my purpose in life? — the HAMMER analogy: a hammer is designed to hit nails; imagine a hammer with feelings left in the toolbox for days, sens
+  #    2. 0.548 /a/reallife.html
+  #       EN: Real life — three people on where they found fulfilment, acceptance and purpose; opens 'Have you ever felt there is something more than just existing?
+  #    3. 0.545 /a/now.html
+  #       EN: 'Wanting more' 🔴 TITLE NAMES NOTHING — the body opens 'Is there no more meaning to life than this? Something more than what is?… A second passes. A m
+
+  # EN: "There is almost always an unease inside me, even when nothing bad has happened. Does faith have anything for this state?"
+  - id: "esfa-seeker-delshoore"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "تقریباً همیشه یک دلشوره در دلم هست، حتی وقتی هیچ اتفاق بدی نیفتاده. ایمان برای این حال چیزی دارد؟"
+    relevant:
+      everystudent-fa:
+        - "/a/finding.html"
+        - "/a/tragedy.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.613:
+  #    3. 0.579 /a/finding.html
+  #       EN: Peace of mind in an unstable world — 'Finding inner peace: in unstable times, how can you find calm instead of being gripped by ANXIETY AND WORRY?' 18
+  #    4. 0.573 /a/tragedy.html
+  #       EN: Where is God in times of calamity, fear, bad events, sorrow? Finding inner strength, REDUCING FEAR AND WORRY — the title says the topic outright, and 
+
+  # EN: "Christians say Jesus' death on the cross was the most important event in history. I do not understand what problem his death was supposed to solve."
+  - id: "esfa-newcomer-salib"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "مسیحیها میگویند مرگ عیسی روی صلیب مهمترین اتفاق تاریخ بوده است. من نمیفهمم مرگ او قرار بود چه مشکلی را حل کند."
+    relevant:
+      everystudent-fa:
+        - "/a/whydid.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.71:
+  #    1. 0.710 /a/whydid.html
+  #       EN: Why did Jesus Christ have to die? — 'What is the reason Jesus died on the cross? What was the necessity of his death for us? What did it mean?' The re
+
+  # EN: "I have been told the Christians' book was passed from hand to hand and copied over the centuries and is no longer what it originally was. How can anyone be sure the version they read today is the same one?"
+  - id: "esfa-skeptic-tahrif"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "به من گفتهاند کتاب مسیحیان در طول قرنها دست به دست و نسخهبرداری شده و دیگر آن چیزی نیست که در ابتدا بوده. از کجا میشود مطمئن شد نسخهای که امروز میخوانند همان است؟"
+    relevant:
+      everystudent-fa:
+        - "/a/bible.html"
+        - "/a/inspired.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.706:
+  #    1. 0.706 /a/bible.html
+  #       EN: 🔴 TITLE TRAP, AND THE MOST IMPORTANT ONE ON THIS SOURCE. The title is 'The books of the Bible — history of the Bible', which reads like a contents or
+  #    6. 0.528 /a/inspired.html
+  #       EN: What does 'the Bible is inspired' mean? — Q&A: as an employer delegates work, God delegated the writing to Moses, Isaiah, Jeremiah and others. The doc
+
+  # EN: "For months I have been praying about one specific thing and I get no answer at all. Am I doing something wrong?"
+  - id: "esfa-believer-sokoot"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "ماههاست برای یک چیز مشخص دعا میکنم و هیچ جوابی نمیگیرم. دارم کاری را اشتباه انجام میدهم؟"
+    relevant:
+      everystudent-fa:
+        - "/a/prayers.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.697:
+  #    1. 0.697 /a/prayers.html
+  #       EN: Does God answer our prayers? What does it take for God to answer? How to pray: prayers that get answered. Opens with an atheist watching a praying fri
+
+  # EN: "My friends are Muslim, Buddhist and Hindu, and each is certain they know God as he really is. Why should Jesus' claim stand apart from the rest?"
+  - id: "esfa-skeptic-hamkaran"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "دوستان من مسلمان، بودایی و هندو هستند و هر کدام مطمئنند خدا را همانطور که هست میشناسند. چرا باید ادعای عیسی از بقیه جدا باشد؟"
+    relevant:
+      everystudent-fa:
+        - "/a/religions.html"
+        - "/a/elephant.html"
+        - "/a/whichGod.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.687:
+  #    1. 0.687 /a/religions.html
+  #       EN: What is the difference between Jesus Christ and the other world religions? — 'What do you find in Jesus Christ that you will find nowhere else…' then 
+  #    5. 0.619 /a/elephant.html
+  #       EN: 🔴 TITLE TRAP IN THE OPPOSITE DIRECTION. 'Is God an elephant?' sounds like nonsense or a children's page. The body is the BLIND MEN AND THE ELEPHANT p
+  #  NOT IN TOP 10. not returned /a/whichGod.html
+  #       EN: 'Does it matter which God you call on?' — Q&A: 'people like to believe it is fine whoever you pray to. It does not matter whether it is a Hindu god, a
+
+  # EN: "I have heard Christians say God is one, but then they talk about the Father, the Son and the Spirit. So how many gods do they actually have?"
+  - id: "esfa-newcomer-seta"
+    language: "fa"
+    evidence_tier: "llm-translated"
+    question: "شنیدهام مسیحیها میگویند خدا یکی است، ولی بعد هم از پدر حرف میزنند، هم از پسر و هم از روح. پس بالاخره چند تا خدا دارند؟"
+    relevant:
+      everystudent-fa:
+        - "/a/trinity.html"
+        - "/a/hspirit.html"
+  # RETRIEVED (qwen, fa-scoped, 2026-08-04) — top score 0.691:
+  #    1. 0.691 /a/trinity.html
+  #       EN: Can you explain the Trinity? — 'the word Trinity is not found in the Bible, but it explains what the Bible makes plain about God… the Bible speaks cle
+  #    3. 0.562 /a/hspirit.html
+  #       EN: Who is the Holy Spirit? — 'the Holy Spirit is not a hazy heavenly shadow, nor an impersonal force. He is a person, equal in every respect to God the F
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # everystudent-cs — 10 cases · 32 credits. Campaign #111 Part B,
+  # batch-approved 2026-08-04. Full working, including every rejected candidate and
+  # its reason, in eval/candidates-everystudent-cs.yaml.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  # EN: "My friends keep telling me that faith in God is just wishful thinking — something a person talks himself into so he can sleep better. Are there any facts for it, or is it really just a feeling?"
+  - id: "escs-skeptic-zbozne-prani"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Kamarádi mi pořád opakují, že víra v Boha je jenom zbožné přání — něco, co si člověk namluví, aby se mu líp usínalo. Existují pro to nějaká fakta, nebo je to opravdu jenom pocit?"
+    relevant:
+      everystudent-cs:
+        - "/in/114/jak_ateistka_nasla_boha"
+        - "/in/140/existuje_buh_6_poctivych_duvodu"
+        - "/in/13/existuje_buh"
+        - "/in/150/podstata_viry"
+        - "/in/15/vedci_si_nevedi_rady___"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.699:
+  #    1. 0.699 /in/114/jak_ateistka_nasla_boha
+  #       EN: How an atheist found God (Marilyn Adamson) — 'It seemed obvious that God was completely made up. Maybe some people need to believe in him. But there w
+  #    2. 0.683 /in/140/existuje_buh_6_poctivych_duvodu
+  #       EN: Does God exist? 6 honest reasons (Marilyn Adamson, 21.7k) — the source's flagship apologetics article. 'No pressure. No talk like: you just have to be
+  #    6. 0.659 /in/13/existuje_buh
+  #       EN: Does God exist? (14.1k) — takes apart 'you cannot prove God exists and you cannot prove he does not' as itself misleading, then argues probabilistical
+  #    7. 0.655 /in/150/podstata_viry
+  #       EN: The nature of faith (Dave Lowe) — 'Faith is not an emotion, e.g. a good feeling about God. Faith is not a leap into the dark despite the facts.' The l
+  #  NOT IN TOP 10. not returned /in/15/vedci_si_nevedi_rady___
+  #       EN: Scientists are stumped by the mystery of natural laws (8.7k) — physical law is uniform across the whole universe and never changes; Sean Carroll and J
+
+  # EN: "When someone says 'God', all that comes to my mind is some hazy energy somewhere up there. I have no picture of him I could hold on to. Is there anything concrete that can actually be known about him?"
+  - id: "escs-newcomer-mlhava-sila"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Když někdo řekne „Bůh“, mně naskočí jenom jakási mlhavá energie někde nahoře. Nemám o něm žádnou představu, které bych se mohl chytit. Dá se o něm vůbec vědět něco konkrétního?"
+    relevant:
+      everystudent-cs:
+        - "/in/146/proc_zrovna_buh_bible_"
+        - "/in/113/kde_je_buh"
+        - "/in/21/nekdo_2__uvahy_o_pocatku_vesmiru_iv"
+        - "/in/62/jaky_je_buh"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.685:
+  #    1. 0.685 /in/146/proc_zrovna_buh_bible_
+  #       EN: Why the God of the Bible? (16.2k). 🔴 TITLE TRAP: the title reads as a Bible-reliability or comparative-religion piece. The body is an enumerated list
+  #    2. 0.662 /in/113/kde_je_buh
+  #       EN: Where is God (3.8k). 🔴 TITLE TRAP, and the sharpest on this source: the title is three words shorter than `/in/35/kde_je_buh_kdyz_dojde_k_tragedii` (
+  #    3. 0.619 /in/21/nekdo_2__uvahy_o_pocatku_vesmiru_iv
+  #       EN: Someone 2 — reflections on the beginning of the universe IV (10.4k) — part 4 of the cosmological series, and the part where the Eternal Something is a
+  #    4. 0.603 /in/62/jaky_je_buh
+  #       EN: What is God like? (4.3k) — 'Who is God? What is he like? SIX PERSONAL ATTRIBUTES of God: God is knowable. God is approachable…' The Czech twin of the 
+
+  # EN: "A friend of mine died in an accident last year. To this day I cannot work out how that fits together with a God people say is good."
+  - id: "escs-skeptic-nehoda"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Loni mi při nehodě zemřel kamarád. Doteď si nedokážu srovnat, jak tohle jde dohromady s Bohem, o kterém se říká, že je dobrý."
+    relevant:
+      everystudent-cs:
+        - "/in/36/proc_je_zivot_tak_tezky"
+        - "/in/38/jak_dal"
+        - "/in/72/pokud_je_buh_dobry_proc_existuje_zlo_a_utrpeni"
+        - "/in/35/kde_je_buh_kdyz_dojde_k_tragedii"
+        - "/in/141/proc_bychom_meli_uctivat_boha_ktery_dovoluje_znasilnovani_deti"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.725:
+  #    1. 0.725 /in/36/proc_je_zivot_tak_tezky
+  #       EN: Why is life so hard? (9.2k) — 'Why do people get cancer? Why do earthquakes destroy whole cities?' Then: the parents divorce, someone attacks the girl
+  #    2. 0.700 /in/38/jak_dal
+  #       EN: What now? (6.7k). 🔴 TITLE TRAP: 'Jak dál?' names no subject at all. The first line is 'To those going through a hard time in life… Are you trying to 
+  #    4. 0.674 /in/72/pokud_je_buh_dobry_proc_existuje_zlo_a_utrpeni
+  #       EN: If God is good, why is there evil and suffering? (8.0k) — the formal theodicy, Peter Kreeft and Ronald Tacelli's four propositions, then the free-will
+  #    5. 0.663 /in/35/kde_je_buh_kdyz_dojde_k_tragedii
+  #       EN: Where is God when tragedy strikes? (13.4k) — 'Where do we find the inner strength to face fear, misfortune, disaster and grief?' Czech twin of the Hun
+  #    9. 0.634 /in/141/proc_bychom_meli_uctivat_boha_ktery_dovoluje_znasilnovani_deti
+  #       EN: Why should we worship a God who allows children to be raped? (4.4k) — answered by a writer whose own close relative was raped as a child. Czech twin o
+
+  # EN: "Every day passes exactly the same and at night I lie down feeling that nothing at all remained of it. What is the whole thing for?"
+  - id: "escs-seeker-nic-nezbylo"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Každý den mi uteče úplně stejně a večer si lehnu s pocitem, že z něj vlastně nic nezbylo. K čemu to celé je?"
+    relevant:
+      everystudent-cs:
+        - "/in/34/_jaky_ma_muj_zivot_smysl_"
+        - "/in/63/zmenil_muj_zivot"
+        - "/in/28/opravdovy_zivot"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.566:
+  #    1. 0.566 /in/34/_jaky_ma_muj_zivot_smysl_
+  #       EN: What is the meaning of my life? (3.9k) — the hammer parable told at length: a hammer with a soul, left in the toolbox, then used for the wrong jobs. C
+  #    2. 0.546 /in/63/zmenil_muj_zivot
+  #       EN: He changed my life (Josh McDowell, 19.7k) — 'Who am I? What am I doing here? Where am I going? Those are the hardest questions we face.' Czech twin of
+  #    3. 0.543 /in/28/opravdovy_zivot
+  #       EN: Real life (17.0k) — three people who reached the summit and were still empty: the mountaineer who got to the top and had nowhere left to go, the footb
+
+  # EN: "Nothing terrible is happening to me, and yet I am almost constantly tense and on edge — one exam or one row at home and I am completely gone. Is there anywhere at all to get inner calm from in a state like that?"
+  - id: "escs-seeker-uzkost"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Nic hrozného se mi neděje, a stejně jsem skoro pořád sevřený a ve střehu — stačí zkouška nebo hádka doma a jsem úplně mimo. Dá se v takovém stavu vůbec někde vzít vnitřní klid?"
+    relevant:
+      everystudent-cs:
+        - "/in/25/jak_muzu_najit_vnitrni_klid"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.74:
+  #    1. 0.740 /in/25/jak_muzu_najit_vnitrni_klid
+  #       EN: How can I find inner calm? (2.8k) — 'Sometimes it looks as if everything in life has conspired against us having any peace. We fail an exam, the ticke
+
+  # EN: "The Christians around me talk about the cross as if it suddenly settled everything. To me it is just an execution two thousand years ago — what was it supposed to settle?"
+  - id: "escs-newcomer-kriz"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Křesťani kolem mě mluví o kříži, jako by tím bylo najednou všechno vyřešené. Pro mě je to jenom poprava před dvěma tisíci lety — co se tím jako mělo vyřídit?"
+    relevant:
+      everystudent-cs:
+        - "/in/66/proc_vubec_jezis_zemrel"
+        - "/in/27/dokonale_odpusteni"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.643:
+  #    1. 0.643 /in/66/proc_vubec_jezis_zemrel
+  #       EN: Why did Jesus die at all? (7.1k) — 'What was it about? Why did he have to die for us? Was it not just the unfortunate end of a misunderstood great tea
+  #    2. 0.635 /in/27/dokonale_odpusteni
+  #       EN: Perfect forgiveness (3.4k) — the courtroom parable: the judge sentences you to death, then takes off his robe, comes down, unlocks your chains and say
+
+  # EN: "At school they claimed the Bible is from God, but to me it is still just a book that people wrote and copied by hand for centuries. What is it supposed to have that any other ancient document does not?"
+  - id: "escs-skeptic-prepisovali"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Ve škole nám tvrdili, že Bible je od Boha, jenže pro mě je to pořád jenom kniha, kterou psali a po staletí přepisovali lidi. Čím se má lišit od jakéhokoli jiného starého spisu?"
+    relevant:
+      everystudent-cs:
+        - "/in/67/proc_bychom_meli_verit_bibli"
+        - "/in/73/je_bible_duveryhodna"
+        - "/in/58/jak_vime_ze_jezis_opravdu_zil"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.704:
+  #    1. 0.704 /in/67/proc_bychom_meli_verit_bibli
+  #       EN: Why should we believe the Bible? (29.2k, the source's longest article). Opens 'How do we know the Bible we have today is trustworthy?' and answers on 
+  #    3. 0.627 /in/73/je_bible_duveryhodna
+  #       EN: Is the Bible trustworthy? (7.7k) — 'Is the New Testament a bundle of half-truths and legends, or does it describe real historical events? Might the fi
+  #    7. 0.603 /in/58/jak_vime_ze_jezis_opravdu_zil
+  #       EN: How do we know Jesus really lived? (2.8k) — Tacitus' Annals XV.44 and Josephus' Antiquities quoted at length. This is the 'compared with any other anc
+
+  # EN: "I have been praying about one and the same thing for many months and still nothing — no answer, no change. Am I doing something wrong, or is that just how it goes?"
+  - id: "escs-believer-ticho"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Za jednu a tutéž věc se modlím už řadu měsíců a pořád nic — žádná odpověď, žádná změna. Dělám něco špatně, nebo to takhle prostě chodí?"
+    relevant:
+      everystudent-cs:
+        - "/in/61/odpovida_buh_na_nase_modlitby"
+        - "/in/153/biblicke_studium_5"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.697:
+  #    1. 0.697 /in/61/odpovida_buh_na_nase_modlitby
+  #       EN: Does God answer our prayers? (Marilyn Adamson, 10.6k) — 'What does it take for God to answer our prayers?' Told by a former atheist who watched a pray
+  #    2. 0.621 /in/153/biblicke_studium_5
+  #       EN: Bible study 5 (3.4k). 🔴 TITLE TRAP: 'Biblické studium 5' names nothing. Its first line after the title is 'O čem je modlitba?' ('What is prayer about
+
+  # EN: "Among my classmates there is a Muslim and a guy who goes to meditation retreats, and both speak about their faith just as convincingly as the Christians I know. Why should just one of them be right?"
+  - id: "escs-skeptic-stejne-presvedceni"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "Mezi spolužáky mám muslima i kluka, co jezdí na meditace, a oba mluví o své víře stejně přesvědčeně jako křesťani, které znám. Proč by měl mít pravdu zrovna jeden z nich?"
+    relevant:
+      everystudent-cs:
+        - "/in/71/vedou_vsechna_nabozenstvi_k_bohu"
+        - "/in/78/je_jezis_ta_jedina_cesta"
+        - "/in/65/spojeni_s_transcendentnem"
+        - "/in/69/nevedou_vsechna_nabozenstvi_ke_stejnemu_cili"
+        - "/in/60/v_cem_se_vira_v_jezise_krista_lisi_od_jinych_nabozenstvi"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.714:
+  #    1. 0.714 /in/71/vedou_vsechna_nabozenstvi_k_bohu
+  #       EN: Do all religions lead to God? (5.8k) — 'God cannot be simultaneously personal, as Jews, Christians and Muslims claim, and impersonal, as Buddhists or 
+  #    2. 0.648 /in/78/je_jezis_ta_jedina_cesta
+  #       EN: Is Jesus the only way? (1.7k) — 'Christianity claims to be the only true faith? Is that not naive?' Answers the exclusivity objection directly and poi
+  #    3. 0.640 /in/65/spojeni_s_transcendentnem
+  #       EN: Connection with the transcendent (17.6k). 🔴 TITLE TRAP: the title names no subject. The subtitle is 'How do the world religions — Hinduism, Buddhism,
+  #    4. 0.619 /in/69/nevedou_vsechna_nabozenstvi_ke_stejnemu_cili
+  #       EN: Do not all religions lead to the same goal? (4.0k) — an assessment of the blind-men-and-the-elephant analogy as a philosophical argument, and why reli
+  #    5. 0.610 /in/60/v_cem_se_vira_v_jezise_krista_lisi_od_jinych_nabozenstvi
+  #       EN: How faith in Jesus Christ differs from other religions (3.4k) — 'Unlike the world religions, in which people try to approach God, with Jesus Christ we
+
+  # EN: "At church they speak now to Jesus, now to the Father, and then also to the Holy Spirit. Does that mean Christians worship several gods at once?"
+  - id: "escs-newcomer-tri-bohove"
+    language: "cs"
+    evidence_tier: "llm-translated"
+    question: "V kostele se chvíli mluví k Ježíšovi, chvíli k Otci a pak ještě k Duchu svatému. Znamená to, že křesťani uctívají víc bohů najednou?"
+    relevant:
+      everystudent-cs:
+        - "/in/76/_jak_muze_byt_jeden_buh_ve_trech_osobach_"
+        - "/in/107/sila_ke_krestanskemu_zivotu"
+  # RETRIEVED (qwen, cs-scoped, 2026-08-04) — top score 0.722:
+  #    1. 0.722 /in/76/_jak_muze_byt_jeden_buh_ve_trech_osobach_
+  #       EN: How can one God be in three persons? (3.9k) — the three-dimensions analogy and the 1×1×1=1 formulation, explicitly 'the Bible speaks clearly of God th
+  #    2. 0.590 /in/107/sila_ke_krestanskemu_zivotu
+  #       EN: Power for the Christian life (6.8k). 🔴 TITLE TRAP: the title reads as pure discipleship and the article is on the new-believer shelf. Its FIRST secti

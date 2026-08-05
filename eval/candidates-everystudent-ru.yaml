@@ -1,0 +1,214 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ru` (95 documents).
+# Campaign #111, tier A source 2 of 14. Working record — NOTHING here has been
+# written to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit
+# operator approval turn.
+#
+# Sizing: 95 docs ÷ 8 = 11.9, capped at 10 → 10 cases (§0.7 rule).
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN RUSSIAN, not translated from the English menu (§0.6).
+#
+# HOW THE CANDIDATES WERE FOUND
+#   .tmp-diag/phase5-partb-discover.ts everystudent-ru ru
+#   → 66 distinct candidate documents of 95, all ten topics covered.
+# Every credited document was then read from the database (title + opening
+# ~850–1,000 chars) before being credited — guardrail #5, and specifically
+# because of the boilerplate-tail trap recorded in §0.9.
+#
+# ENGINE-CHECKED TWICE (guardrail #8 §2) — .tmp-diag/phase5-ru-check.ts
+#   Round 1 found three defects. Round 2 confirms the fixes:
+#     • paraphrase smells (top score ≥ 0.75): 1 → **0**   (max now 0.738)
+#     • credits not returned in top 10:       3 → **2**   (both deliberate, see `krest`)
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 29 credited paths resolve to EXACTLY ONE document — 29/29.
+#   Guardrail #3a:   no credited document has a null language — 29/29.
+#
+# evidence_tier: proposed `llm-translated` (matching everystudent-zh-cn). This is
+# a fact about the REVIEWER, not the language — if anyone on the team reads
+# Russian and can sanity-check the translations, it should be `human-verified`.
+# OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esru-skeptic-dokazatelstva"          # topic: god-exists
+    persona: skeptic
+    q: "Все мои друзья считают, что вера в Бога — это просто самообман для слабых. Есть ли под этим хоть что-то серьёзное?"
+    en: "All my friends think believing in God is just self-deception for the weak. Is there anything solid behind it at all?"
+    top_score: 0.644                          # clear of 0.75
+    credits:
+      - {path: "/a/estli.html",       rank: 5, score: 0.633, en: "Is there a God? Six direct grounds for God's existence (Marilyn Adamson)"}
+      - {path: "/a/dokazivat.html",   rank: 4, score: 0.635, en: "Can you prove God exists? — Gregory Ganssle, PhD, on why 'you can't prove it' is itself a dogma"}
+      - {path: "/a/rukovodstvo.html", rank: 3, score: 0.641, en: "A guide to finding faith — written at the agnostic who would rather not look"}
+    rejected:
+      - {path: "/a/vibirat.html",  rank: 1, why: "credited to case 2 — its subject is what God is LIKE, not whether he exists"}
+      - {path: "/a/chudo.html",    rank: 2, why: "why God does not perform a stunning miracle — a different objection"}
+      - {path: "/a/yaroslav.html", rank: 8, why: "personal testimony"}
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "esru-newcomer-kakoyon"               # topic: know-god
+    persona: newcomer
+    q: "Мне говорят «Бог», а я представляю себе какую-то безликую энергию. А какой Он на самом деле?"
+    en: "People say 'God' and I picture some faceless energy. What is he actually like?"
+    top_score: 0.610
+    credits:
+      - {path: "/a/vibirat.html", rank: 1, score: 0.610, en: "How to choose your God (and why I chose mine) — opens 'How do you picture God?', which is this question verbatim. Russian twin of the Spanish /articulos/escoger.html"}
+      - {path: "/a/ktoeto.html",  rank: 3, score: 0.599, en: "God — who is he? What is he like? SIX ATTRIBUTES of God's personhood"}
+      - {path: "/a/gdyebog.html", rank: 5, score: 0.587, en: "Where is God? — the flatland analogy: God exists outside our dimensions, which is why he is hard to 'see'. Answers the 'vague force somewhere' directly"}
+    dropped_after_engine_check:
+      - {path: "/a/znat.html", why: "'What does it mean to know God?' — its subject is what a RELATIONSHIP with God is like, not what God is like; and it fell out of the top 10 on the check. Dropped rather than credited-and-missed."}
+
+  # ── 3 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esru-skeptic-avariya"                # topic: suffering
+    persona: skeptic
+    q: "У меня прошлым летом погиб друг — нелепая авария. И никто не может объяснить, почему добрый Бог такое допускает."
+    en: "A friend of mine was killed last summer in a senseless accident. And nobody can explain why a good God allows that."
+    top_score: 0.690
+    credits:
+      - {path: "/a/steysi2.html",   rank: 1, score: 0.690, en: "Why do so many bad things happen? — Stacy James, who was paralysed in a diving accident. The closest possible match to the asker's situation"}
+      - {path: "/a/pochemu.html",   rank: 2, score: 0.680, en: "Why is life so hard? — cancer, earthquakes destroying whole cities"}
+      - {path: "/a/gdebog.html",    rank: 3, score: 0.662, en: "Where is God when disaster comes?"}
+      - {path: "/a/stradaniy.html", rank: 6, score: 0.624, en: "Doesn't the existence of evil and suffering prove God doesn't care?"}
+      - {path: "/a/kinor.html",     rank: 8, score: 0.620, en: "Is God a good film director? — 'what happened to the world? why can't we have a good world without suffering?'"}
+    rejected:
+      - {path: "/a/poman.html",  rank: 4, why: "conversion testimony that mentions a bereavement; its subject is the author's journey"}
+      - {path: "/a/steysi1.html", rank: 7, why: "'Paralysed but not broken' — the same author's testimony. Her ARGUMENT is in steysi2; this is the story"}
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "esru-seeker-vpustuyu"                # topic: purpose
+    persona: seeker
+    q: "Каждый вечер ложусь с ощущением, что день прошёл впустую. И так уже который год. Ради чего всё это?"
+    en: "Every evening I go to bed feeling the day was wasted. It has been years like this. What is it all for?"
+    top_score: 0.636
+    credits:
+      - {path: "/a/smisl.html",     rank: 1, score: 0.636, en: "What is the meaning of life? — the hammer parable"}
+      - {path: "/a/istochnik.html", rank: 5, score: 0.552, en: "The source of a changed life (Josh McDowell) — 'Who am I? Why am I on earth? Where do I go after death?' Russian twin of /articulos/lafuente.html, credited for the SAME question shape in Part A"}
+      - {path: "/a/nastoy.html",    rank: 6, score: 0.527, en: "Real life — three people who reached the summit and were still empty"}
+      - {path: "/a/filosofii.html", rank: 7, score: 0.526, en: "The value of philosophy — 'Why are we here? What is our purpose? What makes life meaningful?'"}
+    rejected:
+      - {path: "/a/sigaretoy.html", rank: 2, why: "'Ninth-floor blues' — emotional pain and suicidal thoughts. A depression testimony, not a meaning article. NOTE: this is the Russian twin of the Spanish /articulos/blues.html, which behaved identically in Part A — retrieving for the EMPTINESS question rather than the depression one. Same cross-source quirk, twice."}
+      - {path: "/a/krasoti.html", rank: 4, why: "beauty and self-esteem"}
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "esru-seeker-trevoga"                 # topic: anxiety
+    persona: seeker
+    q: "Меня почти постоянно потряхивает от тревоги, даже когда объективно всё нормально. Может ли вера тут вообще чем-то помочь?"
+    en: "I am almost constantly on edge with anxiety, even when objectively everything is fine. Can faith actually help with that at all?"
+    top_score: 0.661
+    credits:
+      - {path: "/a/chakr.html",           rank: 2, score: 0.656, en: "Anxiety and chakra healing — a woman who suffered loneliness, depression and anxiety, went through Buddhism, yoga, New Age, psychics and USD200 energy-healing courses, and what she found instead. ⚠ A TITLE-ONLY reviewer would reject this as New Age content. Its subject IS chronic anxiety."}
+      - {path: "/a/pokoy.html",           rank: 3, score: 0.631, en: "Peace of mind in an unstable world — how to have inner peace and not give in to worry"}
+      - {path: "/a/pomoshch-ot-Boga.html", rank: 7, score: 0.613, en: "God's help in hard times"}
+    rejected:
+      - {path: "/a/gdebog.html", rank: 1, why: "RANK 1 AND REJECTED — it is the disaster article (credited to case 3). Chronic anxiety with nothing objectively wrong is not a disaster. Top-1 is not evidence."}
+      - {path: "/a/pitaniem.html", rank: 8, why: "eating disorders"}
+
+  # ── 6 ────────────────────────────────────────────── newcomer ⚠ SEE NOTE
+  - id: "esru-newcomer-krest"                 # topic: jesus-death
+    persona: newcomer
+    q: "Почему нельзя было просто простить людей? Зачем понадобилось, чтобы Иисус умер на кресте?"
+    en: "Why couldn't he just forgive people? Why did Jesus have to die on a cross?"
+    top_score: 0.734
+    credits:
+      - {path: "/a/dovyeryat.html", rank: "NOT IN TOP 10", en: "What does it mean to 'trust' Christ? — 'we need forgiveness of our sins and to understand that Jesus died for them. Only through his death on the cross can we be forgiven.' The atonement as the document's SUBJECT."}
+      - {path: "/a/uznat.html",     rank: "NOT IN TOP 10", en: "Knowing God personally — the Four Spiritual Laws in Russian; the cross as the bridge"}
+    operator_decision_required: |
+      🔴 NEITHER CREDIT RETRIEVES. As written this case will score recall@10 = 0 —
+      the campaign's first hard-miss case. That is not an accident and not a bad
+      question: it is the boilerplate-tail defect, measured.
+
+      `everystudent-ru` has NO article whose subject is what the cross accomplished.
+      The atonement is taught INSIDE the two "begin a relationship with God" pages
+      above — which are exactly the pages the shared closing invitation-prayer chunk
+      buries. The engine instead returns the tails of /a/nastoy.html (0.734),
+      /a/reinkarn.html (0.715), /a/katolikom.html (0.706), /a/zhizni.html, /a/soyed.html.
+
+      TWO phrasings were tested, both failed the same way:
+        v1 "…I don't understand what exactly it changed"        → both credits missed
+        v2 "…why did Jesus have to die on a cross?"  (kept)     → both credits missed
+      So this is not phrasing. It is the same defect Part A found in Chinese with
+      /a/personally.html at rank 15 — now confirmed independently in a second language.
+
+      OPTIONS:
+        (a) KEEP AS IS — recommended. It is the only case in the campaign that
+            measures the estate's biggest retrieval defect. Same treatment
+            /a/personally.html got in Part A.
+        (b) DROP the case — the suite becomes 9 cases and the defect goes unmeasured.
+        (c) Credit /a/nastoy.html at rank 1 — REJECTED by me: crediting a tail is
+            the exact error the finding is about.
+
+  # ── 7 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esru-skeptic-perepisivali"           # topic: bible-trust
+    persona: skeptic
+    q: "Библию переписывали от руки две тысячи лет. Откуда вообще известно, что там осталось хоть что-то от изначального текста?"
+    en: "The Bible was copied by hand for two thousand years. How does anyone even know anything of the original text survives?"
+    top_score: 0.679
+    credits:
+      - {path: "/a/bibliya.html", rank: 1, score: 0.679, en: "Why the Bible is worth trusting — opens 'what is the history of the Bible's writing, and why can we trust the Bible that reached our time?'"}
+      - {path: "/a/bogod.html",   rank: 3, score: 0.611, en: "What does it mean that the Bible is God-breathed? — 40 authors, 1,500 years, one consistent account"}
+    rejected:
+      - {path: "/a/razvye.html",  rank: 5, why: "'Doesn't modern science disprove the Bible?' — a different objection (science, not transmission)"}
+      - {path: "/a/radikalu.html", rank: 4, why: "God's love for a radical Muslim — touches tahrif but is a testimony"}
+
+  # ── 8 ──────────────────────────────────────────────────────────── believer
+  - id: "esru-believer-tishina"               # topic: prayer
+    persona: believer
+    q: "Молюсь об одном и том же уже который месяц, а в ответ тишина. Я что-то делаю не так?"
+    en: "I have been praying about the same thing for months now and get silence in return. Am I doing something wrong?"
+    top_score: 0.685
+    credits:
+      - {path: "/a/molitvi.html", rank: 1, score: 0.685, en: "Does God answer our prayers? — asks 'if so, why doesn't God answer everyone?' and answers it. Russian twin of /articulos/oraciones.html, credited in Part A for the same question shape"}
+    rejected:
+      - {path: "/a/imyeyet.html", rank: 3, why: "'Does it matter which God you pray to?' — about the object of prayer, not unanswered prayer"}
+      - {path: "/a/odinochestvom.html", rank: 4, why: "loneliness"}
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esru-skeptic-odnoitozhe"             # topic: religions
+    persona: skeptic
+    q: "Христианство, ислам, буддизм — по-моему, все они говорят примерно одно и то же разными словами. В чём принципиальная разница?"
+    en: "Christianity, Islam, Buddhism — to me they all say roughly the same thing in different words. What is the fundamental difference?"
+    top_score: 0.667
+    credits:
+      - {path: "/a/soyed.html", rank: 1, score: 0.667, en: "Connecting with God — 'Islam, Hinduism, Buddhism, Christianity, New Age — all about the same thing?' This question, verbatim, as the article's own subtitle"}
+      - {path: "/a/relig.html", rank: 2, score: 0.625, en: "What is the difference between Jesus and the world religions?"}
+      - {path: "/a/put.html",   rank: 5, score: 0.592, en: "Is Jesus the only way to God? — 'isn't that claim naive?'"}
+      - {path: "/a/slon.html",  rank: 9, score: 0.539, en: "Is God an elephant? — the blind-men-and-the-elephant analogy used to argue all religions are valid paths, and why it fails. Directly attacks the asker's premise"}
+    rejected:
+      - {path: "/a/christianstvo.html", rank: 3, why: "an Alexander Men lecture transcript — a survey of worldviews, not a comparison answering this"}
+      - {path: "/a/katolikom.html", rank: 8, why: "Catholic vs Christian — an intra-Christian question"}
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "esru-newcomer-troye"                 # topic: trinity
+    persona: newcomer
+    q: "В церкви молятся то Иисусу, то Отцу, то Духу. Я никак не пойму — это один и тот же или всё-таки разные?"
+    en: "At church they pray to Jesus, then the Father, then the Spirit. I can't work out whether that's the same one or actually different ones."
+    top_score: 0.738
+    credits:
+      - {path: "/a/troitsu.html",    rank: 1, score: 0.738, en: "Could you explain the Trinity?"}
+      - {path: "/a/svyatoyduh.html", rank: 2, score: 0.638, en: "Who is the Holy Spirit? — 'a person fully equal with God the Father and God the Son… the third person of the Trinity'"}
+    reworded: |
+      ⚠️ THIS QUESTION WAS REWORDED AFTER THE FIRST ENGINE CHECK — guardrail #8 §2.
+      v1: "Говорят, что Бог один, но при этом всё время упоминают Отца, Сына и Духа.
+           Получается, их всё-таки трое?"  → top score 0.807 🔴 PARAPHRASE SMELL.
+      It restated /a/troitsu.html's own opening ("the Bible clearly speaks of God the
+      Father, God the Son and God the Holy Spirit… and shows there is only one God").
+      v2 reframes it as something a newcomer NOTICES in a church service rather than
+      the doctrinal formula. Result: **0.807 → 0.738, still rank 1.** The target is
+      still found; the softball is gone.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 29 credits · 29 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Paraphrase smells: 0 (max top score 0.738, on the reworded trinity case)
+# Credits that do not retrieve: 2, both on `esru-newcomer-krest`, deliberately
+#
+# ⚠️ THE BOILERPLATE-TAIL TRAP FIRED ON THIS SOURCE TOO, exactly as §0.9 predicted.
+# Rank-1 hits that a title-and-score reviewer would have credited and I rejected on
+# the text: /a/gdebog.html for anxiety (it is the disaster article) and
+# /a/nastoy.html for the cross (it is three fulfilment testimonies). Meanwhile the
+# candidate a title-only reviewer would REJECT — /a/chakr.html, "Anxiety and Chakra
+# Healing" — is the best anxiety document in the source.
+# Judging on titles would have got both directions wrong on the same source.

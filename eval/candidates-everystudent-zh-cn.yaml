@@ -1,0 +1,292 @@
+# Phase 5 Part B — 10 candidate golden cases for `everystudent-zh-cn` (xinshengming.com)
+#
+# ⚠️ PROPOSAL ONLY — nothing here reaches eval/qa-golden.yaml without an explicit
+# operator approval turn (golden Guardrail #4).
+#
+# Source: 128 documents / 293 chunks, the largest source in the #111 campaign.
+# Topics: drawn from the §0.7 canonical menu approved 2026-08-03. All ten apply
+# here (128 docs ÷ 8 = 16, capped at 10).
+#
+# ── How these were built ────────────────────────────────────────────────────
+# 1. Discovery: the ten ENGLISH topic questions run zh-scoped at topK 20 →
+#    51 distinct candidate documents of 128. (English questions were measured to
+#    be a good discovery scaffold but a poor top-1 judge — campaign file §0.6.)
+# 2. Each question was then AUTHORED IN CHINESE, not translated from English —
+#    real users of xinshengming.com ask in Chinese, and an English-question eval
+#    would measure something nobody does.
+# 3. Every drafted question was run through the wired Retriever before being
+#    finalised (Guardrail #8 #2). ✅ No paraphrase smell: the top score across all
+#    ten was 0.689, well under the 0.75 line. No question restates a title.
+# 4. Every credited document was judged on its CHUNK TEXT, never its title.
+#
+# ── 🔴 Why #4 is not boilerplate: two title traps caught in this source ──────
+# `/a/yesno.html` carries the SEO title "是否有神的存在 - 相信神真实存在的六个理由"
+# ("Is there a God — six reasons to believe God exists"). Its body is about
+# FREE WILL AND DECISION-MAKING ("自由意志与做决定的艺术"). It was about to be
+# credited for god-exists on the strength of that title. It is not credited.
+# Same lesson as the §0.7 `religions` misread. Guardrail #5 is load-bearing here.
+#
+# ── ⚠️ Two deliberate omissions, both recorded rather than silently applied ──
+# A. NO `/john/**` DOCUMENT IS CREDITED. everystudent-zh-cn carries a 37-document
+#    Gospel-of-John correspondence course (29% of the source; no other campaign
+#    source has one). It is ministry writing, not the raw scripture §12 blocks,
+#    but whether it belongs in the corpus is an open operator decision —
+#    campaign file §0.8. Notably, ZERO lessons surfaced for any of the ten
+#    in-language questions, so excluding them costs this suite nothing.
+# B. NO CROSS-SOURCE CREDITS YET. The `zh` bucket also holds `thelife-zh` and
+#    `everystudent-zh-tw`, and their documents genuinely outrank zh-cn on several
+#    of these questions (see the RETRIEVED blocks). Under the living-relevant-set
+#    model they should be credited — but crediting a document nobody has READ
+#    would violate Guardrail #5. **Deferred to Part A**, where those documents are
+#    read. Expect per-source coverage here to read LOW until that happens; that is
+#    the honest number, not a defect.
+#
+# evidence_tier: `llm-translated` on all ten — the operator does not read Chinese
+# and cannot verify these translations. Flip to `human-verified` if that is wrong,
+# or if a Cru Chinese speaker reviews the suite later (campaign file §7).
+
+part_b_cases:
+
+  # ── 1 ── god-exists / skeptic ────────────────────────────────────────────────
+  - id: "zhcn-skeptic-shenzai"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "My friends all say believing in God is just self-comfort with no basis at all. Is there really any reason that holds up?"
+    question: "我朋友都说信神只是自我安慰，根本没有依据。真的有什么站得住脚的理由吗？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/pack1.html"       # "how could a rational person come to believe in God? I found answers that convinced me"
+        - "/a/pack2.html"       # "you can never be 100% certain, but you can decide on factual evidence"
+        - "/a/atheist.html"     # first-person account of an atheist reasoning her way to belief
+        - "/a/miracle2.html"    # "why doesn't God perform visible miracles to prove he exists?"
+        - "/a/fanxuede5.html"   # ch.5 "The struggle of reason" — an intellectual's account
+        - "/a/who2.html"        # cosmological argument: nothing never existed, so something always has
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03) — EN translations for verification:
+    #   1. 0.670 zhcn /a/pack1.html      — EN: "Spiritual Adventure Pack, message #1"
+    #   2. 0.666 zhcn /a/fanxuede5.html  — EN: "Chapter 5: The struggle of reason"
+    #   3. 0.663 zhcn /a/atheist.html    — EN: "How an atheist found God"
+    #   4. 0.650 zhcn /a/pack2.html      — EN: "Spiritual Adventure Pack, message #2"
+    #   5. 0.625 zhcn /a/miracle2.html   — EN: "Why doesn't God prove himself by performing miracles?"
+    #   6. 0.592 zh-tw /content/WhoIsHe/prove  (cross-source, not credited — see note B)
+    #   7. 0.586 zh-tw /content/WhoIsHe/exist207  (cross-source)
+    #   8. 0.585 zhcn /a/peace.html      — EN: "Finding inner peace in an unpredictable, unstable world"
+
+  # ── 2 ── know-god / newcomer ────────────────────────────────────────────────
+  - id: "zhcn-newcomer-shenshi"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "What is God actually like? In my mind there is only a vague force, no concrete form."
+    question: "神到底是什么样的？我脑子里只有一个模糊的力量，没有具体的样子。"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/whois1.html"      # "What is he like? Six attributes of God — God is knowable"
+        - "/a/where.html"       # "if God is invisible, how does he reveal himself?" (the 2D-paper analogy)
+        - "/a/whypick.html"     # "many versions of God exist — is the God of the Bible the ideal one?"
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.578 zhcn /a/whois1.html   — EN: "Who is God — six qualities of God's character"
+    #   2. 0.551 zhcn /a/where.html    — EN: "Where is God?"
+    #   3. 0.512 zhcn /a/whypick.html  — EN: "Longing for God, and finding the ideal God"
+    #   4. 0.501 zh-tw /content/whoishe/when2dmanmeet3dgod  (cross-source)
+    #   5. 0.497 zh-tw /content/WhoIsHe/whoii  (cross-source)
+    #   6. 0.489 zhcn /a/pack5.html    — EN: "Spiritual Adventure Pack, message #5"
+    #   7. 0.489 zhcn /a/tragedy.html  — EN: "Where is God when disaster strikes?"
+    #   8. 0.487 zhcn /a/who2.html     — EN: "Who? II"
+
+  # ── 3 ── suffering / skeptic ────────────────────────────────────────────────
+  - id: "zhcn-skeptic-kunan"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "A friend of mine died in an accident last year, and nobody can tell me why a good God would allow that."
+    question: "我一个朋友去年出事故走了，没有人能告诉我，一位良善的神为什么会容许这种事。"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/why.html"         # "why is life so hard?" — suffering answered directly
+        - "/a/isgodgood.html"   # "Is God loving? Then why is there pain and evil?" — the free-will answer
+        - "/a/whyworship.html"  # "God allowed a child to be raped — why worship him?" — the hardest form of the question
+        - "/a/pack4.html"       # "today's message is the strongest evidence AGAINST God: suffering"
+        - "/a/tragedy.html"     # "Where is God when disaster strikes?"
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.689 zh-tw /content/Enigmas/BadThings605  (cross-source — outranks every zhcn doc)
+    #   2. 0.651 tlzh  /massacre  (cross-source)
+    #   3. 0.637 zhcn /a/why.html         — EN: "Why is life so full of hardship?"
+    #   4. 0.628 zh-tw /content/Enigmas/Suffering631  (cross-source)
+    #   5. 0.627 zhcn /a/pack4.html       — EN: "Spiritual Adventure Pack, message #4"
+    #   6. 0.607 zhcn /a/isgodgood.html   — EN: "Is God loving?"
+    #   7. 0.605 zhcn /a/whyworship.html  — EN: "God allowed a child to be raped — why still worship him?"
+    #   8. 0.584 zhcn /a/stress.html      — EN: "Relieving stress"
+    # ⚠️ Three of the top four hits are OTHER sources. This case will read as poor
+    #    zh-cn coverage until Part A credits them. That is competition, not a fault.
+
+  # ── 4 ── purpose / seeker ───────────────────────────────────────────────────
+  - id: "zhcn-seeker-mubiao"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "At the end of every day I feel nothing was left behind. What am I actually living for?"
+    question: "每天结束的时候，我都觉得这一天什么也没留下。我到底为了什么活着？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/purpose.html"        # "What is my purpose in life?" — the hammer-in-the-toolbox parable
+        - "/a/startanewlife.html"  # testimony: addiction, emptiness, "time to start a new life"
+        - "/a/then.html"           # "life now, life later, and after death — then what?"
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.530 tlzh /fear-of-death   (cross-source)
+    #   2. 0.520 tlzh /life-purpose    (cross-source)
+    #   3. 0.516 tlzh /midlife         (cross-source)
+    #   4. 0.516 tlzh /a-new-life      (cross-source)
+    #   5. 0.511 zhcn /a/purpose.html  — EN: "What is the goal of my life?"
+    #   6. 0.509 tlzh /an-important-decision  (cross-source)
+    #   7. 0.507 tlzh /adopted-kid     (cross-source)
+    #   8. 0.500 tlzh /give-yourself-a-new-life  (cross-source)
+    # 🔴 The WEAKEST case in this suite — 7 of 8 hits are thelife-zh, and zh-cn's own
+    #    purpose article ranks 5th at 0.511. `thelife-zh` publishes far more
+    #    life-purpose devotional content than this source does. Keep the case: it
+    #    honestly records that zh-cn is hard to reach on this topic (Guardrail #8 #2
+    #    — "a case that always passes measures nothing").
+
+  # ── 5 ── anxiety / seeker ───────────────────────────────────────────────────
+  - id: "zhcn-seeker-jiaolv"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "I am anxious almost all the time. Does God have anything to offer for that?"
+    question: "我几乎一直处在焦虑里。神对这种状态有什么可给的吗？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/coronavirus.html"  # titled "COVID-19 — how to cope with anxiety"; the source's main anxiety article
+        - "/a/fears.html"        # "finding peace in hardship — facing the fear an earthquake brings"
+        - "/a/peace.html"        # "finding inner peace in unpredictable times"
+        - "/a/why.html"          # carries the "peace I leave with you" passage answering fear
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.673 zh-tw /content/lifeissues/facing-anxiety  (cross-source)
+    #   2. 0.672 zhcn /a/coronavirus.html — EN: "Coronavirus (COVID-19) — how to cope with anxiety"
+    #   3. 0.624 zhcn /a/fears.html       — EN: "Finding peace in hardship — facing earthquake fear"
+    #   4. 0.617 zhcn /a/why.html         — EN: "Why is life so full of hardship?"
+    #   5. 0.595 zh-tw /content/TheExperience/AnswerPrayer306  (cross-source)
+    #   6. 0.578 zhcn /a/peace.html       — EN: "Finding inner peace in an unstable world"
+    #   7. 0.561 zh-tw /content/TheExperience/Peace301  (cross-source)
+    #   8. 0.561 zh-tw /content/Enigmas/Tragic601  (cross-source)
+
+  # ── 6 ── jesus-death / newcomer ─────────────────────────────────────────────
+  - id: "zhcn-newcomer-yesusi"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "Christians treat Jesus' death as a big deal, but I do not understand what his death actually accomplished."
+    question: "基督徒把耶稣的死看得很重，可我不明白祂的死到底成就了什么。"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/jesusinislam.html"  # "Jesus paid the price for our sin on the cross, removing the barrier to God"
+        - "/a/bbfaith.html"       # "Who is Jesus? Is Jesus God?" — the resurrection evidence
+        - "/a/reallife.html"      # "God became flesh and willingly died bearing our sin" — the judge/fine analogy
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.614 tlzh /good-friday  (cross-source)
+    #   2. 0.582 zhcn /a/bbfaith.html      — EN: "Who is Jesus? Is Jesus God? Evidence, not blind faith"
+    #   3. 0.564 zhcn /a/jesusinislam.html — EN: "Jesus and Islam"
+    #   4. 0.544 zhcn /a/reallife.html     — EN: "In real life: finding fulfilment, acceptance and truth"
+    #   5. 0.542 tlzh /where-to-go  (cross-source)
+    #   6. 0.542 zhcn /a/difference.html   — EN: "How is Jesus different from other world religions?"
+    #   7. 0.534 tlzh /multi-roles  (cross-source)
+    #   8. 0.528 zh-tw /content/WhoIsHe/faith201  (cross-source)
+    # ⓘ NO /john/ lesson appeared, despite 37 of them being in the corpus and the
+    #   topic being the crucifixion. Supports treating the course as a poor
+    #   retrieval target (§0.8).
+
+  # ── 7 ── bible-trust / skeptic ──────────────────────────────────────────────
+  - id: "zhcn-skeptic-shengjing"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "The Bible was written thousands of years ago and hand-copied down the generations. How can anyone be sure what we read now is still the original?"
+    question: "圣经是几千年前写的，又一代代手抄下来。怎么能确定现在读到的还是原来的内容？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/bible.html"         # "the history of the Bible, who wrote it, why it is trustworthy" — 40 authors, 1,600 years
+        - "/a/jesusinislam.html"  # Q1 is literally "has the Bible been altered over time?" (the tahrif question)
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.661 zhcn /a/jesusinislam.html — EN: "Jesus and Islam"
+    #   2. 0.632 zh-tw /content/whoishe/bible220  (cross-source)
+    #   3. 0.625 zhcn /a/bible.html        — EN: "History of the Bible, who wrote it, why it is credible"
+    #   4. 0.472 zh-tw /content/WhoIsHe/exist207  (cross-source)
+    #   5. 0.459 zhcn /a/sixdays.html      — EN: "Did God create the universe in just six days?"
+    #   6. 0.450 zhcn /a/fanxuede8.html    — EN: "Chapter 8: Knock, and it will be opened"
+    #   7. 0.440 zhcn /a/atheist.html      — EN: "How an atheist found God"
+    # ⓘ The Islam article ranking FIRST is correct, not a drift: scripture-corruption
+    #   (tahrif) is where this estate treats Bible reliability. Same shape as the
+    #   existing `esar-skeptic-tahrif` case. Do not "fix" this.
+
+  # ── 8 ── prayer / believer ──────────────────────────────────────────────────
+  - id: "zhcn-believer-daogao"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "I have prayed about the same thing for a long time with no response at all. Am I doing something wrong?"
+    question: "同一件事我祷告了很久，却一直没有任何回应。是我哪里做错了吗？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/prayers.html"  # "how to pray, how God answers prayer" — has a section titled "how to explain unanswered prayer"
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.689 zhcn /a/prayers.html — EN: "How to pray — how God answers prayer — what prayer is for"
+    #   2. 0.657 zh-tw /content/TheExperience/AnswerPrayer306  (cross-source)
+    #   3. 0.520 zhcn /a/fanxuede6.html — EN: "Chapter 6: Christian, where are you?"  NOT CREDITED
+    #   4. 0.513 zhcn /a/reallife.html  — EN: "In real life"
+    #   5. 0.506 zhcn /a/hope.html      — EN: "Living with HIV, living with hope"
+    #   6. 0.503 zh-tw /content/WhoIsHe/praydifference  (cross-source)
+    #   7. 0.497 zhcn /a/yesno.html     — EN: (SEO title claims "six reasons to believe God exists";
+    #                                     body is about FREE WILL AND DECISION-MAKING) NOT CREDITED
+    #   8. 0.490 zhcn /a/peace.html     — EN: "Finding inner peace"
+    # ⓘ Only ONE zh-cn document credited, deliberately. `/a/fanxuede6.html` matched on
+    #   prayer vocabulary but is a CRITIQUE of self-interested "ask and receive" prayer
+    #   culture, not an answer to unanswered prayer. Guardrail #5: judged on text.
+
+  # ── 9 ── religions / skeptic ────────────────────────────────────────────────
+  - id: "zhcn-skeptic-zongjiao"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "Almost everyone just follows whichever religion they were born into. On what basis would one be more true than another?"
+    question: "每个人差不多都是跟着自己出生的环境信一个宗教。凭什么说其中一个比别的更真实？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/religion.html"      # the /a/205 world-religions comparison: Hinduism, Buddhism, Islam, Christianity, New Age
+        - "/a/difference.html"    # "how is Jesus different from other world religions?"
+        - "/a/elephant.html"      # the blind-men-and-the-elephant analogy, answered
+        - "/a/hatereligion.html"  # "what if Jesus came to abolish religion?"
+        - "/a/whypick.html"       # "many versions of God — is the Bible's the ideal one?"
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.540 zh-tw /content/WhoIsHe/twokinds217  (cross-source)
+    #   2. 0.526 zhcn /a/religion.html      — EN: "Are they all the same? Hindu gods, Buddhism, Islam, Christianity, New Age — world religions compared"
+    #   3. 0.500 zhcn /a/fanxuede2.html     — EN: "Chapter 2: God in heaven, culture on earth"  NOT CREDITED (church-history essay)
+    #   4. 0.488 zhcn /a/hatereligion.html  — EN: "Why I hate religion but love Jesus"
+    #   5. 0.484 tlzh /q-and-a  (cross-source)
+    #   6. 0.481 zhcn /a/elephant.html      — EN: "Is God an elephant?"
+    #   7. 0.477 zh-tw /content/WhoIsHe/connect205  (cross-source)
+    #   8. 0.469 zh-tw /content/WhoIsHe/exist207  (cross-source)
+    # ⓘ `/a/difference.html` is credited but did NOT surface in this question's top 8
+    #   (it ranked 6th for jesus-death instead). A genuine vocabulary gap — kept so the
+    #   eval records it rather than papering over it (Guardrail #8 #2).
+
+  # ── 10 ── trinity / newcomer ────────────────────────────────────────────────
+  - id: "zhcn-newcomer-sanwei"
+    language: "zh"
+    evidence_tier: "llm-translated"
+    # EN: "Christians say there is only one God, but then talk about three persons. How is that different from three gods?"
+    question: "基督徒说只有一位神，却又讲三个位格。这跟三个神有什么区别？"
+    relevant:
+      everystudent-zh-cn:
+        - "/a/trinity.html"  # "how do you explain the Trinity?" — the 1×1×1=1 answer
+        - "/a/hspirit.html"  # "who is the Holy Spirit?" — the third person specifically
+    # RETRIEVED (qwen, zh-scoped, 2026-08-03):
+    #   1. 0.645 zhcn /a/trinity.html      — EN: "How do you explain the Trinity?"
+    #   2. 0.519 zhcn /a/religion.html     — EN: "world religions compared"  NOT CREDITED
+    #   3. 0.490 zhcn /a/pack6.html        — EN: "Spiritual Adventure Pack #6"  NOT CREDITED
+    #                                        (about WHICH God / evidence for Jesus, not the Trinity)
+    #   4. 0.482 zhcn /a/fanxuede3.html    — EN: "Chapter 3: Bound to Chinese culture"  NOT CREDITED
+    #   5. 0.476 zh-tw /content/WhoIsHe/whichdenom  (cross-source)
+    #   6. 0.452 zhcn /a/difference.html   — EN: "How is Jesus different from other religions?"
+    #   7. 0.451 zh-tw /content/WhoIsHe/holyspirit708  (cross-source)
+    #   8. 0.448 zhcn /a/hspirit.html      — EN: "Who is the Holy Spirit?"
+
+# ── Summary for curation ────────────────────────────────────────────────────
+#   10 cases · 34 credited documents, all in everystudent-zh-cn, all read as text.
+#   Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 (matches §0.7).
+#   Paraphrase check: max score 0.689 — clear of 0.75. ✅
+#   Weakest case: zhcn-seeker-mubiao (purpose) — 7 of 8 hits are thelife-zh.
+#   Not credited on purpose: /a/yesno.html (title trap), /a/fanxuede6.html
+#     (prayer critique, not answer), /a/fanxuede2.html + /a/fanxuede3.html
+#     (church-history essays), /a/pack6.html (which-God, not Trinity),
+#     and all 37 /john/** course lessons (pending the §0.8 decision).

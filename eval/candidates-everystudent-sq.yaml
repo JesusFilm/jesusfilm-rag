@@ -1,0 +1,396 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-sq` (Albanian, 77 documents).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 77 ÷ 8 = 9.6, capped at 10 → 10 cases (§0.7 rule). All ten §0.7 topics
+#   are answerable by this source, so none was dropped.
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Questions authored IN ALBANIAN, not translated from the English topic menu.
+# Null-language documents: 0 of 77 (the 2026-07-31 LLM sweep fixed all 77 —
+#   38 were mislabelled `nl`, 38 were null. Labels verified correct today).
+# Duplicate titles: 0 — all 77 titles in this source are unique.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-sq sq
+#   → 45 distinct candidate documents of 77, all ten topics covered.
+# Every credited document was read from the database (title + opening 900 chars)
+# before being credited — guardrail #5, and specifically because of the
+# boilerplate-tail trap recorded in §0.9.
+#
+# ENGINE-CHECKED (guardrail #8 §2) — .tmp-diag/phase5-sq-check.ts
+#   Round 1: 4 paraphrase smells · 8 credits not in top 10
+#   Round 2: 3 paraphrase smells · 3 credits not in top 10   (5 rewords, 3 drops)
+#   FINAL:   **0 paraphrase smells** (max top score 0.748) · 2 credits not in
+#            top 10 — BOTH deliberate keeps, see `mire` and `ndryshuar` below.
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 26 credited titles resolve to EXACTLY ONE document — 26/26.
+#   Guardrail #3a:   no credited document has a null language — 26/26.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Albanian).
+#   It is a fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 THREE HAZARDS SPECIFIC TO THIS SOURCE — read before editing the keys
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 🔴 RAW SCRIPTURE IS IN THE CORPUS — `/a/ishte.html`, 24,883 chars.
+#    `/a/gjoni.html` (98,887 ch) was already excluded by §12 and is NOT in the
+#    database — confirmed by query, 0 rows. But `/a/ishte.html` IS ingested, and
+#    its own intro says: "Këto janë ekstrakte të marra direkt nga Ungjilli i
+#    Gjonit… Nuk ka komente të shtuara" ("These are extracts taken directly from
+#    the Gospel of John… no commentary added"). It is John 3 onward verbatim.
+#    It RETRIEVED at rank 6 (0.646) for the cross question and rank 8 (0.583) for
+#    the Bible question. It is NOT credited here. ⏭️ OPERATOR DECISION: same §12
+#    shape as the excluded `/a/gjoni.html`, but one-third the size.
+#
+# 2. 🔴 THE TITLE TRAP FIRED AGAIN — FOURTH SOURCE, FOURTH INSTANCE.
+#    `/a/koronavirus.html`, titled just "Koronavirus (COVID-19)", is this
+#    source's DEDICATED ANXIETY ARTICLE. Its body opens "Koronavirus (COVID-19)
+#    - Si ta përballojmë ankthin?" ("how do we cope with anxiety?") by Marilyn
+#    Adamson, and lists terrorism, climate, racism, war, poverty, sexual assault,
+#    slavery, natural disasters, personal finances, illness, job security,
+#    stressful relationships and addictions as the other sources of anxiety it
+#    is written for. A title-only reviewer files it under "pandemic news" and
+#    the source loses its anxiety answer. It is rank 1 at 0.722 for the anxiety
+#    question. Two lesser cases: `/a/kush.html` and `/a/kush2.html` are titled
+#    literally "Who" and "Who2" — they are the cosmological-argument series.
+#
+# 3. ⚠️ ALBANIA-ORIGINAL CONTENT WITH NO SIBLING EQUIVALENT. Unlike `ru`/`bg`,
+#    this source carries locally written pieces that map onto no §0.7 topic:
+#    `/a/pavaresia.html` (Albanian independence centenary + Lincoln's Gettysburg
+#    address), `/a/paris.html` (peace after the Paris attacks, name-checking
+#    Tirana, Tetovo and Pristina), `/a/kurbanit.html` (the origin of Kurban
+#    Bajram / Eid al-Adha), `/a/studentore.html`, `/a/ndodh.html`. Nothing to fix
+#    — but do not expect a `sq` suite to look like its siblings' document-for-
+#    document.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essq-skeptic-shpikje"                # topic: god-exists
+    persona: skeptic
+    q: "Ateistët thonë se Perëndinë e kemi shpikur ne, jo ai ne. Unë s'di ç't'u them — a ka gjë të prekshme nga ana tjetër?"
+    en: "Atheists say we invented God, not the other way round. I do not know what to say back to them — is there anything tangible on the other side?"
+    top_score: 0.748                          # clear of 0.75
+    credits:
+      - {path: "/a/ekziston.html", rank: 1, score: 0.748, en: "Is there a God? Six honest, direct reasons to believe God exists (Marilyn Adamson), 23.2k chars — the source's flagship apologetics article"}
+      - {path: "/a/ateiste.html",  rank: 2, score: 0.743, en: "How an atheist found God — Marilyn Adamson: 'How do you know God exists?' … 'It seemed obvious God was completely invented.' Answers the invented-God framing as its own opening move"}
+      - {path: "/a/provoni.html",  rank: 3, score: 0.727, en: "Can you prove God's existence? (Gregory E. Ganssle, PhD) — on why 'you can't prove it' is itself an unexamined dogma"}
+    rejected:
+      - {path: "/a/nese.html",   rank: 4, score: 0.717, why: "'If people worship the wrong god, why can't God forgive them for being deceived?' — a question about the fate of sincere adherents of other faiths, not about whether God exists"}
+      - {path: "/a/merrem.html", rank: 5, score: 0.708, why: "'Can't I enjoy myself now and deal with God later?' — procrastination, a different objection"}
+      - {path: "/a/mendjes.html", rank: 6, score: 0.707, why: "peace of mind — boilerplate-tail match, credited to case 5"}
+      - {path: "/a/krijoi.html", rank: 8, score: 0.703, why: "'Who created God?' — the infinite-regress objection. Part of the four-part cosmological series (/a/asgje → /a/dicka → /a/kush → /a/kush2). A distinct objection, deliberately left uncredited so the case does not become a survey"}
+    dropped_after_engine_check:
+      - path: "/a/paterice.html"
+        why: >
+          "A crutch for the weak" — the TITLE is the crutch objection verbatim, and the
+          article's closing move is "A crutch for the weak? Oh yes!". It was in the v1 draft
+          for exactly that reason. On the text its SUBJECT is a Princeton student's account
+          of coping with academic stress (heroin, casual sex, denial as the alternatives).
+          It never entered the top 10 here, and it DID retrieve at rank 8 (0.574) for the
+          anxiety question — which is where it belongs. Dropped rather than credited-and-missed.
+    reworded: |
+      ⚠️ THREE VERSIONS. This was the hardest question in the suite.
+      v1 "…besimi te Perëndia është thjesht një ngushëllim për ata që s'ia dalin dot vetë"
+         → top 0.760 🔴 SMELL, and the rank-1 hit was /a/shprese.html (a student's HIV
+         testimony) — a pure boilerplate tail. The question was too abstract, so the whole
+         top 10 sat at 0.69–0.76 with no separation.
+      v2 "…A qëndron kjo, apo ka arsye konkrete për të menduar ndryshe?" → 0.759 🔴, rank 1
+         still a tail (/a/mendjes.html). Two of three credits still missing.
+      v3 (kept) names the atheist objection concretely and asks for something tangible
+         → **0.748, smell gone, and all three credits moved to ranks 1-2-3.**
+      The lesson: on this estate a generic "is there anything behind it" question retrieves
+      the invitation-prayer tail of everything. Naming the objection is what separates them.
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "essq-newcomer-si-eshte"              # topic: know-god
+    persona: newcomer
+    q: "Nuk jam rritur në kishë. Kur dëgjoj «Perëndi» më vjen ndërmend diçka e madhe dhe e ftohtë, pa lidhje me mua. A është vërtet i tillë?"
+    en: "I was not raised in church. When I hear the word 'God' what comes to mind is something big and cold, with no connection to me. Is he actually like that?"
+    top_score: 0.710
+    credits:
+      - {path: "/a/zgjedhim.html", rank: 2,  score: 0.697, en: "Why choose the God of the Bible? — the qualities of the 'ideal' God, '#1: a God greater than us', '#2: a God who can be known personally'"}
+      - {path: "/a/perendia.html", rank: 8,  score: 0.673, en: "Who is God? What is he like? SIX TRAITS of God's personhood — 'he is knowable… he is approachable'. The direct twin of the Russian /a/ktoeto.html and the Bulgarian six-attributes article"}
+      - {path: "/a/ku.html",       rank: 10, score: 0.664, en: "Where is God? — the flatland analogy: God exists outside our dimensions, which is why he is hard to 'see'. Answers 'something big and far away' head-on"}
+    rejected:
+      - {path: "/a/mendjes.html",     rank: 1, score: 0.710, why: "🔴 RANK 1 AND REJECTED — 'Peace of mind in an unstable world'. Its God-is-constant passage matches; its subject is anxiety. Top-1 is not evidence."}
+      - {path: "/a/marredhenie.html", rank: 3, score: 0.683, why: "'What it is like to have a relationship with God' — its subject is the RELATIONSHIP, not what God is like. The `ru` suite dropped its twin /a/znat.html for this exact reason (§0.10)"}
+      - {path: "/a/kush2.html",       rank: 7, score: 0.676, why: "titled literally 'Who2' — the conclusion of the cosmological series. It argues what the Eternal Something must be like philosophically; a newcomer asking this is not asking for that"}
+      - {path: "/a/klimatike.html",   rank: 9, score: 0.666, why: "hope regarding climate change — tail match"}
+    dropped_after_engine_check:
+      - {path: "/a/perbashket.html", why: "'What you have in common with God' — the imago dei. Read in full: its subject is what being made in God's likeness means for US, not what God is like. Never entered the top 10. Dropped."}
+    reworded: |
+      ⚠️ THREE VERSIONS, and the middle one is the instructive failure.
+      v1 "…në kokë më vjen diçka si një energji e largët, pa fytyrë" → top 0.779 🔴 SMELL.
+      v2 "…A e njohin njerëzit vërtet, apo thjesht besojnë te diçka e largët?" → 0.729,
+         smell GONE — but the question had drifted from "what is God like" to "can God be
+         known", and the top 3 became /a/vertete.html, /a/ndryshuar.html and /a/ungjillin.html
+         (two testimonies and the Four Spiritual Laws). **/a/perendia.html, the actual
+         six-attributes article, fell out of the top 10 entirely.** This is §0.7's recorded
+         `know-god` failure mode reproducing exactly: the question drifts to purpose and
+         gospel pages. A lower score bought a worse answer set.
+      v3 (kept) names the MISCONCEPTION (big, cold, unconnected) and asks for correction
+         → 0.710, smell gone, all three credits back in.
+      §0.7: "Score is not the objective; landing on the right document is."
+
+  # ── 3 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essq-skeptic-aksident"               # topic: suffering
+    persona: skeptic
+    q: "Vitin e kaluar një shok imi vdiq në aksident, 22 vjeç. Prindërit e tij janë besimtarë dhe unë nuk e kuptoj si mund të vazhdojnë ta quajnë Perëndinë të mirë."
+    en: "Last year a friend of mine died in an accident, aged 22. His parents are believers and I cannot understand how they can go on calling God good."
+    top_score: 0.728
+    credits:
+      - {path: "/a/adhurojme.html", rank: 3, score: 0.679, en: "Why worship a God who allows terrible things to happen? — framed around a child being raped, and the author says a close relative of hers was"}
+      - {path: "/a/pse.html",       rank: 5, score: 0.656, en: "Why is life so hard? — 'why do people get cancer? why do earthquakes destroy whole cities?'"}
+      - {path: "/a/tragjedise.html", rank: 7, score: 0.652, en: "Where is God in the middle of tragedy? — 'Have you ever asked God where are you?' (Marilyn Adamson), 14.6k chars"}
+      - {path: "/a/mire.html", rank: "NOT IN TOP 10", en: "Is God good? — a 1.5k video transcript opening 'Is God good? If so, why do suffering and evil exist?' KEPT DELIBERATELY, see below"}
+    rejected:
+      - {path: "/a/koronavirus.html", rank: 1, score: 0.728, why: "🔴 RANK 1 AND REJECTED — this is the ANXIETY article (see hazard 2 and case 5). A bereavement is not chronic anxiety."}
+      - {path: "/a/shprese.html",  rank: 4, score: 0.677, why: "a student living with HIV and haemophilia — a testimony about hope, not an answer to the problem of evil"}
+      - {path: "/a/pashmangshmes.html", rank: 8, score: 0.649, why: "facing the inevitable — fear of death and the afterlife, the question's neighbour not its subject"}
+      - {path: "/a/bukurise.html", rank: 10, score: 0.642, why: "a fashion model on inner beauty — boilerplate tail"}
+    the_deliberate_keep: |
+      `/a/mire.html` does not retrieve and IS CREDITED ANYWAY. Guardrail #8 §2:
+      "Keep the honest phrasing and let the eval record the gap — a case that always
+      passes measures nothing." This case will score coverage 3/4 on purpose.
+
+      It is the right document by every other test: 1.5k chars, a video transcript
+      whose FIRST LINE is the question this case asks. It is the Albanian twin of the
+      Bulgarian `Добър ли е Бог?` (kept for exactly this reason in §0.11) and of the
+      Chinese `/a/isgodgood.html`, which was **rank 1** for the Chinese version of this
+      question in Part A. Crediting it is consistent across three sources.
+
+      Why it misses here is legible: at 1.5k chars it is the second-shortest credited
+      document in the suite, so it has few chunks to win on, and it competes against
+      four longer suffering articles in the same source.
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "essq-seeker-pa-mbetur"               # topic: purpose
+    persona: seeker
+    q: "E mbyll ditën me ndjesinë që nuk mbeti asgjë prej saj. Për çfarë po e jetoj gjithë këtë?"
+    en: "I end the day with the feeling that nothing remained of it. What am I living all this for?"
+    top_score: 0.635
+    credits:
+      - {path: "/a/qellimi.html", rank: 2, score: 0.621, en: "What is my purpose in life? — the hammer parable. The estate's standard purpose article"}
+      - {path: "/a/vertete.html", rank: 4, score: 0.608, en: "Real life — three people who reached the summit and were still empty. 'Have you ever felt there must be something more to life? More than just existing?'"}
+      - {path: "/a/ndryshuar.html", rank: "NOT IN TOP 10", en: "The source of a changed life (Josh McDowell) — 'Have you ever found yourself saying: I hate the life I am living? … I was looking for answers to: Who am I? Why am I here? Where am I going?' KEPT DELIBERATELY, see below"}
+    rejected:
+      - {path: "/a/mendjes.html", rank: 1, score: 0.635, why: "🔴 RANK 1 AND REJECTED — peace of mind in an unstable world. Emptiness is not instability."}
+      - {path: "/a/ujqerit.html", rank: 3, score: 0.610, why: "🔴 'Romance with wolves' — a young man's ten reasons for waiting until marriage. DATING ADVICE at rank 3 for a meaning-of-life question. The boilerplate-tail trap, textbook."}
+      - {path: "/a/bukurise.html", rank: 6, score: 0.602, why: "a fashion model on inner beauty — tail"}
+      - {path: "/a/varesi.html",   rank: 7, score: 0.598, why: "strength to overcome an addiction — a recovery testimony"}
+      - {path: "/a/pastaj.html",   rank: 9, score: 0.594, why: "What happens when you die? — mortality is not the same question as purpose. Same rejection the `bg` suite made for its twin (§0.11)"}
+    the_deliberate_keep: |
+      `/a/ndryshuar.html` does not retrieve and IS CREDITED ANYWAY, second of two.
+      It is the Albanian twin of the Russian `/a/istochnik.html` (credited for this
+      question shape in §0.10) and the Bulgarian "Казвали ли сте си някога „мразя
+      живота си“?" (credited at rank 6 in §0.11). Its opening is unambiguous purpose
+      material — "Who am I? Why am I here? Where am I going?" — and it is 16.8k chars.
+
+      ⚠️ It is NOT invisible to the engine: it retrieved at rank 2 (0.729) when case 2's
+      v2 phrasing drifted toward "can God be known", and at rank 4 (0.689) for the prayer
+      question. It is a strongly-retrieved document that this particular honest question
+      does not reach. That is the gap worth measuring, not a curation error.
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "essq-seeker-ankth"                   # topic: anxiety
+    persona: seeker
+    q: "Jam gati gjithë kohës në ankth, edhe kur s'ka ndonjë arsye konkrete. A ka feja diçka për të ofruar këtu?"
+    en: "I am anxious almost all the time, even when there is no concrete reason. Does faith have anything to offer here?"
+    top_score: 0.722
+    credits:
+      - {path: "/a/koronavirus.html", rank: 1, score: 0.722, en: "🔴 THE TITLE TRAP. Titled only 'Coronavirus (COVID-19)'; the body is 'Coronavirus (COVID-19) - How do we cope with ANXIETY?' by Marilyn Adamson, 17.1k chars, and it explicitly addresses anxiety from any source — terrorism, climate, racism, war, poverty, sexual assault, slavery, disasters, money, illness, job security, relationships, addictions. This is the source's dedicated anxiety article."}
+      - {path: "/a/mendjes.html",     rank: 3, score: 0.601, en: "Peace of mind in an unstable world — 'in uncertain times, how can you have peace of mind instead of worry and anxiety'"}
+    rejected:
+      - {path: "/a/lutjeve.html",  rank: 2, score: 0.611, why: "the prayer article — credited to case 8"}
+      - {path: "/a/varesi.html",   rank: 5, score: 0.594, why: "addiction recovery — a different distress"}
+      - {path: "/a/paterice.html", rank: 8, score: 0.574, why: "the Princeton academic-stress testimony. Considered here rather than at case 1 (see that case's drop note) and still rejected: a testimony about exam pressure, not an answer for generalised anxiety"}
+    note: |
+      ⓘ This case is the one that most rewards reading openings. `/a/koronavirus.html`
+      is the source's ONLY dedicated anxiety article, and its title says nothing about
+      anxiety at all. Rejecting it on the title — which is what a title-keyed reviewer
+      does — leaves `everystudent-sq` with no answer to the anxiety topic and turns a
+      well-covered topic into a false content gap.
+
+  # ── 6 ────────────────────────────────────────────────────────── newcomer
+  - id: "essq-newcomer-kryqi"                 # topic: jesus-death
+    persona: newcomer
+    q: "Të krishterët e vënë kryqin në qendër të gjithçkaje. Unë s'e kuptoj çfarë ndryshoi konkretisht vdekja e një njeriu para dy mijë vjetësh."
+    en: "Christians put the cross at the centre of everything. I do not understand what the death of one man two thousand years ago actually changed."
+    top_score: 0.693
+    credits:
+      - {path: "/a/vdiq.html",     rank: 2, score: 0.682, en: "The death of Jesus — body opens 'Why did Jesus die? Why did the crucifixion happen? Why did Jesus have to die for us?' A DEDICATED atonement article, 7.6k chars"}
+      - {path: "/a/ungjillin.html", rank: 3, score: 0.658, en: "The Four Spiritual Laws — '#3: JESUS CHRIST IS GOD'S ONLY PROVISION FOR MAN'S SIN… He died so that we would not have to.' Teaches what the cross accomplished as its own content, not as a closing invitation"}
+    rejected:
+      - {path: "/a/islamizmi.html", rank: 1, score: 0.693, why: "🔴 RANK 1 AND REJECTED — credited to case 7. Its cross section asks 'DID Jesus die on the cross?' (the Islamic substitution claim), which is the historicity question, not what the death accomplished"}
+      - {path: "/a/ishte.html",  rank: 6, score: 0.646, why: "🔴 RAW SCRIPTURE — 24.9k chars of Gospel-of-John extracts whose own intro says 'no commentary added'. §12 blocks crediting raw scripture. See hazard 1: this needs an operator decision"}
+      - {path: "/a/qendrueshme.html", rank: 7, score: 0.639, why: "🔴 'Is there hope for a lasting marriage?' at rank 7 for the atonement question — the boilerplate tail again"}
+      - {path: "/a/lindjes.html", rank: 9, score: 0.620, why: "Christmas myths and the sign of the Nativity — the birth, not the death"}
+    dropped_after_engine_check:
+      - {path: "/a/besosh.html", why: "'What does it mean to \"believe\" in Jesus?' — it does state the atonement ('only through his death on the cross can we be forgiven'), but its SUBJECT is what believing means. Not in the top 10. Dropped rather than credited-and-missed."}
+    the_finding: |
+      🟢 ALBANIAN BEHAVES LIKE BULGARIAN, NOT LIKE RUSSIAN — a second control for §0.10.
+      `everystudent-ru` cannot retrieve its cross credits because it has NO article whose
+      subject is the atonement. `everystudent-bg` has one and it retrieves. `everystudent-sq`
+      also has one — `/a/vdiq.html`, whose first line is literally "Why did Jesus die?" —
+      and it retrieves at rank 2, coverage 2/2. Three sources, same estate, same embedder:
+      the Russian miss is corpus composition, confirmed twice over.
+
+  # ── 7 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essq-skeptic-kopjuesit"              # topic: bible-trust
+    persona: skeptic
+    q: "Nga Bibla e parë deri te ajo që kam unë në duar kanë kaluar mijëra vjet dhe qindra kopjues. Ç'garanci ka që nuk është ndryshuar rrugës?"
+    en: "Thousands of years and hundreds of copyists stand between the first Bible and the one in my hands. What guarantee is there that it was not changed along the way?"
+    top_score: 0.733
+    credits:
+      - {path: "/a/biblen.html",   rank: 1, score: 0.733, en: "Why you can trust the Bible — 'What is the Bible's history and how can we know the Bible we have today is reliable?' 40 authors, 1,600 years, three continents, 300+ fulfilled prophecies. 38.6k chars, the largest article in the source"}
+      - {path: "/a/islamizmi.html", rank: 2, score: 0.730, en: "Jesus and Islam — its FIRST of six questions is 'Has the Bible been changed from its original? Or has it been corrupted over time?' and it answers at length"}
+    rejected:
+      - {path: "/a/davincit.html", rank: 6, score: 0.591, why: "the historical truth behind The Da Vinci Code. Considered and rejected: its subject is a novel's conspiracy claim about Jesus' identity, not manuscript transmission"}
+      - {path: "/a/kurbanit.html", rank: 7, score: 0.590, why: "the origin of Kurban Bajram (Eid al-Adha) — Albania-original content, Islam-facing but about sacrifice, not scripture"}
+      - {path: "/a/ishte.html",  rank: 8, score: 0.583, why: "raw Gospel-of-John extracts — see hazard 1, not credited"}
+    note: |
+      ⓘ THE tahrif OVERLAP, third source in a row. §0.7 recorded that Muslim-majority
+      sites answer `bible-trust` with their Islam article — `kk` and `th` return
+      "Jesus and Islam", `zh` returns 耶稣与伊斯兰, `bg` saw it at rank 1. Albania is
+      Muslim-majority, and `/a/islamizmi.html` lands at rank 2 with the scripture-
+      corruption question as its opening section. This is correct, not a defect.
+
+  # ── 8 ──────────────────────────────────────────────────────────── believer
+  - id: "essq-believer-heshtje"               # topic: prayer
+    persona: believer
+    q: "Ka një gjë për të cilën lutem prej kohësh dhe asgjë nuk lëviz. Fillova të pyes veten nëse Perëndia po më dëgjon fare."
+    en: "There is one thing I have been praying about for a long time and nothing moves. I have started wondering whether God is listening to me at all."
+    top_score: 0.727
+    credits:
+      - {path: "/a/lutjeve.html", rank: 2, score: 0.721, en: "Does God answer our prayers? — asks 'then why does God not answer everyone's prayers?' and answers it. The Albanian twin of the Russian /a/molitvi.html, the Bulgarian 'Отговаря ли Бог на молитвите ни?' and the Spanish /articulos/oraciones.html, all credited for this shape"}
+    rejected:
+      - {path: "/a/ateiste.html",  rank: 1, score: 0.727, why: "🔴 RANK 1 AND REJECTED — the atheist conversion testimony. It contains an answered-prayer anecdote (her praying friend), but that is a passage inside it, not its subject. Credited to case 1."}
+      - {path: "/a/ndryshuar.html", rank: 4, score: 0.689, why: "the changed-life testimony — credited to case 4"}
+      - {path: "/a/ujqerit.html",  rank: 9, score: 0.648, why: "dating advice at rank 9 for a prayer question — tail"}
+    reworded: |
+      ⚠️ REWORDED TWICE, and the middle version overshot in the OTHER direction.
+      v1 "…nga ana tjetër vetëm heshtje. A ka kuptim të vazhdoj?" → top 0.540, and
+         /a/lutjeve.html only rank 3. Too colloquial; the whole result set sat at 0.50–0.54,
+         close enough to the 0.45 cutoff to be fragile.
+      v2 "…i kërkoj Perëndisë të njëjtën gjë në lutje dhe s'kam marrë asnjë përgjigje"
+         → 0.792 🔴 SMELL — it restated the article's own line, "why does God not answer
+         everyone's prayers?".
+      v3 (kept) keeps the personal framing and adds the doubt → 0.727, rank 2, smell gone.
+    thinness_note: |
+      ⚠️ ONE CREDIT, AND THAT IS ALL THERE IS. `everystudent-sq` has exactly one prayer
+      article across 77 documents. This is the thinnest topic in the suite. Not a gap —
+      the one article answers the question directly — but its per-case coverage is 1/1
+      and therefore all-or-nothing, and rank 2 sits 0.006 below an uncredited rank 1.
+      Expect this case to be the noisiest one in the suite (§0.11's small-bucket finding).
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essq-skeptic-njesoj"                 # topic: religions
+    persona: skeptic
+    q: "Në qytetin tim ka xhami dhe kisha në të njëjtën rrugë dhe secili thotë se është në rrugën e duhur. Përse duhet ta veçoj Jezusin nga të gjitha të tjerat?"
+    en: "In my town there is a mosque and a church on the same street and each says it is on the right path. Why should I set Jesus apart from all the rest?"
+    top_score: 0.732
+    credits:
+      - {path: "/a/jezusi3.html",  rank: 2,  score: 0.717, en: "Is Jesus the only way? — 'Christianity is the right one - isn't that naive?' Answers the premise directly"}
+      - {path: "/a/ndryshimi.html", rank: 3, score: 0.689, en: "What is the difference between Jesus and the world religions? — five contrasts, starting 'God initiates a relationship with us'"}
+      - {path: "/a/hyjnoren.html", rank: 9,  score: 0.656, en: "Connecting with the Divine — 'Hindu gods, Buddhism, Christianity, Islam, New Age — are they all the same?' (Marilyn Adamson), 18.9k chars. This is the estate's /a/205 world-religions piece under an Albanian slug — the same article as the German /artikel/hochsten.html, Swahili /a/kuunganishwa.html and French /a/205divin.html (§0.7)"}
+      - {path: "/a/elefant.html",  rank: 10, score: 0.650, en: "Is God an elephant? — the blind-men-and-the-elephant analogy used to argue all religions are valid paths, and why it fails"}
+    rejected:
+      - {path: "/a/vertetash.html", rank: 1, score: 0.732, why: "🔴 RANK 1 AND REJECTED — 'Two kinds of truth': can Christianity be 'true for you but not for me'? That is RELATIVISM, a neighbouring but distinct objection. The asker is not saying truth is personal; he is saying the claims look interchangeable."}
+      - {path: "/a/nese.html",       rank: 5, score: 0.673, why: "'If people worship the wrong god…' — about the fate of sincere adherents, downstream of this question"}
+      - {path: "/a/unifikimit.html", rank: 8, score: 0.657, why: "Is the Unification Church a Christian church? — a cult-identification article, not comparative religion"}
+    reworded: |
+      ⚠️ REWORDED ONCE, and it is the §0.7 lesson in miniature.
+      v1 "Hinduizmi, budizmi, islami, krishterimi — mua më duket sikur të gjitha thonë të
+         njëjtën gjë me fjalë të ndryshme…" → top **0.777** 🔴 SMELL. That list IS
+         /a/hyjnoren.html's own subtitle. All four credits retrieved, but the question was
+         reciting the answer's headline.
+      v2 (kept) puts the asker in an Albanian street with a mosque and a church on it
+         → **0.732**, smell gone, all four credits still returned.
+      The cost is real and worth stating: /a/hyjnoren.html fell rank 1 → rank 9 and
+      /a/elefant.html sits at rank 10. Both are still in, but this case has the least
+      headroom in the suite and its coverage will flap under §0.11's tie-reordering.
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "essq-newcomer-tre-veta"              # topic: trinity
+    persona: newcomer
+    q: "Një shoqe më ftoi në kishë dhe lutjet ia drejtonin herë Jezusit, herë Atit, herë Frymës. S'kuptova nëse bëhej fjalë për të njëjtin apo për të ndryshëm."
+    en: "A friend invited me to church and the prayers were addressed sometimes to Jesus, sometimes to the Father, sometimes to the Spirit. I could not work out whether it was the same one or different ones."
+    top_score: 0.670
+    credits:
+      - {path: "/a/trinine.html", rank: 2, score: 0.665, en: "Could you explain the Trinity? — 'Trinity is a term not found in the Bible… God is three Persons sharing one divine essence', with the water/ice/steam and egg illustrations"}
+      - {path: "/a/shpirti.html", rank: 3, score: 0.651, en: "Who is the Holy Spirit? — 'not a vague shadow, not an impersonal force. He is a person equal to God the Father and God the Son… the third person of the Trinity'"}
+    rejected:
+      - {path: "/a/lutjeve.html",   rank: 1, score: 0.670, why: "🔴 RANK 1 AND REJECTED — the prayer article, matched on 'lutjet' (the prayers) rather than on anything about the Trinity. A lexical hit, not a topical one. Credited to case 8."}
+      - {path: "/a/islamizmi.html", rank: 4, score: 0.644, why: "its 'Is it blasphemy to say God has a Son?' section is genuinely trinitarian, but the article is framed as answers to Islamic objections; a newcomer at a church service is not asking that"}
+      - {path: "/a/jezusi.html",   rank: "not in top 10", why: "'Did Jesus ever say he was God?' — considered and rejected on subject: Christ's deity, not the three-in-one. Same for /a/jezusi2.html ('Is Jesus God?')"}
+    reworded: |
+      ⚠️ REWORDED ONCE. v1 "Nga jashtë duket sikur të krishterët i drejtohen tre vetave
+      të ndryshëm dhe pastaj thonë se Perëndia është një i vetëm" → top **0.760** 🔴 SMELL:
+      it restates /a/trinine.html's own opening formulation. v2 (kept) makes it something
+      the newcomer NOTICED at a service she was invited to → **0.670**, and it also pulled
+      /a/shpirti.html INTO the top 10 (it was missing at v1). Same fix that worked on `ru`.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 26 credits · 26 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Topics: all ten of the §0.7 menu, one case each. None dropped.
+#
+# ENGINE CHECK       round 1        round 2        FINAL
+#   paraphrase smells    4              3            **0**  (max top score 0.748)
+#   credits not in top 10 8             3            **2**  (both deliberate)
+#   Six questions were reworded; three of them twice. Five credits were dropped
+#   after reading the text (paterice, perbashket, besosh, and two never drafted).
+#
+# MECHANICAL         26/26 credited titles resolve to exactly one document ✅
+#                    26/26 credited documents have a non-null language     ✅
+#                    0 null-language documents in the source (0 of 77)     ✅
+#                    0 duplicate titles in the source (77 unique of 77)    ✅
+#
+# EXPECTED per-case coverage: 8 cases at 100%, `aksident` 3/4, `pa-mbetur` 2/3.
+#   ⚠️ Per §0.11, do NOT read this suite's first per-source coverage number as
+#   signal — a 10-case bucket swings ~12% on tie-reordering alone.
+#
+# 🔴 THE HEADLINE — the title trap fired a FOURTH time, and this one costs a whole
+# topic. `/a/koronavirus.html` is titled "Coronavirus (COVID-19)" and IS this
+# source's dedicated anxiety article, rank 1 at 0.722. Judged on its title,
+# `everystudent-sq` looks like it has no anxiety answer at all. Four sources,
+# four title traps: on this estate a title is not evidence, full stop.
+#
+# 🟢 SECOND CONTROL FOR THE RUSSIAN GAP. Albanian, like Bulgarian, HAS a dedicated
+# atonement article (`/a/vdiq.html`, first line "Why did Jesus die?") and it
+# retrieves at rank 2, coverage 2/2. The Russian `esru-newcomer-krest` miss is
+# corpus composition — now confirmed by two independent sibling sources.
+#
+# 🔴 THE BOILERPLATE TAIL IS EVERYWHERE HERE, in both directions:
+#   • Rank-1 hits REJECTED on the text, in FIVE of ten cases — /a/mendjes.html
+#     (know-god, purpose), /a/koronavirus.html (suffering), /a/ateiste.html
+#     (prayer), /a/vertetash.html (religions), /a/lutjeve.html (trinity),
+#     /a/islamizmi.html (jesus-death). Judging by top-1 would have been wrong
+#     six times in ten.
+#   • Dating and marriage articles surfacing at rank 3 and rank 7 for
+#     meaning-of-life and atonement questions (/a/ujqerit.html, /a/qendrueshme.html).
+#
+# ⏭️ OPERATOR DECISIONS REQUIRED — three
+#   1. 🔴 `/a/ishte.html` (24,883 ch) is RAW GOSPEL-OF-JOHN TEXT, in the corpus,
+#      retrieving at rank 6 and rank 8. Its own intro says "no commentary added".
+#      Same §12 shape as the excluded `/a/gjoni.html` (98,887 ch, confirmed NOT
+#      ingested). Not credited here either way. Exclude, or leave and never credit?
+#   2. `evidence_tier: llm-translated` — confirm. It is a statement about the
+#      reviewer, not about Albanian.
+#   3. Two deliberate credits-that-miss (`/a/mire.html`, `/a/ndryshuar.html`).
+#      Both are consistent with how `ru` and `bg` treated their twins. Confirm
+#      they should be kept rather than dropped to make the suite score 100%.
+#
+# ⓘ NO CONTENT GAP. All ten §0.7 topics are genuinely answerable by this source.
+# The two THIN ones are worth naming: `prayer` has exactly one article in 77
+# documents, and `bible-trust` has two (one of which is the Islam article).
+# Everything else has three or more.
+
+evidence_tier: llm-translated
+# Proposed, not decided. Applies to all ten cases. Nobody available reads Albanian,
+# so the English glosses above are LLM translations of chunk text read from the
+# database — not human-verified. If a reader of Albanian sanity-checks them, this
+# becomes `human-verified`.

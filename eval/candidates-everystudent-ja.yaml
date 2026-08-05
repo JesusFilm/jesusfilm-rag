@@ -1,0 +1,432 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ja` (79 documents).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 79 ÷ 8 = 9.875 → 10 cases. §0.7's rule floors at 4 and caps at 10; 9.875
+#   rounds to 10, and all ten §0.7 topics are genuinely answerable by this source, so
+#   no topic is dropped. ⚠️ IF THE OPERATOR PREFERS A STRICT FLOOR OF 9, drop
+#   `esja-skeptic-kakikae` (bible-trust) — it is the weakest topic here and the reason
+#   is a real content gap, documented under GAP below.
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Questions authored IN JAPANESE, not translated from the English menu.
+# Null-language documents: 0 of 79 (guardrail #3a — nothing excluded).
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-ja ja
+#   → 51 distinct candidate documents of 79, all ten topics covered.
+# Every credited document was read from the database (title + opening 500–700 chars)
+# before being credited — guardrail #5, and specifically because of the boilerplate-tail
+# trap recorded in §0.9. Several rank-1 and rank-2 hits were rejected on that reading.
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-ja-check.ts
+#   Round 1: 28 credits · 0 paraphrase smells · 4 credits not returned in top 10.
+#   Round 2: 27 credits · 0 paraphrase smells · 3 credits not returned.
+#   Round 3: 25 credits · 0 paraphrase smells (max top score 0.741) · 1 credit not
+#            returned — and that one is a DELIBERATE keep, see `esja-skeptic-jiko`.
+#   No question ever smelled. All three fixes were credit DROPS plus one reword whose
+#   purpose was a lexical artifact, not a smell (see `esja-skeptic-negaibou`).
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 25 credited paths resolve to EXACTLY ONE document — 25/25,
+#                    25 distinct documents, no document credited twice.
+#   Guardrail #3a:   no credited document has a null language — 25/25, all `ja`.
+#
+# evidence_tier: llm-translated (nobody available reads Japanese). This is a fact about
+#   the REVIEWER, not the language — if anyone on the team reads Japanese and can
+#   sanity-check the questions, it should be `human-verified`. OPERATOR TO CONFIRM.
+#
+# ⓘ `ja` shares no language bucket with any other source, so the §0.8 competition
+#   effect does not apply here. Every hit in every top-10 above came from
+#   `everystudent-ja` itself.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 ONE HAZARD SPECIFIC TO THIS SOURCE — READ BEFORE EDITING THE KEYS
+# ─────────────────────────────────────────────────────────────────────────────
+# A TITLE IS DUPLICATED, AND THE DUPLICATE IS ALSO A TITLE TRAP. Both facts land on
+# the same pair of documents, which is why this is worse than the `bg` instance:
+#
+#   `死の恐れに打ち勝つ方法` ("How to overcome the fear of death") exists at TWO paths:
+#     /a/eni5.html  1,788 ch — opening: 死の現実に挑む / "how do we face death? how can we
+#                   overcome the fear of it?" A friend diagnosed with colon cancer at 16.
+#                   ✅ The title is accurate for this one.
+#     /a/why.html   5,052 ch — opening: 何で人生 大変なのか？ / "Why is life so hard?"
+#                   Repeated natural disasters, epidemics, terror, child abuse, workplace
+#                   harassment, school bullying. 🔴 THIS IS THE SUFFERING ARTICLE. Its
+#                   title describes a completely different topic than its body.
+#
+# CONSEQUENCE FOR TOOLING: the `bg` check script keyed credits by TITLE and resolved
+# them to paths. That pattern is BROKEN on this source — a title→path map for
+# `死の恐れに打ち勝つ方法` silently keeps one document and drops the other, and there is
+# a 50% chance it keeps the WRONG one. `.tmp-diag/phase5-ja-check.ts` therefore declares
+# credits by PATH and uses the database to VALIDATE (path exists · resolves to exactly
+# one document · language not null) rather than to resolve. Japanese paths are plain
+# ASCII (`/a/foo.html`), so unlike `bg` there is no percent-encoding hazard in typing
+# them. The script prints the duplicate-title warning on every run.
+#
+# /a/why.html IS CREDITED — to suffering, on its body. Fourth campaign source, fourth
+# title trap. Titles remain unusable as evidence on this estate.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esja-skeptic-negaibou"               # topic: god-exists
+    persona: skeptic
+    q: "友人に「神を信じるなんて現実逃避でしょ」と笑われました。うまく言い返せなかったのですが、信じることに理屈はあるんでしょうか。"
+    en: "A friend laughed at me — 'believing in God is just escapism.' I couldn't answer back. Is there any actual reasoning behind believing?"
+    top_score: 0.661                          # clear of 0.75
+    credits:
+      - {path: "/a/atheist.html", rank: 1, score: 0.661, en: "Why I, an atheist, came to believe in God — Marilyn Adamson. She opens by admitting she used the question 'how do you KNOW God exists?' to embarrass Christian friends, got no objective evidence for months, and concluded God does not exist. Answers the escapism charge from inside it."}
+      - {path: "/a/exi3.html",    rank: 3, score: 0.593, en: "Six clear proofs that God exists — Marilyn Adamson, 11.2k chars. The source's flagship apologetics article: earth's fine-tuning, DNA, the moral sense."}
+    reworded: |
+      ⚠️ REWORDED AFTER ROUND 2 — and NOT for a paraphrase smell (it never smelled).
+      v1: "友人と飲んでいて「神を信じるなんて…」" ("over drinks, a friend laughed at me…")
+      That incidental scene-setting pulled `/a/quench507.html` — 飲酒 心の渇きを潤すには？,
+      an article about ALCOHOL — to rank 3 at 0.581, on pure surface-word overlap with
+      「飲んで」. Not a boilerplate tail and not a title trap: a third failure mode, a
+      LEXICAL ARTIFACT from colour in the question that carries no part of the ask.
+      v2 deletes two characters. Result: 0.646 → 0.661, `/a/quench507.html` gone from the
+      top 10 entirely, `/a/exi3.html` improved rank 4 → 3. Free fix.
+      ⓘ Worth carrying to the remaining 42 suites: keep incidental nouns out of the
+      question unless they are part of what is being asked.
+    dropped_after_engine_check:
+      - {path: "/a/dna.html", why: "DNA as evidence for God (Antony Flew's reversal), 3.2k chars. Missed the top 10. On re-reading, correctly: its subject is WHAT SPECIFIC EVIDENCE EXISTS, whereas this question is whether belief is escapism. Same call `bg` made when it dropped its own flagship 'Is there a God? Six candid reasons' from the crutch question. The evidence line is still represented by /a/exi3.html at rank 3."}
+      - {path: "/a/collins.html", why: "Francis Collins on the gravitational constant and fine-tuning, 1.2k chars — a video transcript. Missed the top 10, and the same reasoning applies: a single-argument science piece, not an answer to the escapism charge."}
+    rejected:
+      - {path: "/a/eni6.html", rank: 2, why: "RANK 2 AND REJECTED — it is the tragedy/'where is God when disaster strikes' article, credited to case 3. Its relevance here is the shared closing move, not its subject."}
+      - {path: "/a/easter.html",    rank: 7, why: "what it means to believe the resurrection — a different claim"}
+      - {path: "/a/sawyer607.html", rank: 8, why: "HIV testimony. Boilerplate tail — see the SUMMARY note; this document surfaces in FOUR unrelated cases."}
+      - {path: "/a/devil.html",     rank: 9, why: "does the devil exist? — a different existence question"}
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "esja-newcomer-jinkaku"               # topic: know-god
+    persona: newcomer
+    q: "「神様」と聞いても、ぼんやりした大きな力みたいなものしか思い浮かびません。聖書の神には、性格とか人格みたいなものがあるんでしょうか。"
+    en: "When I hear 'God' all I can picture is some vague big force. Does the God of the Bible have anything like a character or a personality?"
+    top_score: 0.741                          # ⚠ the suite's closest call — see note
+    credits:
+      - {path: "/a/ideal.html", rank: 1, score: 0.741, en: "What kind of God does the Bible describe? — 12.9k chars, the longest article in the source. Opens 'what is your IDEAL God?' then works through the Bible's attributes, stating that this God 人格があり (has personhood) and seeks to communicate with people. Japanese twin of the Spanish /articulos/escoger.html and Russian /a/vibirat.html."}
+      - {path: "/a/exi2.html",  rank: 2, score: 0.646, en: "The six characteristic traits of God the Bible describes — 'God is not hidden, not distant, not unapproachable; he wants a relationship and to be known personally.' Japanese twin of the Russian /a/ktoeto.html and the Bulgarian six-personal-traits article."}
+      - {path: "/a/where.html", rank: 5, score: 0.581, en: "Where can God be found? — the flatland analogy: two people drawn on a sheet of paper cannot see you, only your fingertip when it enters their plane. God exists outside our dimensions, which is why he cannot be 'seen'. Answers the 'vague big force' framing directly. Twin of the Russian /a/gdyebog.html and Bulgarian 'Is God invisible?'."}
+    note: |
+      ⚠️ 0.741 IS THE HIGHEST TOP SCORE IN THIS SUITE and the one an operator should look
+      at. It is clear of the 0.75 line, but only by 0.009, and the reason is real:
+      /a/ideal.html's own text uses 人格 ("personhood"), the same word the question uses.
+      I left it because (a) it is under the line, (b) `bg` kept 0.746 and 0.750 on the same
+      reasoning, and (c) the question is a newcomer's framing of a vague force, not a
+      restatement of the article's title (「聖書が語る神とは？」). If the operator wants
+      margin, replacing 性格とか人格 with a plainer word would cost the /a/where.html credit,
+      which sits at 0.581 and has the least headroom.
+    rejected:
+      - {path: "/a/jesus-in-islam.html", rank: 3, why: "credited to case 7 — the section that matches here is about Jesus' eternality, one attribute inside a Muslim-facing Q&A"}
+      - {path: "/a/atheist.html",        rank: 4, why: "credited to case 1"}
+      - {path: "/a/growing-up-mormon.html", rank: 6, why: "growing up Mormon — a testimony about leaving Mormonism"}
+      - {path: "/a/holy-spirit.html",    rank: 7, why: "credited to case 10 — its subject is the Spirit's personhood specifically, which belongs to the Trinity question"}
+      - {path: "/a/nick-vujicic.html",   rank: 9, why: "⚠️ THE HARDEST REJECT IN THE SUITE. A 1.7k-char video testimony from Nick Vujicic (born without arms or legs) whose opening is literally 'Do you know God? What do you think God is like? Why is God interested in us?' — this question's exact framing. Rejected because it never ANSWERS it: the body is Nick's relationship with God, not a description of God's character. Same call `ru` made when it dropped /a/znat.html — the relationship is not the same subject as what God is like."}
+
+  # ── 3 ─────────────────────────────────────────── skeptic ⚠ SEE THE KEEP
+  - id: "esja-skeptic-jiko"                   # topic: suffering
+    persona: skeptic
+    q: "去年、友人を事故で亡くしました。周りは「仕方ない」と言いますが、愛のある神がいるならなぜ止めてくれなかったのか、ずっと引っかかっています。"
+    en: "Last year I lost a friend in an accident. People say 'it couldn't be helped', but if there is a loving God, why didn't he stop it? It has stuck with me ever since."
+    top_score: 0.689
+    credits:
+      - {path: "/a/eni3.html",  rank: 1, score: 0.689, en: "Why is there suffering? — Stacy James, paralysed from the neck down in a university diving accident. 'Why did God allow such a tragedy to happen?' The closest possible match to the asker's situation. Japanese twin of the Russian /a/steysi2.html, credited for the same question shape."}
+      - {path: "/a/eni6.html",  rank: 2, score: 0.676, en: "Is God there in the middle of tragedy? — Marilyn Adamson, 8.6k chars. Natural disasters, epidemics, famine, terror, unemployment, child abuse, violent crime."}
+      - {path: "/a/gods-help.html", rank: 3, score: 0.644, en: "God's guidance in hard times — a 7:41 video narration. 'When tragedy strikes we ask, where is God?' Answers: knowing God does not remove suffering — wars still happen, epidemics still kill — but you do not walk it alone."}
+      - {path: "/a/why.html",   rank: 4, score: 0.640, en: "🔴 TITLE TRAP — titled 死の恐れに打ち勝つ方法 ('How to overcome the fear of death'), and it is NOT that article. Body opens 何で人生 大変なのか？ ('Why is life so hard?') and works through disasters, epidemics, terror, child abuse, harassment and bullying. It is a suffering article. See the hazard block at the top: this same title is ALSO carried by /a/eni5.html, which genuinely IS the fear-of-death article."}
+      - {path: "/a/is-god-good.html", rank: "NOT IN TOP 10", en: "Is God really good? — a 926-char transcript of a 1:45 video. Opens 神が良い方なら、なぜ苦しみがあるのでしょうか ('If God is good, why is there suffering? Why didn't God make people incapable of sin?') and answers with the free-will argument: God cannot make a square circle, and freedom without alternatives is a contradiction. KEPT DELIBERATELY — see below."}
+    the_deliberate_keep: |
+      🔴 /a/is-god-good.html DOES NOT RETRIEVE, AND I KEPT IT. This case scores 4/5 by design.
+
+      It is not a bad credit and not a phrasing problem — it is the estate's known defect,
+      measured. The document is 926 characters: a short video transcript with no room for
+      the topical repetition longer articles get, so it loses on score to four longer
+      articles about the same subject plus a queue of boilerplate tails. Its opening line
+      is a more direct answer to this question than any of the four that DO retrieve.
+
+      🟢 THE CROSS-LANGUAGE CASE FOR KEEPING IT IS NOW THREE SOURCES DEEP:
+        · `zh-cn` /a/isgodgood.html   — rank 1 at 0.741 for the Chinese version (Part A, §0.9)
+        · `bg`    Добър ли е Бог?      — outside the top 10, KEPT, case scores 3/4 (§0.11)
+        · `ja`    /a/is-god-good.html — outside the top 10, KEPT, case scores 4/5 (here)
+      Same article, same estate, same embedder, three different outcomes. Crediting it
+      consistently is what makes that comparison readable at all. Guardrail #8 §2: "keep
+      the honest phrasing and let the eval record the gap — a case that always passes
+      measures nothing."
+    rejected:
+      - {path: "/a/ideal.html",    rank: 5, why: "credited to case 2 — the chunk that matched here is its atonement passage, mid-article"}
+      - {path: "/a/exp6.html",     rank: 6, why: "credited to case 8 (prayer)"}
+      - {path: "/a/exp301.html",   rank: 7, why: "credited to case 5 (anxiety)"}
+      - {path: "/a/sawyer607.html", rank: 8, why: "HIV testimony — boilerplate tail"}
+      - {path: "/a/nick-vujicic.html", rank: 9, why: "video testimony; its subject is knowing God, not why suffering is permitted"}
+      - {path: "/a/atheist.html",  rank: 10, why: "credited to case 1"}
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "esja-seeker-karappo"                 # topic: purpose
+    persona: seeker
+    q: "毎日ちゃんと働いて家に帰るのに、寝る前になると今日は何だったんだろうと空っぽになります。何のために生きているんでしょうか。"
+    en: "I work properly every day and come home, but before bed I feel empty, wondering what today even was. What am I living for?"
+    top_score: 0.553                          # the suite's lowest top score — see note
+    credits:
+      - {path: "/a/purpose.html", rank: 1, score: 0.553, en: "Do you want to know your life's purpose? — the hammer parable: a new hammer sits in the toolbox, gets used to split firewood, fix a hubcap, fit a table leg, and is still unsatisfied. The estate's standard purpose article; twin of the Russian /a/smisl.html and Bulgarian hammer article."}
+      - {path: "/a/value-of-philosophy.html", rank: 2, score: 0.483, en: "The value of philosophy — 'Why do we exist? What is life's purpose? What gives life fulfilment and meaning?' Socrates, Plato, Aristotle, Peter Kreeft. Twin of the Russian /a/filosofii.html and the Bulgarian 'fundamental questions of life'."}
+      - {path: "/a/exp1.html", rank: 3, score: 0.463, en: "Becoming the person you want to be — Josh McDowell. Names his three lifelong questions: 私とは何者なのか / なぜこの世界に存在しているのか / どこに向かっているのか ('Who am I? Why do I exist? Where am I going?'). Japanese twin of the Spanish /articulos/lafuente.html and Russian /a/istochnik.html, both credited for this exact question shape."}
+      - {path: "/a/exp2.html", rank: 4, score: 0.459, en: "The meaning of life, life's mission — three recent graduates on finding what they were for. Testimony-shaped, but its declared subject is 生きる意味、人生の使命 and it is written at students feeling exactly this."}
+    note: |
+      ⓘ 0.553 is the lowest top score in the suite, and it is not a defect. §0.7 measured
+      the retrieval cutoff at 0.37 and this clears it comfortably; all four credits land
+      at ranks 1–4 with no boilerplate tail between them, which is the cleanest result of
+      any case here. Scores are not comparable across questions — landing on the right
+      documents is the objective (§0.7's `know-god` reword makes the same point).
+    rejected:
+      - {path: "/a/why.html", rank: 5, why: "credited to case 3"}
+      - {path: "/a/striving-for-success.html", rank: 6, why: "a student's testimony about over-striving for success and the stress she put on herself and her teammates. Adjacent, but its subject is over-effort, not emptiness."}
+      - {path: "/a/a-purposeful-life.html", rank: "not returned", why: "NOT RETURNED AND NOT CREDITED, recorded so the next reviewer does not re-litigate it: a 1.9k-char video testimony (a baseball player, drugs, group fraud, then a pocket Bible outside the university canteen). Its subject IS finding purpose, but it is a story rather than an answer — the same distinction `ru` used to credit /a/steysi2.html and reject /a/steysi1.html."}
+      - {path: "/a/kept-me-alive.html", rank: 8, why: "testimony about good-university/good-company success and core values"}
+      - {path: "/a/loneliness.html",  rank: 9, why: "loneliness"}
+      - {path: "/a/beauty509.html",   rank: 10, why: "a top model on real beauty — self-image"}
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "esja-seeker-fuan"                    # topic: anxiety
+    persona: seeker
+    q: "特に何かあったわけでもないのに、いつも胸のあたりがざわざわして落ち着きません。信仰みたいなもので、こういうのは楽になりますか。"
+    en: "Nothing in particular has happened, yet my chest is always unsettled and I can't calm down. Can something like faith make this easier?"
+    top_score: 0.560
+    credits:
+      - {path: "/a/coronavirus.html", rank: 1, score: 0.560, en: "⚠️ A TITLE-ONLY REVIEWER WOULD REJECT THIS AS A DATED PANDEMIC PAGE. Marilyn Adamson, 5.2k chars. Its declared subject is 心に平安を保つ秘訣 ('the secret of keeping peace of heart') when 心配は絶えません ('the worry never stops'), and the body is a first-person account of the anxiety spiral: 一度不安になると、底知れぬ恐怖の深みへと落ち込む ('once you become anxious you fall into a bottomless depth of fear'), and what she did with it. This is the Japanese analogue of the Russian /a/chakr.html finding — the best anxiety document in the source is the one the title disqualifies."}
+      - {path: "/a/exp301.html", rank: 2, score: 0.523, en: "The secret of inner peace in an unstable world — 7.7k chars. 'Whatever happens in the world or in your private life, do you have something to return to?' Twin of the Russian /a/pokoy.html and the Bulgarian 'How can we have peace in this restless world?'."}
+    the_gap_note: |
+      ⓘ TWO CREDITS IS ALL THIS TOPIC HONESTLY HAS. `everystudent-ja` has NO dedicated
+      anxiety article — no equivalent of the Bulgarian Как да се справим с безпокойството?
+      ('How do we deal with anxiety?', 11.6k chars, rank 1 at 0.671). The two credited here
+      are a peace article and a pandemic article that happens to be about anxiety. This is
+      a thin-but-real answer, not a miss: both retrieve at ranks 1–2. Recorded because it
+      is the second-weakest topic in the source after bible-trust.
+    rejected:
+      - {path: "/a/kept-me-alive.html", rank: 3, why: "RANK 3 AND REJECTED — a career/self-worth testimony that uses the word 不安 while describing doubts about converting. The anxiety vocabulary is incidental to its subject."}
+      - {path: "/a/relationship-with-god.html", rank: 4, why: "what a relationship with God is — the matched chunk is its 'Jesus gives rest to the weary' passage, mid-article"}
+      - {path: "/a/exp1.html", rank: 5, why: "credited to case 4"}
+      - {path: "/a/why.html",  rank: 8, why: "credited to case 3"}
+      - {path: "/a/devil.html", rank: 10, why: "does the devil exist?"}
+
+  # ── 6 ────────────────────────────────────────────────────────── newcomer
+  - id: "esja-newcomer-juujika"               # topic: jesus-death
+    persona: newcomer
+    q: "キリスト教では十字架が大事だと聞きますが、二千年前に処刑された人の死が、今の自分と何の関係があるのか分かりません。"
+    en: "I hear the cross is central to Christianity, but I don't understand what the execution of a man two thousand years ago has to do with me now."
+    top_score: 0.691
+    credits:
+      - {path: "/a/whydid.html", rank: 3, score: 0.676, en: "The cross of Jesus — why did Jesus die? 8.7k chars. Opens 'what meaning do Jesus Christ's death on the cross and his resurrection actually have?' A DEDICATED atonement article."}
+    the_finding: |
+      🟢 SECOND CONTROL FOR THE RUSSIAN GAP, AND IT AGREES WITH BULGARIAN.
+
+      `esru-newcomer-krest` credits two documents and neither reliably retrieves, because
+      `everystudent-ru` has NO article whose subject is the atonement — it is taught inside
+      the two "begin a relationship with God" pages, exactly the pages the shared closing
+      invitation-prayer chunk buries (§0.10). §0.11 established Bulgarian as the control:
+      it HAS a dedicated article and returns it at rank 3.
+
+      Japanese has one too — /a/whydid.html — and it also returns at rank 3, at 0.676.
+      Two independent sources now come out the other way from Russian. The Russian result
+      is corpus composition. State it that way whenever the expected Russian miss comes up.
+    dropped_after_engine_check:
+      - {path: "/a/four-laws-video.html", why: "The Four Spiritual Laws, 2.1k chars — law 2 is sin separating us from God, law 3 is Jesus as the only provision. Missed the top 10 in round 1. On re-reading, DROPPED rather than credited-and-missed: its subject is how to BEGIN with God, not what the cross accomplished. That is the /a/uznat.html shape `ru` credited and missed, and the /a/znat.html shape `ru` chose to drop. With /a/whydid.html retrieving cleanly there is no gap here worth manufacturing a miss to measure — the gap is already measured, in Russian."}
+    rejected:
+      - {path: "/a/jesus-in-islam.html", rank: 1, why: "🔴 RANK 1 AND REJECTED. It does contain a genuine atonement exposition (Abraham and Isaac, the substitute lamb, 'why did Jesus have to die on the cross — let us look at its meaning from the Old Testament'), but the DOCUMENT is a six-question Q&A written to Muslim readers, and it is credited to case 7 where its first question is the whole subject. Top-1 is not evidence."}
+      - {path: "/a/jes7.html", rank: 2, why: "RANK 2 AND REJECTED. Paul E. Little, 15.6k chars — the source's longest article. The chunk that matched IS about Jesus bearing our sins, but the document's subject is 'Is Jesus God, or a fraud?', i.e. his identity. Judged on the opening, per guardrail #5."}
+      - {path: "/a/catholic.html",    rank: 4, why: "Catholic vs Protestant — boilerplate tail"}
+      - {path: "/a/jes205.html",      rank: 5, why: "credited to case 9"}
+      - {path: "/a/sawyer607.html",   rank: 6, why: "HIV testimony — boilerplate tail"}
+      - {path: "/a/righteousness.html", rank: 7, why: "'Is Christ a foreign God?' — a former right-wing karate practitioner's testimony. See the OPERATOR DECISION at the foot of this file."}
+      - {path: "/a/chosen-witness.html", rank: 8, why: "an animated life of Jesus (9:25) narrated by Mary Magdalene — a retelling, not an explanation"}
+      - {path: "/a/loneliness.html",  rank: 9, why: "loneliness — boilerplate tail"}
+      - {path: "/a/resurrection.html", rank: 10, why: "did Jesus really rise? — the resurrection's historicity is a different question from the cross's purpose"}
+
+  # ── 7 ──────────────────────────────────────────── skeptic ⚠ THE GAP CASE
+  - id: "esja-skeptic-kakikae"                # topic: bible-trust
+    persona: skeptic
+    q: "聖書は何千年も手書きで写されてきたんですよね。途中で都合よく書き換えられていない保証って、どこにあるんですか。"
+    en: "The Bible was copied by hand for thousands of years, right? Where is the guarantee it wasn't rewritten to suit someone along the way?"
+    top_score: 0.615
+    credits:
+      - {path: "/a/jesus-in-islam.html", rank: 1, score: 0.615, en: "Islam — what is the difference? 14.5k chars, six questions Muslim readers ask about Jesus. QUESTION 1 IS VERBATIM THIS CASE'S SUBJECT: 聖書は、著者のオリジナルから変更されたことはなかったのか？ ('Has the Bible never been altered from the author's original?'). Its answer argues that four independent Gospels are themselves evidence against 改竄 (falsification), like four eyewitnesses in court."}
+      - {path: "/a/contradictions.html", rank: 3, score: 0.486, en: "Aren't there contradictions in the Bible? — 2.3k chars, works the actual textual example: the wording of the inscription on the cross across Matthew, Mark and John, and why three different renderings are not a contradiction. Twin of the Bulgarian 'Are there many contradictions in the Bible?'."}
+    the_gap: |
+      🔴 CONTENT GAP — THE ONE §0.7 TOPIC THIS SOURCE CANNOT PROPERLY ANSWER.
+
+      `everystudent-ja` HAS NO "why the Bible can be trusted" ARTICLE. There is no
+      equivalent of the Russian /a/bibliya.html ('the history of the Bible's writing, and
+      why we can trust the Bible that reached our time') or the Bulgarian
+      Защо да вярвам на Библията? - История на Библията (1,500 years, 40 authors,
+      archaeology, historians). Discovery over the whole 79-document corpus surfaced only
+      TWO documents for this topic at any score — the two credited above — versus 5–7 for
+      every other topic.
+
+      What exists is a partial answer reached sideways: the transmission question is
+      answered inside a Muslim-facing Q&A, and internal consistency is answered by a short
+      Q&A on apparent contradictions. Neither is a Bible-reliability article.
+
+      ⓘ This is the §0.7 tahrif pattern, now confirmed on a NON-Muslim-majority source.
+      §0.7 recorded that `kk`, `th` and `zh` answer bible-trust with their Islam articles
+      and called it correct rather than an error. Japan is not a Muslim-majority country,
+      and this source still routes the scripture-corruption question through its Islam
+      article — because that is the only place the estate ever writes about it. The
+      existing `esar-skeptic-tahrif` case is the same shape.
+
+      OPERATOR OPTIONS:
+        (a) KEEP — recommended. Both credits retrieve (ranks 1 and 3), the question is a
+            fair thing to ask this corpus, and the case records what the source actually
+            has. Coverage 2/2.
+        (b) DROP — the suite becomes 9 cases, which is also what a strict floor of
+            79 ÷ 8 = 9 would give. The persona balance then goes skeptic 3 · newcomer 3 ·
+            seeker 2 · believer 1, which no longer matches §0.7.
+        I recommend (a): the case passes, and the gap is documented here rather than
+        hidden by not asking.
+    rejected:
+      - {path: "/a/cults-heresy.html", rank: 2, why: "RANK 2 AND REJECTED — what is a destructive cult? Matches on 'scripture being altered' vocabulary applied to cult teaching, not to the Bible's transmission."}
+      - {path: "/a/growing-up-mormon.html", rank: 4, why: "growing up Mormon — a testimony"}
+      - {path: "/a/onlyway.html",   rank: 5, why: "credited to case 9"}
+      - {path: "/a/con1.html",      rank: 7, why: "knowing God personally — the four-points gospel summary. Boilerplate tail."}
+      - {path: "/a/miracles-of-jesus.html", rank: 9, why: "did the miracles really happen? — historicity of events, not integrity of the text"}
+      - {path: "/a/jes7.html",      rank: 10, why: "who is Jesus Christ? — boilerplate tail"}
+
+  # ── 8 ──────────────────────────────────────────────────────────── believer
+  - id: "esja-believer-henji"                 # topic: prayer
+    persona: believer
+    q: "同じことをもう何ヶ月も祈っているのに、何の返事もありません。祈り方が間違っているんでしょうか。"
+    en: "I've been praying about the same thing for months and there is no reply at all. Am I praying the wrong way?"
+    top_score: 0.686
+    credits:
+      - {path: "/a/exp6.html", rank: 1, score: 0.686, en: "How should I pray? Suggestions for prayer God answers — Marilyn Adamson, 8.3k chars. Opens with her watching an atheist-era friend get answers week after week, then asks WHY that friend's prayers were answered and works the conditions. Japanese twin of the Spanish /articulos/oraciones.html, Russian /a/molitvi.html and Bulgarian 'Does God answer our prayers?', all credited for this same shape."}
+    note: |
+      ⓘ ONE CREDIT, matching `bg` (also one) and `ru` (also one). The estate publishes a
+      single prayer article per language. §0.7 already records that believer-persona
+      thinness is HONEST for this estate — it publishes seeker apologetics, not
+      discipleship. This is that fact showing up as a denominator of 1.
+    rejected:
+      - {path: "/a/atheist.html",   rank: 2, why: "credited to case 1"}
+      - {path: "/a/exp301.html",    rank: 3, why: "credited to case 5"}
+      - {path: "/a/gods-help.html", rank: 4, why: "credited to case 3"}
+      - {path: "/a/christmas2.html", rank: 5, why: "🔴 'The best Christmas' AT RANK 5 for an unanswered-prayer question. A clean boilerplate-tail specimen: nothing in this article is about prayer."}
+      - {path: "/a/kept-me-alive.html", rank: 7, why: "career/values testimony"}
+      - {path: "/a/sawyer607.html", rank: 8, why: "HIV testimony — boilerplate tail"}
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esja-skeptic-onaji"                  # topic: religions
+    persona: skeptic
+    q: "うちは祖父母が仏教で、正月は神社にも行きます。宗教なんて結局どれも同じだと思うのですが、キリスト教だけ違うと言えるんですか。"
+    en: "My grandparents are Buddhist and we also go to a shrine at New Year. I think all religions are basically the same in the end — can Christianity really claim to be different?"
+    top_score: 0.653
+    credits:
+      - {path: "/a/jes205.html", rank: 1, score: 0.653, en: "The world religions — aren't they all the same in the end? 10.5k chars. Covers Hinduism, spirituality/New Age, Buddhism, SHINTO, Islam and Christianity, then contrasts Jesus' teaching. This is the estate's /a/205 world-religions article — same piece as the German /artikel/hochsten.html, Swahili /a/kuunganishwa.html, Russian /a/soyed.html and French /a/205divin.html. The Japanese edition adds Shinto to the list, which no other sibling does."}
+      - {path: "/a/jes3.html", rank: 2, score: 0.644, en: "Christianity and other religions — where is the difference? 4.1k chars, six points. Opens by quoting the Muromachi-era Zen monk Ikkyū: 'many are the paths up the foothills, but all see the same moon on the peak' — and names it as the Japanese view of religion before answering it. The most culturally specific article in the source."}
+      - {path: "/a/onlyway.html", rank: 8, score: 0.575, en: "Is salvation only in Christianity? — 'isn't 'you are not saved unless you believe in Jesus' self-righteous and narrow-minded?' Twin of the Russian /a/put.html."}
+    note: |
+      ⓘ I DELIBERATELY AVOIDED THE MOUNTAIN METAPHOR in the question. /a/jes3.html opens
+      with the Ikkyū poem about many paths up one mountain, so phrasing the question that
+      way — the obvious Japanese idiom for 'all religions are the same' — would have
+      restated the article's own opening and produced a paraphrase smell. The question
+      uses a household detail (Buddhist grandparents, New Year shrine visit) instead. This
+      is the §0.11 lesson applied BEFORE the first run rather than after it.
+    rejected:
+      - {path: "/a/cults-heresy.html", rank: 3, why: "destructive cults — about coercive groups, not comparative religion"}
+      - {path: "/a/jes6.html",  rank: 4, why: "Mormonism vs Christianity — an intra-Christian boundary question, the shape `ru` rejected as /a/katolikom.html"}
+      - {path: "/a/righteousness.html", rank: 5, why: "'Is Christ a foreign God?' — see the OPERATOR DECISION below"}
+      - {path: "/a/catholic.html", rank: 6, why: "Catholic vs Protestant — intra-Christian"}
+      - {path: "/a/exp1.html",   rank: 7, why: "credited to case 4"}
+      - {path: "/a/always.html", rank: 9, why: "'Is myself all I can rely on?' — a testimony that mentions a Shinto father and Buddhist mother in passing"}
+      - {path: "/a/judaism.html", rank: 10, why: "Judaism vs Christianity Q&A — a genuine comparison, but of the one pairing the asker did not raise; both share the Old Testament, so it answers a different question"}
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "esja-newcomer-sannin"                # topic: trinity
+    persona: newcomer
+    q: "教会で父と子と聖霊という言い方を聞きました。神様は一人だと教わったのに、これだと三人いることになりませんか。"
+    en: "At church I heard the phrase 'Father, Son and Holy Spirit'. I was taught there is one God — doesn't that make it three?"
+    top_score: 0.721
+    credits:
+      - {path: "/a/trinity.html", rank: 1, score: 0.721, en: "What is the Trinity? 3.9k chars. ⓘ Its opening is a long analogy about the third-person-singular '-s' in English grammar — you accept it and use it long before you understand its history — applied to the Trinity. A Japanese-specific pedagogical framing with no sibling equivalent."}
+      - {path: "/a/holy-spirit.html", rank: 5, score: 0.530, en: "What is the Holy Spirit? — 'the Spirit is not a vague thing, not a shadow, not a force; the Spirit is a person, the third person of the Trinity, equal with God the Father and God the Son.' Twin of the Russian /a/svyatoyduh.html and the Bulgarian 'Who is the Holy Spirit?', both credited for this same shape."}
+    note: |
+      ⓘ FRAMED AS WHAT A NEWCOMER NOTICES IN A SERVICE, not as the doctrinal formula.
+      This is the §0.10 fix applied up front: the Russian trinity question scored 0.807
+      (a clear paraphrase smell) because it restated /a/troitsu.html's own opening, and
+      the Bulgarian one scored 0.756 for the same reason. Both were reworded to the
+      service framing. Starting there gave 0.721 on the first run, rank 1, no reword needed.
+    rejected:
+      - {path: "/a/jesus-in-islam.html", rank: 2, why: "RANK 2 AND REJECTED — credited to case 7. The section that matches is about Jesus' eternality and pre-existence, which touches the Trinity but sits inside a Muslim-facing Q&A."}
+      - {path: "/a/growing-up-mormon.html", rank: 3, why: "growing up Mormon — a testimony"}
+      - {path: "/a/jes1.html", rank: 4, why: "'Did Jesus really claim to be God?' — the deity of Christ is ONE LEG of the Trinity question, not the question. `ru` and `bg` both declined to credit their equivalents here for the same reason."}
+      - {path: "/a/where.html", rank: 6, why: "credited to case 2"}
+      - {path: "/a/cults-heresy.html", rank: 7, why: "destructive cults"}
+      - {path: "/a/christmas2.html", rank: 9, why: "boilerplate tail"}
+      - {path: "/a/sawyer607.html", rank: 10, why: "HIV testimony — boilerplate tail"}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 25 credits · 25 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly
+# Topics: all ten of the §0.7 approved menu, one case each
+#
+# ENGINE CHECK (.tmp-diag/phase5-ja-check.ts)
+#   | Round | Credits | Paraphrase smells | Credits not in top 10 |
+#   |-------|--------:|------------------:|----------------------:|
+#   | 1     |      28 |    0 (max 0.741)  |                     4 |
+#   | 2     |      27 |    0 (max 0.741)  |                     3 |
+#   | 3     |      25 |    0 (max 0.741)  |          1 (on purpose)|
+#   NO QUESTION EVER SMELLED — this is the first campaign source where round 1 came back
+#   clean on all ten. `bg` had four smells in round 1, `ru` had one. The three fixes were
+#   credit DROPS (/a/four-laws-video.html, /a/dna.html, /a/collins.html) plus one reword
+#   for a lexical artifact, not a smell.
+#
+# MECHANICAL CHECKS — both green
+#   Path uniqueness (#8 §3): 25 declared → 25 distinct → 25 documents matched. ✅
+#   Null language (#3a):     0 of 25 credited documents, and 0 of 79 in the whole source. ✅
+#
+# 🔴 FOURTH SOURCE, FOURTH TITLE TRAP — AND THIS ONE IS ALSO THE DUPLICATE TITLE.
+# `死の恐れに打ち勝つ方法` names TWO documents. /a/eni5.html genuinely is the fear-of-death
+# article; /a/why.html carries the identical title but is the SUFFERING article
+# ("why is life so hard?" — disasters, epidemics, terror, bullying). It is credited to
+# case 3 on its body. A title→path map has a 50% chance of silently crediting the wrong
+# one, so this suite keys credits by PATH and uses the database only to validate. See
+# the hazard block at the top of this file.
+#
+# 🔴 THE BOILERPLATE-TAIL TRAP FIRED HERE TOO, exactly as §0.9 predicted. The cleanest
+# specimen is /a/sawyer607.html ("Living with HIV in hope", a 9.3k-char testimony), which
+# surfaced in the top 10 of FOUR unrelated cases — god-exists (r8), suffering (r8),
+# jesus-death (r6) and trinity (r10) — and was rejected in all four. /a/christmas2.html
+# ("The best Christmas") at rank 5 for an UNANSWERED-PRAYER question is the funniest one.
+# Two rank-1 hits and two rank-2 hits were rejected on their text.
+#
+# 🟢 AND IT FIRED IN REVERSE, as it did on Russian. /a/coronavirus.html is credited at
+# rank 1 for the anxiety case. A title-only reviewer would throw out a COVID page without
+# opening it; its body is a first-person account of the anxiety spiral and what she did
+# with it, and it is the best anxiety document this source has. Same lesson as the
+# Russian /a/chakr.html ("Anxiety and Chakra Healing"). Judging by title gets BOTH
+# directions wrong, on every source in this estate.
+#
+# 🟢 JAPANESE IS THE SECOND CONTROL FOR THE RUSSIAN ATONEMENT GAP. `everystudent-ja` has
+# a dedicated "why did Jesus die?" article and returns it at rank 3, just as Bulgarian
+# does. Two independent sources now come out the other way from Russian, so the Russian
+# miss is corpus composition, not a systemic defect.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THE OPERATOR MUST DECIDE — four things, in priority order
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 10 CASES OR 9? 79 ÷ 8 = 9.875. I wrote 10 because all ten §0.7 topics are
+#    answerable and 10 preserves the §0.7 persona balance exactly. A strict floor gives
+#    9; the topic to drop would be bible-trust (case 7), for the GAP reason in that case.
+#
+# 2. KEEP /a/is-god-good.html ON CASE 3? It does not retrieve, so the case scores 4/5 by
+#    design. Recommended KEEP — it is credited in Chinese and Bulgarian for the same
+#    question, and dropping it here would break a three-language comparison.
+#
+# 3. evidence_tier: llm-translated — confirm. It is a claim about the reviewer, not the
+#    language. If anyone on the team reads Japanese, this should be human-verified.
+#
+# 4. ⓘ A JAPAN-SPECIFIC TOPIC THE §0.7 MENU DOES NOT COVER, flagged not proposed:
+#    /a/righteousness.html — キリストは外国の神か？ ("Is Christ a foreign God?"), a former
+#    right-wing nationalist karate practitioner on whether Christianity is a foreign
+#    religion. It appeared in the top 10 of two cases and was rejected from both as a
+#    testimony. "Isn't Christianity a Western import?" is a first-rank objection in Japan
+#    and this source answers it directly, but it is not on the approved menu and adding
+#    it would break topic consistency across the 45 languages. Raising it only because
+#    it is the most Japan-specific apologetic in the corpus. No action proposed.

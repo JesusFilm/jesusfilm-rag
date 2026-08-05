@@ -1,0 +1,493 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-fa` (75 documents, Persian/Farsi).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 75 ÷ 8 = 9.4 → 9 or 10 cases. Drafted at 10 because all ten §0.7 topics are
+# genuinely answerable from this source; no topic had to be dropped or manufactured.
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Questions authored IN PERSIAN, not translated from the English menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   75 documents, ALL of them `/a/*.html` articles. Unlike `everystudent-hu` (24%
+#   `/story/` testimonies) this source has no separate testimony shelf — but it carries
+#   the same testimonies AS articles (`/a/sawyer.html` HIV, `/a/marcia.html` occult,
+#   `/a/rabi.html` Hindu guru, `/a/source.html` Josh McDowell, `/a/blues.html` depression),
+#   so the "testimony outranks argument" effect is present under article URLs.
+#   Null-language documents: 0 of 75.  Documents not labelled `fa`: 0 of 75.
+#   Duplicate titles: 0 (the hazard that bit `bg` does not exist here).
+#
+# 🔴 LANGUAGE LABELS — CLEAN NOW, BUT THE ROOT CAUSE IS STILL IN THE TEXT. See SUMMARY.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-fa fa
+#   → 45 distinct candidate documents of 75, all ten topics covered.
+# All 75 documents were then read from the database (title + opening 500–700 chars)
+# before anything was credited — guardrail #5, and specifically because of the
+# boilerplate-tail trap recorded in §0.9. Judging by title would have been wrong in BOTH
+# directions on this source; four title traps are listed in the SUMMARY.
+#
+# ENGINE-CHECKED FIVE TIMES (guardrail #8 §2) — .tmp-diag/phase5-fa-check.ts
+#   Round 1: 0 paraphrase smells (max 0.706) · 6 credits not returned · 27 credits
+#   Round 2: 0 paraphrase smells (max 0.710) · 2 credits not returned · 28 credits
+#   Round 3: 0 paraphrase smells (max 0.709) · 1 credit  not returned · 27 credits
+#   Round 4: 0 paraphrase smells (max 0.710) · 1 credit  not returned · 27 credits
+#   Round 5: 0 paraphrase smells (max 0.710) · 1 credit  not returned · 27 credits  ← THIS FILE
+#   Rounds 3 and 4 were spent entirely on case 9, which flip-flops between two credits
+#   it cannot hold at once. The working is in that case's `reworded` block.
+#   ⓘ This source never produced a paraphrase smell. Scores here run LOW compared with
+#   `ru`/`bg`/`hu` (top scores 0.587–0.710, mean 0.666), so the 0.75 line was never in
+#   reach. That is a property of the source, not evidence the questions are good — the
+#   REACH failures, not the smells, are what took five rounds.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 27 credited paths resolve to EXACTLY ONE document — 27/27.
+#   Guardrail #3a:   no credited document has a null language — 27/27, all `fa`.
+#   No document is credited by more than one case — 27 credits, 27 distinct documents.
+#
+# CREDITS ARE DECLARED BY PATH, titles resolved FROM the database (the `hu` pattern).
+#   everystudent-fa paths are short plain ASCII (`/a/isthere.html`); its TITLES are
+#   right-to-left Persian that mixes Arabic-form ي/ك with Persian ی/ک inside the same
+#   corpus. The title is the transcription risk here, so it is never typed by hand.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Persian). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Persian and can
+# sanity-check the translations, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────── skeptic ⚠ FRAGILE CREDIT
+  - id: "esfa-skeptic-khiyalbafi"             # topic: god-exists
+    persona: skeptic
+    q: "دوستانم همه میگویند ایمان به خدا فقط یک خیالبافی است. آیا در خود طبیعت و در یافتههای علمی چیزی هست که واقعاً به وجود یک خالق اشاره کند؟"
+    en: "All my friends say faith in God is just daydreaming. Is there anything in nature itself and in scientific findings that really points to the existence of a creator?"
+    top_score: 0.680                          # clear of 0.75
+    credits:
+      - {path: "/a/universe.html",  rank: 2, score: 0.644, en: "How did the universe take shape? — E.O. Wilson on evidence for a guiding supernatural force, then the Big Bang as a single unrepeatable beginning. 10.0k chars."}
+      - {path: "/a/organized.html", rank: 3, score: 0.638, en: "So organised it is remarkable — gravity, the 24-hour rotation, water freezing at zero, leap seconds. The fine-tuning / laws-of-nature argument. 9.4k chars."}
+      - {path: "/a/isthere.html",   rank: 5, score: 0.612, en: "Does God exist? Six reasons to believe he really is there (Marilyn Adamson) — the source's flagship apologetics article, 22.6k chars, the largest article in the corpus after /a/bible.html."}
+      - {path: "/a/Godreal.html",   rank: 7, score: 0.592, en: "Is God real? 🔴 TITLE TRAP — the title reads as generic apologetics; the body is specifically 'why the structure of DNA points to God': Antony Flew, a leading spokesman for atheism, concluding a superior intelligence is the only good explanation for the origin of life, then DNA as a written computer program. This is the Persian twin of the Hungarian /a/dns.html and it is the source's ONLY scientific-evidence document."}
+      - {path: "/a/chance.html",    rank: 9, score: 0.573, en: "Did we get here by chance? — Q&A: 'is it not possible we arrived by chance over time? Is a God necessary?' Answer: nothing can come from absolutely nothing, and time itself causes nothing. ⚠️ BOUNDARY CREDIT, see below."}
+    fragility: |
+      ⚠️ `/a/chance.html` sits at RANK 9 and its result will flap between 5/5 and 4/5
+      between runs. §0.10 recorded exactly this on `esru-newcomer-krest` (a 0.001 score
+      difference moved a credit across the k=10 line) and §0.11 measured an 11.9% swing
+      on a 3-case bucket from the same tie-reordering. Do not read a future 4/5 as a
+      regression. It is a genuine credit — it answers "is there anything in nature that
+      points to a creator" head-on — kept on the §0.11 principle.
+    reworded: |
+      ⚠️ REWORDED ONCE, and the failure it fixed is the SAME one Hungarian recorded.
+      v1: "…آیا واقعاً پشت آن چیز محکمی هست یا همهاش فقط یک احساس شخصی است؟"
+          ("…is there actually anything solid behind it, or is it all only a personal feeling?")
+          → top 0.632, no smell, but only 1 of 4 credits returned. Asking whether it is
+          "solid or just a feeling" pulled the top 10 into peace, testimony, free-will and
+          DEPRESSION documents: rank 5 /a/finding.html, rank 6 /a/reallife.html, rank 9
+          /a/blues.html. All three science articles missed. `eshu-skeptic-vagyalom` v1
+          failed the identical way on the identical topic — SECOND source, same defect.
+      v2 (kept): keeps the menu's "wishful thinking", and asks for evidence in NATURE and
+          in SCIENTIFIC FINDINGS instead of for "something solid".
+          → **0.680, 5 of 5 credits returned** (ranks 2, 3, 5, 7, 9).
+    rejected:
+      - {path: "/a/science.html",   rank: 1, score: 0.680, why: "'Does modern science invalidate the Bible?' — RANK 1 and rejected on the text. Its subject is science-versus-scripture harmony (fossils, kinds reproducing after their kind), which is a BIBLE question, not evidence for a creator. A title-only reviewer would credit this and be wrong."}
+      - {path: "/a/miracles2.html", rank: 4, why: "why God does not perform a spectacular miracle to prove himself — a different objection: it is about God's reticence, not about evidence. Same call as the Russian /a/chudo.html and the Hungarian /a/csodat.html."}
+      - {path: "/a/created.html",   rank: 6, why: "'Who created God?' — 🟡 REVIEWER DECISION. Its body IS the first-cause argument (a book has an author; the Big Bang gave the universe a distinct beginning), so it arguably answers. I rejected it because its stated subject is rebutting the 'who made God' comeback, not presenting evidence. The operator may credit it; it would make six."}
+      - {path: "/a/whichGod.html",  rank: 8, why: "'Does it matter which God you call on?' — credited to case 9"}
+      - {path: "/a/sixdays.html",   rank: 10, why: "'Did God create the universe in six days?' — its subject is the Genesis timeline versus billions of years, an intra-Christian reading question."}
+
+  # ── 2 ───────────────────────────────────────────── newcomer 🔴 TITLE TRAP AT RANK 1
+  - id: "esfa-newcomer-niroo"                 # topic: know-god
+    persona: newcomer
+    q: "وقتی کسی از «خدا» حرف میزند، تنها چیزی که در ذهن من میآید یک نیروی مبهم است جایی بالای سر ما. اصلاً او یک شخص است؟"
+    en: "When someone talks about 'God', the only thing that comes to my mind is a vague force somewhere above us. Is he even a person?"
+    top_score: 0.655
+    credits:
+      - {path: "/a/whypick.html",  rank: 1, score: 0.655, en: "Why have we chosen the God who is in the Bible? 🔴 TITLE TRAP — the title reads as a conversion or apologetics-choice piece. The body is an ENUMERATED LIST of God's attributes: '1. God's nature — a God greater than us… 2. God's nature — a God who can be personally known: these days it is very popular to think of God as a kind of FORCE FIELD…'. That second heading answers this question verbatim. 18.7k chars. This is the exact shape of the Bulgarian trap in §0.11 ('Why can we rely on God?' opens 'What is God like? Six personal traits')."}
+      - {path: "/a/who2.html",     rank: 2, score: 0.644, en: "'Who (2)' — part 4 of the four-part cosmological series; this is where the Eternal is argued to be a PERSON rather than a mechanism, and where God's invisibility is handled ('2. God is invisible…'). Answers 'is he even a person' directly. 11.0k chars. 🔴 Its title names no subject; see the SUMMARY."}
+      - {path: "/a/finger.html",   rank: 3, score: 0.642, en: "Where is God? — the FLATLAND analogy: two 2-D people on a sheet of paper cannot see you, only your fingertip. Why an invisible God is hard to 'see'. The Persian twin of the Russian /a/gdyebog.html, credited there for the same topic."}
+      - {path: "/a/whatlike.html", rank: 5, score: 0.581, en: "Who is God — 'Who is God? What is he like? SIX DISTINCT ATTRIBUTES of God's character… God can be known.' The canonical what-is-God-like article, twin of the Russian /a/ktoeto.html and the Hungarian /a/milyen.html."}
+    note: |
+      ⓘ THE CANONICAL ARTICLE IS ONLY RANK 5, AND THE TITLE TRAP IS RANK 1.
+      `/a/whatlike.html` is the article this topic exists for, and the engine puts four
+      other documents above it — including `/a/woman.html` ('Could God be a woman?') at
+      rank 4. The three above it are all genuine credits, so the case still scores 4/4,
+      but this is worth watching: on this source the six-attributes article is NOT the
+      strongest match for its own topic.
+    rejected:
+      - {path: "/a/woman.html",     rank: 4, why: "'Could God be a woman?' — its subject is God's GENDER and how he chose to reveal himself, not whether he is personal. Same call as the Hungarian /a/no.html at the same rank on the same topic."}
+      - {path: "/a/willpower.html", rank: 6, why: "'Does man have free will?' — opens with Descartes on selfhood, then what happens when God enters your life. Its subject is human will, not God's nature."}
+      - {path: "/a/whichGod.html",  rank: 7, why: "credited to case 9"}
+      - {path: "/a/tragedy.html",   rank: 8, why: "credited to case 5"}
+      - {path: "/a/science.html",   rank: 9, why: "science and the Bible — rejected on case 1 for the same reason"}
+      - {path: "/a/likeness.html",  rank: 10, why: "'What do you have in common with God?' — the imago-dei article, opening on strangers on a plane hunting for common ground. Close, and rejected: its subject is human likeness to God, not God's own nature."}
+
+  # ── 3 ─────────────────────────────────────────────────────────────────── skeptic
+  - id: "esfa-skeptic-tasadof"                # topic: suffering
+    persona: skeptic
+    q: "پارسال یکی از دوستانم در یک تصادف کشته شد. تا امروز هیچکس نتوانسته برایم توضیح دهد که این چطور با وجود خدایی مهربان جور درمیآید."
+    en: "Last year a friend of mine was killed in an accident. To this day nobody has been able to explain to me how that fits with the existence of a loving God."
+    top_score: 0.638
+    credits:
+      - {path: "/a/why.html",       rank: 1, score: 0.638, en: "Why is life so hard? — 'Why do people get cancer? Why do earthquakes destroy whole cities?' Then: our parents split up, the girl next door is abducted, a relative gets cancer. 10.6k chars. The closest match to the asker's situation. ⚠️ Its TITLE is 'Why does pain and suffering exist?' while the body opens 'Why is life so hard?' — mild, but the same drift."}
+      - {path: "/a/disaster.html",  rank: 2, score: 0.622, en: "'Where do we go from here?' 🔴 TITLE NAMES NOTHING — the body is addressed to people recovering from a great loss: 'Are you dealing with the aftermath of a natural disaster? Or have you suddenly lost a friend or a member of your family? Will you be able to get an answer from God as to why this happened? Probably not.' It is the GRIEF article, and it is the best match for a friend's sudden death."}
+      - {path: "/a/wrong.html",     rank: 3, score: 0.614, en: "Does the existence of evil and pain not prove God does not care? — Q&A taking the objection head-on: free will, God did not create us as robots."}
+      - {path: "/a/pain.html",      rank: 4, score: 0.601, en: "Why does God allow pain and suffering? — Q&A, and unusually honest: 'we are not sure God has answered your question in the Bible… he will probably explain it all later.' The estate's admission-of-limits article."}
+    note: |
+      ⓘ NO REWORD NEEDED. This is the only topic on this source where the four best
+      documents are also the top four hits, in order. Persian is the strongest suffering
+      shelf in the campaign so far: six distinct documents on the problem of evil
+      (`why`, `pain`, `wrong`, `disaster`, `tragedy`, `evil`) plus `/a/outcome.html`
+      on foreknowledge and free will.
+    rejected:
+      - {path: "/a/outcome.html", rank: 5, why: "'Why does God create someone he knows will reject him?' — its subject is foreknowledge versus free will, a philosophy-of-religion question, not the asker's grief."}
+      - {path: "/a/evil.html",    rank: 6, why: "'What about all the evil done in God's name?' — a different objection: religious violence, not undeserved loss."}
+      - {path: "/a/tragedy.html", rank: 7, why: "credited to case 5. Its subject is where to find inner strength, which is the anxiety half of this pair."}
+      - {path: "/a/sawyer.html",  rank: 8, why: "Steve Sawyer's HIV/haemophilia testimony — 'living with hope'. A personal story, not an answer."}
+      - {path: "/a/reallife.html", rank: 9, why: "credited to case 4"}
+      - {path: "/a/whydid.html",  rank: 10, why: "credited to case 6"}
+
+  # ── 4 ────────────────────────────────────────────────────────────────────── seeker
+  - id: "esfa-seeker-pooch"                   # topic: purpose
+    persona: seeker
+    q: "هر شب که سرم را روی بالش میگذارم حس میکنم از تمام آن روز چیزی باقی نمانده. اصلاً من برای چه ساخته شدهام؟"
+    en: "Every night when I put my head on the pillow I feel nothing at all remained of that whole day. What was I even made for?"
+    top_score: 0.587
+    credits:
+      - {path: "/a/greatest.html", rank: 1, score: 0.587, en: "What is my purpose in life? — the HAMMER analogy: a hammer is designed to hit nails; imagine a hammer with feelings left in the toolbox for days, sensing something is missing without knowing what. The canonical purpose article."}
+      - {path: "/a/reallife.html", rank: 2, score: 0.548, en: "Real life — three people on where they found fulfilment, acceptance and purpose; opens 'Have you ever felt there is something more than just existing?' Includes the mountaineer who reaches the summit and feels only disappointment. 17.2k chars."}
+      - {path: "/a/now.html",      rank: 3, score: 0.545, en: "'Wanting more' 🔴 TITLE NAMES NOTHING — the body opens 'Is there no more meaning to life than this? Something more than what is?… A second passes. A moment of your life goes by.' It is the is-there-more-to-life article, twin of the Russian and Hungarian equivalents."}
+    reworded: |
+      ⚠️ REWORDED ONCE, to fix RANK, not reach.
+      v1: "…آخرش من برای چه اینجا هستم؟" ("…in the end, what am I here for?")
+          → top 0.555, all 3 credits returned but at ranks 6, 1 and 5 — the canonical
+          purpose article `/a/greatest.html` was at RANK 6, behind `/a/then.html`
+          (what happens after death), `/a/blues.html` (depression) and `/a/beauty.html`
+          (the fashion-model article). Credits clustered low is the FRAGILITY failure.
+      v2 (kept): "…اصلاً من برای چه ساخته شدهام؟" ("…what was I even MADE for?")
+          → **0.587, ranks 1, 2, 3.** The "made for" phrasing is what reaches the hammer
+          analogy. Top score fell 0.555 → 0.587 is a rise; nothing was traded away.
+    rejected:
+      - {path: "/a/then.html",   rank: 4, why: "'What happens after death?' — opens on a student's whole life fast-forwarded (graduate, job, marriage, kids). Adjacent, and rejected: its subject is the afterlife, not what this life is for."}
+      - {path: "/a/beauty.html", rank: 5, why: "a fashion model on building a life on physical appearance — at rank 5 for a purpose question. Its own emptiness passage is what matches; the document is a testimony."}
+      - {path: "/a/why.html",    rank: 6, why: "credited to case 3"}
+      - {path: "/a/blues.html",  rank: 7, why: "'Ending the eight-storey blues' — depression, addiction and suicidal thoughts, 29.4k chars. THIRD language in which this same article misfires on the purpose/god-exists pair; the Hungarian file recorded it at rank 1 for a god-exists draft."}
+      - {path: "/a/source.html", rank: 8, why: "Josh McDowell's testimony ('Have you ever said I hate my life?'). A conversion story; it matches on its search-for-meaning passage."}
+      - {path: "/a/marcia.html", rank: 9, why: "Marcia Montenegro's occult/astrology testimony — the Persian twin of the Russian /a/chakr.html"}
+      - {path: "/a/rabi.html",   rank: 10, why: "Rabi Maharaj's Hindu-guru testimony"}
+
+  # ── 5 ────────────────────────────────────────────────────────────────────── seeker
+  - id: "esfa-seeker-delshoore"               # topic: anxiety
+    persona: seeker
+    q: "تقریباً همیشه یک دلشوره در دلم هست، حتی وقتی هیچ اتفاق بدی نیفتاده. ایمان برای این حال چیزی دارد؟"
+    en: "There is almost always an unease inside me, even when nothing bad has happened. Does faith have anything for this state?"
+    top_score: 0.613
+    credits:
+      - {path: "/a/finding.html", rank: 3, score: 0.579, en: "Peace of mind in an unstable world — 'Finding inner peace: in unstable times, how can you find calm instead of being gripped by ANXIETY AND WORRY?' 18.6k chars. The nearest thing this source has to a dedicated anxiety article."}
+      - {path: "/a/tragedy.html", rank: 4, score: 0.573, en: "Where is God in times of calamity, fear, bad events, sorrow? Finding inner strength, REDUCING FEAR AND WORRY — the title says the topic outright, and the body is about how far God can be trusted when things are and are not going well. 14.9k chars."}
+    note: |
+      ⓘ THE WEAKEST TOPIC ON THIS SOURCE, and it is a corpus fact, not a question defect.
+      `everystudent-fa` has NO article whose subject is anxiety. The topic is carried by a
+      PEACE article and a CALAMITY article, and both are credited. §0.7 already recorded
+      that `anxiety` was the one topic that needed a reword to reach 9/9 sources, and
+      Hungarian recorded the same absence.
+      ⚠️ Both credits sit at ranks 3 and 4 behind two documents credited elsewhere. This
+      case is the most likely in the suite to lose a credit to tie-reordering after
+      `/a/chance.html`.
+    rejected:
+      - {path: "/a/prayers.html", rank: 1, score: 0.613, why: "RANK 1 and rejected — credited to case 8. Its matched chunk is the 'when you feel the whole world is falling apart, God can hold you steady' passage, which is genuinely about anxiety, but the document's subject is prayer."}
+      - {path: "/a/why.html",   rank: 2, why: "credited to case 3"}
+      - {path: "/a/wrong.html", rank: 5, why: "credited to case 3"}
+      - {path: "/a/blues.html", rank: 6, why: "depression, addiction and suicidal thoughts — 🟡 REVIEWER MAY DISAGREE. In `everystudent-ru` the equivalent document (/a/chakr.html, chronic anxiety + chakra healing) WAS credited for this topic. I rejected this one because it is specifically DEPRESSION and suicidal ideation, not the low-grade constant unease the question describes. The operator may credit it."}
+      - {path: "/a/disaster.html", rank: 7, why: "credited to case 3"}
+      - {path: "/a/now.html",      rank: 8, why: "credited to case 4"}
+      - {path: "/a/pain.html",     rank: 9, why: "credited to case 3"}
+      - {path: "/a/source.html",   rank: 10, why: "Josh McDowell testimony — tail-adjacent match"}
+
+  # ── 6 ─────────────────────────── newcomer 🔴 THE BOILERPLATE-TAIL SPECIMEN, AND THE FIX
+  - id: "esfa-newcomer-salib"                 # topic: jesus-death
+    persona: newcomer
+    q: "مسیحیها میگویند مرگ عیسی روی صلیب مهمترین اتفاق تاریخ بوده است. من نمیفهمم مرگ او قرار بود چه مشکلی را حل کند."
+    en: "Christians say Jesus' death on the cross was the most important event in history. I do not understand what problem his death was supposed to solve."
+    top_score: 0.710
+    credits:
+      - {path: "/a/whydid.html", rank: 1, score: 0.710, en: "Why did Jesus Christ have to die? — 'What is the reason Jesus died on the cross? What was the necessity of his death for us? What did it mean?' The religious leaders crucified him for blasphemy, for claiming to be God. 6.1k chars. This source's ONLY dedicated atonement article."}
+    reworded: |
+      🔴 REWORDED ONCE, AND THE BEFORE/AFTER IS THE CLEANEST BOILERPLATE-TAIL SPECIMEN
+      IN THIS SUITE. §0.9's finding and failure mode D (short questions lose to tails)
+      both fire here.
+      v1: "مسیحیها طوری از صلیب حرف میزنند که انگار همه چیز را عوض کرده است. برای من فقط
+           اعدام یک نفر است در دو هزار سال پیش. قرار بود چه چیزی را درست کند؟"
+          ("Christians talk about the cross as if it changed everything. To me it is just
+           one man's execution two thousand years ago. What was it supposed to put right?")
+          → top 0.614, and the atonement article was RANK 4, behind three tails:
+
+          | Rank | Score | Document | What it is actually about |
+          |---:|---:|---|---|
+          | 1 | 0.614 | `/a/sawyer.html`     | HIV/haemophilia testimony |
+          | 2 | 0.608 | `/a/wolves.html`     | **sex and dating advice** |
+          | 3 | 0.608 | `/a/faith.html`      | the life of Jesus / was he God's Son |
+          | **4** | **0.602** | **`/a/whydid.html`** | **why Jesus died — THE ANSWER** |
+          | 5 | 0.600 | `/a/personally.html` | the Four-Spiritual-Laws 'begin here' page |
+
+          This is §0.9's Chinese `tlzh-newcomer-xinzhu` table reproduced almost row for
+          row, in a different language, with a different dating article.
+      v2 (kept): names Jesus' DEATH and asks what problem it was meant to SOLVE, instead
+          of framing it as "an execution" and asking what it "put right".
+          → **0.710 rank 1**, a +0.096 jump and three places. Nothing was traded away.
+    dropped_after_engine_check:
+      - {path: "/a/trust.html", why: "'What does having FAITH in Jesus mean?' — credited in v1, dropped. It does say the cross is the only way sins are forgiven, but its SUBJECT is what trusting Jesus means (relying on him rather than on your own good works), not what the death accomplished. It was outside the top 10 in v1 and it answers a different question, so this is a DROP, not a kept miss."}
+    note: |
+      🟢 PERSIAN IS THE THIRD CONTROL FOR THE RUSSIAN ATONEMENT GAP, and it agrees with
+      Bulgarian and Hungarian. `esru-newcomer-krest` cannot retrieve its credits because
+      `everystudent-ru` has NO article whose subject is the atonement. Persian has one —
+      `/a/whydid.html` — and it returns at RANK 1 with coverage 1/1. Four sources, same
+      estate, same embedder, same topic menu: the Russian result is corpus composition,
+      not a systemic retrieval defect.
+    rejected:
+      - {path: "/a/faith.html",       rank: 2, why: "'Beyond blind faith — the life of Jesus, was he the Son of God?' (Paul E. Little, 23.4k chars). Its subject is Jesus' IDENTITY and the historical evidence, not what his death achieved."}
+      - {path: "/a/personally.html",  rank: 3, why: "🔴 TAIL. 'Knowing God personally' is the Four-Spiritual-Laws page — the document the estate's closing invitation links to from every article. Its matched chunk is Principle 3 ('Jesus Christ is the only way God has provided'). This is the Persian /a/personally.html that §0.9 named in Chinese, and it is a template match."}
+      - {path: "/a/outcome.html",     rank: 4, why: "foreknowledge and free will — its tail carries the payment-for-sin summary, which is what matches"}
+      - {path: "/a/religions.html",   rank: 5, why: "credited to case 9"}
+      - {path: "/a/sawyer.html",      rank: 6, why: "🔴 TAIL. HIV testimony; its final chunk is the invitation prayer 'thank you for giving your life on the cross for me'."}
+      - {path: "/a/wolves.html",      rank: 7, why: "🔴 TAIL, AND THE PROOF. 'Flirting with wolves' is a man's ten reasons for waiting until marriage to have sex — at RANK 7 for an atonement question. Its final chunk was read in full: it is the identical invitation prayer that closes /a/toxic.html (pornography addiction). Verified, not assumed."}
+      - {path: "/a/marcia.html",      rank: 8, why: "occult testimony — tail match"}
+      - {path: "/a/reincarnation.html", rank: 9, why: "reincarnation and karma — matches on the afterlife framing, not on the atonement"}
+      - {path: "/a/tragedy.html",     rank: 10, why: "credited to case 5"}
+
+  # ── 7 ──────────────────────── skeptic 🔴 TITLE TRAP + THE IRAN-SPECIFIC FINDING
+  - id: "esfa-skeptic-tahrif"                 # topic: bible-trust
+    persona: skeptic
+    q: "به من گفتهاند کتاب مسیحیان در طول قرنها دست به دست و نسخهبرداری شده و دیگر آن چیزی نیست که در ابتدا بوده. از کجا میشود مطمئن شد نسخهای که امروز میخوانند همان است؟"
+    en: "I have been told the Christians' book was passed from hand to hand and copied over the centuries and is no longer what it originally was. How can anyone be sure the version they read today is the same one?"
+    top_score: 0.706
+    credits:
+      - {path: "/a/bible.html",    rank: 1, score: 0.706, en: "🔴 TITLE TRAP, AND THE MOST IMPORTANT ONE ON THIS SOURCE. The title is 'The books of the Bible — history of the Bible', which reads like a contents or chronology page. The body opens 'WHY YOU CAN BELIEVE THE BIBLE — how do you know the Bible in our hands today is reliable?' and runs 30.4k chars, the LONGEST document in the corpus. Chunk 6 asks, in the exact Islamic terminology: 'آيا كتاب مقدس در طول تاريخ تغيير كرده و يا تحريف شده است؟' — 'Has the Bible been CHANGED or CORRUPTED (tahrif) through history?' — and answers it (the translations come directly from Greek and Hebrew sources, not from other translations)."}
+      - {path: "/a/inspired.html", rank: 6, score: 0.528, en: "What does 'the Bible is inspired' mean? — Q&A: as an employer delegates work, God delegated the writing to Moses, Isaiah, Jeremiah and others. The doctrine-of-inspiration half of the question."}
+    iran_finding: |
+      🔴 READ THIS — THIS SOURCE BREAKS THE ESTATE'S PATTERN FOR MUSLIM-MAJORITY SITES.
+      §0.7 records that `kk`, `th` and `zh` answer `bible-trust` with a "Jesus and Islam"
+      article, and the campaign brief predicted Persian would do the same.
+      **IT DOES NOT — `everystudent-fa` HAS NO ISLAM ARTICLE AT ALL.**
+      Measured, not assumed: across all 75 documents, only THREE contain any chunk
+      mentioning اسلام / مسلمان / قرآن / محمد / الله, one chunk each —
+      `/a/whichGod.html` (Allah listed among gods people pray to), `/a/isthere.html`
+      and `/a/source.html`. There is no `/a/islam.html`. The nearest inter-faith
+      documents are `/a/judaism.html` (Judaism and Jesus) and `/a/religions.html`.
+      **The tahrif question is still answered — it is answered INSIDE the general
+      Bible-reliability article** (`/a/bible.html` chunk 6, quoted above), which is why
+      this case scores rank 1 at 0.706 despite the missing Islam shelf. So the estate
+      treats the question in the right place; it simply does not give it its own page in
+      Persian. This is a corpus-composition finding for a site whose readership is
+      overwhelmingly from a Muslim background, and it is the single most useful thing in
+      this suite for a content owner.
+    rejected:
+      - {path: "/a/faith.html",      rank: 2, why: "the life of Jesus — matches on its 'the attacks on Christianity focus on the resurrection' passage; its subject is Jesus, not the text's transmission"}
+      - {path: "/a/science.html",    rank: 3, why: "'Does modern science invalidate the Bible?' — a DIFFERENT objection to the Bible (science, not copying). Deliberately left uncredited so this case measures transmission only."}
+      - {path: "/a/historical.html", rank: 4, why: "'How do we know Jesus really lived?' — Tacitus and the extra-biblical sources. Close, and rejected: it establishes Jesus as a historical figure, not that the text is uncorrupted."}
+      - {path: "/a/real.html",       rank: 5, why: "'Which Jesus is the real Jesus?' — media and scholarly portrayals of Jesus, not manuscript transmission"}
+      - {path: "/a/religions.html",  rank: 7, why: "credited to case 9"}
+      - {path: "/a/source.html",     rank: 8, why: "Josh McDowell testimony — tail match"}
+      - {path: "/a/reincarnation.html", rank: 9, why: "🔴 TAIL. Reincarnation and karma at rank 9 for a manuscript-reliability question."}
+      - {path: "/a/marcia.html",     rank: 10, why: "🔴 TAIL. Occult testimony at rank 10 for a manuscript-reliability question."}
+
+  # ── 8 ──────────────────────────────────────────────── believer 🔴 TWO TAILS AT 5 AND 6
+  - id: "esfa-believer-sokoot"                # topic: prayer
+    persona: believer
+    q: "ماههاست برای یک چیز مشخص دعا میکنم و هیچ جوابی نمیگیرم. دارم کاری را اشتباه انجام میدهم؟"
+    en: "For months I have been praying about one specific thing and I get no answer at all. Am I doing something wrong?"
+    top_score: 0.697
+    credits:
+      - {path: "/a/prayers.html", rank: 1, score: 0.697, en: "Does God answer our prayers? What does it take for God to answer? How to pray: prayers that get answered. Opens with an atheist watching a praying friend week after week, then turns to 'so why does God not answer everyone's prayer? It may be that they have no relationship with him.' 11.8k chars. The source's ONLY prayer article."}
+    note: |
+      ⓘ ONE CREDIT BECAUSE THERE IS ONE ARTICLE. `everystudent-fa` has exactly one
+      document whose subject is prayer. Hungarian recorded the identical shape
+      (`/a/imadsagra.html`, one credit). This is the §0.7 "believer thinness is HONEST"
+      note showing up as corpus composition: the estate publishes seeker apologetics,
+      not discipleship.
+    rejected:
+      - {path: "/a/whichGod.html", rank: 2, why: "'Does it matter which God you call on?' — it is ABOUT prayer, but about WHOM you pray to, not about unanswered prayer. Credited to case 9."}
+      - {path: "/a/sawyer.html",   rank: 3, why: "HIV testimony — tail match"}
+      - {path: "/a/wrong.html",    rank: 4, why: "credited to case 3"}
+      - {path: "/a/marriage.html", rank: 5, why: "🔴 TAIL. 'Divorce statistics — marriage problems' (Dennis Rainey, 23.4k chars) at RANK 5 for a prayer question."}
+      - {path: "/a/abortion.html", rank: 6, why: "🔴 TAIL, and the specimen. 'For and against abortion' at RANK 6 for a prayer question. Its matched chunk is a one-line aside — 'will God really hear this woman's prayer? Yes: the eyes of the Lord are on the righteous and his ears are open to their prayer (1 Peter 3:12)' — the SAME verse the credited /a/prayers.html quotes. A verse-level template match inside an unrelated document."}
+      - {path: "/a/why.html",      rank: 7, why: "credited to case 3"}
+      - {path: "/a/disaster.html", rank: 8, why: "credited to case 3"}
+      - {path: "/a/then.html",     rank: 9, why: "what happens after death"}
+      - {path: "/a/whypick.html",  rank: 10, why: "credited to case 2"}
+
+  # ── 9 ──────────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS AND THE A/B
+  - id: "esfa-skeptic-hamkaran"               # topic: religions
+    persona: skeptic
+    q: "دوستان من مسلمان، بودایی و هندو هستند و هر کدام مطمئنند خدا را همانطور که هست میشناسند. چرا باید ادعای عیسی از بقیه جدا باشد؟"
+    en: "My friends are Muslim, Buddhist and Hindu, and each is certain they know God as he really is. Why should Jesus' claim stand apart from the rest?"
+    top_score: 0.687
+    credits:
+      - {path: "/a/religions.html", rank: 1, score: 0.687, en: "What is the difference between Jesus Christ and the other world religions? — 'What do you find in Jesus Christ that you will find nowhere else…' then an enumerated comparison: '1. Jesus Christ seeks to make contact with US.' Unlike other religions where the person is always reaching up to God. The Persian member of the estate's /a/205 world-religions family (de /a/hochsten.html · sw /a/kuunganishwa.html · fr /a/205divin.html)."}
+      - {path: "/a/elephant.html",  rank: 5, score: 0.619, en: "🔴 TITLE TRAP IN THE OPPOSITE DIRECTION. 'Is God an elephant?' sounds like nonsense or a children's page. The body is the BLIND MEN AND THE ELEPHANT parable examined as a philosophy-of-religion argument (after David A. Horner): 'a popular philosophy often used to show that all world religions are valid ways of describing God.' It is the second world-religions article, and no title-based reviewer would find it."}
+      - {path: "/a/whichGod.html",  rank: "NOT IN TOP 10", en: "'Does it matter which God you call on?' — Q&A: 'people like to believe it is fine whoever you pray to. It does not matter whether it is a Hindu god, a saint, Jesus or ALLAH. What matters is that you are praying, right?' 🔴 KEPT DELIBERATELY, see below."}
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/a/whichGod.html` answers the question's PREMISE directly — its opening lines are
+      the "each is certain they know God as he really is" objection, and it is the only
+      document in the corpus that names Allah alongside Hindu gods and Jesus. On reading,
+      it does not answer a different question, so dropping it would be dishonest. KEPT.
+      **This case will score coverage 2/3, on purpose** — the same treatment
+      `esbg-skeptic-katastrofa` (§0.11) and `eshu-skeptic-vagyalom` got.
+    reworded: |
+      ⚠️ FOUR VARIANTS TESTED — THIS CASE COST TWO ENTIRE ENGINE-CHECK ROUNDS, and the
+      reason is worth keeping: THIS SOURCE HAS TWO WORLD-RELIGIONS ARTICLES THAT ANSWER
+      TWO DIFFERENT HALVES OF ONE §0.7 TOPIC, AND THE ENGINE CANNOT HOLD ALL THREE.
+
+      | # | Question framing | top | `/a/religions.html` | `/a/elephant.html` | `/a/whichGod.html` |
+      |---|---|---:|---:|---:|---:|
+      | v1 | colleagues speak with equal conviction | 0.616 | OUT | 2 | OUT |
+      | **v2 (kept)** | Muslim/Buddhist/Hindu friends + why Jesus' claim stands apart | **0.687** | **1** | 5 | OUT |
+      | v3 | same premise + "is that actually so?" | 0.589 | OUT | 1 | 4 |
+      | v4 | same premise + "how do I choose among world religions" | 0.560 | OUT | 2 | 4 |
+
+      `/a/religions.html` answers "what makes Jesus different"; `/a/whichGod.html` answers
+      "are they all the same God". Phrasings that reach one push the other out. v2 wins on
+      both counts that matter: the highest top score in the four, and the CANONICAL
+      world-religions article at rank 1. v3 and v4 buy `whichGod` by losing `religions`
+      and dropping the top score by 0.10–0.13, which is a bad trade.
+      ⚠️ v2's cost is that "Jesus' claim" pulls Jesus-IDENTITY documents into the top 10
+      (`/a/real.html` 2, `/a/faith.html` 3, `/a/whodoyousay.html` 9). All three are
+      correctly rejected below, but a future reviewer should not read them as candidates.
+      ⓘ A fifth variant was considered and NOT tested: "آیا واقعاً فرقی نمیکند آدم کدام
+      خدا را بپرستد؟" would almost certainly reach `/a/whichGod.html` — because it is a
+      near-verbatim restatement of that article's own title. Guardrail #1 forbids it.
+    dropped_after_engine_check:
+      - {path: "/a/worshiping.html", why: "'If people worship the WRONG God, why can God not forgive them for being misled?' — credited in v2, dropped. Its subject is God's fairness toward the sincerely mistaken, which is a judgement question, not the are-they-all-the-same question. It was outside the top 10 in both variants that carried it."}
+    rejected:
+      - {path: "/a/real.html",       rank: 2, why: "'Which Jesus is the real Jesus?' — media, artists and scholars' portrayals of Jesus. An intra-Christian identity question, pulled in by v2's 'Jesus' claim' clause."}
+      - {path: "/a/faith.html",      rank: 3, why: "the life of Jesus / was he the Son of God — same cause as /a/real.html"}
+      - {path: "/a/isthere.html",    rank: 4, why: "credited to case 1"}
+      - {path: "/a/marcia.html",     rank: 6, why: "occult and Eastern-spirituality testimony — genuinely about other religions, but it is one woman's story, not a comparison"}
+      - {path: "/a/finger.html",     rank: 7, why: "credited to case 2"}
+      - {path: "/a/source.html",     rank: 8, why: "🔴 TAIL. Josh McDowell testimony at rank 8. In v1 of this question it was RANK 1 — see the A/B table."}
+      - {path: "/a/whodoyousay.html", rank: 9, why: "'Did Jesus ever say he was God?' — Jesus' deity claims, not a religions comparison"}
+      - {path: "/a/trinity.html",    rank: 10, why: "credited to case 10"}
+      - {path: "/a/rabi.html",       rank: "outside", why: "Rabi Maharaj's Hindu-guru testimony — the most topically relevant testimony on the source, and still a testimony. Rank 3 under v4."}
+      - {path: "/a/reincarnation.html", rank: "outside", why: "reincarnation and karma — a specific doctrine, not the comparison"}
+
+  # ── 10 ────────────────────────────────────────────────────────────────── newcomer
+  - id: "esfa-newcomer-seta"                  # topic: trinity
+    persona: newcomer
+    q: "شنیدهام مسیحیها میگویند خدا یکی است، ولی بعد هم از پدر حرف میزنند، هم از پسر و هم از روح. پس بالاخره چند تا خدا دارند؟"
+    en: "I have heard Christians say God is one, but then they talk about the Father, the Son and the Spirit. So how many gods do they actually have?"
+    top_score: 0.691
+    credits:
+      - {path: "/a/trinity.html", rank: 1, score: 0.691, en: "Can you explain the Trinity? — 'the word Trinity is not found in the Bible, but it explains what the Bible makes plain about God… the Bible speaks clearly of God the Father, God the Son (Jesus Christ) and God the Holy Spirit, and at the same time states plainly that there is only ONE God.'"}
+      - {path: "/a/hspirit.html", rank: 3, score: 0.562, en: "Who is the Holy Spirit? — 'the Holy Spirit is not a hazy heavenly shadow, nor an impersonal force. He is a person, equal in every respect to God the Father and God the Son.' The Persian twin of the Hungarian /a/szentlelek.html, credited there for the same topic."}
+    note: |
+      ⓘ NO REWORD NEEDED, and that is the §0.10/§0.11/hu lesson transferring for the
+      fourth time. `ru` (0.807) and `bg` (0.756) both hit a paraphrase smell on this topic
+      when the question was stated as the doctrinal formula, and both fixed it by framing
+      it as something a newcomer NOTICES. Starting from the fixed shape — "I have HEARD
+      Christians say…" — Persian landed at 0.691 rank 1 first time.
+    rejected:
+      - {path: "/a/whypick.html",     rank: 2, why: "credited to case 2. It matches on its 'the one true God, and Jesus Christ whom he sent (John 17:3)' passage."}
+      - {path: "/a/isthere.html",     rank: 4, why: "credited to case 1"}
+      - {path: "/a/woman.html",       rank: 5, why: "'Could God be a woman?' — God's gender, not his threeness"}
+      - {path: "/a/finger.html",      rank: 6, why: "credited to case 2"}
+      - {path: "/a/faith.html",       rank: 7, why: "the life of Jesus — deity of Christ, which is one leg of the question but not the one-versus-three problem"}
+      - {path: "/a/howcan.html",      rank: 8, why: "'Is Jesus God?' — only 937 chars, the SHORTEST document in the corpus. Its subject is how Jesus can be God and man at once (the incarnation), not how three can be one. 🟡 REVIEWER MAY DISAGREE."}
+      - {path: "/a/who2.html",        rank: 9, why: "credited to case 2"}
+      - {path: "/a/whodoyousay.html", rank: 10, why: "'Did Jesus ever say he was God?' — Jesus' own deity claims. Same call as /a/howcan.html."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 27 credits · 27 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Paraphrase smells: 0 in every round (max top score 0.710). This source never produced
+#   one; its scores run low (0.587–0.710, mean 0.666).
+# Credits that do not retrieve: 1 (`/a/whichGod.html` on `hamkaran`), kept deliberately.
+# Expected coverage if approved as drafted: 26/27.
+# evidence_tier: llm-translated (proposed)
+#
+# 🔴 LANGUAGE LABELS — CLEAN NOW, BUT THE ROOT CAUSE IS STILL IN THE TEXT.
+#   Measured: 75 of 75 documents labelled `fa`, 0 null, 0 non-`fa`, 0 duplicate titles.
+#   The 2026-07-31 sweep did its job — §0.4 recorded that 47 of these 75 were NULL and
+#   26 were mislabelled `ar`, polluting the live `everystudent-ar` bucket.
+#   ⚠️ WHAT IS NOT FIXED: the corpus text MIXES Arabic-form ي (U+064A) and ك (U+0643)
+#   with Persian ی (U+06CC) and ک (U+06A9) — frequently inside the SAME document.
+#   `/a/whatlike.html` is the clean specimen: its TITLE `خداکیست` uses Persian ک/ی while
+#   its BODY opens `خدا كيست` with Arabic ك/ي. That orthographic overlap is precisely
+#   what a character-frequency detector reads as Arabic, and it is exactly how 26 of
+#   these documents landed in the `ar` bucket in the first place. **The labels were
+#   corrected; the text that caused the mislabel was not touched.** Any future re-ingest
+#   or re-detection over `everystudent-fa` that does not use the LLM path will reproduce
+#   the `ar` mislabel. Worth a line in the campaign file.
+#   🟢 The post-sweep evidence is good: across all 10 cases × top-10 (100 hit slots,
+#   5 engine-check rounds), EVERY hit came from `everystudent-fa`. Not one
+#   `everystudent-ar` document leaked into a Persian query's results.
+#
+# 🔴 FOUR TITLE TRAPS ON ONE SOURCE — the worst count in the campaign so far, and one of
+#   them is the single most important document in the suite.
+#   1. `/a/bible.html` — titled "The books of the Bible — history of the Bible" (a
+#      contents page). Body: "WHY YOU CAN BELIEVE THE BIBLE — how do you know the Bible
+#      in our hands today is reliable?", 30.4k chars, the longest document in the corpus,
+#      carrying the tahrif passage. It is rank 1 at 0.706 for `bible-trust`.
+#   2. `/a/whypick.html` — titled "Why have we chosen the God who is in the Bible?".
+#      Body is an enumerated list of God's attributes and explicitly addresses the
+#      "God as a force field" idea. It IS the what-is-God-like article, rank 1 for
+#      `know-god`. Identical shape to §0.11's Bulgarian trap.
+#   3. `/a/Godreal.html` — titled "Is God real?" (generic). Body is specifically the
+#      Antony Flew / DNA science article. The Persian twin of the Hungarian /a/dns.html.
+#   4. `/a/elephant.html` — titled "Is God an elephant?" (reads as nonsense). Body is the
+#      blind-men-and-the-elephant world-religions argument. Reverse trap: a title-only
+#      reviewer would DISCARD the second-best religions document on the source.
+#   Plus TWO documents whose titles name nothing (`/a/disaster.html` "Where do we go from
+#   here?" = the grief article; `/a/now.html` "Wanting more" = the purpose article), and a
+#   FOUR-PART SERIES that is unjudgeable by title by construction:
+#   `/a/nothing.html` ("The beginning of time") → `/a/something.html` ("Existence") →
+#   `/a/who.html` ("Who") → `/a/who2.html` ("Who 2"). Only the last is credited, and only
+#   after its body was read. This is the Persian copy of the Hungarian
+#   semmi → valami → kicsoda → kicsoda2 chain. Titles remain unusable on this estate.
+#
+# 🔴 THE BOILERPLATE-TAIL TRAP FIRED, AND IT WAS VERIFIED RATHER THAN ASSUMED.
+#   The tail was read directly from the database: `/a/toxic.html` (pornography addiction)
+#   and `/a/wolves.html` (sex and dating) close with the IDENTICAL invitation prayer, and
+#   `/a/religions.html` and `/a/why.html` both close by pointing the reader at
+#   `/a/personally.html`. Instances found in this suite:
+#     • `esfa-newcomer-salib` v1 — ranks 1, 2, 3 and 5 were an HIV testimony, the DATING
+#       article, a Jesus-identity article and the Four-Spiritual-Laws page, with the real
+#       atonement article at rank 4. §0.9's Chinese table reproduced almost row for row.
+#       The reword moved it to rank 1 at 0.710. FAILURE MODE D confirmed.
+#     • `esfa-believer-sokoot` — `/a/marriage.html` (divorce) rank 5 and
+#       `/a/abortion.html` rank 6 for a PRAYER question. The abortion match is a
+#       verse-level template hit: it quotes the same 1 Peter 3:12 the prayer article does.
+#     • `esfa-skeptic-tahrif` — `/a/reincarnation.html` rank 9 and `/a/marcia.html` rank 10
+#       for a MANUSCRIPT-TRANSMISSION question.
+#     • `esfa-skeptic-hamkaran` v1 — `/a/source.html` (Josh McDowell testimony) at RANK 1
+#       for a world-religions question.
+#
+# 🔴 NO ISLAM ARTICLE — THE HEADLINE CORPUS FINDING, AND IT CONTRADICTS THE PREDICTION.
+#   §0.7 records that Muslim-majority sites answer `bible-trust` with a "Jesus and Islam"
+#   article (`kk`, `th`, `zh`). `everystudent-fa` — the estate's Persian site, read
+#   overwhelmingly by people from a Muslim background — HAS NO SUCH ARTICLE. Measured
+#   across all 75 documents: only THREE contain any chunk mentioning
+#   اسلام / مسلمان / قرآن / محمد / الله, one chunk each (`/a/whichGod.html`,
+#   `/a/isthere.html`, `/a/source.html`). The tahrif question IS answered, inside
+#   `/a/bible.html`. So retrieval is fine — this is a content-shelf observation for
+#   whoever owns the Persian site, not a defect in the suite.
+#
+# ⓘ NO §0.7 TOPIC IS UNANSWERABLE. All ten are covered; nothing was dropped or
+#   manufactured. Three shelves are THIN, and all three are recorded above:
+#     • prayer — exactly ONE article (same as `hu`)
+#     • jesus-death — exactly ONE article, but it returns at rank 1 (unlike `ru`, which
+#       has none: Persian is the third control confirming the Russian gap is composition)
+#     • anxiety — NO dedicated article; carried by a peace article and a calamity article
+#   Conversely, `suffering` is the strongest shelf in the campaign so far: six distinct
+#   problem-of-evil documents, and the four best are the top four hits in order.
+#
+# ⚠️ FOR THE REVIEWER — five things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/whichGod.html` on case 9 — KEEP (recommended; it records that this source's two
+#      world-religions articles answer different halves of one topic and the engine cannot
+#      return both) or DROP. The full four-variant A/B is in that case's `reworded` block.
+#   3. `/a/created.html` on case 1 — I rejected it (its subject is the "who made God"
+#      comeback). Its body is a first-cause argument, so crediting it is defensible.
+#   4. `/a/blues.html` on case 5 — I rejected it as depression rather than anxiety, but
+#      `everystudent-ru` credited its structural twin (`/a/chakr.html`) for this topic.
+#      This is the one place my call differs from a sibling suite's on the same topic.
+#   5. `/a/chance.html` on case 1 is a rank-9 boundary credit and WILL flap between 5/5
+#      and 4/5 between runs. Do not read a future 4/5 as a regression (§0.10, §0.11).

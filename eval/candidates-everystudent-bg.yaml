@@ -1,0 +1,189 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-bg` (84 documents).
+# Campaign #111, tier A source 3 of 14. Working record — NOTHING here has been
+# written to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit
+# operator approval turn.
+#
+# Sizing: 84 ÷ 8 = 10.5, capped at 10 → 10 cases (§0.7 rule).
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN BULGARIAN, not translated from the English menu.
+# Null-language documents: 0 of 84 (guardrail #3a — nothing excluded).
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-bg bg
+#   → 58 distinct candidate documents of 84, all ten topics covered.
+# Every credited document was read from the database (title + opening ~800 chars)
+# before being credited — guardrail #5.
+#
+# ENGINE-CHECKED TWICE (guardrail #8 §2) — .tmp-diag/phase5-bg-check.ts
+#   Round 1: 4 paraphrase smells, 1 credit not returned.
+#   Round 2: **0 paraphrase smells** (max top score 0.746), 1 credit not returned
+#            — and that one is a DELIBERATE keep, see `katastrofa` below.
+#
+# MECHANICAL CHECKS
+#   Guardrail #8 §3: all 25 credited titles resolve to EXACTLY ONE document — 25/25.
+#   Guardrail #3a:   no credited document has a null language — 25/25.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Bulgarian).
+# OPERATOR TO CONFIRM — it is a fact about the reviewer, not the language.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ TWO HAZARDS SPECIFIC TO THIS SOURCE — read before editing the keys
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. PERCENT-ENCODED CYRILLIC PATHS. everystudent-bg's canonical URLs are
+#    Cyrillic, so their pathnames are 150–250 character %D0%B2%D1%8A… strings.
+#    `eval-metrics.ts` matches on `new URL(url).pathname`, i.e. the ENCODED form,
+#    so that is what must go in `relevant`. Hand-typing them is a transcription-
+#    error factory: the draft and the write both resolved paths FROM TITLES via
+#    the database instead. Decoded paths are in the comments below for humans.
+#    This is the first campaign source with this shape — `zh-cn` and `ru` both
+#    use plain ASCII paths.
+#
+# 2. ONE TITLE IS DUPLICATED IN THIS SOURCE. `Исус Бог ли е?` ("Is Jesus God?")
+#    exists at TWO different paths (/да-познаваме-Бог/… and /други-въпроси/…).
+#    A title→path map silently keeps one and drops the other. Neither is
+#    credited here, so nothing is affected — but any future title-keyed tooling
+#    on this source must dedupe first.
+
+cases:
+
+  - case: esbg-skeptic-izmislitsa            # topic: god-exists · skeptic
+    q_en: "My friends think faith in God is a fiction for people who can't cope on their own. Is there anything serious behind it?"
+    top_score: 0.742
+    credits:
+      - {rank: 1, score: 0.742, en: "Why does a rational person believe in God? — a former atheist explains the reasoning that led him to God. Answers the crutch objection head-on."}
+      - {rank: 2, score: 0.707, en: "How agnostics can find out whether God exists"}
+      - {rank: 3, score: 0.705, en: "How an atheist found God — Marilyn Adamson's testimony, built on five objective reasons rather than feelings"}
+    dropped_after_engine_check:
+      - en: "Is there a God? Six candid reasons (Marilyn Adamson)"
+        why: >
+          The source's flagship apologetics article — and it did NOT retrieve in the top 10 for
+          this question. On reading, that is correct rather than broken: the question is about
+          faith being a CRUTCH, and the three credited documents answer exactly that, while
+          'Is there a God?' answers the different question of what evidence exists. Dropped
+          rather than credited-and-missed.
+
+  - case: esbg-newcomer-lichnost             # topic: know-god · newcomer
+    q_en: "When I hear 'God' I picture some impersonal force somewhere far away. Is he even a person?"
+    top_score: 0.732
+    credits:
+      - {rank: 1, score: 0.732, en: "In search of the ideal God — the qualities the Bible reveals; '#2: he can be known personally'"}
+      - {rank: 2, score: 0.685, en: "Why can we rely on God? — 🔴 TITLE TRAP: the title asks about reliance, the body opens 'What is God like? SIX PERSONAL TRAITS of God'. This is the know-god article, and a title-based reviewer would file it under trust."}
+      - {rank: 3, score: 0.682, en: "How God revealed himself — the Eternal Someone"}
+      - {rank: 5, score: 0.654, en: "Is God invisible? — the flatland analogy; answers 'a force somewhere far away' directly"}
+
+  - case: esbg-skeptic-katastrofa            # topic: suffering · skeptic
+    q_en: "I lost a friend in a crash last year. Since then I cannot work out how that squares with the idea of a loving God."
+    top_score: 0.707
+    credits:
+      - {rank: 2, score: 0.672, en: "Why is there suffering? — 'If there is a God and he is good, why is there suffering?' Terror attacks, sex slavery, racism, world hunger."}
+      - {rank: 3, score: 0.662, en: "Where is God in hard times?"}
+      - {rank: 6, score: 0.648, en: "Why worship a God who allows terrible things to happen? — framed around a child being raped"}
+      - {rank: "NOT IN TOP 10", en: "Is God good? — a 1.3k video transcript: 'If he is, why is there suffering and evil?' KEPT DELIBERATELY, see below"}
+    reworded_and_the_cost: |
+      ⚠️ REWORDED AFTER ROUND 1 (guardrail #8 §2), and the reword COST a credit.
+      v1: "…Никой не може да ми обясни защо един добър Бог допуска това."
+          ("nobody can explain why a good God allows that") → top 0.752 🔴 SMELL —
+          it restated the article's own opening line.
+      v2 (kept): reframed as the asker's unresolved private difficulty → top 0.707,
+          smell gone. But `Добър ли е Бог?` fell out of the top 10.
+
+      I kept BOTH the honest reword and the credit. Guardrail #8 §2: "Keep the
+      honest phrasing and let the eval record the gap — a case that always passes
+      measures nothing." This case will score coverage 3/4, on purpose.
+      `Добър ли е Бог?` is the Bulgarian twin of the Spanish /articulos/bueno.html
+      and the Chinese /a/isgodgood.html, which was rank 1 for the Chinese version
+      of this question in Part A. Crediting it is consistent across all three.
+
+  - case: esbg-seeker-nishto-ne-ostava       # topic: purpose · seeker
+    q_en: "Every day passes and at the end I feel nothing remains of it. What am I actually living for?"
+    top_score: 0.685
+    credits:
+      - {rank: 1, score: 0.684, en: "Is there more to this life? — 'a second passes. Another moment of your life.' Written at exactly this feeling."}
+      - {rank: 3, score: 0.604, en: "What is the meaning of my life? — the hammer parable"}
+      - {rank: 4, score: 0.596, en: "The fundamental questions of life — 'Why are we here? What is our purpose?' (Socrates, Plato, Peter Kreeft)"}
+      - {rank: 5, score: 0.589, en: "Real meaning in life — three people who reached the summit and were still empty"}
+      - {rank: 6, score: 0.585, en: "Have you ever said 'I hate my life'? (Josh McDowell) — Bulgarian twin of the Spanish /articulos/lafuente.html and Russian /a/istochnik.html, both credited for this same question shape"}
+    rejected:
+      - {rank: 2, score: 0.627, en: "What happens when we die? — rank 2 and rejected: mortality is not the same question as purpose"}
+
+  - case: esbg-seeker-trevoga                # topic: anxiety · seeker
+    q_en: "I am anxious almost constantly, even when there is no specific reason. Does faith have anything to offer for that?"
+    top_score: 0.671
+    credits:
+      - {rank: 1, score: 0.671, en: "How do we deal with anxiety? — a dedicated anxiety article (Marilyn Adamson), 11.6k chars"}
+      - {rank: 4, score: 0.543, en: "How can we have peace in this restless world?"}
+
+  - case: esbg-newcomer-krast                # topic: jesus-death · newcomer
+    q_en: "I do not understand why someone had to die for my sins to be forgiven. Why did God not just forgive?"
+    top_score: 0.746
+    credits:
+      - {rank: 3, score: 0.730, en: "The crucifixion of Jesus — why did Jesus die? — 'this is what the crucifixion, death and resurrection of Jesus Christ meant'. A DEDICATED atonement article, 14.1k chars."}
+    the_finding: |
+      🟢 THIS IS THE CONTROL CASE FOR THE RUSSIAN GAP, AND IT COMES OUT THE OTHER WAY.
+      `everystudent-ru`'s equivalent case (esru-newcomer-krest) credits two documents and
+      neither reliably retrieves, because Russian has NO article whose subject is the
+      atonement. Bulgarian HAS one, and it retrieves at rank 3 (rank 1 at 0.777 before the
+      reword). So the Russian result is a CONTENT gap in that source, not a universal defect
+      of the estate or of the embedder. Worth stating plainly because the Russian case was
+      written into the keys as an expected miss.
+    reworded: |
+      v1: "…Каква е била нуждата Исус да умре на кръст?" → top 0.777 🔴 SMELL: it restated
+      the article's own title ("Why did Jesus die?"). v2 reframes it around forgiveness and
+      the asker's own sin. Result 0.777 → 0.746, target moved rank 1 → rank 3 but stayed in.
+    rejected:
+      - {rank: 1, score: 0.746, en: "God's help in hard times — RANK 1 AND REJECTED, a boilerplate tail match"}
+      - {rank: 2, score: 0.740, en: "5 world religions — tail match"}
+
+  - case: esbg-skeptic-prepisvana            # topic: bible-trust · skeptic
+    q_en: "The Bible was copied by hand for centuries. How do I know today's text is the same as the original?"
+    top_score: 0.750
+    credits:
+      - {rank: 2, score: 0.729, en: "Why trust the Bible? — the history of the Bible: 1,500 years, 40 authors, archaeology and historians"}
+      - {rank: 4, score: 0.584, en: "Are there many contradictions in the Bible? — works the actual textual examples (the inscription on the cross across three Gospels)"}
+    note: |
+      ⓘ The top hit at 0.750 is `Исус и ислямът` ("Jesus and Islam"), NOT a credited document.
+      The score sits exactly on the smell line but the question is not restating that article —
+      it is the *tahrif* (scripture-corruption) overlap already recorded for `zh` and `kk` in
+      §0.7. The credited target sits comfortably below at 0.729. Left as is.
+
+  - case: esbg-believer-bez-otgovor          # topic: prayer · believer
+    q_en: "I have been praying for the same thing for months and there is no answer. Am I getting something wrong?"
+    top_score: 0.690
+    credits:
+      - {rank: 1, score: 0.690, en: "Does God answer our prayers? — 'Then why does God not answer everyone's prayers?' Bulgarian twin of the Spanish /articulos/oraciones.html and Russian /a/molitvi.html, both credited for this shape"}
+
+  - case: esbg-skeptic-edno-i-sashto         # topic: religions · skeptic
+    q_en: "Christianity, Islam, Buddhism - it seems to me they all claim the same thing in different words. Where is the real difference?"
+    top_score: 0.734
+    credits:
+      - {rank: 1, score: 0.734, en: "5 world religions — Hinduism, Buddhism, Islam, Christianity and New Age, each described, then how Jesus' teaching differs"}
+
+  - case: esbg-newcomer-trima                # topic: trinity · newcomer
+    q_en: "At the service they address Jesus, then the Father, then the Holy Spirit. Does that mean Christians worship more than one God?"
+    top_score: 0.704
+    credits:
+      - {rank: 1, score: 0.704, en: "Could you explain the Trinity? — 'three gods or one?' with the 1×1×1=1 formulation"}
+      - {rank: 4, score: 0.629, en: "Who is the Holy Spirit? — 'a person equal in every way to God the Father and God the Son… the third person of the Trinity'"}
+    reworded: |
+      v1: "…един ли е или са трима?" ("is it one or are there three?") → top 0.756 🔴 SMELL,
+      restating the article's own subtitle. v2 asks the practical question a newcomer would
+      actually ask. 0.756 → 0.704, still rank 1.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 25 credits · 25 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Paraphrase smells: 0 (max top score 0.746). Round 1 had FOUR; three questions
+#   were reworded and one credit was dropped.
+# Credits that do not retrieve: 1 (`Добър ли е Бог?`), kept deliberately.
+#
+# 🟢 THE HEADLINE: Bulgarian is the control that isolates the Russian finding.
+# Russia's jesus-death case fails because `everystudent-ru` has no atonement
+# article. Bulgaria has one and it retrieves. Same estate, same embedder, same
+# topic menu, opposite result → the Russian gap is corpus composition, not a
+# systemic retrieval defect.
+#
+# 🔴 The title trap fired again — third source, third instance. `Защо можем да
+# разчитаме на Бог?` ("Why can we rely on God?") is the six-attributes
+# what-is-God-like article. Titles remain unusable as evidence on this estate.

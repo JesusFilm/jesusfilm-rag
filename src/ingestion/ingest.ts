@@ -5,6 +5,7 @@
  * chunk → embed → idempotent `replaceDocument` (delete-then-insert, one tx).
  * upsertSource runs once per source before its first document. Each consumed
  * staging row is marked ingested so a re-run drains only new/changed pages.
+ * Bounded concurrency and duplicate-identity ordering are governed by ADR-0017.
  *
  * All I/O is via injected ports (RawDocumentReader, Embedder, CorpusWriteStore);
  * the registry (pure data) supplies each source's crawl/defaults. No adapter is

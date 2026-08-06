@@ -1,0 +1,249 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ti` (everytemhari.com, Tigrinya).
+# Campaign #111, tier D (tiny). Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 14 docs ÷ 8 = 1.75, floored at 4 → 4 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 4-case row exactly.
+# Topics used:    god-exists · religions · know-god · purpose
+# Topics dropped: jesus-death · bible-trust · prayer · trinity · suffering · anxiety
+#                 (six; reasons under CONTENT GAPS and CUT AFTER MEASUREMENT below).
+# Questions authored IN TIGRINYA, not translated from the English §0.7 menu.
+#
+# 🔴 THE HEADLINE: §0.7 SAID `ti` CANNOT SUPPORT THIS, AND IT WAS HALF WRONG.
+#   §0.7 recorded "`ti` cannot support the full menu — 4 distinct documents across 10
+#   topics, everything collapsing onto peace.html / religions.html / atheist.html, with
+#   bible-trust at 0.379", and told the drafter to expect ~4 topics. That measurement was
+#   taken CROSS-LINGUALLY (English questions against Tigrinya documents) and it is wrong
+#   about WHICH documents exist, though right about the collapse.
+#   Re-run in-language, this source separates far better:
+#     - English discovery returned  8 distinct docs, max score 0.529, and the ENTIRE
+#       God-existence shelf (universe / dna / created / where) never surfaced once.
+#     - In-language round 4 returns those same four documents at ranks 1, 2, 3 and 4,
+#       max score 0.687.
+#   This is batch-2 finding B (`uk`) in a much stronger form: English discovery
+#   under-predicted `uk` by ~0.08; on Tigrinya it under-predicted by ~0.16 AND
+#   mis-identified the answer set. On a low-resource language, treat the English
+#   discovery pass as a lower bound on content, never as an inventory.
+#
+# CORPUS SHAPE — read this before judging any hit
+#   14 documents, all `/a/*.html`. No `/story/` tree. 0 null-language, 0 duplicate paths.
+#   Three shelves, by the section label each document carries:
+#     ህልውና ኣምላኽ      "God's existence"      5 — atheist, universe, dna, where, created
+#     ምስ ኣምላኽ ሕብረት  "Connecting with God"  5 — faith, personally, heaven, religions, isGodgood
+#     ናተይ ህይወት        "My life"              4 — peace, toxic, then, women
+#   Largest-category hazard (the `am` lesson — find the biggest shelf and treat its
+#   vocabulary as unusable): the sex/marriage/addiction shelf here is ONE document
+#   (/a/toxic.html, 7%), not `am`'s 29%. It still intrudes: toxic.html appears in the
+#   top 7 of all four final cases, and it took RANK 1 on the anxiety question that was
+#   cut. Words avoided throughout: ሓዳር (marriage), ወልፊ (addiction), ምጽንናዕ (comforting
+#   oneself), and the estate's trigger phrase "forgiveness of sins".
+#
+#   TESTIMONY SHARE — 0% by path, ~14% by content, and the brief's warning holds.
+#   There is no `/story/` namespace, so path-counting reads this source as 0% testimony.
+#   Derived from the openings instead: /a/atheist.html is an explicit first-person
+#   conversion account (Marilyn Adamson) and /a/peace.html is built out of first-person
+#   testimonies (Heather, and Steve after an HIV diagnosis) wrapped around an invitation.
+#
+#   🔑 THE ONE MAGNET IS /a/peace.html — exactly the 0%-testimony pattern the brief
+#   predicts. Grepping the invitation-prayer / personal-account chunk shape:
+#       /a/peace.html       4 of 6 chunks   ← the magnet
+#       /a/toxic.html       2 of 6
+#       /a/atheist.html     1 of 6 (the whole document is a first-person account)
+#       /a/faith.html       last chunk
+#       /a/personally.html  the Four Spiritual Laws page — invitation without the word ጸሎት
+#   peace.html appears in the top 6 of every single case and is credited by NONE of them.
+#   Its own topic (anxiety) was cut, and the reason is the interesting half: a document
+#   that is 4/6 boilerplate is a strong magnet for OTHER topics and a weak answer for its
+#   OWN. See CUT AFTER MEASUREMENT.
+#
+# LANGUAGE-SWEEP VERIFICATION (all 14 were mislabelled `am` at confidence 1.00 until
+#   2026-07-31, because tinyld has no Tigrinya model and both use Ge'ez script).
+#   ✅ CLEAN. The openings hazard report shows 14 documents, all `ti`, 0 null. Read by
+#   eye, every document is Tigrinya and none is Amharic: copula እዩ/እያ/እዮም (Amharic ነው),
+#   interrogative እንታይ (Amharic ምን), negative circumfix ዘይ-…-ን, 2sg ኢኻ, and the spelling
+#   ኣምላኽ (Amharic writes አምላክ). No document needs to be escalated.
+#
+# HAZARDS FOUND
+#   1. DUPLICATE TITLE naming two DIFFERENT documents — the trap that bit Japanese:
+#        "ናይ ሕሊና ሰላም ኣብዛ ዘይተረጋግዐት ዓለም"  →  /a/peace.html  AND  /a/then.html
+#      All credits in this file are declared by PATH.
+#   2. ONE document under 1,200 chars: /a/isGodgood.html (1,063). See PURE-TAIL CHECK.
+#
+# PURE-TAIL CHECK (failure mode #2) — the flag is a FALSE POSITIVE here.
+#   /a/isGodgood.html was read in full, not skimmed. All 1,063 chars are a video
+#   transcript carrying a complete free-will theodicy: God is all-powerful but cannot do
+#   the logically impossible; forced obedience is not freedom; God wanted real people not
+#   robots; the first humans misused freedom; God will end suffering and became a man who
+#   suffered alongside us. There is NO invitation prayer and NO boilerplate tail in it.
+#   It is thin but substantive — the opposite of the 476–809 char video-promo pages
+#   batch 1 found. It is not credited, but only because its topic was cut on rank, not
+#   because it is a tail.
+#
+# TITLE TRAPS — three checked, two real, and NONE of them matched precedent.
+#   ✅ REAL, and it INVERTS the §0.7 finding. /a/then.html carries /a/peace.html's title
+#      ("Peace of mind in an unsettled world") but its body has nothing to do with peace:
+#      "Life now. Life then. Is there life after death?" — college, graduation, job,
+#      house, children, grandchildren, retirement, punctuated four times by
+#      "ሕራይ ደኣ እሞ እንታይ ኢዩ ዝበሊ?" ("so what's the point?") and ending in death. It is the
+#      source's PURPOSE article. §0.7 recorded that `ti` "genuinely lacks purpose"; that
+#      judgement was made by title and is wrong. Recovering it is one of two cases here.
+#   ✅ REAL, in reverse. /a/where.html is titled "ኣምላኽ ኣበይ ኣሎ?" ("Where is God?"), which
+#      reads like a location question. It is the source's WHAT-IS-GOD-LIKE article: how
+#      can an invisible God show himself, answered with the flatland analogy.
+#   ❌ NOT PRESENT. §0.12's three systematic traps do not appear on this source, and this
+#      is checked, not assumed (the `ro` lesson — do not credit a trap on precedent).
+#      `ti` has no "why can we rely on the God of the Bible" article, no Nothing→
+#      Something→Who cosmological series (its two cosmological pages are titled honestly,
+#      "Did God create the universe?" and "Who created God?"), and no coronavirus-titled
+#      anxiety page.
+#
+# ENGINE-CHECKED FOUR ROUNDS — .tmp-diag/phase5-check.ts ti ti
+#   Round 1 (6 probes): 0 smells · 1 credit not in top 10 · max top 0.679
+#   Round 2 (6 probes): 0 smells · 1 credit not in top 10 · max top 0.695
+#   Round 3 (4 cases):  0 smells · 0 credits not in top 10 · max top 0.687
+#   Round 4 (4 cases):  0 smells · 0 credits not in top 10 · max top 0.687  ← final
+#   Six probes were drafted deliberately so the engine, not the drafter, chose which four
+#   survived. Two were cut on measured evidence (see CUT AFTER MEASUREMENT).
+#   Every round went to REACH. The 0.75 smell line was never in play — the highest top
+#   score across 22 probe queries was 0.695, and this source's mean top score (0.538) is
+#   the lowest in the campaign.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 8 credited paths resolve to EXACTLY ONE document — 8/8.
+#   Guardrail #3a:   no credited document has a null language — 8/8.
+#
+# 🔴 CUT AFTER MEASUREMENT — two topics `ti` looked able to carry, and could not.
+#   These were drafted, engine-checked twice, and removed on the numbers. Recording them
+#   matters more than a padded suite would: this is guardrail #3a's defect avoided by
+#   policy rather than reached by accident.
+#
+#   suffering (skeptic) → /a/isGodgood.html. Cut. The credit returned at RANK 4 in both
+#     rounds (0.574, then 0.598), behind atheist.html (1), where.html (2) and peace.html
+#     (3) — none of which answer why a good God permits an accident. `ti` has exactly one
+#     theodicy document and it is the thinnest page in the source (1,063 chars, 1 chunk),
+#     so it cannot out-weigh three long ones. The topic IS carried; it just cannot win.
+#     Available to the operator as a 5th case if a rank-4 answer key is acceptable.
+#
+#   anxiety (seeker) → /a/peace.html. Cut, and this is the more useful failure.
+#     Round 1: credit at rank 4, score 0.414, top hit /a/toxic.html (pornography) at 0.468.
+#     Round 2 after a reword built from peace.html's own "the world around us always
+#     changes, but God does not" line: credit at rank 5, score 0.403, top hit STILL
+#     /a/toxic.html at 0.453. Two rounds, both directions, and it got worse.
+#     Diagnosis: peace.html is 4/6 invitation-prayer and testimony chunks, so its actual
+#     anxiety content is one chunk. That is why it wins other people's topics and loses
+#     its own. At 0.403 the credited document sits 0.033 above the corpus minScore of
+#     0.37 — a coin flip under any retrieval change. A golden case whose top hit is the
+#     pornography article at 0.453 is not worth having.
+#     🔑 GENERALISABLE: the tail magnet is not only a hazard to other cases, it is a
+#     hazard to its OWN topic. `mk` and `et` recorded magnets intruding; this is the
+#     first source where the magnet is also too diluted to answer for itself.
+#
+# CONTENT GAPS — four topics this source genuinely does not carry
+#   jesus-death — no atonement article. The estate's settled gap (8 of 11 batch-1
+#     sources have one; ru, zh-cn, mn do not). Corpus composition; not re-opened.
+#   bible-trust — no Bible-reliability article AND no Islam article, so the tahrif route
+#     that carries this topic on kk / th / zh / ja is unavailable too. §0.7 measured 0.379
+#     here, essentially the minScore floor. Confirmed: nothing in the 14 openings touches
+#     manuscript transmission.
+#   prayer     — no prayer article. English discovery's best candidate was atheist.html
+#     at 0.450, i.e. noise.
+#   trinity    — no Trinity article. English discovery returned nothing above 0.45.
+#   Two further documents are real content that no case covers, listed so the reviewer
+#   knows they were seen and not missed: /a/heaven.html (what heaven is like) and
+#   /a/women.html (Jesus and the status of women). Neither maps to a §0.7 topic.
+#
+# UNCREDITED-BUT-RECURRING — judged on content and deliberately NOT credited
+#   /a/personally.html  the Four Spiritual Laws page, and the estate-wide repeat tail
+#     carrier the brief names. It sits in the top 5 of three of the four final cases. It
+#     describes the four steps into a relationship with God; it never says what God is
+#     like, never gives evidence, never compares religions, never addresses meaning. It
+#     answers "how do I start" — which no case here asks. Not a credit.
+#   /a/peace.html  the magnet. Top 6 of every case. Not a credit anywhere; see above.
+#   /a/toxic.html  the pornography article, top 7 of every case, 2 of its 6 chunks are
+#     the invitation tail. Failure modes #1 and #4 firing together. Not a credit.
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Tigrinya. This is a
+#   fact about the REVIEWER, not the language. If anyone on the team reads Tigrinya, the
+#   two boundary calls flagged below are what to give them first. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ── skeptic · god-exists ─────────────────────────────────────────────────
+  # The whole God-existence shelf, and the round that rescued it. In rounds 1 and 2
+  # /a/dna.html did NOT return in the top 10 at all — while the pornography article did.
+  # Round 3 named the evidence concretely (ዲ. ኤን. ኤ. carrying information like a code)
+  # and dna.html went from missing to RANK 1. Round 1 also proved failure mode #5 on this
+  # source: the original opened "my friends say belief is invented", and that social
+  # framing put peace.html at rank 2 on a science question. Dropping it fixed the case.
+  - id: "esti-skeptic-merto"
+    persona: skeptic
+    topic: god-exists
+    q: "ሓደ ሰብ ኣብ ኣምላኽ ንኽኣምን ካብ ስነ ፍልጠት ዚርከብ ኣብ ግምት ዜእቱ ምኽንያት ኣሎ ድዩ? ንኣብነት እቲ ዩኒቨርስ መጀመርታ ምህላዉን ኣብ ውሽጢ ነፍሲ ወከፍ ዋህዮ ዘሎ ዲ. ኤን. ኤ. ከም ኮድ ኰይኑ ሓበሬታ ምስካሙን ናብ ገለ መደምደምታ የብጽሑና ድዮም?"
+    en: "Is there a reason drawn from science, worth taking seriously, for a person to believe in God? For example, do the universe having a beginning, and the DNA inside every cell carrying information like a code, lead us to any conclusion?"
+    credits:
+      - { path: "/a/dna.html", en: "Opening states it outright: 'science gives us enough reason to believe in God'. Antony Flew's reversal, then DNA as a four-letter code compared to computer binary. The source's science-evidence article.", rank: 1, score: 0.687 }
+      - { path: "/a/universe.html", en: "Opening: 'How did the universe get here? Scientists confirm the Big Bang and a beginning to the universe' — Hubble, a beginning to space and to time, therefore a cause outside both.", rank: 2, score: 0.65 }
+      - { path: "/a/created.html", en: "Opening: whatever comes into existence must be caused by something else — a book has an author. Cosmological causation, and why God is in a different category from caused things.", rank: 4, score: 0.569 }
+      - { path: "/a/atheist.html", en: "First-person account by an atheist of the facts that changed her mind; its second part is explicitly headed 'further evidence for God's existence'. Answers the question in testimony form.", rank: 6, score: 0.562 }
+    top_score: 0.687
+
+  # ── 2 ── skeptic · religions ─────────────────────────────────────────────────
+  # The only case that never needed changing — rank 1 and rank 3, identical across all
+  # four rounds. Phrased as the claim-equivalence objection ("they all offer the same
+  # hope and end in the same place") rather than as the article's own question form,
+  # which is almost word-for-word the title of /a/religions.html.
+  - id: "esti-skeptic-haymanot"
+    persona: skeptic
+    topic: religions
+    q: "ሂንዱይዝም፡ ቡዲዝም፡ ምስልምና፡ ክርስትና — ኵለን ተመሳሳሊ ዓይነት ተስፋ እየን ዚህባ፡ ኣብ መወዳእታ ድማ ናብ ሓደ ቦታ እየን ዜብጽሓ ዚብል ርእይቶ ደጋጊመ እሰምዕ እየ። እዚ ርእይቶ እዚ ቅኑዕ ድዩ? ኢየሱስ ካብ ካልኦት መራሕቲ እምነት ብሓቂ ዚረአ ዚፈልዮ ነገር ኣለዎ ድዩ?"
+    en: "I keep hearing the view that Hinduism, Buddhism, Islam and Christianity all offer the same kind of hope and in the end lead to the same place. Is that view right? Is there really anything visible that sets Jesus apart from other religious leaders?"
+    credits:
+      - { path: "/a/religions.html", en: "A point-by-point contrast of Jesus against popular world religious beliefs: he initiates the relationship rather than being reached for, he claimed to be God, he lived a perfect life, he did miracles. The source's world-religions article.", rank: 1, score: 0.644 }
+      - { path: "/a/faith.html", en: "Opening: 'Is Jesus God? All the great religions honour him. Was Jesus a prophet, or God?' — Paul E. Little's evidence for Jesus' deity, which is precisely the claim that separates him from other founders.", rank: 3, score: 0.569 }
+    reviewer_decision: >-
+      BOUNDARY — /a/women.html returns at rank 2 (0.575) in every round and is NOT credited. It is Jesus against Middle-Eastern religious culture on the status of women: genuinely a Jesus-versus-religion contrast, but a contrast of social ethic, not of the claims a seeker is weighing when asking whether all religions lead to the same place. Judged out. A Tigrinya reader should confirm.
+    top_score: 0.644
+
+  # ── 3 ── newcomer · know-god ─────────────────────────────────────────────────
+  # The hardest case, and the only §0.7 newcomer topic this source can carry at all
+  # (jesus-death and trinity are both absent). Four wordings were measured:
+  #   r1 "invisible God, no face, can I know who he is"        → where.html rank 2
+  #   r2 added "a being outside our dimensions" + "what is he like"  → rank 4
+  #   r3 same, ending "who he is"                                    → rank 6
+  #   r4 restored r1's frame and added the article's own demand
+  #      "ንኣምላኽ ኣርእየኒ" ("show me God")                              → rank 3  ← kept
+  # The lesson is r2/r3: abstract theological vocabulary ("a being outside our
+  # dimensions") raises EVERY document's score and separates none of them. On a 14-doc
+  # corpus that is the collapse §0.7 described, self-inflicted. The concrete, quoted
+  # human demand discriminated where the abstraction did not.
+  - id: "esti-newcomer-zeyrae"
+    persona: newcomer
+    topic: know-god
+    q: "ሰባት 'ንኣምላኽ ኣርእየኒ' ኺብሉ እሰምዕ እየ፣ ኣነ እውን ብዛዕባ ኣምላኽ ክሓስብ ከለኹ ኣብ ርሑቕ ዘሎ ዘይንጹር ሓይሊ ጥራይ እዩ ዚመስለኒ፡ ገጽ የብሉን። እዚ ዘይርአ ኣምላኽ ንርእሱ ኼርኢ ዚኽእለሉ መገዲ ኣሎ ድዩ? ብሓቂ መን ምዃኑ ክፈልጥ እኽእልዶ?"
+    en: "I hear people say 'show me God', and when I think about God myself he seems to me only a vague force far away, with no face. Is there any way this invisible God can show himself? Can I actually come to know who he is?"
+    credits:
+      - { path: "/a/where.html", en: "TITLE TRAP IN REVERSE — titled 'Where is God?' but it is the what-is-God-like article. Opens on people saying 'show me God', then the flatland analogy: two-dimensional figures on a sheet cannot see you unless you touch the sheet, so a God beyond our dimensions is knowable only where he enters them.", rank: 3, score: 0.653 }
+    reviewer_decision: >-
+      BOUNDARY — /a/personally.html (the Four Spiritual Laws page) returns at rank 4 and is NOT credited, though it is the most defensible of the three magnets. It does address knowing God, but only as procedure: what it takes to begin, and the four steps. It never describes who God is or what he is like, which is what this newcomer is asking. Judged out; the single most likely credit a reviewer would add. Note also /a/faith.html at rank 7 — it states this case's exact premise ("unless God reveals himself we cannot establish his existence ourselves"), but it is already the second credit on case 2, and keeping the four answer sets disjoint is the point on a source that collapses. Deliberately single-credit.
+    top_score: 0.669
+
+  # ── 4 ── seeker · purpose ────────────────────────────────────────────────────
+  # This case exists only because the openings were read. §0.7 recorded that `ti`
+  # "genuinely lacks purpose"; /a/then.html is the purpose article, hidden behind
+  # /a/peace.html's title. Rank 5 → 3 → 1 over three rounds. Two edits did it:
+  #  (a) removing the word ዕላማ ("purpose") — it is /a/personally.html's own vocabulary
+  #      ("only Jesus can bring meaning and purpose to life", in its opening), so the
+  #      obvious word for the topic was pulling the tail page instead of the answer;
+  #  (b) matching then.html's actual arc — the ladder of life stages ending in a grave.
+  # The lowest top score in the suite (0.500) and the credit is the top hit: failure
+  # mode #6 read the right way round, since score and correctness are not the same thing.
+  - id: "esti-seeker-tirgum"
+    persona: seeker
+    topic: purpose
+    q: "ተማሂረ፡ ስራሕ ረኺበ፡ ገዛ ገዚአ፡ ደቀይ ዓብዮም፡ ጡረታ ወጺአ፡ ኣብ መወዳእታ ድማ ክመውት እየ። ነዚ ኵሉ መድረኻት ሓሊፈ ኣብ መቓብር እንተ ወዳእክዎ፡ እዚ ተደጋጋሚ ናብራ እንታይ ትርጉም ኣለዎ? ድሕሪኡ ዘሎኸ እንታይ እዩ?"
+    en: "I study, get a job, buy a house, my children grow up, I retire, and in the end I die. If I pass through all these stages and finish in a grave, what meaning does this repeating round of living have? And what is there after it?"
+    credits:
+      - { path: "/a/then.html", en: "TITLE TRAP — carries /a/peace.html's title, but the body is 'Life now. Life then. Is there life after death?': college, graduation, job, house, children, grandchildren, retirement, each stage punctuated by 'so what's the point?' and ending in death. The source's purpose and meaning article.", rank: 1, score: 0.5 }
+    reviewer_decision: >-
+      BOUNDARY — /a/heaven.html returns at rank 7 and is NOT credited. The question's last clause ("what is there after it?") does invite it, and heaven.html is a real afterlife article. Judged out because it describes the New Jerusalem rather than what a life was for, and the topic is purpose, not the afterlife. If a reviewer wants the afterlife clause credited, heaven.html is the document to add.
+    top_score: 0.5

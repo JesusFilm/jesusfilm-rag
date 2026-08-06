@@ -1,0 +1,473 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-mk` (Macedonian, 49 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 49 ÷ 8 = 6.1 → 6 cases.
+# Personas: skeptic 2 · newcomer 2 · seeker 1 · believer 1 — the §0.7 six-case split.
+# Questions authored IN MACEDONIAN (Cyrillic), not translated from the English menu (§0.6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CORPUS SHAPE — read this before judging any hit
+# ─────────────────────────────────────────────────────────────────────────────
+#   49 documents, ALL of them `/a/*.html`. **ZERO `/story/` testimonies — 0%.**
+#   This is the smallest source in the campaign so far and the FIRST with no `/story/`
+#   tree at all. Per §0.12 failure mode #1 — tail severity tracks testimony share —
+#   that predicts a MILD tail, and that is exactly what was measured. See the SUMMARY:
+#   this source is the low end of the range `hu` (24% testimony) sits at the top of.
+#   Personal-testimony content exists but is filed as ARTICLES, not stories:
+#   `/a/nadez607.html` (Steve Sawyer, HIV) and `/a/ateist-najde-bog.html`
+#   (Marilyn Adamson, atheist). Both behave like testimonies in retrieval.
+#   Null-language documents: 0 of 49 (guardrail #3a — nothing excluded).
+#   Documents under 1,200 chars: 0 — this source has NO pure-tail pages (#2).
+#   Duplicate titles: 1 — "Кој" names TWO different documents, /a/koj104.html and
+#   /a/koj204.html (parts 3 and 4 of the cosmological series). Neither is credited,
+#   but this is the exact hazard that bit Japanese: credits are declared by PATH.
+#
+# ⓘ PATHS ARE SHORT PLAIN ASCII (`/a/koje109.html`), NOT percent-encoded Cyrillic.
+#   The task brief flagged that `bg` — the closest Cyrillic sibling, §0.11 — had
+#   150–250 char percent-encoded Cyrillic paths and that hand-transcribing them was a
+#   transcription-error factory. **`mk` does NOT have that shape.** The site is written
+#   in Cyrillic but its slugs are Latin transliterations, so `bg`'s hazard #1 does not
+#   transfer. Every path here was still copied from the openings dump rather than
+#   retyped, and the check script re-verified all 16 against the database (16/16).
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-mk mk
+#   → 42 distinct candidate documents of 49; all ten topics surfaced candidates.
+# All 49 documents were then read from the database (title + opening ~900 chars)
+# before anything was credited — guardrail #5. Judging by title would have been wrong
+# in BOTH directions on this source; three traps are recorded below, one of them new.
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts mk mk
+#   Round 1: 0 smells (max 0.748) · 2 credits not returned · 15 credits
+#   Round 2: 1 smell  (max 0.772) · 1 credit  not returned · 15 credits
+#   Round 3: **0 smells (max 0.735)** · **1 credit not returned** · 16 credits
+#            — and that one is a DELIBERATE keep, see `bog-realen` on case 1.
+#   Round 2 is why there were three rounds, and it is a textbook instance of the
+#   warning in the brief: fixing case 1's REACH over-corrected it into a 0.772
+#   restatement. Reach and smell pull in opposite directions and one round cannot
+#   settle both. Cases 2, 3, 5 and 6 were untouched and identical across all three
+#   rounds — only cases 1 and 4 were reworded.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 16 credited paths resolve to EXACTLY ONE document — 16/16.
+#   Guardrail #3a:   no credited document has a null language — 16/16.
+#   Short-credit warning (#2): none fired. The shortest credit is
+#   `/a/video-dali-bog-e-dobar.html` at 1,477 chars — over the 1,200 line, and it is a
+#   real free-will theodicy transcript, not a video promo plus an invitation prayer.
+#
+# TOPICS DROPPED (4 of 10) — and NONE of them for lack of content.
+#   At n=6 the §0.7 split allows 2 skeptic · 2 newcomer · 1 seeker · 1 believer, so
+#   four topics could not be sampled. This source genuinely carries all ten. The four
+#   were chosen by DOCUMENT DEPTH, so the six that ran could each be judged against a
+#   real shelf rather than a single page:
+#     • `purpose`   (seeker)   — well carried: /a/mojata305.html (the hammer parable),
+#       /a/vistinskiot303.html (three people who reached the summit and were empty) and
+#       /a/izvorot302.html (Josh McDowell). Lost the ONE seeker slot to `anxiety` on
+#       diagnostic value: anxiety carries two title traps, one of them new to the
+#       campaign. A tie broken on findings, not on corpus weakness.
+#     • `bible-trust` (skeptic) — carried by exactly ONE document,
+#       /a/biblijata215.html (20.6k, "How can we believe the Bible?", which answers on
+#       transmission directly: "textual research confirms that the books of the Bible
+#       have not changed since they were first written down"). ⚠️ AND SEE THE ESTATE
+#       NOTE IN THE SUMMARY: `mk` has NO Islam article at all, so the *tahrif* route
+#       §0.12 records for `zh` `kk` `th` `bg` `ja` does not exist here.
+#     • `religions` (skeptic) — carried by /a/povrzuvanje205.html (16.4k, the estate's
+#       /a/205 world-religions piece: "Hinduism, Buddhism, Islam, Christianity and the
+#       New Age movement") plus /a/vistina217.html ("true for you but not for me").
+#       Two documents; only two skeptic slots, and god-exists/suffering carry more.
+#     • `trinity` (newcomer) — carried by /a/objasnuvate709.html (3.0k) and
+#       /a/svetiot708.html (3.3k), both short Q&A pages. Thinnest of the three
+#       newcomer candidates; lost to know-god (3 docs) and jesus-death.
+#   🔴 NO TOPIC WAS DROPPED BECAUSE THIS SOURCE COULD NOT ANSWER IT, and no case was
+#   manufactured. Six is a SIZING cap here, not a coverage limit. If the operator wants
+#   `mk` at n=8 or n=10, `purpose` and `religions` are the next two to add and both
+#   have credible answer keys already identified above.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Macedonian). This is
+# a fact about the REVIEWER, not the language — if anyone on the team reads Macedonian
+# and can sanity-check the translations, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS
+  - id: "esmk-skeptic-zelba" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Кај моите пријатели верувањето во Бог поминува како обична желба да постои нешто повеќе. Мене ме интересира дали нешто во самиот свет околу нас укажува дека тоа не е само желба."
+    en: "Among my friends, believing in God passes as a plain wish that there is something more. What interests me is whether anything in the world around us indicates that it is not just a wish."
+    credits:
+      - { path: "/a/dalipostoi101.html", en: "Does God exist? (Marilyn Adamson, 18.6k) — the source's flagship apologetics article. Opens 'Wouldn't you like someone to prove to you just once that God exists? Without evasions and without statements like: you simply have to believe.' Then the six reasons, argued as evidence.", rank: 1, score: 0.735 }
+      - { path: "/a/ateist-najde-bog.html", en: "How an atheist found God (Marilyn Adamson, 14.9k) — 'I methodically went through the FIVE OBJECTIVE REASONS why I believe God exists. So my faith in God was not founded on feelings, but on facts, on reasons.' Answers the wish-versus-grounds objection head-on.", rank: 2, score: 0.716 }
+      - { path: "/a/zbuneti-naucnici-zakoni-priroda.html", en: "Scientists puzzled by the laws of nature (8.5k) — 'Why are the laws of nature so constant? Read why scientists are so puzzled by the laws of physics.' Coffee always cools, gravity is never random, the speed of light is constant; Sean Carroll quoted, then the order-of-the-universe argument. Squarely 'something in the world around us'.", rank: 6, score: 0.655 }
+      - { path: "/a/bog-sozdade-univerzum.html", en: "Did God create the universe? (9.3k) — 'How did the universe begin to exist? Scientists confirm the Big Bang theory.' Hubble, the beginning of space, matter and time, and the problem a beginning poses for non-theist scientists. ADDED after round 2, where it returned uncredited at rank 9 and, on reading, plainly answers the question as asked.", rank: 8, score: 0.645 }
+      - { path: "/a/bog-realen.html", en: "Is God real? (5.2k) — 'Science gives us all kinds of reasons to believe in God. Why does DNA matter?' The British philosopher Antony Flew, 'a leading spokesman for atheism', concluding that 'a super-intelligence is the only good explanation for the origin of life and the complexity of nature', then DNA as a written computer program. 🔴 KEPT DELIBERATELY, see below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/a/bog-realen.html` is this source's SCIENTIFIC-EVIDENCE article. The question
+      asks, in as many words, whether anything IN THE WORLD AROUND US indicates that
+      belief is more than a wish. Antony Flew reversing his atheism over the origin of
+      life, and DNA read as a written program, is that answer. On reflection it does not
+      answer some other question, so dropping it would be dishonest — I KEPT it.
+
+      🟢 AND IT IS THE SECOND SOURCE TO DO THIS WITH THE SAME ARTICLE. `everystudent-hu`
+      kept `/a/dns.html` on its own god-exists case for exactly this reason (§0.12, `hu`
+      case 1): same estate, same Antony Flew / DNA piece, same failure to retrieve for a
+      question that explicitly asks for worldly evidence. Two independent sources, two
+      independent drafters, same document, same miss. That makes this a REPEATABLE
+      retrieval gap in a specific article family rather than a one-source fluke — which
+      is worth more to the eval than a clean 5/5 would have been.
+
+      What it measures on `mk`: for a question asking what in the world points to God,
+      the engine returns `/a/zowto731.html` at rank 3 (0.715, why God does not perform a
+      spectacular miracle), `/a/molitvi306.html` at rank 4 (0.683, the prayer article)
+      and `/a/koronavirus.html` at rank 5 (0.664, the anxiety article) AHEAD of the
+      science piece. This case will score coverage 4/5, on purpose.
+
+      ⚠️ It is a BOUNDARY credit and will flap. It sat at rank 7 (0.619) in the top 10
+      of case 3 in the same run, i.e. it is retrievable, just not for this question.
+      Do not read a future 5/5 as a change in the engine.
+    reworded: |
+      ⚠️ REWORDED TWICE — this case cost more work than the other five combined, and the
+      reason is the one the brief predicted: REACH and SMELL pull in opposite directions.
+      v1: "…Има ли зад тоа нешто цврсто, или сето тоа е само чувство?"
+          ("…Is there anything solid behind it, or is the whole thing just a feeling?")
+          → top 0.748, no smell, but only 2 of 4 credits returned. BOTH science articles
+          missed. The fact-versus-feeling framing restates `/a/ateist-najde-bog.html`'s
+          own line ("my faith was not founded on feelings, but on facts") almost word for
+          word, so that one document absorbed the query and the rest of the top 10 filled
+          with relational articles: the PRAYER article at rank 2 (0.713), the thirst
+          article at rank 5, the anxiety article at rank 6. Failure mode #5 exactly.
+          0.748 also sat 0.002 under the smell line, which is not a margin.
+      v2: "…Дали има вистински причини да се мисли поинаку — нешто од светот околу нас…?"
+          ("…Are there real reasons to think otherwise — something from the world around
+          us…?") → top 0.772 🔴 PARAPHRASE SMELL, and 3 of 4 credits returned.
+          Fixing reach broke smell: "вистински причини" restates BOTH credited articles'
+          own wording — /a/dalipostoi101.html opens "reasons why one should believe in
+          God" and /a/ateist-najde-bog.html says "the five objective reasons". On a
+          source where two documents both use the word, paraphrasing toward it lands on
+          both at once: they came back at 0.772 and 0.770.
+      v3 (kept): drops the word "причини" (reasons) entirely and asks instead whether
+          anything in the world "укажува" (indicates) that it is not just a wish, keeping
+          the menu's wishful-thinking objection.
+          → **0.748 → 0.772 → 0.735.** 4 of 5 credits returned, at ranks 1, 2, 6 and 8,
+          and `/a/dalipostoi101.html` moved from rank 3 to rank 1. The cost is
+          `/a/bog-realen.html`.
+    rejected:
+      - { path: "/a/zowto731.html", rank: 3, why: "'Why did God not perform some spectacular miracle to prove himself?' (3.2k Q&A). Rank 3 and rejected: its subject is God's RETICENCE about proving himself — Philip Yancey on God leaving us free to choose — not what evidence exists. Same call the `hu` suite made on its twin /a/csodat.html." }
+      - { path: "/a/molitvi306.html", rank: 4, why: "the prayer article, at rank 4 for an evidence question. Credited to case 6. See the SUMMARY: this document is this source's universal matcher." }
+      - { path: "/a/koronavirus.html", rank: 5, why: "the anxiety article — credited to case 5" }
+      - { path: "/a/kade-e-bog.html", rank: 7, why: "credited to case 3. Its subject is God's invisibility, which is a what-is-God-like question, not an evidence one." }
+      - { path: "/a/stabilnost301.html", rank: 9, why: "inner peace — credited to case 5" }
+      - { path: "/a/povrzuvanje205.html", rank: 10, why: "the world-religions comparison, at rank 10 for an evidence question. Not credited to any case in this suite because `religions` was one of the four dropped topics." }
+    top_score: 0.735
+
+  # ── 2 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esmk-skeptic-nesreka" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "Минатата година мој близок пријател загина во сообраќајна несреќа. Оттогаш никој не успеа да ми објасни како такво нешто се сложува со постоењето на добар Бог."
+    en: "Last year a close friend of mine was killed in a road accident. Since then nobody has managed to explain to me how such a thing fits together with the existence of a good God."
+    credits:
+      - { path: "/a/video-dali-bog-e-dobar.html", en: "Is God good? (1.5k video transcript) — 'If he is, then why is there suffering and evil?' The free-will theodicy worked through properly: God can do anything logically possible but cannot make a square circle or a one-ended stick, and freedom without real choice is a square circle. Macedonian twin of the Hungarian /a/jo.html and the Chinese /a/isgodgood.html, which was RANK 1 for the Chinese version of this question in Part A — and it is rank 1 here too.", rank: 1, score: 0.728 }
+      - { path: "/a/zowto602.html", en: "Why is life so hard? (8.6k) — 'Why do people get cancer? Why are there earthquakes that destroy whole cities?' Then the wake-up: your parents divorce, the girl next door is kidnapped, a relative suddenly has cancer. The closest match in the source to the asker's own situation.", rank: 2, score: 0.707 }
+      - { path: "/a/tragediite601.html", en: "Where is God amid the tragedies? (Marilyn Adamson, 12.7k) — 'Where can we find inner strength to cope with fears, tragedies, catastrophes and terrorist attacks?' Carries its own 'Tragedies, catastrophes, terrorist attacks: our free will' section.", rank: 5, score: 0.678 }
+      - { path: "/a/zosto-obozuvame-bog.html", en: "Why worship a God who allows terrible things to happen? (4.1k Q&A) — the question is framed on a child being raped, and the answer opens by disclosing that the writer has a close relative who was raped as a child. Then the free-will answer and why God does not stop people doing evil.", rank: 6, score: 0.675 }
+    note: |
+      ⓘ NO REWORD NEEDED, and the case was byte-identical across all three rounds
+      (0.728, ranks 1/2/5/6). This is the strongest topic on the source after
+      god-exists: four documents, four credits, 4/4 returned every time.
+    rejected:
+      - { path: "/a/koronavirus.html", rank: 3, why: "RANK 3 AND REJECTED — the anxiety article. Its subject is living with chronic worry, not why a good God permits a death. Credited to case 5. Same call the `hu` suite made on its own /a/koronavirus.html twin." }
+      - { path: "/a/ateist-najde-bog.html", rank: 4, why: "the atheist's conversion account — credited to case 1" }
+      - { path: "/a/idealen-bog.html", rank: 7, why: "the what-is-God-like article — credited to case 3" }
+      - { path: "/a/molitvi306.html", rank: 8, why: "the prayer article — credited to case 6" }
+      - { path: "/a/nadez607.html", rank: 9, why: "Steve Sawyer's HIV testimony (18.9k). ⚠️ Its subject is how he personally kept hope under a terminal diagnosis, not why a good God allows it — the same call the `ru` suite made on /a/steysi1.html and the `hu` suite on /a/sawyer.html. THIRD source, same article family, same rejection." }
+      - { path: "/a/zgasni507.html", rank: 10, why: "'Quench your real thirst' — binge drinking and the craving for real friendship behind it. A tail match; its subject is neither suffering nor theodicy." }
+    top_score: 0.728
+
+  # ── 3 ─────────────────────────────────── newcomer 🔴 TITLE TRAP HERE
+  - id: "esmk-newcomer-energija" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "Кога луѓето ќе кажат „Бог“, мене ми се јавува слика на некаква магловита енергија некаде горе. Дали Тој е воопшто личност со која човек може да има врска?"
+    en: "When people say 'God', the picture that comes to my mind is some hazy energy somewhere up there. Is he even a person one can have a relationship with?"
+    credits:
+      - { path: "/a/idealen-bog.html", en: "How to find the ideal God?! (15.0k). 🔴 TITLE TRAP: the title reads as a how-to-convert piece and names no subject. The body is the estate's six-attributes what-is-God-like article — 'The Bible reveals the following attributes of God… #1: He is greater than us… #2: He can be known personally — today it is popular to think that God is some kind of invisible force…'. That second point answers this question's exact objection.", rank: 1, score: 0.716 }
+      - { path: "/a/koje109.html", en: "Who is God? (3.9k) — 'Who is God? What does he look like? SIX PERSONAL CHARACTERISTICS of God': he is a God who can be known, who can be approached, who calls us to speak with him. The short explicit twin of the article above — this source publishes BOTH, which is unusual for the estate.", rank: 2, score: 0.659 }
+      - { path: "/a/kade-e-bog.html", en: "Where is God? (3.4k) — 'People say: show me God. But if God is invisible, how can he show himself?' The two-dimensional-paper analogy (a fingertip entering a flat world), then God existing outside our dimensions. Answers the 'hazy energy somewhere up there' half directly.", rank: 5, score: 0.644 }
+    the_finding: |
+      🔴 SIXTH SOURCE, SAME SYSTEMATIC TITLE TRAP — and `mk` states the pattern most
+      clearly of any source so far, because it publishes BOTH halves of it.
+      §0.12 #3 records "Why can we rely on / choose the God of the Bible?" as a title
+      that is actually the six-attributes what-is-God-like article, seen on `bg` `tr`
+      `fa` `pt` `cs`. On `mk` that article is `/a/idealen-bog.html`, titled "How to find
+      the ideal God?!" — a title a reviewer files under conversion, and it is RANK 1 for
+      the what-is-God-like question at 0.716. Meanwhile the honestly-titled version
+      (`/a/koje109.html`, "Who is God?") also exists, at a quarter the length, and comes
+      back at rank 2. **The trap is not that the estate hides this article; it is that
+      the estate publishes it twice and localises only one of the two titles usefully.**
+      A title-only reviewer credits the 3.9k page and misses the 15.0k one.
+    rejected:
+      - { path: "/a/koj204.html", rank: 3, why: "'Кој' — part 4 of the cosmological series. Rejected on its text: its subject is the properties of the Eternal Something (that it is not a machine, that it can be everywhere yet is distinct from us), which is an argument FOR a personal God's existence — a god-exists question, not a what-is-he-like one. ⚠️ THIS IS ONE OF THE TWO DOCUMENTS SHARING THE TITLE 'Кој'; crediting by title here would have been a coin flip." }
+      - { path: "/a/povrzuvanje205.html", rank: 4, why: "the world-religions comparison. It does describe how each faith pictures God, but its subject is the comparison, not the Christian answer." }
+      - { path: "/a/molitvi306.html", rank: 6, why: "the prayer article — credited to case 6" }
+      - { path: "/a/bog-realen.html", rank: 7, why: "the DNA/Antony Flew article — credited to case 1, where it does NOT return. See the kept_miss there: it is retrievable, just not for the question it answers." }
+      - { path: "/a/zapoznaj401.html", rank: 8, why: "'Know God personally' (6.0k) — the Four Spiritual Laws page, exactly the /a/personally.html shape from Part A. A begin-a-relationship page, matched on its tail." }
+      - { path: "/a/dalipostoi101.html", rank: 9, why: "credited to case 1" }
+      - { path: "/a/vistinskiot303.html", rank: 10, why: "'Real life' — the purpose article. Would have been a credit had `purpose` not been one of the four dropped topics." }
+    note: |
+      ⓘ FOUR DOCUMENTS ON THIS SOURCE ARE UNJUDGEABLE BY TITLE BY CONSTRUCTION, and on
+      `mk` two of them collide outright. `/a/niwto102.html` ("Was there ever nothing?") →
+      `/a/newto103.html` ("Something") → `/a/koj104.html` ("Кој" / "Who") →
+      `/a/koj204.html` ("Кој" — the body says "Кој - 2 дел") are the estate's four-part
+      cosmological argument, published as separate documents with sequential titles that
+      name no subject. §0.12 lists this on `hu` `pl` `mn` `sk` `pt` `es` `fa` `cs`; `mk`
+      is the ninth — and the FIRST where two parts carry the IDENTICAL title string,
+      which is the one duplicate-title hazard the openings script flagged on this source.
+      Note also that the personhood conclusion sits in part 3 on `mk`
+      ("because it has will, the Eternal Something has personhood — an Eternal Someone"),
+      whereas on `hu` it sat in part 4. The series is not even split the same way
+      across siblings, so no cross-source rule about which part to credit is safe.
+    top_score: 0.716
+
+  # ── 4 ────────────────────── newcomer 🟢 THE ATONEMENT ARTICLE EXISTS AND WINS
+  - id: "esmk-newcomer-raspnuvanje" # topic: jesus-death
+    persona: newcomer
+    topic: jesus-death
+    q: "Христијаните што ги познавам зборуваат за крстот како да е пресвртница за целиот свет. За мене тоа е само уште едно погубување од пред две илјади години. Не ми е јасно што требало да постигне таа смрт."
+    en: "The Christians I know talk about the cross as if it were a turning point for the whole world. To me it is just one more execution from two thousand years ago. I do not understand what that death was supposed to accomplish."
+    credits:
+      - { path: "/a/isus-umre.html", en: "Why did Jesus die? (13.1k) — a DEDICATED atonement article: 'Here is the meaning of Jesus' death and resurrection, and of his crucifixion.' Works through why the Jewish religious leaders, the Roman authorities and the crowd all wanted him dead, then what the death accomplished: 'all our sins grieve him… we cannot meet even our own standards, let alone his.'", rank: 1, score: 0.696 }
+    the_finding: |
+      🟢 NINTH CONFIRMATION THAT THE RUSSIAN ATONEMENT GAP IS CORPUS COMPOSITION.
+      §0.12 settled this: 8 of 11 batch-1 sources have a dedicated "why did Jesus die?"
+      article and rank it 1–5; `ru`, `zh-cn` and `mn` do not. `mk` HAS one, and after the
+      reword below it is **rank 1 at 0.696**, coverage 1/1. Not re-opened, just counted.
+
+      🟢 AND THE TAIL IS MILD HERE — WHICH IS THE PREDICTION §0.12 #1 MAKES.
+      On `hu` (24% `/story/` testimonies) this same case had tail matches at ranks 1, 2
+      AND 3 and the atonement article at rank 5. On `mk` (**0% testimonies**) the
+      atonement article is rank 1 and the tail-shaped documents sit at ranks 3, 7 and 10.
+      Same estate, same embedder, same question shape, opposite end of the range. The
+      rule "tail severity tracks testimony share" now has a floor case as well as a
+      ceiling case.
+    reworded: |
+      ⚠️ REWORDED ONCE, and it is a clean specimen of failure mode #4 (LEXICAL ARTIFACT
+      FROM INCIDENTAL COLOUR — the Japanese "over drinks" defect).
+      v1: "…Што всушност се сменило со тоа?" ("…What actually CHANGED because of it?")
+          → top 0.650, no smell, credit returned at rank 2 — but RANK 1 was
+          `/a/vistinskiot303.html`, the PURPOSE article ("Real life"), and rank 6 was
+          `/a/izvorot302.html`, "The source of a CHANGED life". The single word "сменило"
+          (changed) pulled both of the source's changed-life articles over the atonement
+          article. Nothing about the question smelled; it simply retrieved the wrong shelf.
+      v2 (kept): asks instead what that death was "требало да постигне" (supposed to
+          accomplish), removing the change word entirely.
+          → **0.650 → 0.696, and the credit moved rank 2 → RANK 1.** The purpose article
+          fell to rank 5 and the changed-life article left the top 10 altogether.
+    note: |
+      🔑 The question deliberately does NOT contain "прошка за гревовите" (forgiveness of
+      sins). §0.12 records that as the estate's trigger phrase — Turkish put it in and got
+      Catholic-vs-Christian at rank 1 and marriage advice at rank 2, and removing it
+      cleared all five tails from the top 10. Avoided here by construction, and the top 10
+      below shows no marriage, sex or intimacy article at all.
+
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-mk` carries exactly
+      one document whose SUBJECT is what the cross accomplished. The two long Jesus
+      articles are about who he was, not what his death did — see the rejections.
+    rejected:
+      - { path: "/a/vera201.html", rank: 2, why: "'More than blind faith' (Paul E. Little, 20.6k) — RANK 2 AND REJECTED. Its subject is Jesus' DEITY: 'The life of Jesus Christ. Was he the Son of God?' Whether he claimed to be God is a different question from what his death accomplished. Identical call to the `hu` suite's rejection of /a/hiten.html, which is the same Paul E. Little article." }
+      - { path: "/a/nadez607.html", rank: 3, why: "Steve Sawyer's HIV testimony, matched on its tail. ⚠️ VERIFIED, NOT ASSUMED: the discovery pass returned this document's tail chunk for a WORLD-RELIGIONS question, and the chunk is the estate's invitation prayer verbatim — 'Lord Jesus, I need you. Thank you that you died on the cross for me. I invite you to come into my life…'. That is the §0.9 boilerplate tail, present on this source." }
+      - { path: "/a/dalipostoi101.html", rank: 4, why: "credited to case 1. Its chunk 'God decided that his Son would take the punishment for our sin' does state the atonement, but inside a does-God-exist article." }
+      - { path: "/a/vistinskiot303.html", rank: 5, why: "the purpose article. Was RANK 1 for v1 of this question — see the reword above." }
+      - { path: "/a/koj-isus.html", rank: 6, why: "'Who was Jesus?' (22.3k, the source's second-longest document) — a short survey of Jesus' life taken as unannotated excerpts from John's Gospel. It covers the death and resurrection as narrative; it does not argue what the death accomplished. Rejected on the text." }
+      - { path: "/a/zapoznaj401.html", rank: 7, why: "the Four Spiritual Laws page — a begin-a-relationship page, tail match" }
+      - { path: "/a/reinkarn610.html", rank: 8, why: "'Reincarnation, karma and life after death' at rank 8 for a crucifixion question. It contrasts karma with Jesus' message, which is why it matched; its subject is the afterlife." }
+      - { path: "/a/tragediite601.html", rank: 9, why: "credited to case 2" }
+      - { path: "/a/zapoznaj402.html", rank: 10, why: "'Know God personally (some information that will help you)' — the follow-up page for someone who has just prayed the invitation prayer. Pure tail furniture, at rank 10." }
+    top_score: 0.696
+
+  # ── 5 ────────────────────── seeker 🔴 TWO TITLE TRAPS, IN OPPOSITE DIRECTIONS
+  - id: "esmk-seeker-voznemirenost" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Речиси постојано ме држи некаква вознемиреност и грижа, дури и кога ништо конкретно не ми се заканува. Дали верата во Бог нуди нешто за таква состојба?"
+    en: "Some kind of unease and worry holds me almost constantly, even when nothing specific is threatening me. Does faith in God offer anything for a state like that?"
+    credits:
+      - { path: "/a/koronavirus.html", en: "Coronavirus (COVID-19) — how to cope with anxiety (Marilyn Adamson, 14.3k). 🔴 REVERSE TITLE TRAP: the title reads as a dated 2020 notice a reviewer would strike out. Its first section broadens and never goes back: 'you may feel anxious because of other threats too… terrorism, climate change, sexual abuse, human trafficking, natural disasters, illness, job security, stressful relationships, addictions. It hurts even to list them.' This IS the source's general anxiety article.", rank: 2, score: 0.712 }
+      - { path: "/a/stabilnost301.html", en: "Stability in an unstable world (15.0k) — 'How to find inner peace: in times of uncertainty, how to have peace instead of unrest and worry?' Whatever happens in the world or in our own lives, is there anything stable to lean on. Heather, a Stanford graduate, carries the account.", rank: 4, score: 0.693 }
+    the_finding: |
+      🔴 THIS SOURCE HAS TWO ANXIETY TITLE TRAPS AND THEY POINT OPPOSITE WAYS.
+      This is the clearest demonstration on `mk` that titles are unusable as evidence,
+      and one half of it is NEW to the campaign.
+
+      1. REVERSE (known, §0.12 #3): `/a/koronavirus.html` looks like an expired pandemic
+         notice and IS the general anxiety article. Seventh source to show this
+         (`hu` `pl` `sq` `tr` `pt` `es`, now `mk`). Rank 2 here.
+
+      2. 🆕 FORWARD, AND TRANSLATION-INDUCED: `/a/sindrom508.html` is titled
+         **"Ослободување од анксиозниот синдром (пореметување во исхраната)"** — literally
+         "Freedom from the anxiety syndrome (eating disorder)" — and at **23,349 chars it
+         is the LARGEST document in the entire source**. A title-only reviewer looking for
+         the anxiety answer credits the biggest, most anxiety-titled page on the shelf.
+         Read, it is the estate's EATING-DISORDER article: Susan Broadwell, 13 years
+         working in sororities, "speaking to girls who suffer from this syndrome and
+         strive for a perfect outward appearance", then Brenda and the donuts. Its
+         subject is bulimia and body image, not generalised anxiety.
+         **The Macedonian translator rendered "eating disorder" as "анксиозен синдром"
+         and kept the English term in brackets.** The trap is manufactured by the
+         translation, not by the estate's editorial habits — so it is a hazard that can
+         appear on ANY sibling source without warning from the English original, and it
+         cannot be predicted from the other languages' shelves. It returns at rank 6
+         (0.657) for this question and is REJECTED on its opening.
+
+      ⓘ NOTE what is NOT here: `mk` has no "Anxiety and chakra healing" article (the
+      other reverse trap, on `ru` `hu` `tr` `pt` `es`) and no article whose title is
+      plainly anxiety. Same shape as `hu`: the topic is covered by a peace article and a
+      pandemic-framed general-anxiety article. Covered, differently shelved.
+    note: |
+      ⓘ NO REWORD. Byte-identical across all three rounds (0.721, ranks 2 and 4).
+      ⚠️ BUT READ THE REJECTIONS — this is failure mode #6 territory. The score is clean
+      and both credits return, yet ranks 1, 3 and 5 are all wrong, and rank 1 is the
+      PRAYER article. See the SUMMARY: `/a/molitvi306.html` is this source's universal
+      matcher, and this case is where it costs the most.
+    rejected:
+      - { path: "/a/molitvi306.html", rank: 1, why: "🔴 RANK 1 AND REJECTED — 'Does God answer our prayers?', the prayer article, top hit for an anxiety question at 0.721. Credited to case 6. This is the single most instructive misfire in the suite; see the SUMMARY finding on universal matchers." }
+      - { path: "/a/tragediite601.html", rank: 3, why: "'Where is God amid the tragedies?' — its subject is crisis, disaster and terror attacks, not anxiety with nothing objectively wrong. Credited to case 2. Same call the `hu` suite made on /a/faj.html and the `ru` suite on /a/gdebog.html." }
+      - { path: "/a/zowto602.html", rank: 5, why: "'Why is life so hard?' — credited to case 2" }
+      - { path: "/a/sindrom508.html", rank: 6, why: "🆕 THE NEW TITLE TRAP — 'Freedom from the anxiety syndrome (eating disorder)', 23.3k, the LARGEST document in the source and the only one whose title contains the Macedonian word for anxiety. It is the eating-disorder article. Rejected on its opening. See the_finding above." }
+      - { path: "/a/intimnost501.html", rank: 7, why: "'Sex and the search for intimacy' at rank 7 for an anxiety question. A tail match, and this source's clearest specimen of the §0.9 defect." }
+      - { path: "/a/ateist-najde-bog.html", rank: 8, why: "credited to case 1" }
+      - { path: "/a/zgasni507.html", rank: 9, why: "'Quench your real thirst' — binge drinking and the hunger for real friendship. Not an anxiety document." }
+      - { path: "/a/idealen-bog.html", rank: 10, why: "credited to case 3" }
+    top_score: 0.721
+
+  # ── 6 ────────────────────────────────────────────────────────── believer
+  - id: "esmk-believer-molitva" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "Со месеци се молам за истата работа и одговор нема. Дали грешам нешто во начинот на кој се молам?"
+    en: "For months I have been praying about the same thing and there is no answer. Am I doing something wrong in the way I pray?"
+    credits:
+      - { path: "/a/molitvi306.html", en: "Does God answer our prayers? (9.8k) — 'What does it take for God to answer our prayers?' Told by a former atheist watching a praying friend week after week, and it carries its own section on 'unanswered' prayers: 'Why then does God not answer everyone's prayers?' Macedonian twin of the Hungarian /a/imadsagra.html, the Russian /a/molitvi.html and the Bulgarian 'Отговаря ли Бог на молитвите ни?', all credited for this exact question shape.", rank: 1, score: 0.622 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-mk` carries exactly
+      one prayer article, and it is rank 1. Ranks 2–10 are an HIV testimony, an atheist's
+      account, a LONELINESS article, the Four Spiritual Laws page, the peace article, the
+      what-is-God-like article, the tragedies article, a BEAUTY-AND-SELF-ESTEEM article
+      (rank 9, 0.501) and the atonement article — i.e. nine tail and tail-adjacent
+      matches. Nothing else on this source answers unanswered prayer. Same shape as `hu`,
+      `bg` and `ru`, all of which also credit exactly one document here. This is the §0.7
+      believer-thinness finding showing up in the CORPUS rather than in the persona split.
+
+      ⓘ The top score, 0.622, is the lowest in the suite and the retrieval is nonetheless
+      correct — the inverse of failure mode #6, and a reminder that the 0.75 line is a
+      smell threshold, not a quality target.
+    rejected:
+      - { path: "/a/nadez607.html", rank: 2, why: "Steve Sawyer's HIV testimony — tail match. Third appearance in this suite's top 10s." }
+      - { path: "/a/ateist-najde-bog.html", rank: 3, why: "credited to case 1. Its praying-friend passage is the SOURCE of the prayer article's own framing, which is why it matches here." }
+      - { path: "/a/osamenost.html", rank: 4, why: "'What do I do when I feel lonely?' (8.6k) — loneliness, not prayer. Not credited anywhere in this suite." }
+      - { path: "/a/zapoznaj401.html", rank: 5, why: "the Four Spiritual Laws page — tail match" }
+      - { path: "/a/stabilnost301.html", rank: 6, why: "credited to case 5" }
+      - { path: "/a/idealen-bog.html", rank: 7, why: "credited to case 3" }
+      - { path: "/a/tragediite601.html", rank: 8, why: "credited to case 2" }
+      - { path: "/a/ubavina509.html", rank: 9, why: "'The search for lasting beauty' — a fashion model on self-esteem, at rank 9 for a prayer question. A textbook tail match; the `hu` suite's equivalent was a MARRIAGE article at rank 7 on this same case." }
+      - { path: "/a/isus-umre.html", rank: 10, why: "credited to case 4" }
+    top_score: 0.622
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 6 cases · 16 credits · 16 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 2 · seeker 1 · believer 1 — matches the §0.7 n=6 split
+# Topics used:    god-exists · suffering · know-god · jesus-death · anxiety · prayer
+# Topics dropped: purpose · bible-trust · religions · trinity — ALL FOUR ARE CARRIED BY
+#   THIS SOURCE. Dropped for the n=6 sizing cap, not for missing content. See the header.
+# Paraphrase smells: 0 (max top score 0.735). Round 1 had 0 at 0.748, round 2 had 1 at
+#   0.772 — NEW, and caused by fixing a reach failure. Two questions were reworded; one
+#   was reworded twice.
+# Credits that do not retrieve: 1 (`/a/bog-realen.html` on case 1), kept deliberately.
+# evidence_tier: llm-translated
+#
+# 🔴 THE HEADLINE FINDING — A SOURCE WITH NO TESTIMONIES STILL HAS A UNIVERSAL MATCHER,
+#    AND ON `mk` IT IS THE PRAYER ARTICLE.
+#   `everystudent-mk` is the first source in the campaign with **0% `/story/` testimonies**
+#   and **0 documents under 1,200 chars**, i.e. neither of the two carriers §0.9/§0.12
+#   blame for the boilerplate tail. The tail duly weakened: the jesus-death case, which
+#   on `hu` had tail matches at ranks 1, 2 AND 3, here returns the atonement article at
+#   RANK 1. That is failure mode #1's prediction confirmed at the floor of the range.
+#
+#   But the top-10 pollution did not disappear — it MOVED. `/a/molitvi306.html`
+#   ("Does God answer our prayers?", 9.8k) appears in the top 10 of **5 of the 6 cases**:
+#   rank 4 for an evidence question, rank 8 for a bereavement question, rank 6 for a
+#   what-is-God-like question, **rank 1 for an anxiety question**, and rank 1 where it
+#   belongs. It is the structural analogue of `/story/Atti.html` on `hu`, which also hit
+#   five of ten. **A source can have no testimonies and no pure-tail pages and still have
+#   one document that matches everything** — here a mid-length relational article that
+#   opens with a personal account and closes with the gospel summary. Removing the
+#   `/story/` tree is not sufficient to remove the defect; what carries it is the
+#   invitation-prayer-plus-personal-account CHUNK SHAPE, wherever it is filed.
+#   Second-most-frequent: `/a/idealen-bog.html` and `/a/tragediite601.html`, 4 of 6 each.
+#
+#   🔑 The tail was VERIFIED on this source, not assumed. The discovery pass returned
+#   `/a/nadez607.html`'s tail chunk for the WORLD-RELIGIONS question, and that chunk is
+#   the estate's invitation prayer verbatim: "Lord Jesus, I need you. Thank you that you
+#   died on the cross for me. I invite you to come into my life and make me the person
+#   you want me to be. Amen."
+#
+# 🔴 THREE TITLE TRAPS, ONE OF THEM NEW AND CAUSED BY THE TRANSLATION ITSELF.
+#   1. `/a/idealen-bog.html` — "How to find the ideal God?!" IS the six-attributes
+#      what-is-God-like article. SIXTH source for this systematic trap (`bg` `tr` `fa`
+#      `pt` `cs`, now `mk`). Rank 1 for that question at 0.716. `mk` states it best
+#      because it ALSO publishes the honestly-titled 3.9k version (`/a/koje109.html`),
+#      so the two sit side by side at ranks 1 and 2 and the mis-titled one is four times
+#      the length.
+#   2. `/a/koronavirus.html` — the pandemic title that is the general anxiety article.
+#      SEVENTH source (`hu` `pl` `sq` `tr` `pt` `es`, now `mk`).
+#   3. 🆕 `/a/sindrom508.html` — "Freedom from the anxiety syndrome (eating disorder)",
+#      **the largest document in the source at 23.3k and the only one whose title carries
+#      the Macedonian word for anxiety** — is the EATING-DISORDER article. The Macedonian
+#      translator rendered "eating disorder" as "анксиозен синдром". **This trap is
+#      manufactured by the translation, not by the estate's editorial habits**, which
+#      means it is invisible from the English original and unpredictable from any sibling
+#      shelf. It is the strongest argument yet for guardrail #5: no amount of
+#      cross-source knowledge would have caught it. Only reading the opening did.
+#   Plus the four-part cosmological series (`/a/niwto102.html` → `/a/newto103.html` →
+#   `/a/koj104.html` → `/a/koj204.html`), NINTH source — and the first where two parts
+#   carry the IDENTICAL title "Кој", the one duplicate-title hazard on this source.
+#   Note the series is split differently from `hu`: the personhood conclusion is in part
+#   3 on `mk`, part 4 on `hu`. No cross-source rule about which part to credit is safe.
+#
+# 🟢 NINTH CONFIRMATION OF THE ATONEMENT FINDING. `mk` has a dedicated "Why did Jesus
+#   die?" article (13.1k) and returns it at RANK 1, coverage 1/1. §0.12 declared the
+#   Russian gap settled as corpus composition; nothing here re-opens it.
+#
+# ⓘ NO ISLAM ARTICLE ON THIS SOURCE AT ALL. §0.12 corrected an earlier over-generalisation
+#   by noting the `bible-trust`/*tahrif* overlap is about PUBLISHING, not audience — Japan
+#   routes it through its Islam article, Iran and Czechia have none. `mk` joins Iran and
+#   Czechia: there is no Islam article, and `bible-trust` is answered head-on by
+#   `/a/biblijata215.html` ("How can we believe the Bible?", 20.6k, which addresses
+#   transmission explicitly). The topic was dropped for the n=6 sizing cap, but the answer
+#   key exists and is single-document.
+#
+# 🟢 THE `bg` PATH HAZARD DOES NOT TRANSFER TO `mk`. §0.11 hazard #1 records `bg`'s
+#   150–250 char percent-encoded Cyrillic paths as "a transcription-error factory". `mk`
+#   is written in Cyrillic but its slugs are short Latin transliterations
+#   (`/a/koje109.html`, `/a/zbuneti-naucnici-zakoni-priroda.html`). Do not assume the
+#   Cyrillic-script sources share a path shape — they do not.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/bog-realen.html` on case 1 — KEEP (recommended) or DROP. It is the source's
+#      DNA/Antony Flew science article and the question asks what in the world indicates
+#      God. It is the SECOND source to keep this same article as a deliberate miss (`hu`
+#      kept `/a/dns.html` for the same reason), which is what makes it worth recording:
+#      one source is a fluke, two is a pattern in an article family. Case scores 4/5 by
+#      design. It is a boundary credit and will flap.
+#   3. Suite size. Four topics were dropped purely for the n=6 cap and ALL FOUR have
+#      identified answer keys. If `mk` is wanted at n=8, add `purpose` (seeker;
+#      /a/mojata305.html + /a/vistinskiot303.html + /a/izvorot302.html) and `religions`
+#      (skeptic; /a/povrzuvanje205.html + /a/vistina217.html). Both are three- and
+#      two-document topics respectively and neither needs new discovery work.
+#      ⚠️ §0.11's n=10 noise rule applies with force here: at SIX cases, this source's
+#      first per-source coverage number is the least reliable one it will ever have.
+#      Read `recall@10` and whole-corpus coverage instead.

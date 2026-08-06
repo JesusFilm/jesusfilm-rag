@@ -1,0 +1,394 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-kk` (17 documents, shakirtter.com, Kazakh).
+# Campaign #111, BATCH 2, tier D. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 17 documents → 4 cases (tier-D floor). Personas: skeptic 2 · newcomer 1 · seeker 1.
+# Questions authored IN KAZAKH, not translated from the English §0.7 menu (§0.6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CORPUS SHAPE — read this before judging any hit
+# ─────────────────────────────────────────────────────────────────────────────
+#   17 documents, ALL under `/a/*.html`. There is no `/story/` tree on this source.
+#   Null-language documents: 0 of 17. Duplicate paths: 0. Duplicate titles: 0.
+#   Documents under 1,200 chars (the pure-tail watchlist, failure mode #2): 0.
+#   Smallest document: `/a/jaqsi.html` at 1,513 chars / 1 chunk — a 1:45 video
+#   transcript, but NOT a pure tail: it carries a real free-will theodicy (square
+#   circles, the stone God cannot lift, freedom without choice).
+#
+#   TESTIMONY SHARE, derived from the OPENINGS and never from the paths (the `uk`
+#   finding): 1 of 17 is a pure first-person testimony — `/a/ateistin.html`, Marilyn
+#   Adamson's atheist account (6%). But THREE more carry embedded first-person
+#   accounts plus the shared invitation tail, and they are what actually does the
+#   damage on this source:
+#     `/a/koronavirus.html`      — a pregnancy-crisis account, a philosophy-search account
+#     `/a/tinistigi.html`        — Heather, the Stanford graduate
+#     `/a/minajattarimizga.html` — "when I was an atheist, I had a friend who prayed"
+#   A path-based count reads `kk` as 0% testimony. It is not.
+#
+#   🔑 THE MAGNETS (failure mode #1, batch-2 corrected form). This source has THREE,
+#   and NONE of them is the gospel page:
+#     `/a/koronavirus.html`      5 of 10 discovery topics (god-exists, suffering, purpose, anxiety, prayer)
+#     `/a/tinistigi.html`        5 of 10 discovery topics (god-exists, suffering, purpose, anxiety, jesus-death)
+#     `/a/minajattarimizga.html` 4 of 10 discovery topics — and in the FINAL round it is
+#                                rank 1 on case 4 and rank 2 on case 1, i.e. it tops or
+#                                near-tops half the suite while being credited nowhere.
+#   `/a/jeke.html` — the Four Spiritual Laws page, the estate's classic tail carrier —
+#   surfaced in only 2 discovery topics and reaches rank 7 once. On `kk` the tail load
+#   is carried by the anxiety/prayer shelf, not by the gospel page. This is the third
+#   independent confirmation of the batch-2 correction: what carries the defect is the
+#   invitation-prayer-plus-personal-account CHUNK SHAPE, wherever it is filed.
+#
+#   🔑 LARGEST CATEGORY (the `am` pre-drafting check), counted from the openings:
+#     evidence / apologetics   5 of 17 = 29%   barma, ateistin, senimnen, kieli, islam
+#     suffering / theodicy     4 of 17 = 24%   nelikten, qaygiga, tursigerlik, jaqsi
+#     anxiety / peace          2 of 17 = 12%   koronavirus, tinistigi
+#     singletons               6 of 17         baylanis, minajattarimizga, maqsatim,
+#                                              usbirlikti, jeke, wli
+#   Unusable vocabulary that follows, and which was kept out of all four questions:
+#     - "жан түршігерлік" (horrific) belongs to `/a/tursigerlik.html`, whose opening is
+#       ENTIRELY about the rape of a small child. Any "why does God allow horrific
+#       things" phrasing drags sexual-abuse text into the top 10.
+#     - "күнә / тәуелділік / азаттық" (sin / addiction / freedom) is shared with
+#       `/a/wli.html` (toxic porn), which was already discovery rank 4 for jesus-death.
+#     - "мазалау / мазасыздық" share a root. The verb `мазалайды` ("it troubles me")
+#       was cut from case 1 during drafting for exactly the `am` root-collision reason:
+#       it is the root of `/a/koronavirus.html`'s own strapline word for anxiety.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-kk kk
+# ─────────────────────────────────────────────────────────────────────────────
+#   17 distinct candidate documents of 17 — every document in the source surfaced.
+#   At 17 documents a 4-case suite is close to enumeration, so the four topics chosen
+#   are the four whose ANSWER DOCUMENTS are most clearly distinct (tier-D rule 1).
+#   The four cases share ZERO credited documents and sit on four separate shelves:
+#     case 1  evidence-for-God        barma + ateistin
+#     case 2  scripture-transmission  kieli + islam
+#     case 3  doctrine                usbirlikti
+#     case 4  anxiety / peace         tinistigi + koronavirus
+#
+#   ⓘ ONE DOCUMENT SURFACED IN ZERO OF THE TEN DISCOVERY TOPICS: `/a/senimnen.html`
+#   ("Соқыр сенімнен тысқары" / "Beyond blind faith", Paul E. Little, 23.9k chars,
+#   16 chunks — the SECOND-LARGEST document in the source). It is the Jesus-deity
+#   apologetic: "Every major religion honours Jesus. Was he a prophet? Or is Jesus
+#   God? Look at the historical facts." The §0.7 menu has no who-is-Jesus topic, so
+#   the second-largest article on this source is unmeasurable by this suite. In the
+#   final round it reaches rank 5 (0.435) on case 2 and rank 3 (0.599) on case 3 and
+#   is credited nowhere. That is a MENU fact, not a corpus fact.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# TOPICS DROPPED
+# ─────────────────────────────────────────────────────────────────────────────
+#   CONTENT GAPS — this source genuinely does not carry these:
+#     jesus-death  🔴 NO dedicated atonement article. Discovery's top hits were
+#                  `/a/islam.html` (which argues Jesus DID die on the cross — a
+#                  historicity question inside a tahrif article, not what the death
+#                  accomplished), `/a/jeke.html` at rank 2 (Four Spiritual Laws — the
+#                  estate's tail carrier, never creditable) and `/a/wli.html` at rank 4
+#                  (toxic porn), which is the tail firing in plain sight. `kk` joins
+#                  `ru`, `zh-cn` and `mn`. Corpus composition — the atonement gap is
+#                  settled, not re-opened.
+#     know-god     🔴 NO six-attributes / what-is-God-like article. Discovery returned
+#                  exactly ONE hit for this topic in the entire source, at 0.473:
+#                  `/a/islam.html` — and the matching chunk IS a six-attributes list
+#                  ("God is truth… God is everywhere… God is almighty… God knows
+#                  everything… God is creator"). But it is question 3 of an Islam
+#                  article, not a what-is-God-like article, and nothing else came back
+#                  at all. Not manufacturable. `kk` is the second source after `de` to
+#                  have no honest home for this topic.
+#
+#   DROPPED FOR BUDGET — genuinely carried, no room at 4 cases:
+#     suffering    4 documents carry it: `/a/nelikten.html` (0.606 in discovery — the
+#                  best score of any skeptic topic), plus qaygiga, jaqsi, tursigerlik.
+#                  Cut only because there are 2 skeptic slots and bible-trust and
+#                  god-exists have cleaner, more separated answer sets. 🔴 THIS IS THE
+#                  STRONGEST CANDIDATE IF THE OPERATOR WANTS A FIFTH CASE.
+#     religions    `/a/baylanis.html` ("Құдаймен байланыс") is this source's
+#                  world-religions article, exactly as the §0.7 derivation recorded,
+#                  and discovery returned it ALONE for the topic at 0.558 — a perfectly
+#                  clean single-document case. Cut for the same skeptic-slot budget.
+#     purpose      `/a/maqsatim.html` (the hammer parable) carries it at 0.526. Cut in
+#                  favour of anxiety, which has two independent documents rather than
+#                  one 3.9k / 3-chunk article.
+#     prayer       `/a/minajattarimizga.html` scored 0.648 in discovery — the HIGHEST
+#                  score anywhere on this source — and in the final round it is rank 1
+#                  on case 4 and rank 2 on case 1 without being credited. Cut only
+#                  because the §0.7 persona table allocates believer 0 at 4 cases. If a
+#                  believer case is ever wanted on `kk`, this is a one-document,
+#                  no-work case, and crediting it would also stop it polluting two
+#                  other cases as an uncredited near-top hit.
+#     god-exists, bible-trust, trinity and anxiety are USED.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ENGINE-CHECK ROUND LOG — .tmp-diag/phase5-check.ts kk kk
+# ─────────────────────────────────────────────────────────────────────────────
+#   Round 1: 1 paraphrase smell (trinity 0.796) · 0 credits not in top 10 · max top 0.796
+#   Round 2: 0 paraphrase smells                · 0 credits not in top 10 · max top 0.747
+#   Round 3: 0 paraphrase smells                · 0 credits not in top 10 · max top 0.736  ← FINAL
+#   VERIFY, every round: 7/7 credited paths resolve to exactly one document, all
+#   non-null language. 0 credits under 1,200 chars.
+#
+#   🔴 FINDING 1 — THE 0.75 SMELL LINE IS REACHABLE ON `kk`, AND EASILY.
+#   The batch-2 briefing recorded that 0.75 was never reached by ANY of the 14 tier-B
+#   sources and told this agent to expect it unreachable and spend every round on
+#   reach. Round 1's trinity question came back at **0.796** — the highest first-round
+#   score of the batch so far. The reason is structural and should be expected on every
+#   tier-D source: at 17 documents, topK 10 is 59% of the whole corpus, and the
+#   credited document (`/a/usbirlikti.html`) is only 3.7k chars over 3 chunks, so a
+#   question phrased in its vocabulary sits almost directly on top of it. SMALL SOURCES
+#   SMELL MORE EASILY, NOT LESS. Do not carry the tier-B "0.75 is unreachable"
+#   calibration into a small source.
+#
+#   🟢 FINDING 2 — THE §0.12 "REACH AND SMELL PULL TOGETHER" RULE, CONFIRMED CLEANLY.
+#   Trinity v1 named the three persons in the credited document's own enumeration order
+#   ("Иса … Әке Құдай … Киелі Рух"), which is verbatim `/a/usbirlikti.html`'s opening
+#   sentence. v2 drops all three names and asks the counting question instead — a
+#   different objection, not a paraphrase. Result in one round:
+#       top score      0.796 → 0.699   (smell cleared by 0.051 of margin)
+#       usbirlikti     rank 2 → RANK 1
+#       islam.html     rank 1 → rank 2
+#   Smell down and reach up simultaneously, exactly the `uk` refinement of §0.12.
+#
+#   🔴 FINDING 3 — CASE 1's REWORD WAS TRIED AND DELIBERATELY REVERTED. Worth keeping.
+#   Round 2 rephrased case 1 to ask for "дәйектер … Құдайдың бар екенін көрсететін"
+#   ("evidence showing that God exists"). It lifted `/a/barma.html` from rank 5 to
+#   rank 4 (0.660 → 0.675) — and took the top score from 0.727 to **0.747, three
+#   thousandths under the smell line**, because that phrase restates `/a/barma.html`'s
+#   own subtitle ("six concrete reasons for believing God really exists"). ONE RANK
+#   POSITION IS NOT WORTH COLLAPSING A 0.023 MARGIN TO 0.003; on a re-run 0.747 flags.
+#   Reverted to v1 in round 3. Recording this because the trade looks attractive and is
+#   not: the score rise WAS the paraphrase drift, it was not extra reach.
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Kazakh. This is a
+# fact about the REVIEWER, not about the language. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eskk-skeptic-alday" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Достарымның бәрі Құдайға сену деген өзін-өзі алдау дейді. Мен олармен келісуге дайынмын, бірақ мұның артында тек сезім емес, шын мәнінде тексеріп көруге болатын бірдеңе бар ма?"
+    en: "All my friends say that believing in God is self-deception. I am ready to agree with them, but is there anything behind it that can actually be checked, and not just feeling?"
+    credits:
+      - { path: "/a/barma.html", en: "'Құдай бар ма?' / 'Does God exist?' (Marilyn Adamson, 18.3k) — the source's flagship apologetics article: 'here are six concrete reasons for believing God really exists. No pressure. Not a demand that you just believe.' Argued as evidence to be examined.", rank: 5, score: 0.66 }
+      - { path: "/a/ateistin.html", en: "'The story of how an atheist found God' (Marilyn Adamson, 17.0k) — 'for a year I kept asking myself: do I really believe in God? and why?' She works through five OBJECTIVE reasons and states plainly that her belief rests on those and not on a feeling about God. Answers the 'only feeling' half of the question head-on. Kazakh twin of the Hungarian /a/ateista.html, credited there for this same topic.", rank: 1, score: 0.727 }
+    the_finding: |
+      🔴 THE MAGNET EFFECT IN ITS PUREST FORM ON THIS SOURCE. Full coverage (2/2), and
+      the ranking is still the finding:
+
+        rank 1  0.727  /a/ateistin.html          ← credit (the atheist testimony)
+        rank 2  0.727  /a/minajattarimizga.html  ← the PRAYER article, TIED for rank 1
+        rank 3  0.707  /a/tinistigi.html         ← the peace article
+        rank 4  0.670  /a/koronavirus.html       ← the anxiety article
+        rank 5  0.660  /a/barma.html             ← credit (THE flagship evidence article)
+        …
+        rank 7  0.646  /a/jeke.html              ← Four Spiritual Laws, tail match
+
+      The three documents sitting between the two credits are exactly the three
+      documents identified as this source's magnets, and they are there on their
+      embedded first-person "I doubted, then I came to believe" chunks, not on their
+      subjects. `everystudent-kk` returns its own six-reasons apologetics article FIFTH
+      for a question that asks for grounds. That is a real, informative retrieval
+      result and it is why the case was kept as drafted rather than tuned.
+    note: |
+      ⚠️ FAILURE MODE #5 WAS DESIGNED OUT BEFORE ROUND 1. The §0.7 English scaffold's
+      "wishful thinking" invites a coping/comfort clause ("…because people need
+      consolation"). On `kk` that clause lands straight on the magnets: `/a/koronavirus.html`
+      and `/a/tinistigi.html` were ALREADY in the top 6 of the plain English god-exists
+      discovery probe (0.563 and 0.514), ahead of `/a/barma.html` at 0.530. The question
+      therefore asks for GROUNDS, which is the §0.12 edit that took `es` 0.583 → 0.704.
+    rejected:
+      - { path: "/a/minajattarimizga.html", rank: 2, why: "TIED FOR RANK 1 AND REJECTED. 'Does God answer our prayers?' Its opening is a first-person evidence narrative — 'do you know anyone who really trusts God? When I was an atheist I had a good friend who prayed often… every week I watched God do something specific to answer her prayers. Do you know how hard that is for an atheist to watch week after week?' That is why a prayer article ties for rank 1 on a god-exists question. Its SUBJECT is whether God answers prayer. Rejected on the text, credited to no case in this suite." }
+      - { path: "/a/tinistigi.html", rank: 3, why: "peace of soul in an unstable world — credited to case 4; matches here on Heather's personal account, not on evidence" }
+      - { path: "/a/koronavirus.html", rank: 4, why: "the anxiety article — credited to case 4; matches here on its embedded philosophy-search account (Sartre, Plato, Socrates, Dostoevsky, Nietzsche, Hume)" }
+      - { path: "/a/qaygiga.html", rank: 6, why: "'Where is God when grief strikes?' — the suffering shelf; its subject is what God can be relied on for in crisis, not whether there are grounds to think he is there" }
+      - { path: "/a/jeke.html", rank: 7, why: "'Knowing God personally' — the Four Spiritual Laws page, the estate's classic tail carrier, at rank 7 for an evidence question. Pure tail match. Credited nowhere in this suite." }
+    top_score: 0.727
+
+  # ── 2 ────────────────────────────── skeptic 🔵 THE §0.7 ISLAM ROUTE, VERIFIED
+  - id: "eskk-skeptic-koshirilgen" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "Университеттегі бір танысым Киелі кітап ғасырлар бойы қолмен көшірілгендіктен, оған бүгін сүйенуге болмайды деп есептейді. Мен оны басқа көне жазбалардан бөлек қарауым үшін қандай негіз бар?"
+    en: "An acquaintance at university thinks that because the Bible was copied by hand for centuries, you cannot rely on it today. What grounds do I have for treating it differently from any other ancient writing?"
+    credits:
+      - { path: "/a/kieli.html", en: "'Сіз неге Киелі Кітапқа сене аласыз' / 'Why you can trust the Bible' (25.4k — the LARGEST document in the source). The Bible's history, who wrote it, 40 writers over 1500 years, confirmation by historians and archaeologists. It answers the transmission objection specifically: the claim that it was distorted by passing through many stages of translation would hold only if each translation were made from the previous one, but the translations are in fact based on thousands of ancient manuscripts.", rank: 1, score: 0.694 }
+      - { path: "/a/islam.html", en: "'Иса және Ислам' / 'Jesus and Islam' (24.2k) — six questions Muslims and others ask about Jesus, and QUESTION 1 IS THIS ONE: 'Is the Bible the word of God? Has it changed and been corrupted over time?' It answers on God's own ability to preserve his word. 🔵 THIS CONFIRMS THE §0.7 PREDICTION FOR `kk`: the tahrif (scripture-corruption) route is real on this source, and it was VERIFIED rather than assumed on audience grounds. Malay is also Muslim-majority and has no Islam article at all; `kk` publishes a full one, 15 chunks.", rank: 2, score: 0.647 }
+    the_finding: |
+      🟢 THE CLEANEST CASE IN THE SUITE, AND THE CLEANEST SEPARATION ON THIS SOURCE.
+      Credits at ranks 1 and 2, then a 0.207 CLIFF:
+
+        rank 1  0.694  /a/kieli.html    ← credit
+        rank 2  0.647  /a/islam.html    ← credit
+        rank 3  0.440  /a/barma.html    ← nothing else is remotely close
+        rank 4  0.439  /a/ateistin.html
+        rank 5  0.435  /a/senimnen.html
+        rank 6  0.428  /a/tinistigi.html
+
+      Nothing below rank 2 clears 0.45. On a source whose other three cases all have a
+      magnet inside their top 4, scripture transmission is the one topic where `kk`'s
+      corpus gives an unambiguous answer set. No magnet appears at all.
+    note: |
+      ⚠️ THE `hu` LESSON WAS APPLIED BEFORE ROUND 1, NOT AFTER — which is why this case
+      needed no rewords. On `hu` this topic cost two rewords and hit 0.755 then 0.787,
+      because two documents both open with "has the Bible changed from the original?"
+      and paraphrasing away from one lands on the other. `kk` has the identical pair:
+      `/a/kieli.html` and `/a/islam.html` Q1 were discovery ranks 2 and 1 for this topic
+      and NOTHING ELSE came back. So the question was drafted straight into the shape
+      `hu` had to converge on — not "is it unchanged?" but "what makes it different from
+      any other old book?", set in a lived scene. 0.694 first time, both credits at
+      ranks 1 and 2. Cross-source knowledge saved two rounds here.
+    rejected:
+      - { path: "/a/barma.html", rank: 3, why: "credited to case 1; at 0.440 it is 0.207 below the rank-2 credit" }
+      - { path: "/a/ateistin.html", rank: 4, why: "credited to case 1" }
+      - { path: "/a/senimnen.html", rank: 5, why: "'Beyond blind faith' (Paul E. Little, 23.9k) — the Jesus-deity apologetic. Its subject is whether Jesus is God, judged from historical facts, not whether the text was transmitted intact. Credited nowhere; see the header note on this document." }
+      - { path: "/a/tinistigi.html", rank: 6, why: "credited to case 4" }
+    top_score: 0.694
+
+  # ── 3 ────────────────────────────── newcomer 🔴 THE ROUND-1 SMELL WAS HERE
+  - id: "eskk-newcomer-usheui" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "Мәсіхші достарым Құдай жалғыз дейді, бірақ әңгімелерінде үнемі үш түрлі есім аталып отырады. Маған бұл қайшылық сияқты көрінеді — мен мұнда нені түсінбей тұрмын?"
+    en: "My Christian friends say God is one, but three different names keep coming up in what they say. To me this looks like a contradiction — what am I not understanding here?"
+    credits:
+      - { path: "/a/usbirlikti.html", en: "'Үшбірлікті түсіндіріп бере аласыз ба?' / 'Can you explain the Trinity?' (3.7k) — 'the term Trinity does not occur in the Bible, but the Bible speaks clearly of God the Father, God the Son (Jesus Christ) and God the Holy Spirit… and shows us clearly that there is only ONE God. Three + one = Trinity.' Then the water/ice/steam and egg analogies.", rank: 1, score: 0.699 }
+    reworded: |
+      🔴 REWORDED ONCE, AND IT IS THE BATCH'S CLEANEST DEMONSTRATION THAT REACH AND
+      SMELL CAN MOVE TOGETHER.
+      v1: "Мәсіхші таныстарым біресе Иса туралы, біресе Әке Құдай, біресе Киелі Рух
+           туралы айтады. Сонда олар бір Құдайға емес, үшеуіне табына ма?"
+          ("My Christian acquaintances talk sometimes about Jesus, sometimes about God
+           the Father, sometimes about the Holy Spirit. So are they worshipping three
+           rather than one God?")
+          → top **0.796 🔴 PARAPHRASE SMELL** — the highest first-round score in the
+          batch so far. The three-person list is verbatim `/a/usbirlikti.html`'s own
+          opening sentence ("Киелі кітап Құдай Әке жайында, Құдай Ұлы (Иса Мәсіх),
+          Құдай Киелі Рух жайында анық айтады"). Worse, it put `/a/islam.html` at
+          RANK 1 (0.796) AHEAD of the credited document at rank 2 (0.788), because
+          islam.html's question 3 is the Islamic objection to God having a Son.
+      v2 (kept): drops all three names and asks the COUNTING question instead — a
+          different objection, not a paraphrase.
+          → **0.796 → 0.699**, and `/a/usbirlikti.html` went rank 2 → **RANK 1** while
+          `/a/islam.html` went rank 1 → rank 2. Smell cleared by 0.051 of margin AND
+          the credit promoted, in the same edit.
+
+      ⓘ The `ru`/`bg`/`hu` fix for this topic — reframe it as something a newcomer
+      NOTICES rather than as the doctrinal formula — was already applied in v1 and was
+      NOT sufficient here. On a 3.7k document the person-list itself is the smell.
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER. `everystudent-kk` carries exactly one Trinity
+      document, and at 3.7k / 3 chunks it is one of the smallest in the source. Ranks
+      3–10 run from 0.599 down to 0.526 and are the general apologetics and suffering
+      shelves — at 17 documents, topK 10 returns 59% of the corpus, so a long low tail
+      is structural and not a signal.
+    rejected:
+      - { path: "/a/islam.html", rank: 2, why: "🔴 BOUNDARY — OPERATOR MAY OVERRIDE. It is genuinely Trinity-adjacent: its question 3 is 'is it not blasphemy to say God has a Son?' and it carries a three-dimensions analogy for how the Son can differ from the Father while God is one. It was RANK 1 for v1 of this question. Rejected here on the tier-D distinctness rule, not on the text: it is credited to case 2, and crediting it in both cases 2 and 3 would make two of only four cases share their answer set. On a 10-case suite it would probably be credited in both." }
+      - { path: "/a/senimnen.html", rank: 3, why: "'Beyond blind faith' — its subject is whether Jesus is God, judged from historical facts; that is the deity question, not the one-versus-three counting question" }
+      - { path: "/a/nelikten.html", rank: 4, why: "'Why is life so hard?' — the suffering shelf, at 0.573. Below this point the scores are structural noise on a 17-document source." }
+      - { path: "/a/barma.html", rank: 5, why: "credited to case 1" }
+      - { path: "/a/qaygiga.html", rank: 6, why: "the grief article — the suffering shelf" }
+      - { path: "/a/tinistigi.html", rank: 7, why: "credited to case 4" }
+      - { path: "/a/jeke.html", rank: 8, why: "Four Spiritual Laws — tail match" }
+      - { path: "/a/baylanis.html", rank: 9, why: "the world-religions article. It DOES contrast Jesus with Buddha and Muhammad, but its subject is what the major religions each teach about God, not the internal one-versus-three question. Would be the credit for the dropped `religions` topic." }
+      - { path: "/a/minajattarimizga.html", rank: 10, why: "the prayer article — tail match" }
+    top_score: 0.699
+
+  # ── 4 ──────────────────────────────────────── seeker 🔴 REVERSE TITLE TRAP HERE
+  - id: "eskk-seeker-uaiym" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Нақты ештеңе болмаса да, ішімде үнемі бір үрей мен уайым жүреді, түнде де сол сезіммен жатамын. Құдайға сену осындай күйде тұрған адамға бірдеңе бере ала ма?"
+    en: "Even when nothing specific is actually wrong, there is a constant dread and worry inside me, and I go to bed with that same feeling at night. Can believing in God offer anything to someone in that state?"
+    credits:
+      - { path: "/a/tinistigi.html", en: "'Тұрақсыз әлемдегі жан тыныштығы' / 'Peace of soul in an unstable world' (17.3k) — 'whatever the future is preparing, you can have peace of soul and confidence. Whatever happens in the world or in our personal lives, is there anywhere to turn for stability?' Discovery rank 1 for this topic.", rank: 2, score: 0.704 }
+      - { path: "/a/koronavirus.html", en: "'Коронавирус (COVID-19)' (16.3k). 🔴 REVERSE TITLE TRAP, AND ON `kk` THE TITLE IS ONLY HALF-HONEST: the title FIELD stops at 'Коронавирус (COVID-19)', which a title-only reviewer strikes out as an expired 2020 notice, but the BODY's first line continues '- Мазасыздықпен қалай күресу керек' ('how to cope with ANXIETY'), and by paragraph three it has broadened for good: 'perhaps some other danger is what is really worrying you… terrorism, climate change, racism, wars, government action'. This is the source's general anxiety article, and it is the same estate document `hu` credits at rank 1 for this topic.", rank: 3, score: 0.701 }
+    the_finding: |
+      🔑 THIS CASE CREDITS TWO OF THE SOURCE'S THREE MAGNETS, ON PURPOSE — and the
+      third one still beats both of them:
+
+        rank 1  0.736  /a/minajattarimizga.html  ← the PRAYER article, REJECTED
+        rank 2  0.704  /a/tinistigi.html         ← credit
+        rank 3  0.701  /a/koronavirus.html       ← credit
+
+      `/a/koronavirus.html` and `/a/tinistigi.html` each surfaced in 5 of the 10
+      discovery topics, which is the batch-2 magnet signature — they carry embedded
+      first-person accounts plus the invitation tail, so they match god-exists, purpose,
+      suffering and prayer probes on their testimony chunks. On THIS topic they match on
+      their actual subject and crediting them is correct; the other three cases were
+      drafted specifically to keep them out, and case 1's rejection list shows both of
+      them turning up there anyway.
+
+      `/a/minajattarimizga.html` at rank 1 is the same document that ties for rank 1 on
+      case 1. One uncredited article tops or near-tops HALF this suite. That is the
+      single strongest argument for adding `prayer` as a fifth case: crediting it where
+      it belongs would also stop it distorting two other cases.
+    note: |
+      ⚠️ VOCABULARY THAT WAS DELIBERATELY AVOIDED. The Kazakh word for anxiety,
+      "мазасыздық", is `/a/koronavirus.html`'s own strapline word, and "жан тыныштығы"
+      is `/a/tinistigi.html`'s entire title. Both were kept out of the question; it uses
+      "үрей мен уайым" (dread and worry) and the "even when nothing specific is wrong"
+      frame instead. That is what holds the top score at 0.736 while both credits still
+      return. Nothing about coronavirus, pandemics or illness appears in the question —
+      the credit is earned on the article's broadened body, not on its title.
+    rejected:
+      - { path: "/a/minajattarimizga.html", rank: 1, why: "RANK 1 AND REJECTED. 'Does God answer our prayers?' It has a genuine hardship section — 'what about \"unanswered\" prayers? People fall ill and even die; running short of money really does wear a person down' — which is why it matches. But its subject is whether and how God answers prayer, not what to do with free-floating anxiety. Rejected on the text, in both this case and case 1." }
+      - { path: "/a/qaygiga.html", rank: 4, why: "'Where is God when grief strikes?' — its subject is crisis and bereavement, i.e. anxiety with a cause. The question is explicitly about anxiety with nothing objectively wrong. Same call `hu` made on /a/faj.html and `ru` on /a/gdebog.html." }
+      - { path: "/a/nelikten.html", rank: 5, why: "'Why is life so hard?' — the suffering shelf; would be a credit for the dropped `suffering` topic" }
+      - { path: "/a/ateistin.html", rank: 6, why: "credited to case 1" }
+      - { path: "/a/maqsatim.html", rank: 7, why: "'What is my purpose in life?' — the hammer parable; would be the credit for the dropped `purpose` topic" }
+    top_score: 0.736
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 7 credits · 7 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 table for 4 cases
+# Coverage: 7 of 7 credits return in the top 10. There are NO kept misses and NO
+#   dropped credits in this suite — every credit declared in round 1 survived to
+#   round 3, which is the first suite in the batch where that is true.
+# Paraphrase smells: 0 (max top score 0.736). Round 1 had 1, at 0.796.
+# Documents credited: 7 of 17. Documents that appear in some top 10 but are credited
+#   nowhere: minajattarimizga, qaygiga, nelikten, senimnen, jeke, baylanis, maqsatim.
+#   Documents that never appear at all in the final round: tursigerlik, wli, jaqsi.
+# evidence_tier: llm-translated
+#
+# 🔴 THE HEADLINE FINDING — 0.75 IS REACHABLE ON A TIER-D SOURCE.
+#   The briefing said the 0.75 smell line was never reached by any of the 14 tier-B
+#   sources and to expect it unreachable. `kk` hit 0.796 in round 1. The mechanism is
+#   structural to small sources: topK 10 over 17 documents is 59% of the corpus, and
+#   the trinity article is 3.7k chars over 3 chunks, so naming its vocabulary lands the
+#   query almost on the document itself. Tier-D agents should budget for smell, not
+#   assume reach is the only problem.
+#
+# 🔴 THE MAGNET IS THE PRAYER ARTICLE, NOT THE GOSPEL PAGE.
+#   `/a/minajattarimizga.html` is rank 1 on case 4 and tied rank 1 on case 1, and is
+#   credited nowhere. `/a/koronavirus.html` and `/a/tinistigi.html` each surfaced in 5
+#   of 10 discovery topics. `/a/jeke.html` — the Four Spiritual Laws page, the estate's
+#   classic carrier — peaks at rank 7. Third batch-2 source to confirm that the defect
+#   follows the invitation-prayer-plus-personal-account CHUNK SHAPE wherever it is
+#   filed, not the `/story/` namespace (there is no `/story/` tree here at all) and not
+#   the gospel page.
+#
+# ⓘ TWO REAL CONTENT GAPS: `jesus-death` (no atonement article — `kk` joins `ru`,
+#   `zh-cn`, `mn`) and `know-god` (no six-attributes article; the topic returned
+#   exactly one hit in the whole source, at 0.473, and it was an Islam-article chunk).
+#   Four further topics — suffering, religions, purpose, prayer — are genuinely carried
+#   and were cut only for the 4-case budget.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/islam.html` on case 3 (trinity) — I REJECTED it and credited it only to case
+#      2, on the tier-D rule that four cases must not share answer documents. It is a
+#      real boundary: it was rank 1 for v1 of the trinity question and is rank 2 now,
+#      and its question 3 IS the Son-of-God objection. On a larger suite it would
+#      probably be credited to both. Operator may override.
+#   3. A FIFTH CASE IS AVAILABLE AND CHEAP. `prayer` → `/a/minajattarimizga.html` is a
+#      one-document, no-drafting-work case (0.648 in discovery, the source's highest),
+#      and adding it would stop that article distorting cases 1 and 4 as an uncredited
+#      near-top hit. It costs the persona table a believer slot, which at 4 cases is
+#      currently 0. `suffering` → nelikten + qaygiga + jaqsi is the next best.
+#   4. Case 1 measures `/a/barma.html` — the source's flagship six-reasons apologetics
+#      article — at RANK 5, behind three magnet documents. That is a deliberate keep,
+#      not a defect to tune away; the round-2 attempt to lift it is logged in the header
+#      and was reverted because the score gain was paraphrase drift, not reach.

@@ -1,0 +1,446 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-te` (30 documents).
+# everytelugustudent.com — Telugu, Andhra Pradesh / Telangana.
+# Campaign #111, tier A, BATCH 2. Working record — NOTHING here has been written
+# to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 30 ÷ 8 = 3.75 → floored at 4 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 0 — matches the §0.7 4-case row.
+# Questions authored IN TELUGU, not translated from the English menu (§0.6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CORPUS SHAPE — read this before judging any hit
+# ─────────────────────────────────────────────────────────────────────────────
+#   30 documents, ALL under `/a/*.html`. There is NO `/story/` tree at all.
+#   Mechanical hazards: 0 duplicate paths · 0 duplicate titles · 0 null-language.
+#   Size: 1,911 – 21,783 chars, mean 9.8k. NOTHING under 1,200 chars, so failure
+#   mode #2 (pure-tail video-promo pages) does not exist on this source. Confirmed,
+#   not assumed — the openings script printed "none under 1,200 chars".
+#
+#   TESTIMONY SHARE — derived from the OPENINGS, never from the path (batch-2
+#   finding A). Path-counting reads this source as 0% because there is no /story/
+#   tree. Reading the openings, 3 of 30 (10%) are first-person accounts carrying
+#   the shared invitation-prayer tail:
+#     /a/source.html      Josh McDowell — "I wanted to be happy… I wanted to know
+#                         the meaning of my life"
+#     /a/reallife.html    three first-person accounts (the mountaineer, the
+#                         Super Bowl winner, the student)
+#     /a/loneliness.html  Ashley Seitz — "Once I was sitting in my car and I felt
+#                         lonely, the radio playing…"
+#   Plus 2 non-testimony tail carriers: /a/personally.html (the Four Spiritual
+#   Laws page) and /a/fol.html (the post-decision follow-up page).
+#
+#   🔑 AND THE 0%-TESTIMONY PATTERN HOLDS EVEN AT 10%: ONE PAIR OF DOCUMENTS
+#   ABSORBS THE MAGNET LOAD. /a/reallife.html is in the top 10 of ALL FOUR cases
+#   (ranks 7, 5, 3, 1) and /a/source.html of THREE (ranks 6, 2, 1→2). That is the
+#   `et` /a/elumuutuste.html shape exactly — /a/source.html IS the Telugu twin of
+#   that same Josh McDowell article. Find your magnet early; this one was findable
+#   from the discovery pass, which already showed /a/source.html under two
+#   unrelated topics (purpose AND religions).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# DISCOVERY — and why it must not be read as a verdict
+# ─────────────────────────────────────────────────────────────────────────────
+#   .tmp-diag/phase5-partb-discover.ts everystudent-te te
+#   → only 19 distinct candidate documents of 30, max score 0.631, and `know-god`
+#     returned exactly ONE candidate. Two documents this suite ultimately CREDITS
+#     — /a/greatest.html and /a/whatlike.html's topic neighbours — never surfaced
+#     in the English pass at all.
+#   Batch-2 finding B, reproduced: the English discovery pass UNDER-predicts. The
+#   very first in-language check came back at 0.701 against a 0.631 English
+#   ceiling — a +0.07 gap, matching `uk`'s ~0.08. Discovery answered which
+#   documents exist; only step 4 answered whether a question was too close to one.
+#
+#   Every one of the 30 documents was then read from the database (title +
+#   opening ~900 chars) before anything was credited — guardrail #5.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ENGINE-CHECK ROUND LOG — .tmp-diag/phase5-check.ts te te
+# ─────────────────────────────────────────────────────────────────────────────
+#   Round 1: 0 paraphrase smells · 0 credits not in top 10 · max top score 0.701
+#            ⚠️ BUT NOT CLEAN — failure mode #6 exactly. Case 4 (purpose) scored
+#            0.510 while the other three sat near 0.70, and its RANK 1 was
+#            /a/source.html, the tail magnet, with both credits pushed to 2 and 3.
+#            A clean smell verdict said nothing about whether the question worked.
+#   Round 2: 0 paraphrase smells · 0 credits not in top 10 · max top score 0.701
+#            Case 4 rewritten at natural length and in the corpus's register:
+#            0.510 → 0.632, credits now ranks 1, 2 and 4. SETTLED.
+#
+#   The round-1 → round-2 edit is the §0.12 "short questions lose to tails"
+#   finding again: v1 was three clipped colloquial clauses ("same work, same
+#   routine…"), v2 sets the same complaint in a lived scene at natural length.
+#   Nothing about the credits changed except that the engine could now find them.
+#
+#   ⓘ THE 0.75 SMELL LINE WAS NEVER APPROACHED, AND THAT IS EXPECTED HERE. The
+#   retrieval-floor probe measured Telugu at self@1 0.63 / self@10 0.88 — the
+#   only source in this batch not reaching 1.00 by rank 10. The brief budgeted an
+#   extra round for it. In the event, all four questions cleared at 0.632–0.701
+#   with every credit returning, so the soft floor cost REACH headroom, not
+#   accuracy. Judge this suite by which documents came back, not by the numbers.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 9 credited paths resolve to EXACTLY ONE document — 9/9.
+#   Guardrail #3a:   no credited document has a null language — 9/9.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# TOPICS DROPPED — 6 of the 10, each with the document that WOULD have answered it
+# ─────────────────────────────────────────────────────────────────────────────
+#   At 4 cases, six topics go. Only ONE is dropped for lack of content; the rest
+#   lost a slot and their answer documents are named here so nothing is lost.
+#
+#   1. trinity     (newcomer) — 🔴 GENUINE CONTENT GAP. NO ANSWER DOCUMENT EXISTS.
+#                  There is no Trinity article and no Holy Spirit article on this
+#                  source. /a/whodoyousay.html ("Did Jesus ever say he was God?")
+#                  and /a/faith.html ("Beyond blind faith") are DEITY-OF-CHRIST
+#                  articles — a different question. Discovery's best trinity hit
+#                  was /a/jesusislam.html at 0.505, whose Q3 is the Islamic
+#                  objection to God having a Son, not the one-versus-three
+#                  question. Manufacturing this case would have meant an answer
+#                  key with no valid answer (§0.7 forbids it).
+#   2. prayer      (believer) — DROPPED BY PERSONA QUOTA, not by content. The
+#                  4-case row allows 0 believers. Answer document exists and is
+#                  strong: /a/prayers.html (10,204 ch) "Does God answer your
+#                  prayers? How should we pray?" (Marilyn Adamson, told through
+#                  the praying friend she watched as an atheist). It scored 0.597
+#                  on the English discovery probe — the source's second-best
+#                  English discovery score. Free to add if the operator raises
+#                  the count.
+#   3. suffering   (skeptic) — lost the head-to-head for the 2nd skeptic slot.
+#                  TWO answer documents: /a/why.html (9,032 ch, "Life — why is it
+#                  so hard?", opening on terrorist attacks, sex slavery, racial
+#                  hatred and hunger, then the girl down the street being
+#                  kidnapped and a relative getting cancer) and /a/tragedy.html
+#                  (11,959 ch, "Where is God in the middle of tragedy?"). Both
+#                  surfaced in discovery at 0.558 / 0.532, the joint-highest
+#                  English topic scores. This is the strongest dropped topic.
+#   4. bible-trust (skeptic) — lost the same slot. /a/bible.html (15,081 ch, "Why
+#                  you can trust the Bible" — 40 authors over 1,500 years,
+#                  archaeologists and historians) AND /a/jesusislam.html, whose
+#                  question 1 IS the tahrif question verbatim: "Has the Bible
+#                  been changed from its original state?" — answered with "the
+#                  Qur'an does not say the Bible was changed; it says the
+#                  opposite." Scored 0.631 / 0.627 in discovery, the highest pair
+#                  on the source. See the ESTATE FACTS note — te carries BOTH
+#                  routes, which not every sibling does.
+#   5. know-god    (newcomer) — lost the single newcomer slot to jesus-death.
+#                  /a/whatlike.html (3,729 ch) "Who is God? What is he like? SIX
+#                  attributes of God" — knowable, inviting, … Plus
+#                  /a/who2.html (9,932 ch), part 4 of the cosmological series,
+#                  where the Eternal Something is argued to be personal and where
+#                  God's invisibility is handled (John 1:18, John 4:24).
+#   6. anxiety     (seeker) — lost the single seeker slot to purpose.
+#                  /a/finding.html (15,672 ch) "Peace of mind in an unstable
+#                  world" — "whatever the future holds, you can be at peace and
+#                  certain." Supported by /a/loneliness.html (9,191 ch). This is
+#                  the THINNEST of the dropped topics: te has one peace article
+#                  and no dedicated chronic-anxiety article (see the TITLE TRAPS
+#                  note — neither of the estate's two known anxiety carriers
+#                  exists here).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# TITLE TRAPS — VERIFIED ON THIS SOURCE, not credited on precedent
+# ─────────────────────────────────────────────────────────────────────────────
+#   The brief requires each systematic trap to be re-checked per source, because
+#   `ro` and `de` both lost credits to assuming them. Results for `te`:
+#
+#   🔴 FOUND, AND IT IS THE WORST SHAPE YET — /a/connecting.html.
+#      Title "దేవునితో సంబంధము కలుపుకొనుట" = "Connecting with God"; slug
+#      `connecting.html`. BOTH halves say conversion page. The body is the
+#      estate's WORLD-RELIGIONS comparison — Hinduism, Buddhism, Islam,
+#      Christianity, New Age, each with its idea of God and what a person gets
+#      from it. This is `et` /a/kuidas.html's trap with no honest half left:
+#      `et` at least had a truthful title field and only a misleading slug. Here
+#      title AND slug mislead and only the body tells the truth. It is rank 1 at
+#      0.696 for case 2. A title-only reviewer discards the single most
+#      audience-relevant document in a Hindu-majority source.
+#
+#   🔴 FOUND, SECOND ONE — /a/why.html. Its title field is just "జీవితం"
+#      ("Life") — contentless. Its H1 is "జీవితం – ఎందుకింత కష్టం?" ("Life — why
+#      is it so hard?"). This is the source's suffering article and it is
+#      invisible from the title field alone.
+#
+#   ✅ NOT PRESENT — the "Why can we rely on the God of the Bible?" trap.
+#      te titles its six-attributes piece HONESTLY: /a/whatlike.html is
+#      "దేవుడు ఎవరు?" ("Who is God?") and its own subtitle says "six attributes
+#      of God". Same as German. Do not assume this trap.
+#
+#   ✅ NOT PRESENT — both known anxiety traps. There is NO coronavirus-titled
+#      article on te, and NO chakra/occult-practices article at all. The reverse
+#      trap cannot fire because neither carrier was published here. te answers
+#      anxiety through a plainly-titled peace article instead.
+#
+#   ⚠️ PRESENT AND FULLY LOCALISED — the four-part cosmological chain, numbered
+#      the SAME WAY AS `hu`, not as `mk`:
+#        /a/nothing.html   "Was there ever anything before this creation?"  (part 1
+#                          — and unlike `hu`, te's part-1 title IS descriptive)
+#        /a/something.html "ఏదో ఒకటి"  = "Something"       (part 2, contentless)
+#        /a/who.html       "ఎవరు"      = "Who"             (part 3, contentless)
+#        /a/who2.html      "ఎవరు 2"    = "Who 2"           (part 4, contentless)
+#      Parts 2–4 name no subject. No two parts share a title (unlike `mk`). The
+#      personhood/attributes conclusion is in part 4, /a/who2.html — verified from
+#      its own text, which enumerates God's attributes with John 1:18 and John
+#      4:24. None is credited in this suite; /a/who.html and /a/something.html
+#      appeared as uncredited top-10 hits on case 4 and were rejected on reading.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ESTATE FACTS CHECKED AGAINST THIS SOURCE
+# ─────────────────────────────────────────────────────────────────────────────
+#   ✅ ATONEMENT GAP: te HAS a dedicated "why did Jesus die?" article
+#      (/a/whydid.html, 7,558 ch), and it returns at RANK 1 for case 3. te joins
+#      the majority side of the settled split; nothing to re-open.
+#
+#   ✅ bible-trust VIA THE ISLAM ARTICLE: te carries BOTH routes — a dedicated
+#      /a/bible.html AND the tahrif question as question 1 of /a/jesusislam.html.
+#      Unlike Iran and Czechia (no Islam article) or Japan (Islam article only).
+#
+#   🔴 THE AUDIENCE PREDICTION WOULD HAVE BEEN WRONG AGAIN — brief note 4.
+#      Andhra Pradesh and Telangana are Hindu-majority, so the natural guess is
+#      thin Islam content and heavy Hindu content. The corpus says otherwise:
+#      /a/jesusislam.html at 21,783 chars is the LARGEST DOCUMENT IN THE SOURCE,
+#      and the world-religions comparison /a/connecting.html (15,431 ch) is 5th
+#      largest. Both topics are published at full estate length. This estate
+#      publishes its whole standard shelf regardless of the local religious
+#      majority — publishing, not audience, decides what is on the shelf, for the
+#      fifth source running.
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Telugu. This
+# is a fact about the REVIEWER, not the language. If anyone on the team reads
+# Telugu and can sanity-check the questions and glosses, it should be
+# `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "este-skeptic-ooha" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "నా స్నేహితులంతా దేవుడు అనేది మనుషులు కల్పించుకున్న ఊహ మాత్రమే అంటారు. దీనిని ఖండించడానికి శాస్త్రపరంగా గాని తర్కపరంగా గాని గట్టి ఆధారాలు ఏమైనా ఉన్నాయా?"
+    en: "All my friends say God is just an idea people invented. Is there any solid evidence at all, scientific or logical, to refute that?"
+    top_score: 0.701
+    credits:
+      - { path: "/a/created.html", rank: 1, score: 0.701, en: "Who created God? — the LOGICAL-GROUNDS answer. Everything that began to exist has a cause: a book has an author, music has a composer. The steady-state theory gave way to the Big Bang, so our space-time-energy creation has a singular beginning and therefore a creator; God is in a different category and has to be. ⚠️ BOUNDARY CREDIT: at 1,911 chars / 1 chunk it is the SMALLEST document in the source. It is above the 1,200-char pure-tail floor and the check script did not flag it, and its opening is argument all the way through with no invitation prayer — but the operator should know it is thin." }
+      - { path: "/a/isthere.html", rank: 2, score: 0.697, en: "Does God exist? — 'Six straightforward reasons to believe God exists.' The source's flagship apologetics article at 17,185 chars: the complexity of our planet, information in DNA, the moral law. Its own framing answers the 'wishful thinking' charge head-on: 'no compulsion, no you-just-have-to-believe.'" }
+      - { path: "/a/Godreal.html", rank: 3, score: 0.669, en: "Is God real? — the SCIENTIFIC-EVIDENCE article. The British philosopher Dr Antony Flew, for decades the leading spokesman for atheism, reversing on the evidence in a December 2004 interview: 'a great intelligence is the only good explanation for the origin of life and the complexity of nature.' Then DNA laid out against binary computer code." }
+    note: |
+      🟢 THE CLEANEST CASE IN THE SUITE. Ranks 1, 2 and 3 are the three credits, in
+      the order a reader would want them: the logical argument, the six-reasons
+      flagship, the scientific evidence. Nothing had to be reworded.
+
+      Why it worked, in one line: the question asks for GROUNDS, not for comfort.
+      Failure mode #5 says emotional framing retrieves emotional documents; the
+      inverse held. Naming the two KINDS of grounds wanted — "శాస్త్రపరంగా గాని
+      తర్కపరంగా గాని" ("scientific or logical") — is what pulled /a/Godreal.html
+      (science) and /a/created.html (logic) in alongside the obvious flagship,
+      and it did so without restating any of their titles.
+    rejected:
+      - { path: "/a/miracles.html", rank: 4, score: 0.653, why: "'Why does God not perform a great miracle and prove himself?' (3,122 ch) — RANK 4 AND REJECTED. Its subject is God's RETICENCE and the free choice to believe or not (Philip Yancey), not whether there is evidence. Its own text even defers on this point: 'yes, there are strong and philosophical proofs — see the article on God's existence', i.e. it points AT /a/isthere.html rather than being it. Same call the `hu` suite made on /a/csodat.html." }
+      - { path: "/a/connecting.html", rank: 5, score: 0.631, why: "the world-religions comparison — credited to case 2" }
+      - { path: "/a/source.html", rank: 6, score: 0.609, why: "🔑 THE MAGNET. Josh McDowell's changed-life testimony. Credited to case 4, where its actual subject lies." }
+      - { path: "/a/reallife.html", rank: 7, score: 0.608, why: "three personal accounts — credited to case 4" }
+      - { path: "/a/prayers.html", rank: 8, score: 0.607, why: "the prayer article, at rank 8 for an evidence question. Tail-adjacent match. It is the answer document for the DROPPED prayer topic." }
+      - { path: "/a/devil.html", rank: 9, score: 0.607, why: "'Who is Satan?' — matched on the shared 'does X exist / is X real' shape. A different subject." }
+      - { path: "/a/tragedy.html", rank: 10, score: 0.597, why: "where is God in tragedy — the answer document for the DROPPED suffering topic" }
+
+  # ── 2 ─────────────────────────── skeptic 🔴 THE WORST TITLE TRAP ON THIS SOURCE
+  - id: "este-skeptic-margam" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "మా ఇంట్లో అందరూ గుడికి వెళ్తారు, నా సహోద్యోగి ఒకరు మసీదుకు వెళ్తారు. ప్రతి ఒక్కరూ తమ మార్గమే సరైనదని అదే నమ్మకంతో చెబుతారు. మరి క్రైస్తవులు చెప్పేది వీటన్నిటికంటే ఎందుకు వేరుగా ఉంటుంది?"
+    en: "Everyone in my house goes to the temple, and one of my colleagues goes to the mosque. Every one of them says their own path is the right one, with exactly the same conviction. So why would what Christians say be any different from all of these?"
+    top_score: 0.696
+    credits:
+      - { path: "/a/connecting.html", rank: 1, score: 0.696, en: "🔴 THE TITLE TRAP. Title 'Connecting with God', slug connecting.html — both read as a conversion page. The BODY is the estate's world-religions comparison (15,431 ch): 'The world's major religions and their beliefs about God — Hinduism, Buddhism, Islam, Christianity and the New Age.' Then the contrast plainly: 'Hindus believe in a series of gods and goddesses. Buddhists say there is no deity at all. New Age followers believe they themselves are God. Muslims believe in a mighty but unknowable God.' Closes by setting Jesus' teaching against the rest. Telugu twin of the Hungarian /a/istenkereses.html and the German /artikel/hochsten.html." }
+      - { path: "/a/jesusislam.html", rank: 7, score: 0.564, en: "Jesus and Islam (21,783 ch — the LARGEST document in the source). Six questions Muslims and others ask about Jesus, answered: was the Bible altered, does one religion supersede another, is it blasphemy to say God has a Son, did Jesus die on the cross, why not see Jesus as a prophet. Covers the mosque half of the question. ⚠️ BOUNDARY CREDIT — see the note below." }
+    note: |
+      ⚠️ ONE DELIBERATE DIVERGENCE FROM THE `hu` SUITE, AND THE OPERATOR MAY REVERSE IT.
+      `eshu-skeptic-ugyanaz` REJECTED the Hungarian Islam article for this topic, on
+      the ground that its own preamble disclaims comparison — and the Telugu preamble
+      says the same thing: "సవాళ్ళు లేవు. ఏ రీతిగాను ఏ మతమును గూర్చిన విమర్శలు ఉండవు"
+      ("no challenges; no criticism of any religion in any way").
+
+      I credited it here anyway, for a corpus reason rather than a doctrinal one:
+      `hu` had a SECOND dedicated comparison article (/a/kulonbseg.html, "what is the
+      difference between Christianity and other world religions") to credit instead.
+      `te` has none. /a/connecting.html and /a/jesusislam.html are the only two
+      documents on this source that set the Christian claim against another faith's,
+      and the question explicitly puts a Muslim colleague in the scene. Rejecting it
+      would leave the mosque half of the question with no answer key at all.
+
+      It returns at rank 7 / 0.564 — genuinely the weaker of the two, which is the
+      honest result. OPERATOR: dropping it makes this a 1/1 case; keeping it makes it
+      2/2 and records that te's Islam article does real comparative work.
+    the_finding: |
+      🔴 THE BOILERPLATE TAIL IS PLAINLY VISIBLE IN THIS CASE'S REJECTS.
+      For a question about world religions, the top 10 contains, uncredited:
+        rank 2  0.665  /a/source.html      the Josh McDowell testimony — THE MAGNET
+        rank 4  0.577  /a/gaylesbian.html  gay/lesbian people and God's love
+        rank 8  0.562  /a/intimacy.html    the search for sex and intimacy
+      An article about sexual intimacy at rank 8 for "how is Christianity different
+      from Hinduism" is a pure template match, and /a/gaylesbian.html is the SAME
+      DOCUMENT FAMILY that produced the original §0.9 finding in Chinese and misfired
+      again in Hungarian. Third language, same article, same defect.
+    rejected:
+      - { path: "/a/source.html", rank: 2, score: 0.665, why: "🔑 RANK 2 AND REJECTED — THE MAGNET. Its 'Christianity is not a religion' passage matches, and its chunk here is McDowell recoiling from a girl who answered him with the word 'Jesus' ('I was fed up with religion, fed up with church, fed up with the Bible'). It is a testimony, not a comparison. Credited to case 4." }
+      - { path: "/a/isthere.html", rank: 3, score: 0.580, why: "credited to case 1" }
+      - { path: "/a/gaylesbian.html", rank: 4, score: 0.577, why: "gay/lesbian people and God's love, at rank 4 for a world-religions question. Textbook boilerplate-tail match — and the third language in which this same article family misfires (§0.9 Chinese, `hu`, now `te`)." }
+      - { path: "/a/reallife.html", rank: 5, score: 0.572, why: "three personal accounts — credited to case 4" }
+      - { path: "/a/tragedy.html", rank: 6, score: 0.568, why: "the tragedy article — answer document for the DROPPED suffering topic" }
+      - { path: "/a/intimacy.html", rank: 8, score: 0.562, why: "'The search for sex and intimacy', at rank 8 for a world-religions question. Pure tail match; the plainest specimen of the defect in this suite." }
+      - { path: "/a/finding.html", rank: 9, score: 0.555, why: "peace of mind — answer document for the DROPPED anxiety topic" }
+      - { path: "/a/prayers.html", rank: 10, score: 0.554, why: "the prayer article — answer document for the DROPPED prayer topic" }
+
+  # ── 3 ────────────────────────────────────────────────────────────── newcomer
+  - id: "este-newcomer-siluva" # topic: jesus-death
+    persona: newcomer
+    topic: jesus-death
+    q: "నా క్రైస్తవ స్నేహితులు సిలువ గురించి చాలా గొప్పగా మాట్లాడతారు. కానీ నాకు అది రెండు వేల సంవత్సరాల క్రితం జరిగిన ఒక మరణ శిక్ష లాగే కనిపిస్తుంది. ఆయన చనిపోవడం వల్ల అసలు ఏమి సాధించబడింది?"
+    en: "My Christian friends talk about the cross as if it were something enormous. To me it just looks like an execution that happened two thousand years ago. What was actually accomplished by his dying?"
+    top_score: 0.697
+    credits:
+      - { path: "/a/whydid.html", rank: 1, score: 0.697, en: "Why did Jesus die? — 'What was the purpose of Jesus' death? Why did Jesus have to die for us?' A DEDICATED atonement article, 7,558 ch, working through the blasphemy charge, Isaiah 53 quoted at length, and the annual Passover lamb as the temporary substitute the cross replaced." }
+    the_finding: |
+      🟢 TELUGU DOES **NOT** REPRODUCE THE HUNGARIAN TAIL DISPLACEMENT ON THIS TOPIC,
+      AND THAT IS THE USEFUL RESULT.
+      On `hu`, ranks 1, 2 and 3 were all tail matches and the dedicated atonement
+      article sat at rank 5. On `te` the atonement article is RANK 1 at 0.697 and the
+      tail carriers sit below it:
+
+        rank 1  0.697  /a/whydid.html      ← THE ANSWER
+        rank 2  0.684  /a/faith.html       is Jesus God? — his DEITY, not the cross
+        rank 3  0.678  /a/reallife.html    three testimonies + gospel tail
+        rank 4  0.671  /a/personally.html  the Four Spiritual Laws page
+        rank 6  0.608  /a/gaylesbian.html  gay/lesbian and God's love — TAIL
+        rank 9  0.573  /a/toxic.html       toxic pornography — TAIL
+
+      The tail is verified present, not assumed: /a/toxic.html (pornography) and
+      /a/gaylesbian.html both appear here for a question about the crucifixion, which
+      is only explicable by the shared closing invitation prayer. But on Telugu the
+      atonement article outscores every one of them. The 10%-testimony share shows up
+      as tail carriers at ranks 3–9 rather than at rank 1 — which is what §0.12's
+      corrected rule predicts, and which `ms` and `mk` (0% testimony, tail at rank 1)
+      show is not guaranteed.
+
+      ⚠️ Also note: the question deliberately does NOT contain the estate's trigger
+      phrase "forgiveness of sins" (Telugu "పాప క్షమాపణ"). Turkish put it in and got
+      Catholic-vs-Christian at rank 1 and marriage advice at rank 2.
+    rejected:
+      - { path: "/a/faith.html", rank: 2, score: 0.684, why: "RANK 2 AND REJECTED — 'Beyond blind faith' (Paul E. Little, 19,560 ch). Its subject is Jesus' DEITY: who is Jesus, is Jesus God, did he ever claim it, what did he do to prove it. The crucifixion appears in it only as historical event. Same call `hu` made on /a/hiten.html." }
+      - { path: "/a/reallife.html", rank: 3, score: 0.678, why: "its matched chunk does state the atonement ('Jesus Christ, God in the flesh, willingly took all our sin on his shoulders and died on the cross') — but that is the shared gospel-summary tail, present in every article. The document is three personal accounts. Credited to case 4." }
+      - { path: "/a/personally.html", rank: 4, score: 0.671, why: "the FOUR SPIRITUAL LAWS page ('Law one: God loves you and offers a wonderful plan for your life'), one of the three confirmed repeat tail-carriers across the estate. Matched on the diagram-and-arrows gospel summary, not on what the cross accomplished." }
+      - { path: "/a/jesusislam.html", rank: 5, score: 0.646, why: "its questions 4 and 5 DO ask 'did Jesus die on the cross?' and 'was God dead for three days?' — but those are historicity and Christology questions inside a tahrif article, not the question of what the death achieved. Credited to case 2." }
+      - { path: "/a/gaylesbian.html", rank: 6, score: 0.608, why: "TAIL. Gay/lesbian people and God's love, at rank 6 for a question about the crucifixion." }
+      - { path: "/a/why.html", rank: 7, score: 0.603, why: "'Life — why is it so hard?' — answer document for the DROPPED suffering topic" }
+      - { path: "/a/finding.html", rank: 8, score: 0.582, why: "peace of mind — answer document for the DROPPED anxiety topic" }
+      - { path: "/a/toxic.html", rank: 9, score: 0.573, why: "TAIL, and the starkest one here: 'Toxic pornography, toxic sex' at rank 9 for a question about the cross. Explicable only by the shared closing invitation prayer." }
+      - { path: "/a/connecting.html", rank: 10, score: 0.572, why: "credited to case 2" }
+
+  # ── 4 ─────────────────────── seeker ⚠ THE ONE CASE THAT NEEDED A SECOND ROUND
+  - id: "este-seeker-dinacharya" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "కళాశాల ముగించి ఉద్యోగంలో చేరాను, బయటికి చూస్తే అంతా బాగానే ఉంది. కానీ రోజు గడిచాక రాత్రి పడుకున్నప్పుడు, ఇదంతా దేని కోసం అనే ప్రశ్న వదిలిపెట్టదు. జీవితానికి ఒక దిశ, ఒక అర్థం ఎక్కడ దొరుకుతాయి?"
+    en: "I finished college and started a job; from the outside everything looks fine. But once the day is over and I lie down at night, the question of what all of it is for will not leave me alone. Where does a person find a direction, a meaning, for life?"
+    top_score: 0.633
+    credits:
+      - { path: "/a/reallife.html", rank: 1, score: 0.633, en: "Real life — 'three people share where they found fulfilment, acceptance and purpose in life.' Opens on exactly this complaint: 'Have you ever felt there must be something more than this? Something beyond merely existing?' Then the mountaineer who summited and met great disappointment, the footballer still flat after winning the Super Bowl, and the student who by senior year had acquired everything people said would make him complete." }
+      - { path: "/a/source.html", rank: 2, score: 0.619, en: "The source of a changed life (Josh McDowell) — 'Have you ever thought I hate my life? A way to change your life for good.' Opens on this question in the asker's own words: 'Who am I? Why am I here in this world? Where is my life going? I wanted to know the meaning of my life.' ⚠️ This is ALSO this source's tail magnet (rejected at rank 6 on case 1 and rank 2 on case 2) — but HERE it is the answer, not a misfire. Telugu twin of the Hungarian /a/forrasa.html and the Estonian /a/elumuutuste.html, credited for this same question shape on both." }
+      - { path: "/a/greatest.html", rank: 4, score: 0.535, en: "The meaning of life / 'What is my purpose in life? If you know your purpose your life becomes more meaningful.' The hammer parable told at length: a hammer left unused in a toolbox would feel it was missing something without understanding what; taken out and used to split wood, it is content. Telugu twin of the Hungarian /a/celom.html. 3,818 ch — above the 1,200-char floor and argument throughout." }
+    reworded: |
+      ⚠️ REWORDED ONCE — AND ROUND 1 IS THE SPECIMEN OF FAILURE MODE #6 IN THIS SUITE.
+      v1: "ప్రతి రోజూ అదే పని, అదే దినచర్య. రాత్రి పడుకునేటప్పుడు ఈ రోజు వల్ల ఏమీ
+           ఒరగలేదని అనిపిస్తుంది. ఇలా బతకడంలో ఏదైనా ప్రయోజనం ఉందా?"
+           ("Every day the same work, the same routine. When I lie down at night it
+            feels as if nothing came of the day. Is there any point in living like this?")
+           → top 0.510, NO SMELL, and every credit returned — the check script called
+           the round clean. It was not. 0.510 against 0.696–0.701 on the other three
+           cases, and RANK 1 was /a/source.html, the tail magnet, with both credits
+           pushed down to 2 and 3. A clean smell verdict said nothing whatever about
+           whether the question worked. This is exactly #6: "a low top score is not
+           evidence of a good question — check WHICH documents came back."
+      v2 (kept): the same complaint set in a lived scene at natural length — college
+           finished, job started, everything fine from outside — and asking where
+           direction and meaning are FOUND rather than whether there is a point.
+           → **0.510 → 0.632**, credits at ranks 1, 2 and 4, still no smell.
+
+      The v1 defect was register and length, not content: three clipped colloquial
+      clauses ("ఏమీ ఒరగలేదు" is spoken idiom) made poor contact with a corpus written
+      in formal literary Telugu. §0.12's Polish finding (13 words → 0.500 flat; natural
+      length → 0.706 at rank 1) reproduces here almost exactly.
+
+      ⚠️ TWO PHRASES WERE DELIBERATELY KEPT OUT OF v2 to avoid manufacturing a smell
+      against the suite's own credits: "there must be something more than this"
+      (verbatim /a/reallife.html's opening line) and "why am I here in this world"
+      (verbatim /a/source.html's). Both would have restated a credited document.
+    rejected:
+      - { path: "/a/finding.html", rank: 3, score: 0.559, why: "RANK 3 AND REJECTED — 'Peace of mind in an unstable world.' Its subject is peace and certainty about the future, not what a life is for. It is the answer document for the DROPPED anxiety topic, which is where it belongs." }
+      - { path: "/a/why.html", rank: 5, score: 0.491, why: "'Life — why is it so hard?' — the suffering article, matched on the shared word 'life'. Answer document for the DROPPED suffering topic." }
+      - { path: "/a/gaylesbian.html", rank: 6, score: 0.491, why: "TAIL. Third of the four cases in which this one article appears uncredited in the top 10." }
+      - { path: "/a/loneliness.html", rank: 7, score: 0.491, why: "'Are you feeling lonely?' (Ashley Seitz) — emptiness at night is adjacent to loneliness, but its subject is the fear of being alone and what people do to avoid it, not life purpose." }
+      - { path: "/a/isthere.html", rank: 8, score: 0.483, why: "credited to case 1" }
+    note: |
+      ⓘ ONLY 8 own-source documents reached the top 10 here, against 10 on the other
+      three cases — the language-scoped topK 10 was partly filled by other sources.
+      Consistent with the measured Telugu retrieval floor (self@1 0.63, self@10 0.88):
+      this is the only source in the batch that does not reach 1.00 self-retrieval by
+      rank 10, and case 4 is where that shows.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 9 credits · 9 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 0 — matches §0.7's 4-case row
+# Topics used:    god-exists · religions · jesus-death · purpose
+# Topics dropped: trinity (NO answer document — genuine content gap) ·
+#                 prayer (persona quota, believer=0 at this size) ·
+#                 suffering · bible-trust · know-god · anxiety (lost a slot;
+#                 every answer document named in the DROPPED block above)
+# Paraphrase smells: 0 across both rounds. Max top score 0.701 — the 0.75 line was
+#   never approached, which is expected on the batch's softest retrieval floor.
+# Credits that do not retrieve: 0. Every credit on every case returned in the top 10.
+# Rounds: 2. Round 1 was clean by the script's own verdict and still wrong (case 4).
+# evidence_tier: llm-translated
+#
+# 🔴 TWO TITLE TRAPS, ONE OF THEM THE WORST SHAPE THE CAMPAIGN HAS SEEN.
+#   /a/connecting.html is titled "Connecting with God" AND slugged connecting.html,
+#   and is the world-religions comparison. `et` /a/kuidas.html had ONE misleading
+#   half and one honest one; here both halves mislead and only the body is true. It
+#   is rank 1 for case 2. Second trap: /a/why.html's title field is the single word
+#   "Life" while the article is "Life — why is it so hard?", the source's suffering
+#   article. Meanwhile the two traps the campaign has learned to EXPECT — the
+#   "rely on the God of the Bible" six-attributes retitle and the coronavirus/chakra
+#   anxiety pair — are simply ABSENT here. Verifying each on the source rather than
+#   crediting on precedent is what `ro` and `de` proved you cannot skip.
+#
+# 🔑 THE MAGNET IS /a/source.html AND /a/reallife.html, AND IT WAS FINDABLE EARLY.
+#   /a/reallife.html appears in the top 10 of all FOUR cases; /a/source.html in
+#   three. Both are the meaning-search testimony pair, and /a/source.html is the
+#   same Josh McDowell article that is `et`'s magnet (/a/elumuutuste.html) and `hu`'s
+#   (/a/forrasa.html). The discovery pass already flagged it under two unrelated
+#   topics before a single case was drafted. Behind them, /a/gaylesbian.html (3 of 4
+#   cases), /a/personally.html (the Four Spiritual Laws page), /a/toxic.html and
+#   /a/intimacy.html carry the tail into questions they have nothing to do with —
+#   an article on sexual intimacy at rank 8 for "how is Christianity different from
+#   Hinduism", and one on pornography at rank 9 for "what did the cross accomplish".
+#
+# 🟢 BUT THE TAIL NEVER TOOK RANK 1 ON A CASE WHERE IT WAS WRONG. At 10% testimony,
+#   te lands where §0.12's corrected rule predicts: many carriers, none of them
+#   winning. The jesus-death case is the direct contrast with `hu` (ranks 1-2-3 all
+#   tail, atonement at rank 5) — on te the atonement article is rank 1 and the tail
+#   starts at rank 3. Two more data points for the corrected rule.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#      If anyone on the team reads Telugu, this should become `human-verified`.
+#   2. `/a/jesusislam.html` on case 2 — KEEP (recommended) or DROP. `hu` rejected the
+#      equivalent document for this topic; I kept it because te has no second
+#      comparison article and the question puts a Muslim colleague in the scene.
+#      Full reasoning in the case's `note`. Dropping it makes case 2 a 1/1.
+#   3. `/a/created.html` on case 1 — it is RANK 1 at 0.701 and it is also the
+#      smallest document in the source (1,911 ch, 1 chunk). Above the 1,200-char
+#      pure-tail floor, unflagged by the check script, and argument throughout with
+#      no invitation prayer — but a reviewer applying a stricter size floor would
+#      want to see it. Case 1 is 3/3 with it and 2/2 without.
+#
+# ⓘ ONE GENUINE CONTENT GAP: trinity. No Trinity article and no Holy Spirit article
+#   exist on this source. The deity-of-Christ articles (/a/whodoyousay.html,
+#   /a/faith.html) answer a different question and were not substituted. Recorded as
+#   corpus composition, the same way the atonement gap was settled for `ru`.

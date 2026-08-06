@@ -1,0 +1,433 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ur` (33 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 33 ÷ 8 = 4.1 → 4 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the §0.7 four-case split exactly.
+# Questions authored IN URDU, not translated from the English topic menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   33 documents, ALL under `/a/*.html`. There is no `/story/` tree.
+#   Testimony share derived from the OPENINGS, not from paths (batch-2 finding A):
+#     3 of 33 (9%) are first-person accounts carrying the shared invitation tail —
+#     /a/source.html (Josh McDowell), /a/beauty.html (a fashion model),
+#     /a/nickv.html (Nick Vujicic video script).
+#     Plus 2 pure gospel-presentation pages: /a/fourlaws.html (Four Spiritual Laws,
+#     6.5k) and /a/plates.html ("Falling Plates" video script, 1.5k / 1 chunk).
+#   Documents under 1,200 chars: 0. Duplicate paths: 0. Duplicate titles: 0.
+#   Null-language documents: 0 of 33 (guardrail #3a — nothing excluded).
+#   Smallest document is /a/plates.html at 1,520 chars; largest /a/islam.html at 21,041.
+#
+# 🔴 RETRIEVAL FLOOR — THIS IS ONE OF THE TWO SOFTEST SOURCES IN THE ESTATE.
+#   The floor probe measured self@1 0.63 and a mean top score of 0.546 — lowest but
+#   one across the whole estate, and the nearest of any source to the minScore 0.37
+#   cutoff. The English discovery pass agreed, topping out at 0.624 (trinity) with most
+#   topics in the 0.48–0.59 band.
+#   🔴 THE BRIEF EXPECTED A PERSIAN-SHAPED SOURCE WHERE 0.75 IS UNREACHABLE. IT IS NOT.
+#   Two of the four cases produced a paraphrase smell in-language (0.751 and 0.764)
+#   before settling. The floor probe and the discovery pass measure the CORPUS; they do
+#   not predict smell headroom. See the round log. Documents-returned is still the right
+#   instrument — but on this source the number was live too.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-ur ur
+#   → 24 distinct candidate documents of 33, all ten topics surfaced at least one.
+# All 33 documents were then read from the database (title + opening ~900 chars)
+# before anything was credited — guardrail #5.
+#
+# ENGINE-CHECKED FOUR TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts ur ur
+#   Round 1: 1 paraphrase smell (0.751) · 2 credits not returned · max top 0.751 · 11 credits
+#   Round 2: 1 paraphrase smell (0.764) · 1 credit not returned  · max top 0.764 · 11 credits
+#   Round 3: **0 smells** · **0 credits not returned** · max top 0.741 · 10 credits
+#   Round 4: **0 smells** · **0 credits not returned** · max top 0.741 · 10 credits,
+#            run with `--update` so the ranks and scores in this file are MEASURED,
+#            never typed. Run deliberately as a STABILITY check because §0.12 failure
+#            mode #6 says a first clean round is not evidence of a good suite.
+#            🟢 NO FLAPPING. Every rank identical to round 3; the only movement in the
+#            whole suite was case 1 drifting 0.731 → 0.730 and /a/isthere.html
+#            0.685 → 0.684. Contrast `hu`, where a boundary credit tie-reordered in and
+#            out of k=10 between runs. Nothing here is on a boundary.
+#
+#   🔴 ROUNDS 1→2→3 ARE A TEXTBOOK REACH/SMELL OSCILLATION on ONE case (god-exists):
+#     v1  "my friends say faith in God is merely wishful thinking — is there any solid
+#          ground an ordinary person could examine?"
+#          → 0.708, NO smell, but only 2 of 4 credits returned and the top of the
+#          ranking was wrong: **rank 1 was /a/prayers.html** (the PRAYER article, matched
+#          on its former-atheist opening) and **rank 2 was /a/source.html** (the Josh
+#          McDowell testimony — this source's tail magnet). /a/existence.html and
+#          /a/collins.html missed entirely. Failure mode #6 exactly: a clean score with
+#          the wrong documents. The social "my friends say" framing pulled narrative
+#          documents; §0.12 failure mode #5, confirmed again.
+#     v2  "...is there anything in the ORDER OF NATURE, the structure of the universe or
+#          historical fact that amounts to a reasonable ground for a Creator?"
+#          → reach fixed (existence rank 1, isthere 2, collins 3) but **0.764 🔴 SMELL**.
+#          Cause: "فطرت کی ترتیب" ("the order of nature") is verbatim /a/existence.html's
+#          own opening line ("the order and beauty of nature is truly astonishing"), and
+#          that document is only 3.6k, so the restatement dominates. Guardrail #1.
+#     v3 (kept) changes WHICH OBJECTION the question makes rather than paraphrasing it —
+#          from "is there evidence?" to "everything came about by chance and needs no
+#          maker; is there a testable argument against that?"
+#          → **0.708 → 0.764 → 0.731, and 2/4 → 3/4 → 3/3.** This is the `uk` finding
+#          reproduced: reach and smell fight when the fix is a paraphrase, and pull
+#          together when the fix changes the objection.
+#
+#   ⚠️ BATCH-2 FINDING B CONFIRMED AGAIN, AND HARD. The English discovery pass on this
+#   source topped out at **0.624** — a number that reads exactly like the Persian
+#   "0.75 is unreachable here, spend every round on reach" shape, and the retrieval-floor
+#   probe (self@1 0.63, mean top 0.546) says the same. The FIRST in-language check came
+#   back at **0.751 — over the smell line.** Discovery under-predicted by 0.127 here,
+#   against ~0.08 on `uk`. 🔴 Do NOT reason about smell headroom from discovery or from
+#   the floor probe on this estate; only the in-language check answers it.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Urdu). This is a
+# fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 SIX TOPICS DROPPED — and the document that WOULD have answered each
+# ─────────────────────────────────────────────────────────────────────────────
+# At 4 cases, six of the ten §0.7 topics are dropped. FIVE of the six are dropped
+# purely for sizing, not for content — this source carries them. Named here so the
+# operator can see exactly what is being left on the shelf, and so a later expansion
+# of this suite does not have to redo the survey.
+#
+#   suffering  (skeptic) → /a/why.html "Why is life so hard?" (8.1k — cancer,
+#                          earthquakes, the girl next door, a relative's cancer) at
+#                          discovery 0.577, AND /a/disaster.html "Where do we go from
+#                          here?" (6.0k) at 0.582, whose own subtitle is literally the
+#                          menu scaffold: "are you enduring the sudden passing of a
+#                          friend or loved one, or the aftermath of a natural
+#                          disaster?" Also /a/tragedy.html (12.3k, Marilyn Adamson,
+#                          free will and disasters) and /a/loving.html (3.5k, "How can
+#                          a loving God send people to hell?"). Four documents. Dropped
+#                          ONLY because the two skeptic slots went to topics whose
+#                          document clusters nothing else in this suite touches;
+#                          suffering's four documents sit in the same "questions about
+#                          life" shelf the anxiety case already probes.
+#   purpose    (seeker)  → /a/purpose.html "What is my purpose in life?" (3.4k, the
+#                          hammer parable told at length) at discovery 0.568, plus
+#                          /a/source.html (Josh McDowell) and /a/throne.html ("your
+#                          inner universe" — the will). Dropped for sizing: one seeker
+#                          slot, and anxiety was chosen over purpose because it tests
+#                          the coronavirus reverse-title-trap on this source.
+#   prayer     (believer)→ /a/prayers.html "Does God answer our prayers?" (10.1k, told
+#                          by a former atheist watching a praying friend; its own
+#                          section heading is "Why does God not answer everyone's
+#                          prayers?") at discovery 0.588. Dropped because the §0.7
+#                          four-case split allocates ZERO believer slots. This is the
+#                          only one of the six dropped by persona quota rather than by
+#                          topic choice, and the source's answer for it is strong.
+#   religions  (skeptic) → /a/religions.html "What is the difference between Jesus and
+#                          the world's religions?" (2.7k, five numbered contrasts) at
+#                          discovery 0.525 — the ONLY document that surfaced for this
+#                          topic. Note this source does NOT carry the estate's big
+#                          Marilyn Adamson world-religions comparison (the /a/205 piece
+#                          seen as `hu` /a/istenkereses.html, `de` /artikel/hochsten.html);
+#                          it carries a 2.7k substitute. Thin but real.
+#   trinity    (newcomer)→ /a/trinity.html "Can you explain the Trinity?" (3.5k, the
+#                          three-dimensions analogy and the 1×1×1=1 formulation) at
+#                          discovery 0.624 — the HIGHEST discovery score anywhere in
+#                          this source's run. Dropped for sizing only; the single
+#                          newcomer slot went to know-god, which has three documents to
+#                          trinity's two-chunk one. Worth restoring first if the
+#                          operator ever grows this suite.
+#   jesus-death(newcomer)→ 🔴 GENUINE CONTENT GAP — no answer document exists.
+#                          `everystudent-ur` has NO dedicated "why did Jesus die?"
+#                          article. The closest is /a/trust.html (3.0k, "What does it
+#                          mean to 'trust' Jesus?"), which STATES the atonement plainly
+#                          ("we need forgiveness of our sins, remembering that Jesus
+#                          died on the cross for them; what he did on the cross is the
+#                          one way to obtain forgiveness") but whose SUBJECT is what
+#                          trusting Christ means — a "begin a relationship" page, the
+#                          exact Urdu twin of the Russian /a/dovyeryat.html and the
+#                          Hungarian /a/bizni.html. Discovery for this topic returned
+#                          /a/islam.html 0.575 (its Q4/Q5 "did Jesus die on the cross?"
+#                          — a historicity question inside a tahrif article),
+#                          /a/fourlaws.html 0.572 (the Four Spiritual Laws page — a
+#                          BOILERPLATE-TAIL match) and /a/tragedy.html 0.505 (matched on
+#                          its own gospel tail: "the wages of our sin is death…").
+#                          Ranks 1–3 for the atonement question are one apologetic
+#                          aside and two tails. This is the §0.12 atonement gap — `ur`
+#                          joins `ru`, `zh-cn` and `mn`. Recorded as corpus composition
+#                          and NOT re-opened, per the brief.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 TITLE TRAPS — verified on THIS source, not credited on precedent
+# ─────────────────────────────────────────────────────────────────────────────
+#   ✅ CONFIRMED, REVERSE TRAP — /a/coronavirus.html. Title reads as a dated 2020
+#      pandemic notice ("How to deal with coronavirus (COVID-19) panic?"). The body
+#      broadens in its third paragraph and never goes back: "you may be anxious and
+#      worried because of some other danger. Every day we face many kinds of worries…
+#      terrorism, climate change, racism, wars, government misrule, poverty, sexual
+#      violence, human trafficking, natural disasters, personal money problems,
+#      illness, job security, stressful relationships, addictions." 11.9k chars and it
+#      IS this source's general anxiety article. A title-only reviewer strikes it.
+#      CREDITED in case 4.
+#   ✅ CONFIRMED, FORWARD TRAP — /a/ideal.html. Title "Desiring and seeking the ideal
+#      God" reads as a conversion/seeking piece. The body is an ENUMERATED LIST of
+#      God's attributes from the Bible ("some of the qualities the Bible ascribes to
+#      God are: 1. A God greater than us…"). This is the six-attributes what-is-God-
+#      like article in the position §0.12 predicts, but under a DIFFERENT title from
+#      the systematic one. CREDITED in case 3.
+#   ❌ TRAP THAT IS NOT PRESENT — the systematic *"Why can we rely on / choose the God
+#      of the Bible?"* title (`bg` `tr` `fa` `pt` `cs`) DOES NOT occur here. This source
+#      has /a/bible.html titled "Why can you believe the BIBLE?" — one word different in
+#      English, and it is a genuine 19.1k Bible-reliability article (manuscripts,
+#      textual criticism, archaeology, ancient historiography), NOT the what-is-God-like
+#      article. Assuming the trap would have mis-credited case 2's rank-1 document to
+#      case 3. Same shape as the Romanian and German corrections in the brief:
+#      per-site publishing choice, not an estate constant.
+#   ❌ SERIES THAT IS NOT PRESENT — the four-part *Nothing → Something → Who → Who 2*
+#      cosmological chain was never localised into Urdu. /a/whois.html ("Who is God?")
+#      is NOT part 3 of that series; it is the six-personality-traits article and says
+#      so in its own subtitle.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 THE TAIL MAGNET ON THIS SOURCE — /a/peace.html
+# ─────────────────────────────────────────────────────────────────────────────
+#   The brief's 0%-testimony prediction holds in the shape it predicts: at 9% first-
+#   person content, ONE document absorbs most of the tail-magnet load. Here it is
+#   /a/peace.html ("Peace of mind in an uncertain world", 15.0k), which surfaced in
+#   FIVE of the ten discovery topics — god-exists, suffering, purpose, anxiety and
+#   jesus-death. It is a legitimate article and it IS credited, in case 4 where its
+#   subject actually lies; everywhere else it is a magnet. /a/tragedy.html (4 topics),
+#   /a/prayers.html (4 topics) and /a/islam.html (4 topics) are the secondary magnets.
+#   /a/fourlaws.html behaved exactly as the estate's Four-Spiritual-Laws page does
+#   elsewhere: rank 2 for the atonement question purely on its tail.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# 🟢 THE ISLAM/TAHRIF ROUTING QUESTION — VERIFIED, NOT ASSUMED
+# ─────────────────────────────────────────────────────────────────────────────
+#   Pakistan is Muslim-majority, so `bible-trust` was EXPECTED to route through an
+#   Islam / scripture-corruption article — but the brief warns that audience does not
+#   predict publishing (Malay is Muslim-majority and has no Islam article at all).
+#   Checked: `everystudent-ur` DOES carry /a/islam.html, 21,041 chars — the LARGEST
+#   document in the source — and its question 1 of six is verbatim the tahrif question
+#   ("Has the Bible been changed from its original state?"). It returned at discovery
+#   0.587, second only to /a/bible.html's 0.612, for the bible-trust probe. Both are
+#   credited in case 2. Audience predicted correctly here; the verification is the
+#   point, not the outcome.
+
+cases:
+
+  # ── 1 ──────────────────────────────────────────────────────────────── skeptic
+  - id: "esur-skeptic-ittefaq" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "مجھے بتایا جاتا ہے کہ سب کچھ اتفاق سے بنا ہے اور کسی بنانے والے کی ضرورت نہیں۔ کیا اِس کے خلاف کوئی ایسی دلیل ہے جو محض مذہبی دعویٰ نہ ہو بلکہ قابلِ جانچ ہو؟"
+    en: "I am told that everything came about by chance and that no maker is needed. Is there any argument against that which is not merely a religious claim but is actually testable?"
+    credits:
+      - { path: "/a/isthere.html", en: "'Does God exist?' (17.3k, Marilyn Adamson) — the source's flagship apologetics article: 'six common-sense reasons to believe God really exists', argued as evidence a reader is invited to weigh rather than accept. Its opening insists the case be treated the way one treats the claim that people walked on the moon — photographs, transcripts, moon rock — i.e. as testable.", rank: 3, score: 0.684 }
+      - { path: "/a/existence.html", en: "'The existence of God' (3.6k video script) — the design-versus-chance argument stated concretely: ATP synthase as a proton-driven molecular turbine, the bacterial flagellum, the ribosome, 'from nucleus to nebula you see the marks of design', then directly 'atheistic science claims…'. This is the document that answers the chance half of the question.", rank: 1, score: 0.73 }
+      # DROPPED 2026-08-06 by the estate-wide VIDEO-TWIN rule (operator decision).
+      # /a/collins.html is the abridged video transcript of an article this same case
+      # already credits, so crediting both measured one argument twice. `de` and
+      # `ms` rejected their own copies of this Collins clip for exactly this reason.
+    boundary_credit: |
+      ⚠️ /a/collins.html IS THE ONE CREDIT THE REVIEWER SHOULD LOOK AT.
+      At 1,899 chars / 1 chunk it is the smallest document credited anywhere in this
+      suite, and it is a VIDEO TRANSCRIPT whose first line is a cross-reference to
+      another article ("see the article: Does God exist?"). That is the shape of §0.12's
+      failure mode #2 (pure-tail documents). It is NOT one: the openings report flags
+      nothing under 1,200 chars on this source, and the body is 1,800 characters of
+      actual fine-tuning argument (the gravitational constant, the Big Crunch) with no
+      invitation prayer at all. I credited it on the text. It returned at rank 2 (0.704),
+      which is the engine agreeing. If the operator would rather this suite credit only
+      full articles, dropping it costs one credit and changes nothing else.
+    rejected:
+      - { path: "/a/coronavirus.html", rank: 4, why: "the anxiety article — credited to case 4. At rank 4 for a design-versus-chance question because its own opening runs through Socrates, Dostoevsky, Nietzsche and Hume before concluding philosophy was not enough. A philosophy passage inside an anxiety article." }
+      - { path: "/a/why.html", rank: 5, why: "'Why is life so hard?' — the dropped `suffering` topic's document" }
+      - { path: "/a/source.html", rank: 6, why: "Josh McDowell testimony — THE TAIL MAGNET. It was RANK 2 for v1 of this question; changing the objection pushed it to 6. Would be a credit for the dropped `purpose` topic." }
+      - { path: "/a/tragedy.html", rank: 7, why: "crisis and free will — the dropped `suffering` topic" }
+      - { path: "/a/faith.html", rank: 8, why: "credited in rounds 1–2 and DROPPED at round 3 — see below" }
+      - { path: "/a/loving.html", rank: 9, why: "'How can a loving God send people to hell?' — its point (1) does cite Romans 1:19-20, creation as evidence for God, which is why it matches; its subject is hell. Rejected on the text." }
+      - { path: "/a/ideal.html", rank: 10, why: "credited to case 3" }
+    dropped_after_engine_check:
+      - path: "/a/faith.html"
+        why: |
+          "Beyond blind faith" (20.6k, Paul E. Little) was credited in rounds 1 and 2 and
+          is DROPPED at round 3. Its opening does argue that faith is not blind and that
+          "man cannot settle God's existence unless God reveals himself, so we look into
+          the windows of history for a clue" — which answers the v1 question ("is it just
+          wishful thinking?") and is why it returned at rank 10 there. But the SUBJECT of
+          the article is whether JESUS is God, argued from his biography and the
+          resurrection. It never engages the chance-versus-designer claim the kept
+          question actually makes. It sits at rank 8 (0.566) and the engine is right.
+          Dropped rather than kept-as-a-miss: a kept miss should record a real retrieval
+          gap, and this is not one — it is a document answering a different question.
+    top_score: 0.73
+
+  # ── 2 ─────────────────────────── skeptic · the Islam/tahrif routing, verified
+  - id: "esur-skeptic-naql" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "میرے ایک استاد نے کہا کہ آج جو بائبل ہمارے پاس ہے وہ نقل در نقل کا نتیجہ ہے، اِس لیے اُس کے الفاظ پر بحث کرنا فضول ہے۔ کیا اِس دعوے کو پرکھنے کا کوئی طریقہ ہے؟"
+    en: "A teacher of mine said that the Bible we have today is the result of copy upon copy, so arguing about its wording is pointless. Is there any way to test that claim?"
+    credits:
+      - { path: "/a/bible.html", en: "'Why can you believe the Bible?' (19.1k) — the dedicated Bible-reliability article. Answers on transmission specifically: 'palaeography also proves that the books of the Bible exist today without change from the time of writing', plus manuscript evidence, ancient historiography and archaeology. Its own later heading is 'Has the Bible been changed and distorted over time?'", rank: 1, score: 0.741 }
+      - { path: "/a/islam.html", en: "'Jesus and Islam' (21.0k, the LARGEST document in the source) — six questions, and question 1 IS the tahrif question: 'Has the Bible been changed from its original state?' It answers by asking whether God is able to preserve his own word. The estate's Islam-routes-bible-trust pattern (§0.7, `zh` `kk` `th` `bg` `ja`), verified on this source rather than assumed.", rank: 2, score: 0.691 }
+    reworded: |
+      ⚠️ REWORDED ONCE, and the smell it fixed was 0.001 over the line — which is the
+      point worth keeping, because on a source whose floor probe reads 0.546 nobody
+      would have predicted a smell here at all.
+      v1: "People in my hostel often say the Bible is just a book like any other old
+           book, copied by hand for centuries. HOW CAN AN EDUCATED PERSON SATISFY
+           HIMSELF ABOUT IT?"
+           → **0.751 🔴 SMELL**, credits at ranks 1 and 2. The final clause restates
+           /a/bible.html's own opening almost word for word — that article asks "can a
+           SENSIBLE PERSON believe the Bible?" in its third sentence.
+      v2 (kept): drops the "can a sensible person believe" frame entirely and changes the
+           objection to a dismissal to be tested — a teacher's claim that copy-upon-copy
+           makes the wording not worth arguing about.
+           → **0.751 → 0.741**, both credits still ranks 1 and 2, with a 0.139 gap down
+           to rank 3. The best-separated case in the suite.
+    note: |
+      ⓘ TWO CREDITS IS THE COMPLETE ANSWER, NOT A THIN ONE. Ranks 3–9 are the Jesus-deity
+      article, the Josh McDowell testimony, the what-is-God-like article, the world-
+      religions page, the God-exists video, the peace article and the trust-Jesus page —
+      i.e. nothing else on this source addresses textual transmission. /a/bible.html and
+      /a/islam.html are the whole shelf for this topic and both are credited.
+    top_score: 0.741
+
+  # ── 3 ──────────────────────────────── newcomer 🔴 FORWARD TITLE TRAP CREDITED
+  - id: "esur-newcomer-mizaj" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "جب گھر میں خدا کا ذکر ہوتا ہے تو میرے ذہن میں کہیں اوپر موجود ایک اَن دیکھی طاقت کا دھندلا سا خیال آتا ہے۔ کیا وہ کوئی شخصیت بھی رکھتا ہے، اور اُس کا مزاج کیسا ہے؟"
+    en: "When God is mentioned at home, what comes to my mind is a hazy notion of some unseen power somewhere above. Does he even have a personality, and what is his character like?"
+    credits:
+      - { path: "/a/whois.html", en: "'Who is God?' (3.6k) — its own subtitle is 'Who is God? What does he look like? SIX CHARACTERISTICS of his personality.' The canonical six-attributes what-is-God-like article: approachable, knowable, one who forms a relationship. Answers 'does he have a personality' head-on.", rank: 2, score: 0.681 }
+      - { path: "/a/ideal.html", en: "'Desiring and seeking the ideal God' (14.6k). 🔴 TITLE TRAP: the title reads as a conversion/seeking piece. The body is an ENUMERATED LIST of God's attributes from the Bible — 'some of the qualities the Bible ascribes to God are: 1. A God who is greater than us…' — i.e. this is the long-form what-is-God-like article. Judged on the opening, not the title.", rank: 1, score: 0.713 }
+      - { path: "/a/whereis.html", en: "'Where is God?' (3.0k) — 'people ask, show me God. But if God is hidden, how can he reveal himself?' The flatland analogy: two-dimensional people on a sheet of paper cannot see you, but they can see your fingertip entering their world. Answers the 'unseen power' half — why an invisible God is not therefore an impersonal force.", rank: 3, score: 0.666 }
+    note: |
+      🟢 NO REWORD NEEDED — 0.713 with all three credits at ranks 1, 2 and 3 on the first
+      in-language check. The shape was borrowed from `ru`/`bg`/`hu`: state the topic as
+      something a NEWCOMER NOTICES ("when God is mentioned at home, what comes to mind
+      is a hazy unseen power somewhere above"), never as the doctrinal question. Both the
+      `ru` and `bg` suites hit smells on this topic by asking "what is God like?"
+      directly, which restates /a/whois.html's title. The §0.10/§0.11 lesson transferred.
+
+      🔴 THE RANK-1 DOCUMENT IS THE TITLE TRAP. /a/ideal.html — "Desiring and seeking the
+      ideal God" — wins this case at 0.713 and a title-only reviewer files it under
+      conversion narrative. /a/whois.html, whose title actually says "Who is God?", comes
+      SECOND. Fifth source in the campaign where the best what-is-God-like document is
+      the one the title hides.
+    rejected:
+      - { path: "/a/coronavirus.html", rank: 4, why: "the anxiety article — credited to case 4. At rank 4 for a what-is-God-like question purely on its God-as-refuge passages." }
+      - { path: "/a/isthere.html", rank: 5, why: "credited to case 1" }
+      - { path: "/a/tragedy.html", rank: 6, why: "'Where was God when I was trapped in trouble?' — its opening does define God ('God is the creator of this universe who wants us to know him'), but its subject is whether God can be trusted in crisis. Rejected on the text." }
+      - { path: "/a/throne.html", rank: 7, why: "'Your inner universe' — its subject is the human WILL and selfhood, not God's character" }
+      - { path: "/a/nickv.html", rank: 8, why: "Nick Vujicic video script — a first-person account carrying the invitation tail. One of this source's three testimony-shaped documents." }
+      - { path: "/a/prayers.html", rank: 9, why: "prayer — the topic dropped for want of a believer slot" }
+      - { path: "/a/islam.html", rank: 10, why: "credited to case 2. Its 'God is one, God is almighty, God knows everything, God is creator' passage is what matched — a real attributes list, but inside a tahrif article." }
+    top_score: 0.713
+
+  # ── 4 ───────────────────────────────── seeker 🔴 REVERSE TITLE TRAP CREDITED
+  - id: "esur-seeker-bechaini" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "مجھے تقریباً ہر وقت اندر ہی اندر ایک بےچینی رہتی ہے، حالانکہ ظاہری طور پر کوئی خاص مسئلہ نہیں ہوتا۔ کیا ایمان اِس کے لیے کچھ دیتا بھی ہے؟"
+    en: "I have a restlessness inside me almost all the time, even though outwardly nothing in particular is wrong. Does faith offer anything at all for it?"
+    credits:
+      - { path: "/a/peace.html", en: "'Peace of mind in an uncertain world' (15.0k) — 'peace of mind is available in spite of anxiety and worry, without having to be free of concern for the future.' The source's dedicated peace/anxiety article, and the one document that is legitimately credited here despite being the suite's biggest tail magnet.", rank: 2, score: 0.676 }
+      - { path: "/a/coronavirus.html", en: "'How to deal with coronavirus (COVID-19) panic?' (11.9k, Marilyn Adamson). 🔴 REVERSE TITLE TRAP: the title reads as an expired 2020 notice. Its third paragraph broadens and never goes back — 'you may be anxious because of some other danger… terrorism, climate change, racism, wars, poverty, sexual violence, trafficking, natural disasters, money problems, illness, job security, stressful relationships, addictions.' It IS this source's general anxiety article. Sixth language in which this trap is confirmed.", rank: 1, score: 0.693 }
+    note: |
+      🟢 NO REWORD NEEDED — 0.693, credits at ranks 1 and 2, first in-language check.
+      The reverse title trap is CONFIRMED on this source rather than assumed: the
+      coronavirus-titled article is rank 1 for a question about chronic low-grade unease
+      with nothing objectively wrong, ahead of the article whose title actually says
+      "peace of mind". Sixth confirmation (`hu` `pl` `sq` `tr` `pt` `es`, now `ur`) — but
+      note the brief's counter-examples still stand: German has no such article and
+      Romanian's equivalent is not about anxiety at all. This one was read, not assumed.
+
+      ⓘ TWO CREDITS IS THE COMPLETE ANSWER. This source has no third anxiety document.
+      Ranks 3–10 are prayer, two crisis/suffering articles, the trauma-recovery article,
+      the Josh McDowell testimony, the facing-death article and two apologetics pieces.
+      None of them is about anxiety when nothing is wrong.
+    rejected:
+      - { path: "/a/prayers.html", rank: 3, why: "'Does God answer our prayers?' — its subject is unanswered prayer. Would be the credit for the dropped `prayer` topic." }
+      - { path: "/a/why.html", rank: 4, why: "'Why is life so hard?' — cancer, earthquakes, divorce. Its subject is why bad things happen, not anxiety with nothing wrong. Would be a credit for the dropped `suffering` topic. Same call the `hu` suite made on /a/faj.html." }
+      - { path: "/a/tragedy.html", rank: 5, why: "'Where was God when I was trapped in trouble?' — crisis and free will, not chronic unease" }
+      - { path: "/a/disaster.html", rank: 6, why: "'Where do we go from here?' — for people recovering from a major shock. Acute trauma, not background anxiety. Would be a credit for the dropped `suffering` topic." }
+      - { path: "/a/source.html", rank: 7, why: "Josh McDowell's changed-life testimony — THE TAIL MAGNET on this source, at rank 7 for an anxiety question. Would be a credit for the dropped `purpose` topic." }
+      - { path: "/a/inevitable.html", rank: 8, why: "'Facing the important and unavoidable' — fear of DEATH specifically. Adjacent, and rejected on the text." }
+      - { path: "/a/faith.html", rank: 9, why: "the Jesus-deity article, dropped from case 1 for the same reason — a tail-adjacent match here" }
+      - { path: "/a/isthere.html", rank: 10, why: "credited to case 1" }
+    top_score: 0.693
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 10 credits · 10 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the §0.7 four-case split exactly
+# Topics used:    god-exists, bible-trust, know-god, anxiety
+# Topics dropped: suffering, purpose, prayer, religions, trinity (all five for SIZING —
+#                 the source carries them, answer documents named in the header),
+#                 jesus-death (a GENUINE content gap — no atonement article exists)
+# Paraphrase smells: 0 (max top score 0.741, on the bible-trust case).
+#                    Round 1 had 1 (0.751), round 2 had 1 (0.764) and it was a NEW one
+#                    caused by fixing round 1's reach failure.
+# Credits that do not retrieve: 0. All 10 credits return, and all 10 return at rank 1, 2
+#                    or 3 of their case. There is no kept miss in this suite.
+# evidence_tier: llm-translated
+#
+# 🔴 THE HEADLINE FINDING — THE FLOOR PROBE MISPREDICTED THIS SOURCE BY 0.127.
+#   `everystudent-ur` was briefed as one of the two softest sources in the estate:
+#   self@1 0.63, mean top score 0.546, nearest of any source to the minScore 0.37 cutoff.
+#   The English discovery pass agreed, topping out at 0.624. Every signal said this would
+#   be a Persian-shaped source where 0.75 is unreachable and all rounds go to reach.
+#   **The first in-language check produced a 0.751 paraphrase smell.** The suite then hit
+#   a SECOND smell at 0.764 in round 2. Two of the four cases smelled before settling.
+#   Generalisation for the campaign: the floor probe and the English discovery pass
+#   measure the corpus, not the question. Neither predicts smell headroom. `uk` recorded
+#   an 0.08 under-prediction; `ur` is 0.127 and is the strongest case yet that the
+#   in-language check in step 4 is the only instrument that answers this.
+#
+# 🔴 TITLE TRAPS — two confirmed, two systematic ones ABSENT. Verified, not assumed.
+#   PRESENT  /a/ideal.html "Desiring and seeking the ideal God" → the six-attributes
+#            what-is-God-like article. RANK 1 for that question at 0.713, ahead of
+#            /a/whois.html whose title actually says "Who is God?".
+#   PRESENT  /a/coronavirus.html "How to deal with coronavirus panic" → the general
+#            anxiety article. RANK 1 for chronic anxiety at 0.693.
+#   ABSENT   the systematic *"Why can we rely on the God of the Bible?"* trap. This source
+#            has /a/bible.html "Why can you believe the BIBLE?" — one word different, and
+#            it is a genuine 19.1k Bible-reliability article, NOT the what-is-God-like
+#            article. Crediting on precedent would have put case 2's rank-1 document into
+#            case 3. Same correction Romanian and German forced.
+#   ABSENT   the four-part *Nothing → Something → Who → Who 2* cosmological chain was
+#            never localised into Urdu. /a/whois.html is not part of it.
+#
+# 🔴 THE TAIL MAGNET IS /a/peace.html, AND THE 0%-TESTIMONY PREDICTION HELD.
+#   No `/story/` tree exists; testimony share derived from the openings is 9% (3 of 33
+#   first-person accounts). As the brief predicts for a low-testimony source, ONE document
+#   absorbs most of the load: /a/peace.html surfaced in 5 of the 10 discovery topics. The
+#   secondary magnet is /a/source.html (Josh McDowell), which was RANK 2 for the first
+#   version of the god-exists question and is the exact `et` /a/elumuutuste.html pattern.
+#   /a/fourlaws.html behaved as the estate's Four-Spiritual-Laws page does everywhere:
+#   rank 2 for the atonement question on its tail alone.
+#
+# 🔴 CONTENT GAP — jesus-death. `everystudent-ur` has no "why did Jesus die?" article.
+#   `ur` joins `ru`, `zh-cn` and `mn`. Recorded as corpus composition per §0.12; not
+#   re-opened. The nearest document, /a/trust.html, states the atonement but its subject
+#   is what trusting Christ means. See the dropped-topics block for the full discovery
+#   evidence (ranks 1–3 for the atonement probe are one apologetic aside and two tails).
+#
+# 🟢 THE ISLAM ROUTING QUESTION, ANSWERED. Pakistan is Muslim-majority and this source
+#   DOES carry the Islam / tahrif article — /a/islam.html, 21,041 chars, the largest
+#   document in the corpus, whose question 1 of six is the scripture-corruption question.
+#   It returns at rank 2 (0.691) for `bible-trust`, behind the dedicated Bible article.
+#   The audience prediction was right here; Malay's counter-example means the check, not
+#   the outcome, is the transferable part.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the REVIEWER, not the language. If
+#      anyone on the team reads Urdu, this should be `human-verified`.
+#   2. /a/collins.html on case 1 — a 1,899-char / 1-chunk video transcript, the smallest
+#      credit in the suite. I credited it on its text (real fine-tuning argument, no
+#      invitation prayer, nothing flagged by the under-1,200 watchlist) and the engine
+#      put it at rank 2. Dropping it costs one credit and changes nothing else.
+#   3. Suite SIZE. Five of the six dropped topics were dropped for sizing, not for
+#      content, and their answer documents are named in the header. `trinity` in
+#      particular scored the highest discovery number in the entire source (0.624 on
+#      /a/trinity.html) and `prayer` has a strong 10.1k article; both were dropped only
+#      because the four-case persona split allows one newcomer and zero believers. If the
+#      operator wants `ur` at 6 cases rather than 4, trinity (newcomer) and prayer
+#      (believer) are the two to add, in that order.

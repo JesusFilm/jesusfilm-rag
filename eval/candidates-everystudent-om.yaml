@@ -1,0 +1,418 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-om` (Oromo, 18 documents).
+# Campaign #111, BATCH 2, tier D. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 18 documents → 4 cases (tier-D floor).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 4-case row exactly.
+# Questions authored IN AFAAN OROMOO, not translated from the English menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   18 documents, all `/a/*.html`. No `/story/` tree exists on this source.
+#   Null-language documents: 0 of 18. Duplicate paths: 0. Duplicate titles: 0.
+#   Documents under 1,200 chars: 0 — no pure-tail pages (failure mode #2 does not
+#   fire on this source).
+#
+#   TESTIMONY SHARE — derived from the OPENINGS, never from the path (batch-2 rule A):
+#   1 of 18 = 6%. `/a/struggling.html` is a first-person account, and it says so in
+#   its own opening: "Seenaa Shaakala jireenya barattuu Kolleejjii tokko irraa
+#   fudhatame" ("a story taken from the life of one college student"), then "Umuriin
+#   koo waggaa kudha saddeeti dha" ("I am eighteen years old"). Path-counting would
+#   have read this source as 0% testimony. It is not.
+#
+#   CATEGORY COUNT — the `am` pre-drafting check, run before a word was drafted.
+#   The site files every article under a section name that appears as the first words
+#   of the body. Counting those:
+#     Jiraachuu Waaqayyoo   (does God exist)   6 = 33%  ← LARGEST
+#       /a/isthere.html /a/Godreal.html /a/nothing.html /a/where.html /a/whois.html /a/created.html
+#     Quunnamtii saalaa fi jaalala (sex & love) 4 = 22%  ← the `am` shelf, present here too
+#       /a/marriage.html /a/intimacy.html /a/struggling.html /a/women.html
+#     Waaqayyoon baruu      (knowing God)      4 = 22%
+#       /a/prayers.html /a/whydid.html /a/trinity1.html /a/personally.html
+#     Gaaffiiwwan jireenyaa (life questions)   4 = 22%
+#       /a/coronavirus.html /a/tragedy.html /a/why.html /a/purpose.html
+#
+#   🔴 VOCABULARY RULED OUT BY THE 22% SEX-AND-LOVE SHELF (failure mode #4):
+#   jaalala (love), quunnamtii saalaa (sex), gaa'ela (marriage), hiriyummaa
+#   (companionship), and — the one that is not obvious — DUWWAA / EMPTINESS.
+#   `/a/struggling.html`'s opening is "Keessi koo garuu duwwaa dha… duwummaan keessa
+#   koo suni caalmaatti bal'achaa deeme" ("but my inside is empty… that emptiness of
+#   mine kept widening"). That is this source's `/a/blues.html` — the article that has
+#   misfired on the emptiness question in four languages. The §0.7 `purpose` scaffold
+#   ("none of it added up to anything") is built out of exactly that vocabulary, which
+#   is one of the two reasons `purpose` was not drafted (see DROPPED TOPICS).
+#
+#   🔴 THE TAIL MAGNET — AND I PREDICTED THE WRONG DOCUMENT. WORTH READING.
+#   Before drafting I named `/a/personally.html` (5,755 chars) as the magnet: it is this
+#   source's FOUR SPIRITUAL LAWS page ("seerota afuuraa afuritu jira" — "there are four
+#   spiritual laws"), the estate's confirmed repeat tail-carrier, and discovery had
+#   already surfaced it for jesus-death. That prediction was WRONG.
+#
+#   The actual magnet is `/a/marriage.html` — 26,099 chars, 19 chunks, THE LARGEST
+#   DOCUMENT IN THE SOURCE. In round 1 it was in the top THREE of ALL FOUR cases and
+#   RANK 1 for jesus-death (0.564), a marriage-and-divorce article winning a question
+#   about the cross. `/a/intimacy.html` (17.5k, 14 chunks) sat right behind it and
+#   `/a/struggling.html` was rank 1 for anxiety. `/a/personally.html` reached rank 2
+#   exactly once, in round 1, and never appeared again after the first reword.
+#   This is the `ms` pattern from batch 2 — dating and marriage advice owning the case —
+#   reproducing on a completely unrelated language.
+#
+#   🆕 THE MECHANISM, WHICH THIS SOURCE MAKES UNUSUALLY LEGIBLE: on a language the
+#   embedder barely resolves, the tail magnet is simply THE DOCUMENT WITH THE MOST
+#   CHUNKS. Round 1's top-10 lists are close to descending chunk count — marriage (19),
+#   intimacy (14), coronavirus (12), tragedy (11), prayers (9). With every score inside a
+#   0.048 band there is not enough signal to separate topics, so the document holding the
+#   most lottery tickets wins. The fix that worked was not avoiding vocabulary; it was
+#   giving each question the vocabulary its target article UNIQUELY owns (see the round
+#   log). Testimony share did not predict this and neither did the Four Spiritual Laws
+#   precedent — only running the check did.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-om om
+#   → 13 distinct candidate documents of 18. **Max score across all ten topics: 0.566.**
+#   ⚠️ THE ENGLISH DISCOVERY PASS IS NEAR-NOISE ON THIS SOURCE AND MUST NOT BE READ AS
+#   CONTENT ABSENCE. The retrieval-floor probe put `om` at self@1 0.75 / self@10 1.00
+#   with a mean top score of 0.596, and `om` discriminated LEAST of any source in the
+#   cross-lingual probe. Discovery reported "NO CANDIDATE above 0.45 — this source may
+#   not carry this topic" for FIVE topics: know-god, purpose, bible-trust, prayer,
+#   religions. Reading all 18 openings shows that is wrong for three of them —
+#   `/a/whois.html` is a six-attributes what-is-God-like article, `/a/purpose.html` is
+#   a dedicated life-purpose article, `/a/prayers.html` is a dedicated unanswered-prayer
+#   article. Only bible-trust and religions are real gaps. **Judged on the openings.**
+#
+# LANGUAGE-DETECTION HISTORY (context for guardrail #3a, now clean)
+#   Oromo has no detector model at all: tinyld could not see it, so 17 of 18 documents
+#   sat null-language and 1 was mislabelled Berber until the 2026-07-31 LLM sweep
+#   resolved all 18 at confidence 1.00. The openings hazard report now says
+#   "✅ no null-language documents", and the check script re-asserts it per credit.
+#
+# DROPPED TOPICS — 6 of the 10 §0.7 topics are not drafted. Two are corpus gaps,
+# four are sizing.
+#   🔴 CORPUS GAPS (this source genuinely does not carry them):
+#   - `bible-trust` — NO Bible-reliability article and NO Islam article. The estate's
+#     usual two routes to this topic (a manuscript-transmission piece, or the *tahrif*
+#     question inside an Islam article) are both absent. Same shape as `fa` and `cs`,
+#     which also have no Islam article. There is nothing to credit.
+#   - `religions` — NO comparative-religions article. The estate's world-religions
+#     piece (`/a/205`, localised as `hu /a/istenkereses.html`, `de /artikel/hochsten.html`,
+#     `sw /a/kuunganishwa.html`) was never localised into Oromo.
+#   ⓘ SIZING ONLY — these four ARE carried, and were dropped to fit the 4-case floor:
+#   - `prayer` (`/a/prayers.html`, 11.6k, "Waaqayyo Kadhannaa Keenyaaf Ni Deebisaa?" —
+#     the estate's standard unanswered-prayer article, told by a former atheist watching
+#     a praying friend). Dropped because the §0.7 4-case row allocates ZERO believer
+#     slots. This is the single strongest candidate for a 5th case.
+#   - `know-god` (`/a/whois.html`, 4.0k — "Amaloota Waaqayyoo ja'an", the SIX-ATTRIBUTES
+#     article, enumerated 1..6 in the body). Dropped for persona balance: newcomer gets
+#     one slot and jesus-death has the more distinct answer document.
+#   - `trinity` (`/a/trinity1.html`, 6.0k — three-dimensions analogy, "Waaqayyo tokko
+#     moo sadi?"). This was discovery's single best score on the whole source (0.566)
+#     and is the safest topic here; dropped only because newcomer has one slot.
+#   - `purpose` (`/a/purpose.html`, 5.8k — the hammer parable). Dropped for TWO reasons:
+#     seeker has one slot, and the emptiness vocabulary the topic needs collides head-on
+#     with `/a/struggling.html` (see the vocabulary block above). `anxiety` gives the
+#     seeker slot a cleaner answer document (17.6k vs 5.8k) with no shelf collision.
+#
+# 🔑 WHY THESE FOUR — the tier-D distinctness rule. With 18 documents a 4-case suite is
+# close to enumeration, so the four topics were chosen to land on SIX DISTINCT answer
+# documents with no overlap between cases: isthere+Godreal (god-exists), tragedy+why
+# (suffering), whydid (jesus-death), coronavirus (anxiety). No document is credited twice.
+#
+# ENGINE-CHECKED FOUR TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts om om
+#   Round 1: 0 smells · 3 credits not in top 10 · max top score 0.608
+#   Round 2: 0 smells · 0 credits not in top 10 · max top score 0.734
+#   Round 3: 0 smells · 0 credits not in top 10 · max top score 0.690
+#   Round 4: 0 smells · 0 credits not in top 10 · max top score 0.690  ← FINAL
+#
+#   🔴 ALL FOUR QUESTIONS WERE REWORDED FOR REACH. NOT ONE ROUND WAS SPENT ON SMELL.
+#   The 0.75 line was never approached: the highest number the source produced in four
+#   rounds was 0.734, and that was on an UNCREDITED document (`/a/coronavirus.html` at
+#   rank 1 for the god-exists question in round 2) — a reach failure, not a smell.
+#   This matches Persian (§0.12, topped out at 0.710) and the batch-2 finding that no
+#   tier-B source reached 0.75 either. On `om`, treat 0.75 as unreachable.
+#
+#   ROUND 1 → 2, the big move, and what actually caused it:
+#     god-exists  3/3 credits missing → 3/3 returning. v1 framed belief as "a wish of
+#       our hearts" and asked about "human FEELING" — failure mode #5 exactly. It put
+#       `/a/coronavirus.html` (fear and peace) at rank 1 and left both evidence articles
+#       outside the top 10. v2/v3 dropped every emotional word and asked how the universe
+#       and living things began and whether scientific discovery leads to a Creator.
+#       0.608 → 0.734 → 0.589, and the credits went 1 → 3 of 3, now ranks 1, 5 and 9.
+#     suffering   `/a/tragedy.html` was NOT IN TOP 10 in v1 and `/a/why.html` was rank 10
+#       at 0.443, while `/a/nothing.html` (a cosmology article) was rank 1. v1 said
+#       "balaa konkolaataa" (car accident) — incidental colour, failure mode #4, with
+#       nothing in the corpus to attach to — and stated the theodicy abstractly. v2 keeps
+#       the accident but adds the asker's own words to God and the word "callisa"
+#       (silence), which is `/a/tragedy.html`'s own opening move ("Waaqayyotiin maaloo
+#       maaliif callistaa?"). Both credits jumped to ranks 2 and 3. 0.532 → 0.690.
+#     jesus-death `/a/whydid.html` was rank 6 behind `/a/marriage.html` at rank 1. Naming
+#       Yesus explicitly and asking what his death ACHIEVED took it to rank 1 at 0.683.
+#     anxiety     three rewords, 6 → 4 → 3. See the case note.
+#
+#   ROUND 2 → 4 was entirely the anxiety case; the other three were left alone once
+#   settled, which is why their numbers are stable across rounds 2–4.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 7 credited paths resolve to EXACTLY ONE document — 7/7.
+#   Guardrail #3a:   no credited document has a null language — 7/7.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Afaan Oromoo). This is
+# a fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esom-skeptic-ragaa" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Namoonni Waaqayyo jiraachuu isaa amantiidhaan fudhatu; ani garuu ragaa qabatamaa barbaada. Hawwaan kun akkamitti eegale? Lubbu-qabeeyyiin akkamitti argaman? Argannoon saayinsii gara Uumaa tokkootti nama geessuu ni danda'aa?"
+    en: "People accept God's existence on faith; I want concrete evidence. How did this universe begin? How did living things come to be? Can scientific discovery lead a person to a Creator?"
+    credits:
+      - { path: "/a/isthere.html", en: "Does God exist? (Marilyn Adamson, 19.6k — the source's flagship apologetics article). Its opening states the shape of the question this case asks: 'there are six direct reasons that confirm God really exists… would you like someone to tell you with EVIDENCE? Would you not be glad if it were shown to you directly without tying your head in knots?' Then the courtroom framing about the man who denies the moon landing.", rank: 1, score: 0.589 }
+      - { path: "/a/Godreal.html", en: "Is God really real? — 'SCIENCE gives sufficient evidence for believing God exists. What is DNA for?' Antony Flew, the British philosopher who chaired the atheist side, reversing on the origin of life and DNA. This is the source's fact-versus-feeling document and the exact answer to the second half of the question.", rank: 9, score: 0.502 }
+      - { path: "/a/created.html", en: "Who created God? — the cosmological argument stated plainly: 'everything that came into being came into being through something else. A book has an author. Music has an artist.' Steady-state versus Big Bang, and space-time-matter-energy all having a beginning. 2.4k chars, 2 chunks — the shortest document in the source but well clear of the 1,200-char pure-tail line.", rank: 5, score: 0.526 }
+    boundary_credit: |
+      ⚠️ `/a/Godreal.html` IS A BOUNDARY CREDIT AT RANK 9 (0.502) AND ITS RESULT WILL FLAP.
+      It is KEPT, and on strong grounds: the question explicitly asks whether SCIENTIFIC
+      DISCOVERY can lead to a Creator, and this document is the source's answer to exactly
+      that ("Saayinsiin raga gahaa ni kenna" — "science gives sufficient evidence" — then
+      Antony Flew and DNA). But at 7.1k chars / 6 chunks it is a small document competing
+      in a 0.09-wide score band, so a future run may show it at rank 10 or just outside.
+      Do not read a 2/3 as a change in the engine — §0.10 recorded the same tie-reorder
+      flapping on `esru-newcomer-krest` and §0.12 on `eshu-skeptic-vagyalom`.
+    rejected:
+      - { path: "/a/coronavirus.html", rank: 2, why: "RANK 2 AND REJECTED — the anxiety article, credited to case 4. It was RANK 1 for v1 of this question at 0.734, the highest number the whole source produced, because v1 framed the question emotionally. That is failure mode #5 caught in the act." }
+      - { path: "/a/where.html", rank: 3, why: "'Where is God?' — the flatland/two-dimensions analogy for why God is not visible. Its subject is God's INVISIBILITY, a different objection from whether there are grounds to believe. Credited to no case." }
+      - { path: "/a/why.html", rank: 4, why: "credited to case 2" }
+      - { path: "/a/marriage.html", rank: 6, why: "the tail magnet — marriage and divorce, at rank 6 for an evidence question. It was in the top three of all four cases in round 1." }
+      - { path: "/a/whois.html", rank: 7, why: "the SIX-ATTRIBUTES what-is-God-like article (see the title-trap note below). Its subject is God's character, not whether he exists. It is the answer document for the dropped `know-god` topic." }
+      - { path: "/a/prayers.html", rank: 8, why: "the prayer article — the answer document for the dropped `prayer` topic" }
+      - { path: "/a/purpose.html", rank: 10, why: "the life-purpose article — the answer document for the dropped `purpose` topic" }
+    title_traps: |
+      🔴 TWO OF THE THREE SYSTEMATIC TRAPS WERE CHECKED ON THIS SOURCE AND BOTH CAME BACK
+      NEGATIVE. Neither was credited on precedent — this is the Romanian/German lesson
+      (§0.12: these are per-site publishing choices, not estate constants).
+
+      1. The *"Why can we rely on / choose the God of the Bible?"* trap DOES NOT EXIST here.
+         `everystudent-om` titles its six-attributes article HONESTLY: `/a/whois.html` is
+         "Waaqayyo eenyu dhaa?" ("Who is God?") and its body is the enumerated list —
+         "Amaloota Waaqayyoo ja'an" ("the six attributes of God"), then "1. Waaqayyo
+         eenyudha? Baramuu danda'a" ("1. Who is God? He can be known"), "2. … Isatti
+         dhihaachuu dandeenya" ("2. … we can approach him"). Same as German. No trap.
+
+      2. The *Nothing → Something → Who → Who 2* four-part cosmological chain WAS NEVER
+         LOCALISED INTO OROMO. Only part 1 exists — `/a/nothing.html`, "Jalqabarratti
+         wanti hundi duwwaa turee?" ("Was everything nothing at the beginning?"), the
+         sealed-room thought experiment. There is no "Something", no "Who", no "Who 2".
+         Same as `et`. §0.12's warning that the personhood conclusion sits in a different
+         numbered part on different sources is therefore moot here: there is no part to
+         pick. `/a/created.html` ("Eenyutu Waaqayyoon Uume?" — "Who created God?") is a
+         SEPARATE, honestly-titled first-cause article, and it is the one credited.
+    dropped_after_engine_check:
+      - path: "/a/nothing.html"
+        why: >
+          "Was everything nothing at the beginning?" (7.0k) — a genuine god-exists argument, and it was RANK 1 (0.532) for v1 of the SUFFERING question, which is how it came under consideration at all. Not credited here. Its argument is the same chain `/a/created.html` already carries — could there have been absolute nothing, therefore something is eternal, therefore a first cause — and crediting both would measure one argument twice. That is the call `hu` made on `/a/kicsoda.html` for the same reason. It did not return in the top 10 for the final wording of this question either, so the engine agrees. OPERATOR MAY OVERRIDE: it is a defensible fourth credit if a wider god-exists denominator is wanted.
+    top_score: 0.589
+
+  # ── 2 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esom-skeptic-balaa" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "Bara darbe hiriyaan koo balaa keessatti du'e. Erga sana kaasee, 'Yaa Waaqayyo, ati eessa jirta?' jedheen gaafadha; deebiin argadhu garuu callisa qofa. Waaqni gaarii ta'e jireenyi namootaa gidiraa akkasiitiin akka guutu maaliif dhiise?"
+    en: "Last year my friend died in an accident. Ever since, I ask 'God, where are you?' but the only answer I get is silence. Why has a good God let people's lives be filled with suffering like this?"
+    credits:
+      - { path: "/a/tragedy.html", en: "Where is God when I am surrounded by distress? (Marilyn Adamson, 14.4k) — opens with the asker's own words: 'Have you ever asked God, where are you? God, please, why are you silent? How often do you say it matters?' Its body argues free will as the reason God does not run the world by compulsion ('he could have made it work on forced obedience and tight control alone; instead he gave us freedom of will').", rank: 2, score: 0.649 }
+      - { path: "/a/why.html", en: "Why is life so hard? (10.4k) — 'Why do people suffer cancer? Why do earthquakes come and level whole cities?' Then the concrete list this asker is living in: a marriage or a friendship suddenly breaks; the girl next door is raped; a relative is taken by cancer. The closest document in the source to the asker's situation.", rank: 3, score: 0.642 }
+    rejected:
+      - { path: "/a/coronavirus.html", rank: 1, why: "RANK 1 AND REJECTED. The anxiety article (credited to case 4). Its opening list of what makes people anxious includes war, natural disaster, poverty and disease, which is why it matches a suffering question — but its SUBJECT is how to overcome fear and live in peace, not why a good God permits suffering. Same call `hu` made rejecting `/a/koronavirus.html` from its own suffering case." }
+      - { path: "/a/prayers.html", rank: 4, why: "'Does God answer our prayers?' — matched on the unanswered/silence half of the question. Its subject is prayer, and it is the answer document for the dropped `prayer` topic, not for theodicy." }
+      - { path: "/a/marriage.html", rank: 5, why: "the tail magnet — marriage and divorce, at rank 5 for a bereavement question" }
+      - { path: "/a/isthere.html", rank: 6, why: "credited to case 1" }
+      - { path: "/a/intimacy.html", rank: 7, why: "'Looking for love and sex' at rank 7 for a question about a friend dying. A textbook shelf match — this is the 22% sex-and-love category showing up where it has no business." }
+      - { path: "/a/struggling.html", rank: 8, why: "the source's ONE testimony — a college student's account of porn addiction and inner emptiness. Matched on its shared gospel tail, exactly as §0.9 predicts. Its subject answers nothing here." }
+      - { path: "/a/whydid.html", rank: 9, why: "credited to case 3" }
+    top_score: 0.69
+
+  # ── 3 ────────────────────────────────────── newcomer ⚠ TAIL MAGNET EXPECTED
+  - id: "esom-newcomer-fannoo" # topic: jesus-death
+    persona: newcomer
+    topic: jesus-death
+    q: "Kiristaanonni ani beeku waa'ee fannoo Yesus akka waan hunda jijjiireetti dubbatu. Anaaf garuu waggoota kuma lamaan dura namni tokko ajjeefamuu qofa fakkaata. Du'i isaa maal buuse, maaliifis dirqama ta'e?"
+    en: "The Christians I know talk about Jesus' cross as if it changed everything. To me it just looks like a man being killed two thousand years ago. What did his death achieve, and why did it have to happen?"
+    credits:
+      - { path: "/a/whydid.html", en: "Why did Jesus die? (7.6k) — a DEDICATED atonement article. Its own opening asks the three questions this case asks: 'Why did Jesus die? What good is Jesus' death? Why was it necessary that he die for us?' It then works through the religious leaders handing him over for blasphemy, whether they had the authority to, Lazarus and the miracles, and the triumphal entry. The estate's atonement gap (§0.12: `ru`, `zh-cn`, `mn` have no such article) does NOT apply to Oromo.", rank: 1, score: 0.683 }
+    note: |
+      ⚠️ THE QUESTION DELIBERATELY AVOIDS "dhiifama cubbuu" (forgiveness of sins).
+      §0.12 records it as the estate's trigger phrase: Turkish put it in a question and
+      got Catholic-vs-Christian at rank 1 and marriage advice at rank 2. On this source
+      the phrase appears verbatim in `/a/where.html` ("cubbuu namootaaf dhiifama kan
+      argamsiisedha") and all through `/a/personally.html`, the Four Spiritual Laws page.
+      Using it would have handed the case to the tail magnet.
+    the_finding: |
+      🟢 OROMO HAS A DEDICATED ATONEMENT ARTICLE AND IT RETRIEVES AT RANK 1.
+      `/a/whydid.html` ("Yesus maaliif du'ee?", 7.6k) is the estate's standard "why did
+      Jesus die?" piece. §0.12 settled the atonement gap at 8 of 11 batch-1 sources
+      carrying one (`ru`, `zh-cn`, `mn` do not). Oromo is another that does, and unlike
+      `hu` — where the tail put testimonies at ranks 1, 2 AND 3 and pushed the atonement
+      article to rank 5 — here it wins outright. Coverage 1/1.
+
+      ⚠️ BUT ONLY AFTER A REWORD, AND THE ROUND-1 RESULT IS THE POINT. v1 asked what the
+      killing "brought about" without naming Jesus, and the top five were:
+        rank 1  0.564  /a/marriage.html     marriage and divorce
+        rank 2  0.536  /a/personally.html   the Four Spiritual Laws page (pure tail)
+        rank 3  0.523  /a/prayers.html      prayer
+        rank 4  0.511  /a/tragedy.html      where is God in distress
+        rank 5  0.505  /a/intimacy.html     looking for love and sex
+        rank 6  0.502  /a/whydid.html       ← THE ANSWER
+      Naming Yesus and asking what his death ACHIEVED and why it HAD to happen took it
+      to rank 1 at 0.683 and dropped `/a/personally.html` out of the top 10 entirely.
+    rejected:
+      - { path: "/a/women.html", rank: 2, why: "RANK 2 AND REJECTED — 'Women's rights': how Jesus honoured women against the culture of the ancient Middle East. It is dense with Jesus and with 'two thousand years ago', which is why it matches, but it says nothing about what his death accomplished." }
+      - { path: "/a/isthere.html", rank: 3, why: "credited to case 1" }
+      - { path: "/a/where.html", rank: 4, why: "'Where is God?' — one line of it does mention that Jesus brought forgiveness, but the document's subject is why God is not visible. Boundary, rejected on the text." }
+      - { path: "/a/tragedy.html", rank: 5, why: "credited to case 2" }
+      - { path: "/a/why.html", rank: 6, why: "credited to case 2" }
+      - { path: "/a/marriage.html", rank: 7, why: "the tail magnet — it was RANK 1 for v1 of this question" }
+      - { path: "/a/prayers.html", rank: 8, why: "prayer — the dropped `prayer` topic's answer document" }
+      - { path: "/a/trinity1.html", rank: 9, why: "the Trinity article — the dropped `trinity` topic's answer document. It matches on Father-and-Son language, not on the cross." }
+      - { path: "/a/coronavirus.html", rank: 10, why: "credited to case 4" }
+    top_score: 0.683
+
+  # ── 4 ────────────────────────────── seeker 🔴 REVERSE TITLE TRAP, VERIFIED HERE
+  - id: "esom-seeker-yaaddoo" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Yeroo baay'ee, sababa ifa ta'e tokko illee osoo hin qabaatin, sodaan na qabata; addunyaan kun gara badiisaatti deemaa jira, egereen koos hin beekamu jedheen yaadda'a. Waaqayyo sodaa akkasii keessaa nama baasuu ni danda'aa?"
+    en: "Very often, without any clear reason at all, fear grips me; I worry that this world is heading for ruin and that my own future is unknown. Can God bring a person out of fear like that?"
+    credits:
+      - { path: "/a/coronavirus.html", en: "🔴 REVERSE TITLE TRAP, VERIFIED ON THIS SOURCE AND NOT ASSUMED FROM PRECEDENT. The title is 'Sodaa Vaayirasii Koronaa' ('Fear of the coronavirus') — a dated 2020 notice a title-only reviewer strikes out. The SUBTITLE already broadens it ('how do we overcome anxiety, the fear of coronavirus OR ANY FEAR, and live in great peace'), and the third paragraph leaves the pandemic and never returns: 'every single day we are surrounded by reasons that make us anxious — terrorism, climate change, racism, war, bad governance, poverty, sexual harassment, human trafficking, natural disaster, personal income, disease, unemployment, relationships full of worry, various addictions.' 17.6k chars, 12 chunks. This IS the source's general anxiety article, and it is the only one.", rank: 3, score: 0.558 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER HERE, NOT A THIN ONE. `everystudent-om` carries
+      exactly one anxiety document. `/a/tragedy.html` is the nearest other candidate and
+      is rejected on its text: its subject is crisis and bereavement, not anxiety with
+      nothing objectively wrong — the same call `hu` made on `/a/faj.html` and `ru` on
+      `/a/gdebog.html`. It is credited to case 2, where its subject actually lies.
+
+      ⚠️ WORD CHOICE IS LOAD-BEARING. Oromo "dhiphina" covers BOTH distress and anxiety,
+      and it is the first word of `/a/tragedy.html`'s title ("Yommuun DHIPHINAAN
+      marfamu…"). Using it here would have merged this case with case 2. The question
+      uses "sodaa" (fear) and "yaaddoo" (worry) instead, both of which
+      `/a/coronavirus.html` opens on ("Sodaa Vaayirasii Koronaa", "yaaddoo isa ol-aanaa").
+    reworded: |
+      ⚠️ REWORDED THREE TIMES — this case cost more work than the other three combined,
+      and it never got to rank 1. The record is worth keeping because it is the clearest
+      specimen in this suite of the `am` category-dominance finding.
+      v1: "…yaaddoon na hin dhiisu. Halkanii guyyaa sammuun koo boqonnaa hin argatu."
+          ("…worry does not leave me. Night and day my mind gets no rest.")
+          → top 0.582, credit at RANK 7. Rank 1 was `/a/struggling.html`, the porn-and-
+          inner-emptiness testimony, and rank 2 `/a/intimacy.html`. The "my mind gets no
+          rest" register is the SAME register `/a/struggling.html` is written in
+          ("dheebuu keessa koo" — "that thirst inside me"). The 22% sex-and-love shelf
+          took the top two slots on an anxiety question.
+      v2: added "oduu addunyaa yeroon dhaga'us" ("and when I hear the world news")
+          → top 0.575, credit at RANK 6. Rank 1 became `/a/why.html`. Barely moved.
+      v3 (kept): drops the inner-restlessness clause entirely and names what the fear is
+          ABOUT — the world heading for ruin, an unknown future. That is the one thing
+          `/a/coronavirus.html` carries and the sex-and-love shelf does not.
+          → top 0.571, credit at RANK 3, and the top two became `/a/why.html` and
+          `/a/tragedy.html` — both genuine suffering documents rather than dating advice.
+      **Rank 7 → 6 → 3. Reach only; smell was never in play (max 0.582 across all three).**
+    the_finding: |
+      🔴 THIS CASE DOES NOT REACH RANK 1 AND I AM RECORDING THAT AS A RESULT, NOT HIDING IT.
+      `/a/coronavirus.html` is unambiguously the right document — it is the only anxiety
+      article in the source and its subtitle says so ("overcome anxiety, the fear of
+      coronavirus OR ANY FEAR, and live in great peace"). It settles at rank 3 behind two
+      documents about suffering. Three rewords could not do better. On a source where the
+      whole top 10 sits inside a 0.11-wide score band, precision@1 is not achievable for
+      this topic and coverage 1/1 is the honest ceiling.
+    rejected:
+      - { path: "/a/why.html", rank: 1, why: "RANK 1 AND REJECTED — 'Why is life so hard?', credited to case 2. Its subject is why suffering exists, not what to do with chronic fear." }
+      - { path: "/a/tragedy.html", rank: 2, why: "RANK 2 AND REJECTED — 'Where is God when I am surrounded by distress?', credited to case 2. Its subject is crisis and bereavement, not anxiety with nothing objectively wrong. Same call `hu` made on `/a/faj.html` and `ru` on `/a/gdebog.html`." }
+      - { path: "/a/isthere.html", rank: 4, why: "credited to case 1" }
+      - { path: "/a/prayers.html", rank: 5, why: "prayer — the dropped `prayer` topic's answer document" }
+      - { path: "/a/intimacy.html", rank: 6, why: "the sex-and-love shelf. It was RANK 1 for v1 of this question at 0.547; the reword pushed it to 6." }
+      - { path: "/a/where.html", rank: 7, why: "'Where is God?' — God's invisibility, credited to no case" }
+      - { path: "/a/nothing.html", rank: 8, why: "the cosmology article, at rank 8 for an anxiety question — a pure tail match" }
+      - { path: "/a/struggling.html", rank: 9, why: "the source's one testimony. It was RANK 1 for v1 of this question and RANK 2 for v2; getting it to 9 was what the third reword was for." }
+      - { path: "/a/marriage.html", rank: 10, why: "the tail magnet, still present at rank 10" }
+    top_score: 0.571
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 7 credits · 7 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 4-case row
+# Topics used: god-exists · suffering · jesus-death · anxiety
+# Topics dropped: bible-trust and religions (CORPUS GAPS, nothing to credit);
+#                 prayer, know-god, trinity, purpose (SIZING — all four ARE carried)
+# Paraphrase smells: 0 in every round. Max top score ever produced: 0.734 (round 2,
+#   on an uncredited document). Final max: 0.690.
+# Credits that do not retrieve: 0.
+# evidence_tier: llm-translated
+#
+# 🔴 FINDING 1 — I PREDICTED THE WRONG TAIL MAGNET, AND THE REAL ONE SUGGESTS A MECHANISM.
+#   Predicted `/a/personally.html` (the Four Spiritual Laws page) on estate precedent.
+#   The actual magnet is `/a/marriage.html` — 26,099 chars, 19 chunks, the LARGEST
+#   document in the source. Round 1: top three of ALL FOUR cases, rank 1 for jesus-death.
+#   `/a/personally.html` appeared once, at rank 2, and never again.
+#   The mechanism this source exposes: with every score inside a 0.048 band there is not
+#   enough signal to separate topics, so the document with the MOST CHUNKS wins — round
+#   1's rankings track descending chunk count (marriage 19, intimacy 14, coronavirus 12,
+#   tragedy 11, prayers 9). **On a low-discrimination language, chunk count is the tail
+#   mechanism.** Testimony share (6% here) did not predict it and neither did estate
+#   precedent. Worth testing against the other tier-C/D sources' round-1 outputs.
+#
+# 🔴 FINDING 2 — THE `am` CATEGORY-DOMINANCE RULE REPRODUCES, ON A DIFFERENT SHELF SIZE.
+#   `om` is 22% sex-and-love (4 of 18: marriage, intimacy, struggling, women) against
+#   `am`'s 29%. That shelf took ranks 1 AND 2 of the anxiety case in round 1 and rank 1
+#   of the jesus-death case, and it took three rewords to push it down. The unobvious
+#   part: the ruled-out vocabulary is not just "love" and "sex" — it is EMPTINESS.
+#   `/a/struggling.html` opens "Keessi koo garuu duwwaa dha… duwummaan keessa koo suni
+#   caalmaatti bal'achaa deeme" ("but my inside is empty… that emptiness kept widening").
+#   That is this source's `/a/blues.html`. The §0.7 `purpose` scaffold is built out of
+#   exactly that vocabulary, which is half the reason `purpose` was not drafted.
+#
+# 🟢 FINDING 3 — TWO SYSTEMATIC TITLE TRAPS CHECKED, BOTH NEGATIVE; ONE REVERSE TRAP
+#   CHECKED, POSITIVE. All three verified on the openings, none credited on precedent.
+#   - "Why can we rely on God?" trap: ABSENT. `/a/whois.html` is honestly titled
+#     "Waaqayyo eenyu dhaa?" and IS the six-attributes article. Same as German.
+#   - Nothing → Something → Who → Who 2 chain: NEVER LOCALISED. Only part 1 exists
+#     (`/a/nothing.html`). Same as `et`. `/a/created.html` is a separate, honest article.
+#   - Coronavirus reverse trap: PRESENT AND CREDITED. `/a/coronavirus.html`'s subtitle
+#     broadens to "sodaa kam iyyuu" ("any fear") and its third paragraph lists fourteen
+#     non-pandemic anxieties. A title-only reviewer would strike the source's only
+#     anxiety article as an expired 2020 notice.
+#
+# ⓘ FINDING 4 — LANGUAGE DETECTION IS CLEAN, AND THE HISTORY MATTERS FOR PHASE 7.
+#   Oromo has NO detector model: tinyld could not see it, so 17 of 18 documents sat
+#   null-language and 1 was labelled Berber until the 2026-07-31 LLM sweep resolved all
+#   18 at confidence 1.00. The openings hazard report is now fully green and the check
+#   script re-asserted non-null language on 7/7 credits. But the sweep fixed the LABELS,
+#   not the detector — the same §0.12 caveat recorded for Persian applies: prod will
+#   reproduce the nulls on re-ingest unless Phase 7 re-sweeps.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. Nobody available reads Afaan Oromoo. This is a
+#      fact about the REVIEWER, not the language.
+#   2. **SUITE SIZE.** 4 is the tier-D floor and this source can genuinely support MORE.
+#      Three further topics have real, distinct, un-credited answer documents:
+#        `prayer`   → /a/prayers.html  (11.6k) — believer persona, would make it 5 cases
+#        `trinity`  → /a/trinity1.html (6.0k)  — discovery's best score on the whole
+#                                                source (0.566); the safest topic here
+#        `know-god` → /a/whois.html    (4.0k)  — the six-attributes article
+#      Say the word and these are three more cases with no manufacturing required.
+#      `purpose` (/a/purpose.html) is a fourth, but see FINDING 2 — its vocabulary
+#      collides head-on with the emptiness testimony and it would need careful drafting.
+#   3. `/a/Godreal.html` on case 1 — a BOUNDARY credit at rank 9 (0.502). KEEP is
+#      recommended and the reasoning is in the case's `boundary_credit` block, but it
+#      will flap between 3/3 and 2/3 between runs.
+#   4. `/a/nothing.html` on case 1 — I dropped it as a duplicate of the first-cause
+#      argument `/a/created.html` already carries. Defensible as a fourth credit if a
+#      wider god-exists denominator is wanted.
+#
+# ⓘ CONTENT GAPS — exactly two, and both are real absences verified by reading all 18
+#   openings, not inferred from the (near-noise) English discovery pass:
+#   - NO Bible-reliability article and NO Islam article, so `bible-trust` has neither of
+#     the estate's two usual routes. Same shape as `fa` and `cs`.
+#   - NO comparative-religions article, so `religions` has nothing. The estate's
+#     world-religions piece was never localised into Oromo.
+#   Everything else on the §0.7 menu IS carried. Discovery reported "NO CANDIDATE above
+#   0.45" for FIVE topics; three of those five were wrong. **On `om`, an empty discovery
+#   result is not evidence of absence.**

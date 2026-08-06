@@ -1,0 +1,449 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-vi` (67 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 67 ÷ 8 = 8.4, capped at 10 → 8 cases.
+# Personas: skeptic 3 · newcomer 2 · seeker 2 · believer 1 — the §0.7 8-case row.
+# Topics: 8 of the ten §0.7 menu. TWO DROPPED — see DROPPED TOPICS below.
+# Questions authored IN VIETNAMESE, not translated from the English menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   67 documents, ALL of them `/a/*.html`. There is NO `/story/` directory on this
+#   source at all — testimony share by path is 0%.
+#   ⚠️ That understates it. Seven `/a/` articles ARE first-person testimonies:
+#   /a/607SongTran.html (Steve Sawyer, HIV), /a/nguoivothanda.html (an atheist),
+#   /a/302Nguon.html (Josh McDowell), /a/200cucdoan.html (a Muslim),
+#   /a/208CaiNhinCua.html (Abdul Saleeb), /a/211MotHanhTrinh.html (Marcia
+#   Montenegro, occult), /a/509DepBenLau.html (a fashion model). ~10% effective
+#   testimony share — between `pt` (0%) and `hu` (24%), and the tail severity
+#   landed exactly where §0.12 predicts for that share.
+#   Pure-tail documents: 1 — /a/402Batdauvoi.html (657 chars). Never credited.
+#   Null-language documents: 0 of 67. Duplicate paths: 0. Duplicate titles: 0.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-vi vi
+#   → 54 distinct candidate documents of 67.
+# Every one of the 67 was then read from the database (title + opening ~900 chars
+# + character length) before anything was credited — guardrail #5. On this source
+# that was decisive in BOTH directions; see the title traps below.
+#
+# ENGINE-CHECKED FOUR TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts vi vi
+#   Round 1: 0 smells (max 0.713) · 3 credits not returned · 23 credits
+#   Round 2: 0 smells (max 0.714) · 2 credits not returned · 22 credits
+#   Round 3: 0 smells (max 0.713) · 2 credits not returned · 22 credits
+#   Round 4 (final, --update): **0 smells** (max top score 0.713) ·
+#            **2 credits not returned** — BOTH deliberate keeps, see cases 1 and 7.
+#   Rounds 2 and 3 were spent on REACH, not on smell: two A/B rewordings of case 1
+#   and two of case 7, both of which came back WORSE and were reverted. The full
+#   working is in each case's `reworded:` block — the failed variants are the
+#   informative part.
+#
+# ⚠️ NO ROUND EVER PRODUCED A PARAPHRASE SMELL. The highest top score seen across
+#   all four rounds and all 32 question-runs was 0.714. §0.12 warns that the 0.75
+#   line is not universal — Persian topped out at 0.710. Vietnamese behaves the
+#   same way, so **0.75 was never the binding constraint here and reach was the
+#   only thing to tune.** Do not read the clean smell column as a sign the
+#   questions are safe by design; read the per-case document lists.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 22 credited paths resolve to EXACTLY ONE document — 22/22.
+#   Guardrail #3a:   no credited document has a null language — 22/22.
+#   No document is credited by more than one case (22 credits, 22 distinct docs).
+#   No credited document is under 1,200 chars (the script would have warned).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 DROPPED TOPICS — 2 of the ten, and why
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# 1. `jesus-death` (newcomer) — DROPPED. **This source has no atonement article.**
+#    All 67 openings were read. There is no document whose subject is what Jesus'
+#    death accomplished. The nearest things are /a/717Tincay.html (3.4k, what
+#    trusting Jesus means) and /a/401Nhanbiet.html (8.0k, the Four Spiritual Laws)
+#    — both are "how to begin" pages that state the atonement in one clause on the
+#    way past. The discovery pass proves it from the other side: the top six
+#    own-source hits for the English jesus-death probe were
+#      0.607 /a/206ChuaGiexu.html   Jesus vs the world religions
+#      0.590 /a/607SongTran.html    the HIV testimony
+#      0.571 /a/502CuocHon.html     🔴 DIVORCE STATISTICS AND MARRIAGE ADVICE
+#      0.570 /a/401Nhanbiet.html    the Four Spiritual Laws
+#      0.561 /a/303Doi.html         the meaning-of-life article
+#      0.552 /a/107Taisao.html      the what-is-God-like article
+#    — i.e. every one of them a boilerplate-tail match, with a marriage article at
+#    rank 3. Manufacturing a case here would produce a key with no valid answer.
+#    ⓘ Vietnamese is the FOURTH source with this gap, after `ru`, `zh-cn` and `mn`
+#    (§0.12). Corpus composition, not a retrieval defect. Do not re-open it.
+#
+# 2. `bible-trust` (skeptic) — DROPPED, and this one is a genuine judgement call
+#    the operator may want to reverse. See "FOR THE REVIEWER" at the bottom.
+#    The persona table for 8 cases forces exactly one skeptic topic out, and
+#    `bible-trust` is the thinnest of the four by a clear margin: the discovery
+#    pass returned only THREE own-source candidates for it (god-exists, suffering
+#    and religions each returned six). Those three are
+#      0.660 /a/215KinhThanh.html  the 28.2k history-of-the-Bible article
+#      0.560 /a/200cucdoan.html    a Muslim's conversion testimony
+#      0.513 /a/722KinhThanh.html  a 5.0k Q&A on what "inspired" means
+#    Only the first is a reliability/transmission argument, and it IS a good one
+#    (its opening: "Why can you believe the Bible? How do we know the Bible we
+#    have today is trustworthy?" … "textual criticism confirms the books of the
+#    Bible have not changed since they were first written down").
+#    🔴 THE TAHRIF ROUTE DOES NOT EXIST HERE. §0.12 records that many sources
+#    answer bible-trust through their ISLAM article. Vietnamese has two
+#    Islam-adjacent documents — /a/200cucdoan.html and /a/208CaiNhinCua.html — and
+#    BOTH are personal conversion narratives, not scripture-corruption
+#    apologetics. Like Iran and Czechia, this source has no tahrif article; unlike
+#    Czechia, it has only ONE standalone Bible-reliability piece instead of two.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Vietnamese).
+# This is a fact about the REVIEWER, not the language — if anyone on the team
+# reads Vietnamese and can sanity-check the questions, it should be
+# `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esvi-skeptic-motuong"
+    persona: skeptic
+    topic: god-exists
+    q: "Mấy người bạn của tôi nói rằng tin có Chúa chỉ là mơ tưởng, chứ chẳng dựa trên cái gì cả. Tôi không muốn tranh luận theo cảm tính — có lý lẽ nào thật sự vững chắc đứng đằng sau niềm tin đó không?"
+    en: "My friends say believing in God is just wishful thinking, not based on anything at all. I do not want to argue from feelings — is there any genuinely solid reasoning standing behind that belief?"
+    credits:
+      - { path: "/a/101DucChuaTroi.html", en: "Does God exist? Six reasons to believe God really is there (Marilyn Adamson), 18.6k chars — the source's flagship apologetics article. Opens by refusing to coerce: no claim that you MUST believe, just the evidence laid out, with the moon-landing-denier analogy for a mind already closed.", rank: 3, score: 0.645 }
+      - { path: "/a/nguoivothanda.html", en: "How an atheist went looking for God (Marilyn Adamson), 17.0k — she asked believers HOW they knew and kept getting told you just know; she refused to just know and went after evidence instead. Answers the feelings-versus-grounds half of the question directly.", rank: 1, score: 0.696 }
+      - { path: "/a/cothatkhong.html", en: "Is God real? — the SCIENCE article, 5.8k. Antony Flew, a leading spokesman for atheism, concluding that super-intelligence is the only explanation for the origin of life, then DNA as a written computer program.", rank: 5, score: 0.577 }
+      - { path: "/a/100tunhien.html", en: "Scientists are troubled by the laws of nature, 9.0k — why the constants never change, quoting the cosmologist Sean Carroll on a physical law as a pattern nature obeys without exception. The source's second evidence article.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      /a/100tunhien.html is one of this source's TWO natural-evidence articles: why
+      the laws of physics never vary, and why that troubles cosmologists. The
+      question asks whether there is solid reasoning behind believing in God, and
+      an argument from the constancy of natural law is exactly that. It does not
+      answer a different question, so dropping it would be papering over the gap —
+      I KEPT it.
+
+      What it measures: for a question that explicitly asks for GROUNDS, the engine
+      returns /a/731TaisaoDucChua.html at rank 2 (why God does not perform a
+      stunning public miracle — an article about God's reticence, not about
+      evidence), the 23.5k life-of-Jesus article at rank 4, the world-religions
+      article at rank 6 and the anxiety article at rank 7, all ahead of the second
+      evidence article. This case will score coverage 3/4, on purpose. Same
+      treatment as `esbg-skeptic-katastrofa` (§0.11) and `eshu-skeptic-vagyalom`
+      (§0.12), whose kept miss was the twin DNA article.
+    reworded: |
+      ⚠️ REWORDED ONCE, AND THE REWORD WAS REVERTED — the failed variant is the
+      finding, so it is recorded rather than deleted.
+      v2 (tried, rejected): the same question with "ngoài cảm nhận riêng ra, có bằng
+           chứng hay lý lẽ nào…" — i.e. asking for EVIDENCE as well as reasoning.
+           → top 0.714 (still no smell) but reach got WORSE, not better:
+           /a/cothatkhong.html fell from rank 5 to rank 9, /a/100tunhien.html stayed
+           out, and /a/500dongtinhnam.html — the homosexuality-and-God's-love
+           article — entered at rank 10 on its tail. Adding the word "evidence" did
+           not pull the two science articles in; it pulled a boilerplate tail in.
+      v1 (kept, reverted to): 0.696, credits at ranks 1, 3 and 5.
+      ⚠️ The uncredited rank-2 hit /a/731TaisaoDucChua.html is a BOUNDARY REJECTION.
+      Its Hungarian twin /a/csodat.html was rejected in the `hu` suite on the same
+      reasoning — its subject is why God stays hidden, not what the evidence is — and
+      this suite follows that call for cross-suite consistency. The operator may
+      disagree; §0.12 records one such inconsistency being found and fixed after the
+      fact, so it is flagged here rather than left silent.
+    top_score: 0.696
+
+  # ── 2 ─────────────────────────────── newcomer 🔴 INVERTED TITLE TRAP HERE
+  - id: "esvi-newcomer-nangluong"
+    persona: newcomer
+    topic: know-god
+    q: "Khi người ta nói tới “Chúa”, trong đầu tôi chỉ hiện lên một thứ năng lượng mơ hồ ở đâu đó trên cao. Ngài có phải là một Đấng có thật, có tính cách riêng không?"
+    en: "When people talk about God, all that comes into my head is some vague energy somewhere up high. Is he actually a real someone, with a character of his own?"
+    credits:
+      - { path: "/a/109DucChuaTroi.html", en: "Who is God? Six characteristic attributes of God, 5.4k — opens with exactly the asker's question (Who is God? What is he like?) and answers that he is knowable, speaks about himself, and wants to be known personally. The Vietnamese twin of the Russian /a/ktoeto.html.", rank: 2, score: 0.628 }
+      - { path: "/a/107Taisao.html", en: "The nature of God, 17.8k — the long six-attributes article: God greater than us, God who relates to us, and so on, item by item. 🔴 INVERTED TITLE TRAP, see the note below.", rank: 1, score: 0.663 }
+      - { path: "/a/204Ai.html", en: "Who 2 — the fourth and last part of the cosmological series, and the part where the Eternal Something is argued NOT to be a machine or a programmed force but a person who can be found. Answers the is-he-even-a-someone half of the question.", rank: 3, score: 0.605 }
+    note: |
+      🔴 THE SYSTEMATIC "WHY CHOOSE THE GOD OF THE BIBLE?" TRAP IS HERE — INVERTED.
+      §0.12 records this article across `bg` `tr` `fa` `pt` `cs`: a page titled
+      "Why can we rely on / choose the God of the Bible?" that is really the
+      six-attributes what-is-God-like article. Vietnamese carries the same article
+      at /a/107Taisao.html — but the two labels have swapped roles. Its HTML
+      <title> is "Bản chất tự nhiên của Đức Chúa Trời" ("The nature of God"), which
+      names the true subject honestly, while the on-page H1 is "Tại sao lại chọn
+      Đức Chúa Trời của Thánh Kinh?" ("Why choose the God of the Bible?") — the
+      misleading one — and the slug agrees with the H1 (`107Taisao` = "107Why").
+      A reviewer working from the slug or from the rendered page is misled; one
+      working from the database title is not. Sixth source, same article, and the
+      first time the title tag is the RELIABLE label. Read the opening either way.
+
+      ⓘ FOUR DOCUMENTS HERE ARE UNJUDGEABLE BY TITLE BY CONSTRUCTION.
+      /a/102DaTung.html → /a/103CaiGiDo.html ("Diều gì đó?" = "Something?") →
+      /a/104Ai.html ("Ai?" = "Who?") → /a/204Ai.html ("Ai 2" = "Who 2") are the
+      four-part cosmological argument §0.12 lists for `hu` `pl` `mn` `sk` `pt` `es`
+      `fa` `cs`. Three of the four titles name no subject at all. Only the last is
+      credited, and only because its body was read.
+    top_score: 0.663
+
+  # ── 3 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esvi-skeptic-tainan"
+    persona: skeptic
+    topic: suffering
+    q: "Năm ngoái một người bạn thân của tôi mất trong một tai nạn. Đến giờ tôi vẫn không hiểu nổi chuyện như thế ăn khớp ra sao với một Đức Chúa Trời nhân từ."
+    en: "Last year a close friend of mine died in an accident. To this day I still cannot understand how something like that fits with a good God."
+    credits:
+      - { path: "/a/602Taisao.html", en: "Why is life so hard? 10.5k — how do we explain the terrible things: horrific attacks, sex slavery, racism, famine. Then it comes down to the reader's own street: our parents divorce, the girl at the end of the road is abducted, a relative gets cancer. The closest match to the asker's situation on the source.", rank: 1, score: 0.649 }
+      - { path: "/a/601ThamKich.html", en: "Where is God in the middle of disasters? 14.8k — where do we find inner strength to face fear, calamity and grief, exactly how far God can be relied on in a crisis, and a named section on God and our free will.", rank: 4, score: 0.594 }
+      - { path: "/a/702Changlecai.html", en: "Do evil and suffering not prove God does not care? 3.8k — the objection stated as a reader's question and answered head-on: a world that has largely rejected God is not evidence that God is indifferent.", rank: 2, score: 0.643 }
+    rejected_note: |
+      ⚠️ /a/607SongTran.html (Steve Sawyer's HIV story, 20.8k) returns high for this
+      question on every round and is NOT credited. Its subject is how one man kept
+      hope under a terminal diagnosis, not why a good God permits it. Same call the
+      `ru` suite made on /a/steysi1.html and the `hu` suite on /a/sawyer.html — this
+      is the same estate article in a third language, rejected a third time.
+    top_score: 0.649
+
+  # ── 4 ──────────────────────────────────────────────────────────────── seeker
+  - id: "esvi-seeker-trongrong"
+    persona: seeker
+    topic: purpose
+    q: "Ngày nào của tôi cũng trôi qua y hệt nhau, tối nằm xuống chỉ thấy chẳng đọng lại được gì. Rốt cuộc thì tôi có mặt ở đây để làm gì?"
+    en: "Every day of mine goes by exactly the same, and lying down at night I just feel nothing was left of it. What am I here for in the end?"
+    credits:
+      - { path: "/a/305Mucdich.html", en: "What is my purpose in life? 4.6k — the hammer parable told at length: a hammer made to drive nails, left in the toolbox, sensing something missing without knowing what.", rank: 1, score: 0.615 }
+      - { path: "/a/303Doi.html", en: "Real life, 16.4k — three people who got what they were climbing for and were still empty: the mountaineer at the summit with nowhere left to climb, the professional footballer flat after the championship, and a third account. Explicitly about where fulfilment, acceptance and purpose are actually found.", rank: 4, score: 0.545 }
+      - { path: "/a/304Baygio.html", en: "Is there more to this life? 8.3k — written as the reader's own minute ticking past: a second, a minute, an hour, a week, a year, and the honest question of what any of it added up to. Then: you got the grades / the friends / the date you wanted — remember how it felt afterwards?", rank: 2, score: 0.606 }
+      - { path: "/a/302Nguon.html", en: "The source of a changed life (Josh McDowell), 15.5k — opens on the exact three questions the asker is circling: Who am I? Why am I on this earth? Where am I going? The Vietnamese twin of the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Hungarian /a/forrasa.html, all credited for this same question shape.", rank: 3, score: 0.567 }
+    top_score: 0.615
+
+  # ── 5 ───────────────────────────────────── seeker 🔴 REVERSE TITLE TRAP HERE
+  - id: "esvi-seeker-lolang"
+    persona: seeker
+    topic: anxiety
+    q: "Tôi lo lắng gần như suốt cả ngày, kể cả những lúc chẳng có chuyện gì cụ thể xảy ra. Đức tin có giúp được gì cho tình trạng như vậy không?"
+    en: "I am anxious almost all day long, even at times when nothing specific is happening. Does faith help at all with a state like that?"
+    credits:
+      - { path: "/a/virus-corona.html", en: "Coronavirus (COVID-19) — how to deal with anxiety (Marilyn Adamson), 12.9k. 🔴 REVERSE TITLE TRAP: the title is a dated 2020 pandemic notice a reviewer would strike out on sight. Its third paragraph broadens and never goes back — you may be anxious about other threats entirely: terrorism, climate change, racism, war, government dysfunction, poverty, sexual abuse, slavery, natural disasters, personal finances, illness, job security, strain in relationships, addiction. This is the source's GENERAL anxiety article. Seventh source, same trap (§0.12 lists hu pl sq tr pt es).", rank: 1, score: 0.652 }
+      - { path: "/a/301Tam.html", en: "A peaceful mind in an unsettled world, 17.5k — you can be at ease and confident whatever the future holds; is there anywhere at all to find peace given what happens in the world and in each of our lives. Includes the crutch objection stated and answered.", rank: 3, score: 0.575 }
+    note: |
+      ⓘ CONTENT OBSERVATION, NOT A GAP. `everystudent-vi` has NO article whose title
+      is anxiety, and — unlike `ru`, `hu`, `tr`, `pt` and `es` — it does NOT carry
+      the Rachel Fatyanov "anxiety and chakra healing" piece. Its only occult-journey
+      article, /a/211MotHanhTrinh.html (Marcia Montenegro, 17.6k), is the astrology
+      and mediumship conversion story, not a chronic-anxiety account, so the §0.12
+      reverse-trap advice about "chakra" does NOT transfer here — that document is
+      correctly uncredited. The topic is carried by a pandemic-framed general
+      anxiety article and a peace-of-mind article. Two credits is the honest answer.
+    top_score: 0.652
+
+  # ── 6 ─────────────────────── believer 🔴 BOILERPLATE-TAIL SPECIMEN #2
+  - id: "esvi-believer-caunguyen"
+    persona: believer
+    topic: prayer
+    q: "Mấy tháng nay tôi cứ cầu nguyện mãi về cùng một chuyện mà chẳng thấy hồi âm gì. Có phải tôi đang làm sai chỗ nào không?"
+    en: "For months now I have kept praying about the same thing and there has been no response at all. Am I doing something wrong somewhere?"
+    credits:
+      - { path: "/a/306Nguyen.html", en: "Does God answer our prayers? 11.0k — told by a former atheist who watched a praying friend week after week, then turns to the reader's own case with a named section: what about the prayers that are NOT answered? The Vietnamese twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html, the Bulgarian and the Hungarian /a/imadsagra.html, all credited for this exact shape.", rank: 1, score: 0.686 }
+    the_finding: |
+      🔴 THE SECOND BOILERPLATE-TAIL SPECIMEN ON THIS SOURCE. The one prayer article
+      takes rank 1 at 0.686 and everything below it is a tail match:
+
+        rank  2  0.639  /a/607SongTran.html   Steve Sawyer's HIV story
+        rank  3  0.552  /a/nguoivothanda.html an atheist's conversion account
+        rank  4  0.543  /a/601ThamKich.html   where is God in disasters
+        rank  5  0.543  /a/502CuocHon.html    🔴 DIVORCE STATISTICS AND MARRIAGE ADVICE
+        rank  6  0.539  /a/302Nguon.html      Josh McDowell's changed-life account
+        rank  7  0.538  /a/501Tinhduc.html    🔴 SEX AND THE SEARCH FOR INTIMACY
+        rank  8  0.537  /a/401Nhanbiet.html   the Four Spiritual Laws page
+        rank  9  0.524  /a/200cucdoan.html    a Muslim's conversion account
+        rank 10  0.512  /a/107Taisao.html     the what-is-God-like article
+
+      A marriage article at rank 5 and a sex-and-intimacy article at rank 7 for an
+      unanswered-prayer question. This is the same defect `eshu-believer-csend`
+      recorded (marriage at rank 7) — the tail chunk is shared estate-wide, so the
+      same two document families surface in a fourth language.
+    note: |
+      ⓘ THE BELIEVER THINNESS IS THE CORPUS, NOT THE PERSONA SPLIT. `everystudent-vi`
+      carries exactly one article about answered and unanswered prayer. `bg`, `ru`
+      and `hu` all credit exactly one document here too. Fourth source, same shape.
+    dropped_after_engine_check:
+      - path: "/a/308Bancophan.html"
+        why: |
+          "Why can we have a conversation with God?" (4.8k) — credited in round 1 and
+          dropped after it failed to reach the top 10. On re-reading it is the engine
+          that is right: its subject is what two parties need in COMMON before a
+          conversation is possible at all (the two strangers on a Hanoi–Nha Trang
+          flight finding shared ground), i.e. whether prayer is possible, not why a
+          specific request has gone unanswered for months. /a/306Nguyen.html already
+          carries a named section on exactly that — "what about the prayers that are
+          NOT answered?" — so 308 adds a known miss without measuring anything 306
+          does not already measure. Dropped rather than credited-and-missed.
+          OPERATOR MAY OVERRIDE: crediting it would turn this into a second
+          Russian-shaped probe of the tail defect, which the case already documents
+          from the uncredited side in `the_finding` above.
+    top_score: 0.686
+
+  # ── 7 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esvi-skeptic-dichua"
+    persona: skeptic
+    topic: religions
+    q: "Trong nhà tôi có người đi chùa, có người theo Chúa, ai cũng chắc chắn là mình đúng. Đứng ở giữa, tôi chẳng thấy bên nào có cơ sở hơn bên nào — dựa vào đâu mà phân biệt được?"
+    en: "In my family some go to the temple and some follow Christ, and each is certain they are right. Standing in the middle I cannot see one side as better grounded than the other — on what basis is anyone supposed to tell them apart?"
+    credits:
+      - { path: "/a/205Ketnoi.html", en: "Hinduism, Buddhism, Islam, Christianity, the New Age movement — are the world religions really the same? (Marilyn Adamson), 18.9k. Sets each belief system out and then states the differences plainly: New Age followers say they are God; Muslims believe in a mighty but unknowable God; Christians believe in a loving God who can be approached. This is the estate's /a/205 world-religions article under a localised slug — the same piece as the German /artikel/hochsten.html, the Swahili /a/kuunganishwa.html, the French /a/205divin.html and the Hungarian /a/istenkereses.html (§0.7).", rank: 1, score: 0.616 }
+      - { path: "/a/206ChuaGiexu.html", en: "What is different between Jesus and the world religions? 4.1k — the short contrast piece: in many world religions people beat and flagellate themselves over sin, while in Christ God is the one who comes to us. The Vietnamese twin of the Hungarian /a/kulonbseg.html.", rank: NOT IN TOP 10 }
+      - { path: "/a/213Voi.html", en: "Is God an elephant? 4.6k — the blind-men-and-the-elephant parable, which is the exact argument the asker is making (each religion has hold of one part of the same truth), taken apart on its own terms after David Horner. The most directly on-point document for a Vietnamese asker standing between the temple and the church.", rank: 4, score: 0.574 }
+    kept_miss: |
+      🔴 THE SECOND CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      /a/206ChuaGiexu.html is titled, and is about, exactly the question asked:
+      "What is different between Jesus and the world religions?" It is not a
+      near-miss and it is not a different subject — it is the source's dedicated
+      contrast piece, and its central move (other religions have people striving up
+      toward what they worship; in Christ, God comes down to us) is the direct
+      answer to "on what basis do you tell them apart?". Dropping it would be
+      convenient rather than honest, so I KEPT it.
+
+      What it measures: /a/200cucdoan.html — a Muslim's personal conversion account
+      — takes rank 2 at 0.610, and /a/208CaiNhinCua.html, another conversion
+      account, takes rank 10, while the 4.1k article whose whole subject is the
+      comparison is outside k=10. Coverage 2/3, on purpose.
+    reworded: |
+      ⚠️ REWORDED TWICE, AND BOTH REWORDS WERE REVERTED. This case cost more work
+      than the other seven combined, and the two failures are the finding.
+      The trade-off is REAL and could not be resolved: no wording returned both
+      /a/206ChuaGiexu.html and /a/213Voi.html.
+      v2 (tried, rejected): "…Nhìn từ bên ngoài thì đạo nào cũng dạy tu thân tích
+           đức…" ("from the outside every religion teaches you to cultivate yourself
+           and build up merit") → 0.592. It DID pull /a/206ChuaGiexu.html in at rank
+           6 — but /a/213Voi.html fell out entirely, and /a/723Conggiao.html
+           (Catholic vs Protestant, an INTRA-Christian comparison) jumped to rank 2.
+           Merit-and-self-cultivation language retrieves denominational comparison.
+      v3 (tried, rejected): "…Đạo nào cũng bảo phải tự mình cố gắng cho tới được…"
+           ("every religion says you have to strive your own way up to it") → 0.583,
+           the worst of the three. /a/213Voi.html came back but only at rank 9,
+           /a/206ChuaGiexu.html stayed out, and ranks 2 and 3 went to two personal
+           testimonies. Both the "reach up" rewordings cost more than they bought.
+      v1 (kept, reverted to): 0.616, /a/205Ketnoi.html rank 1 and /a/213Voi.html
+           rank 4 — the best reach of the three, at the cost of the kept miss above.
+    rejected_note: |
+      ⚠️ TWO BOUNDARY REJECTIONS in this case's top 10, both deliberate:
+      /a/716ChuaGiexu.html (rank 3, 2.3k) "Is Jesus the only way?" — half of it is a
+        pointer telling the reader to go and read the /a/205 topic instead. Link
+        furniture, the same call the `hu` suite made on /story/Aron.html.
+      /a/723Conggiao.html (rank 5, 3.9k) "Is there a difference between Catholic and
+        Protestant?" — an INTRA-Christian question, not a world-religions one. Same
+        call as the Russian /a/katolikom.html and the Hungarian /a/katolikus.html.
+    top_score: 0.616
+
+  # ── 8 ──────────────────────────────────────────────────────────────── newcomer
+  - id: "esvi-newcomer-mayvi"
+    persona: newcomer
+    topic: trinity
+    q: "Tôi mới đi nhà thờ được vài lần. Lúc thì họ thưa với Chúa Cha, lúc thì thưa với Chúa Giê-xu, rồi lại nhắc tới Thánh Linh. Vậy rốt cuộc người Cơ Đốc thờ mấy vị?"
+    en: "I have only been to church a few times. Sometimes they address the Father, sometimes Jesus, then they mention the Holy Spirit. So how many is a Christian actually worshipping?"
+    credits:
+      - { path: "/a/709BaNgoi.html", en: "Can you explain the Trinity? 3.9k — states the problem the asker has hit exactly: the Bible speaks clearly of the Father, the Son and the Spirit AND says plainly there is only one God, and Trinity is the word for holding both. Includes the Tri + Unity etymology and the standard analogies with their limits.", rank: 1, score: 0.713 }
+      - { path: "/a/708DucThanhLinh.html", en: "Who is the Holy Spirit? 4.0k — the Spirit is not a vagueness and not a fairy hovering in the sky nor some impersonal supernatural force; he is a person equal to the Father and the Son. Answers the third of the asker's three names, which is the one a newcomer has least picture of.", rank: 2, score: 0.654 }
+    note: |
+      ⓘ NO REWORD NEEDED, and that is because of the shape borrowed from `ru`, `bg`
+      and `hu`. All three hit a smell on this topic when the question was stated as
+      the doctrinal formula (`ru` 0.807, `bg` 0.756) and all three fixed it by
+      reframing it as something a newcomer NOTICES IN A SERVICE. Starting from the
+      fixed shape, Vietnamese landed at 0.713 rank 1 on the first round and did not
+      move across four rounds. The lesson transferred for the fourth time, and this
+      is the highest top score in the suite — the closest anything here came to the
+      0.75 line, and still clear of it.
+    top_score: 0.713
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 8 cases · 22 credits · 22 distinct documents (no document credited twice)
+# Personas: skeptic 3 · newcomer 2 · seeker 2 · believer 1 — the §0.7 8-case row.
+# Topics used: god-exists, know-god, suffering, purpose, anxiety, prayer,
+#   religions, trinity. Dropped: jesus-death, bible-trust (reasons at the top).
+# Paraphrase smells: 0 in every round. Max top score across all four rounds: 0.714
+#   (a variant that was rejected); max in the final suite: 0.713 on `mayvi`.
+# Credits that do not retrieve: 2, both KEPT deliberately —
+#   /a/100tunhien.html on `motuong` (coverage 3/4) and /a/206ChuaGiexu.html on
+#   `dichua` (coverage 2/3). One credit was DROPPED after the engine check:
+#   /a/308Bancophan.html on `caunguyen`. evidence_tier: llm-translated.
+#
+# 🔴 FOUR REWORDINGS WERE TRIED AND ALL FOUR WERE REVERTED, which is the single
+#   most useful thing this suite learned. Two on `motuong` and two on `dichua`.
+#   Not one of them was fixing a smell — there was never a smell to fix — and not
+#   one of them improved reach. §0.12 #6 says a question can fail without
+#   smelling; Vietnamese adds the converse: **on a source where nothing smells,
+#   the temptation is to reword for reach, and reach rewording mostly moves the
+#   defect around.** `dichua` is the clean specimen: no wording returned both the
+#   Jesus-versus-religions article and the blind-men-and-the-elephant article, and
+#   the two attempts to force it pulled in a Catholic-vs-Protestant article at
+#   rank 2 and two personal testimonies at ranks 2 and 3 instead.
+#
+# 🔴 THE TITLE TRAPS ON THIS SOURCE — three, and one of them is a new variant
+#   1. /a/107Taisao.html — the systematic "Why choose the God of the Bible?"
+#      article (§0.12), and the FIRST source where the trap is INVERTED: the HTML
+#      title names the true subject ("The nature of God") while the on-page H1 and
+#      the slug carry the misleading "why choose" framing. On `bg` `tr` `fa` `pt`
+#      `cs` it was the title that misled. A reviewer working from slugs is still
+#      misled here; one working from the database title is not.
+#   2. /a/103CaiGiDo.html "Something?" → /a/104Ai.html "Who?" → /a/204Ai.html
+#      "Who 2" — three of the four parts of the cosmological series carry titles
+#      that name no subject at all. Ninth source, same series.
+#   3. /a/virus-corona.html "Coronavirus (COVID-19)" IS the general anxiety
+#      article, and it is rank 1 for the anxiety case. Seventh source, same trap.
+#   Plus a fourth worth noting though nothing is credited from it:
+#   /a/507LamHet.html is titled "Healthy relationships" and is actually about
+#   binge drinking with friends and the longing underneath it. Both a title trap
+#   AND the §0.12 #4 hazard — this is the document a Vietnamese question with any
+#   incidental drinking noun in it would pull. None do.
+#
+# 🔴 THE BOILERPLATE-TAIL TRAP, AND WHAT THIS SOURCE ADDS TO §0.12'S MODEL.
+#   `everystudent-vi` has NO `/story/` directory — testimony share by path is 0%,
+#   the `pt` shape. But seven `/a/` articles are first-person testimonies, so the
+#   effective share is ~10%, and the tail behaviour tracks that, not the 0%.
+#   The specimen is the DROPPED jesus-death topic: its top six own-source hits are
+#   all tail matches, with /a/502CuocHon.html — DIVORCE STATISTICS AND MARRIAGE
+#   ADVICE — at rank 3. The believer case is the second specimen: for an
+#   unanswered-prayer question, /a/502CuocHon.html is at rank 5 and
+#   /a/501Tinhduc.html (sex and the search for intimacy) at rank 7. The same two
+#   document families that misfired for `hu` and `tr` misfire here.
+#   ⚠️ MEASURE THE TESTIMONY SHARE BY CONTENT, NOT BY PATH PREFIX. A `/story/`
+#   count would have read this source as tail-free and been wrong.
+#
+# ⓘ ONE ARTICLE MISFIRES ACROSS FIVE OF THE EIGHT CASES: /a/nguoivothanda.html,
+#   the atheist's conversion account. It is credited on `motuong`, where it belongs,
+#   and it also appears at rank 3 on `tainan` (suffering), rank 8 on `trongrong`
+#   (purpose), rank 6 on `lolang` (anxiety) and rank 7 on `dichua` (religions).
+#   This is the `/story/Atti.html` role from the `hu` suite played by an `/a/`
+#   article — further evidence that path prefix is the wrong way to count.
+#
+# 🟢 FOURTH CONFIRMATION OF THE ATONEMENT GAP, AND THE FIRST OUTSIDE THE
+#   RUSSIAN/CHINESE/MONGOLIAN SET. `everystudent-vi` has no article whose subject
+#   is what Jesus' death accomplished — all 67 openings were read. §0.12 settled
+#   this as corpus composition; Vietnamese agrees. The topic was dropped rather
+#   than credited-and-missed, because unlike `esru-newcomer-krest` there is no
+#   near-miss document worth recording the gap against: the nearest candidates are
+#   a 3.4k "what trusting Jesus means" page and the Four Spiritual Laws page.
+#
+# ⚠️ FOR THE REVIEWER — six things to decide, in the order they matter
+#   1. 🔴 `bible-trust` WAS DROPPED AND CAN BE PUT BACK. This is the call in the
+#      file I am least sure of, and the only one that changes the suite's size.
+#      The topic IS answerable here — /a/215KinhThanh.html (28.2k) opens on exactly
+#      the reliability question and argues transmission from textual criticism,
+#      ancient historiography and archaeology, and /a/722KinhThanh.html (5.0k)
+#      covers inspiration. I dropped it because the 8-case persona table forces one
+#      skeptic topic out and bible-trust is this source's thinnest skeptic shelf by
+#      pool size (3 candidates against 6 for each of the other three). If the
+#      operator would rather have 9 cases than a balanced 8, adding one
+#      `esvi-skeptic-<slug>` case with those two credits is the cheapest way to
+#      grow this suite — it has NOT been engine-checked, so it needs one check
+#      round before it is trusted.
+#   2. THE TWO KEPT MISSES. /a/100tunhien.html on case 1 (coverage 3/4) and
+#      /a/206ChuaGiexu.html on case 7 (coverage 2/3). Both are genuine answers that
+#      the engine does not return, kept under guardrail #8 #2. Dropping either
+#      makes its case pass more often and measure less. Recommendation: KEEP both.
+#   3. /a/308Bancophan.html on case 6 — I DROPPED it. Crediting it would make the
+#      prayer case a second Russian-shaped probe of the tail defect, which the case
+#      already documents from the uncredited side. Operator may override.
+#   4. /a/731TaisaoDucChua.html at rank 2 of case 1 — REJECTED for consistency with
+#      the `hu` suite's call on the same estate article (/a/csodat.html). If the
+#      operator thinks "why doesn't God prove himself with a miracle" IS an
+#      evidence article, BOTH suites should change together, not just this one.
+#   5. /a/716ChuaGiexu.html at rank 3 of case 7 — rejected as link furniture
+#      (2.3k, half of it a pointer to the /a/205 topic). Boundary call.
+#   6. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#      If anyone on the team reads Vietnamese, this should be `human-verified`.

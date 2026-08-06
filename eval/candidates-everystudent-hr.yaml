@@ -1,0 +1,371 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-hr` (Croatian, vrlovazno.com, 41 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 41 ÷ 8 = 5.1 → 5 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.12 5-case row.
+# Questions authored IN CROATIAN, not translated from the English menu (§0.6).
+#
+# ═══ CORPUS SHAPE — read this before judging any hit ═══
+#   41 documents, ALL of them `/a/*.html` articles. **ZERO `/story/` testimonies.**
+#   Testimony share 0% — the lowest-risk shape in the estate for failure mode #1.
+#   Croatian nonetheless publishes four first-person accounts AS articles
+#   (/a/ateistica.html, /a/izvor.html, /a/sawyer.html, /a/vatrom.html), so the
+#   boilerplate tail is present; it just does not have a 20-document /story/ bucket
+#   to ride on the way `hu` (24% testimony) does.
+#   Under-1,200-char documents: **0** — no pure-tail documents (failure mode #2).
+#   Shortest documents: /a/dobar.html 1,266 ch · /a/razbijeni-tanjuri.html 1,321 ch
+#   · /a/collins.html 1,881 ch. All three are video transcripts.
+#   Duplicate paths: 0. Duplicate titles: 0. Null-language documents: 0.
+#
+# ═══ 🔴 THE LANGUAGE-SWEEP CASUALTY IS CLEAN — VERIFIED, NOT ASSUMED ═══
+#   Until 2026-07-31 this source had 30 documents mislabelled `sr` and 11 null, and
+#   the whole `sr` bucket was fake (`everystudent-sr` was deferred and never acquired).
+#   `.tmp-diag/phase5-openings.ts everystudent-hr` reports, on today's database:
+#     ✅ every path resolves to exactly one document
+#     ✅ no null-language documents
+#     ✅ no duplicate titles
+#     41 documents · 0 under 1,200 chars · 0 duplicate paths · 0 null-language
+#   Every one of the 41 is `lang hr`. The sweep held. Nothing below rests on the
+#   old labels.
+#
+# ═══ DISCOVERY ═══
+#   .tmp-diag/phase5-partb-discover.ts everystudent-hr hr
+#   → 32 distinct candidate documents of 41. Nine of the ten §0.7 topics reached an
+#     own-source document; `jesus-death` did not reach one that answers it (below).
+#   Every one of the 41 documents was then read from the database (title + opening
+#   ~900 chars) before anything was credited — guardrail #5.
+#
+# ═══ ENGINE-CHECK ROUND LOG — .tmp-diag/phase5-check.ts hr hr ═══
+#   Round 1: **1 paraphrase smell** (0.756, case 1) · 2 credits not in top 10 · 14 credits
+#   Round 2: 0 paraphrase smells (max 0.748) · 1 credit not in top 10 · 13 credits
+#            — case 1 reworded; the smell cleared but reach did not recover, and 0.748
+#              sat two thousandths under the line.
+#   Round 3: 0 paraphrase smells (max 0.739) · 1 credit not in top 10 · 13 credits
+#            — case 1 reworded again to name the evidence DOMAINS. This pulled two
+#              further own-source science documents into the top 10; both were read and
+#              credited, taking case 1 to 5 credits.
+#   Round 4 (final, --update): **0 paraphrase smells · max top score 0.738
+#            · 15 credits · 1 credit outside the top 10, kept deliberately
+#              (/a/stvaran.html — see kept_miss on case 1).**
+#   ⓘ The round-3 and round-4 runs are the SAME questions and differ by 0.001
+#     (0.739 → 0.738). That is embedding run-to-run jitter, not a change. Do not
+#     read single-thousandth movements between runs as signal — §0.10 recorded the
+#     same flapping on `esru-newcomer-krest`.
+#   Verification (runs inside the script, cannot be skipped):
+#     guardrail #8 §3 — 15/15 credited paths resolve to EXACTLY ONE document
+#     guardrail #3a   — 0/15 credited documents have a null language
+#   Only ONE question was reworded (case 1). The other four were right first time,
+#   which is unusual for this campaign and is consistent with Croatian's 0.881
+#   Phase-4 top score: retrieval here is strong and the questions did not have to
+#   fight it.
+#
+# ═══ TOPICS DROPPED, AND WHY ═══
+#   Five of the ten §0.7 topics are not used. Only ONE is a genuine content gap.
+#
+#   🔴 `jesus-death` — GENUINE CONTENT GAP. everystudent-hr has NO article whose
+#      subject is what the cross accomplished. Discovery's top hit for it is
+#      /a/osobno.html (0.582), which is the Four Spiritual Laws tract, and its
+#      SECOND is /a/vatrom.html (0.554) — the sex-and-relationships article, matched
+#      purely on its gospel tail. Croatian joins `ru`, `zh-cn` and `mn` in the
+#      settled atonement gap (§0.12). Recorded as corpus composition; not re-opened.
+#      (/a/tkojebio.html is raw John excerpts with 'no added commentary'; the estate
+#      excludes that class elsewhere. /a/razbijeni-tanjuri.html, 1,321 ch, IS the
+#      invitation tail as a standalone video narration. Neither is a valid key.)
+#
+#   The other four ARE carried and were dropped only because 41 documents buy 5
+#   cases. Recorded here so a future expansion does not re-derive them:
+#      `bible-trust` → /a/bibliji.html ('Zašto možete vjerovati Bibliji', 28,569 ch,
+#         19 chunks, the source's largest document; discovery 0.596 and the ONLY
+#         candidate). Croatian has no Islam article, so the tahrif route (§0.12)
+#         does not exist here — this one document carries the topic alone.
+#      `religions`  → /a/povezati.html ('Povezati se s Božanskim', 16,711 ch), the
+#         estate's /a/205 world-religions piece under a localised slug — subtitle
+#         'Hinduizam, Budizam, Islam, Kršćanstvo i New Age'. Discovery 0.619.
+#      `trinity`    → /a/trojstvo.html ('Možete li objasniti Trojstvo?', 4,648 ch,
+#         the 1x1x1=1 formulation). Discovery 0.641 — the highest topic score in the
+#         whole discovery pass. A clean single-credit case whenever it is wanted.
+#      `purpose`    → /a/smisao.html (the hammer parable) + /a/izvor.html (Josh
+#         McDowell, 'Who am I? Why am I here?'). Discovery 0.514/0.497.
+#   Dropping `purpose` is what keeps the persona split legal: the 5-case row allows
+#   one seeker, and `anxiety` was chosen over `purpose` because it exercises the
+#   reverse title trap this source demonstrably carries (case 4).
+#
+# ═══ evidence_tier ═══
+#   Proposed `llm-translated`. This is a fact about the REVIEWER, not the language —
+#   nobody available reads Croatian. If someone on the team does and can sanity-check
+#   the glosses, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ──────────────────────────────────────────────────────────────── skeptic
+  - id: "eshr-skeptic-pobozna-zelja" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Prijatelji mi govore da je vjera u Boga samo pobožna želja, nešto što si ljudi umisle jer im tako odgovara. Postoji li išta provjerljivo — u prirodi, u znanosti, bilo gdje — na čemu bi se takva vjera mogla temeljiti?"
+    en: "My friends tell me that faith in God is just wishful thinking, something people talk themselves into because it suits them. Is there anything checkable — in nature, in science, anywhere — that such a faith could rest on?"
+    credits:
+      - { path: "/a/ateistica.html", en: "How an atheist woman found God (Marilyn Adamson) — 'For the first few months I asked myself: do I really believe in God? And why? Then I would methodically go back over the FIVE OBJECTIVE REASONS why I believed God exists. My faith in God did not rest on feelings but on facts and evidence.' Rank 1 in all four rounds. It answers the 'wishful thinking' charge from the inside — a former atheist stating that her reasons were objective ones she could re-check.", rank: 1, score: 0.738 }
+      - { path: "/a/postoji.html", en: "Does God exist? SIX DIRECT REASONS for holding that God really exists (Marilyn Adamson, 18,867 ch) — the source's flagship apologetics article. Opens by refusing the 'you just have to believe' move: 'No pressure. No statements like: you just have to have faith.'", rank: 2, score: 0.708 }
+      - { path: "/a/prirode.html", en: "Scientists astonished by the laws of nature (7,693 ch) — 'Why are the laws of nature so unchanging? Your coffee left on the table will always go cold. Gravity stays stable, and not by chance. The speed of light stays constant.' Cosmologist Sean Carroll is quoted, then the principle of universality. This is the 'in nature' half of the question answered directly.", rank: 5, score: 0.673 }
+      - { path: "/a/svemir.html", en: "Did God create the universe? (8,137 ch) — 'Scientists confirm the Big Bang theory and a beginning of the universe… something outside time, outside space and outside matter caused all of it to come into being.' Edwin Hubble's 1920s observation, and why a beginning is a hard result for non-theistic scientists. The 'in science' half of the question.", rank: 8, score: 0.671 }
+      - { path: "/a/stvaran.html", en: "Is God real? (4,356 ch) — the DNA article. Antony Flew, one of the leading spokesmen for atheism, on video in December 2004: 'a super-intelligence is the only satisfying explanation for the origin of life and the complexity of nature', then DNA laid alongside a computer program's ones and zeros. 🔴 KEPT DELIBERATELY THOUGH IT DOES NOT RETURN — see kept_miss.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      /a/stvaran.html is this source's DNA-and-Antony-Flew article — the single most
+      on-point document for a question that explicitly asks whether there is anything
+      checkable in science. It stayed outside the top 10 in ALL THREE rounds, including
+      the round whose whole purpose was to reach it.
+
+      WHAT MAKES THIS WORTH RECORDING RATHER THAN PAPERING OVER: round 3 added
+      'u prirodi, u znanosti' ('in nature, in science') to the question, and the science
+      shelf DID respond — /a/prirode.html came in at rank 5 (0.674) and /a/svemir.html
+      at rank 8 (0.671), neither of which had been in the top 10 before. So the engine
+      is not deaf to the science framing. It surfaces the laws-of-nature article and the
+      Big-Bang article and still will not surface the DNA article. Croatian is the
+      sharpest instance in the campaign of the `hu` /a/dns.html finding (§0.12), because
+      here the miss survives a question written specifically to reach it.
+
+      A PLAUSIBLE MECHANICAL READING, offered as a hypothesis not a conclusion:
+      /a/stvaran.html is 4,356 chars in 3 chunks, against 7,693/5 for prirode and
+      8,137/5 for svemir. Fewer chunks is fewer shots at the top 10. If the operator
+      wants this tested, the cheap probe is whether short documents systematically
+      under-return across the batch — not a Croatian question.
+
+      This case therefore scores coverage 4/5 ON PURPOSE, the same treatment
+      `eshu-skeptic-vagyalom` and `esbg-skeptic-katastrofa` were given.
+    reworded: |
+      ⚠️ REWORDED TWICE. Round 1 carried THE ONLY PARAPHRASE SMELL IN THE SUITE, and it
+      was not on the case anyone would have predicted.
+      v1: "…Postoji li iza toga ijedna činjenica ili je doista sve samo osjećaj?"
+          ("…Is there a single fact behind it, or is the whole thing really just a
+          feeling?")
+          → top **0.756 🔴 SMELL**, and a clean example of guardrail #1. It restates
+          /a/ateistica.html's own sentence nearly word for word: 'Moja vjera u Boga nije
+          se oslanjala na osjećaje već na činjenice i dokaze' — 'my faith in God did not
+          rest on FEELINGS but on FACTS and evidence'. The question had borrowed the
+          article's own fact-versus-feeling contrast.
+          It also had a REACH failure at the same time: 2 of 4 credits missed.
+      v2: drops the fact/feeling contrast, keeps the menu's 'wishful thinking', and asks
+          for something CHECKABLE the belief could rest on — §0.12 failure mode #5,
+          which says asking for grounds beats emotional framing.
+          → **0.756 → 0.748. Smell cleared but reach did not recover**: /a/stvaran.html
+          was still outside the top 10, and 0.748 sits two thousandths under the line,
+          close enough to flap between runs.
+      v3 (kept): names the domains the asker would accept — 'u prirodi, u znanosti,
+          bilo gdje' ('in nature, in science, anywhere') — and drops v2's trailing
+          'or is it just what we would like to be true'.
+          → **0.748 → 0.739**, further clear of the line, /a/postoji.html rank 4 → 2,
+          and TWO NEW own-source science documents entered the top 10 and were then
+          credited on their text (/a/prirode.html r5, /a/svemir.html r8).
+          🟢 THE RARE ROUND WHERE SMELL AND REACH MOVED THE SAME WAY. §0.12 warns they
+          usually pull in opposite directions; naming the evidence DOMAINS rather than
+          restating the claim is what let both improve at once. Worth trying elsewhere.
+    rejected:
+      - { path: "/a/cudo.html", rank: 3, why: "'Why does God not perform a spectacular miracle and prove his existence?' (3,445 ch) — rank 3 across all three rounds and rejected every time. Its subject is God's RETICENCE: why he does not overwhelm people with undeniable proof. That is a different objection from 'is there any checkable ground at all'. Same call `hu` made on /a/csodat.html." }
+      - { path: "/a/koronavirus.html", rank: 4, why: "the anxiety article — credited to case 4. It reaches rank 4 here because one of its chunks recounts Marilyn Adamson studying the evidence for God for eighteen months; the document's subject is still anxiety." }
+      - { path: "/a/bibliji.html", rank: 6, why: "'Why you can trust the Bible' — the bible-trust answer document (see the dropped-topics list in the header). Genuinely evidential, but it argues for the reliability of a TEXT, which is the next question along, not this one." }
+      - { path: "/a/molitve.html", rank: 7, why: "credited to case 5" }
+      - { path: "/a/savrsenog.html", rank: 9, why: "credited to case 3" }
+      - { path: "/a/povezati.html", rank: 10, why: "the world-religions article (the `religions` answer document, dropped for budget) — a comparison piece, not an argument that God exists" }
+    note: |
+      ⓘ CROATIAN HAS THE ESTATE'S DEEPEST god-exists SHELF RELATIVE TO ITS SIZE.
+      Nine of the 41 documents sit in the 'Božje postojanje' (God's existence)
+      category: /a/postoji.html, /a/ateistica.html, /a/stvaran.html, /a/prirode.html,
+      /a/svemir.html (Big Bang), /a/postojanje.html (three arguments, video),
+      /a/collins.html (Francis Collins on the gravitational constant, video), /a/tkoje.html
+      and two parts of the cosmological chain. FIVE of the nine are credited here and a
+      sixth (/a/cudo.html) is a considered rejection, which is why this case carries more
+      credits than any other in the suite. This is also why Croatian topped the Phase-4
+      smoke run at 0.881 — the shelf is dense, not the engine lucky.
+
+      ⚠️ FOR THE REVIEWER: five credits on one case is the top of the range for a 5-case
+      suite. If a leaner key is wanted, /a/prirode.html and /a/svemir.html are the two to
+      cut — they answer the question's 'in nature, in science' clause specifically rather
+      than the wishful-thinking objection, and cutting them returns this case to the
+      3-credit shape the other four cases use. I kept them because the question does
+      explicitly ask for them.
+    top_score: 0.738
+
+  # ── 2 ──────────────────────────────────────────────────────────────── skeptic
+  - id: "eshr-skeptic-nesreca" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "Prošle godine mi je prijatelj poginuo u nesreći. Otad mi nitko nije uspio objasniti kako to uopće ide zajedno s dobrim Bogom koji je to mogao spriječiti."
+    en: "A friend of mine died in an accident last year. Since then nobody has managed to explain to me how that goes together at all with a good God who could have prevented it."
+    credits:
+      - { path: "/a/tragedije.html", en: "Where is God in the middle of tragedy? (Marilyn Adamson, 11,133 ch) — 'Have you ever asked: God, where are you? What exactly can we expect from God?' The closest document in the source to the asker's situation.", rank: 3, score: 0.702 }
+      - { path: "/a/zasto.html", en: "Why is life so hard? (7,896 ch) — 'Why do people get cancer? Why do earthquakes destroy whole cities?' Then the wake-up events: our parents separate, the girl down the street gets pregnant at 16, a family member gets cancer.", rank: 2, score: 0.715 }
+      - { path: "/a/stovati.html", en: "Why worship a God who permits evil? (5,000 ch) — a Q&A article built on the hardest case the estate states anywhere: 'Why worship a God who allows evil such as the rape of a child?' Answers on human freedom and on God not being to blame for what people choose.", rank: 6, score: 0.681 }
+      - { path: "/a/dobar.html", en: "Is God good? (1,266 ch, 1 chunk) — a video transcript: 'Is God good? If he is, why is there suffering and evil?' The free-will theodicy worked through with square circles and one-sided sticks. Croatian twin of the Hungarian /a/jo.html and the Bulgarian 'Добър ли е Бог?', both credited for this same topic.", rank: 1, score: 0.734 }
+    rejected:
+      - { path: "/a/koronavirus.html", rank: 4, why: "the general anxiety article — credited to case 4. Its subject is living with anxiety, not why a good God permits a death." }
+      - { path: "/a/sawyer.html", rank: 5, why: "'How we can have life after death' — Steve Sawyer's account of living under a terminal diagnosis. Its subject is personal hope in the face of death, not the theodicy question. Same call `hu` made on its own /a/sawyer.html at rank 2 and `ru` on /a/steysi1.html." }
+      - { path: "/a/ateistica.html", rank: 7, why: "credited to case 1" }
+      - { path: "/a/paklu.html", rank: 8, why: "'Can good people end up in hell?' — judgment and God's standard, a different question" }
+      - { path: "/a/savrsenog.html", rank: 9, why: "credited to case 3" }
+      - { path: "/a/molitve.html", rank: 10, why: "credited to case 5" }
+    note: |
+      ⚠️ /a/dobar.html IS THE SHORTEST DOCUMENT IN THE SOURCE (1,266 ch) AND IS STILL
+      NOT A PURE TAIL. The openings script flags everything under 1,200 chars and
+      flagged nothing here. Read, it is a complete free-will argument in miniature —
+      the same call `hu` made on its 1.5k twin /a/jo.html. Recorded explicitly because
+      failure mode #2 says never credit a short document without reading it; this one
+      was read.
+    top_score: 0.734
+
+  # ── 3 ─────────────────────────── newcomer 🔴 TWO TITLE TRAPS IN ONE CASE
+  - id: "eshr-newcomer-maglovita-sila" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "Kad netko spomene Boga, meni na pamet padne samo neka maglovita sila negdje gore. Kakav je zapravo Bog i može li se njega uopće osobno upoznati?"
+    en: "When someone mentions God, all that comes to my mind is some hazy force somewhere up there. What is God actually like, and can he even be known personally?"
+    rejected:
+      - { path: "/a/osobno.html", rank: 3, why: "'Osobno poznavati Boga' — the FOUR SPIRITUAL LAWS tract ('First principle: God loves you and has a wonderful plan for your life'), not a description of what God is like. It is the estate's /a/personally.html shape from Part A and it is boilerplate by construction. Rank 3 for a know-god question is exactly the §0.9 tail behaviour, and it is REJECTED on its text. `hu` made the identical call on /a/isten-szemelyes-megismerese.html." }
+      - { path: "/a/tragedije.html", rank: 4, why: "credited to case 2. Its opening does run 'Who is God? God is the Creator of the universe who longs for you to know him', which is why it reaches rank 4 — but its subject is God in tragedy." }
+      - { path: "/a/postoji.html", rank: 5, why: "credited to case 1 — whether God exists, not what he is like" }
+      - { path: "/a/svemir.html", rank: 9, why: "'Did God create the universe?' — the Big Bang article. A god-exists document." }
+    credits:
+      - { path: "/a/tkoje.html", en: "Who is God? What is he like? Here are SIX CHARACTER TRAITS of God (4,585 ch) — 'He can be known. It is possible to know the God who created the universe… not only can we know facts about him, we can know him personally and intimately.' The Croatian member of the estate's six-attributes family (Russian /a/ktoeto.html, Hungarian /a/milyen.html, Bulgarian 'Защо можем да разчитаме на Бог?').", rank: 2, score: 0.694 }
+      - { path: "/a/savrsenog.html", en: "🔴 TITLE TRAP. Titled 'Pronalazak savršenog Boga' — 'Finding the perfect God' — which reads as a conversion story. The body (16,205 ch) is an ENUMERATED ATTRIBUTES LIST: '1. Longing for God; God is greater than us… 2. Longing for God; God can be known personally…' This is the source's SECOND what-is-God-like article and the systematic §0.12 trap in its Croatian form.", rank: 1, score: 0.732 }
+      - { path: "/a/tko.html", en: "🔴 TITLE TRAP, THE DANGEROUS KIND. Titled simply 'Tko?' ('Who?') — one letter from /a/tkoje.html's 'Tko je Bog?'. It is NOT a what-is-God article: it is PART 4 of the four-part cosmological chain, and it opens 'This is a continuation of the article Što?'. It is credited anyway because its actual content is the personhood argument: the Eternal Someone is transcendent, exists outside space and time, is therefore invisible, and 'has personality and will'. That is precisely the 'is he even someone' half of the question. Same call `hu` made on /a/kicsoda2.html.", rank: 6, score: 0.638 }
+    the_finding: |
+      🔴 CROATIAN CARRIES THE FOUR-PART COSMOLOGICAL CHAIN, AND ITS TITLES ARE WORSE
+      THAN ANY SOURCE ON RECORD.
+
+        /a/nista.html   'U početku bijaše... ništa?'  ('In the beginning there was… nothing?')
+        /a/nesto.html   'Nešto'                        ('Something')      → continues nista
+        /a/sto.html     'Što?'                         ('What?')          → continues nesto
+        /a/tko.html     'Tko?'                         ('Who?')           → continues sto
+
+      §0.12 lists this chain for `hu` `pl` `mn` `sk` `pt` `es` `fa` `cs`. Croatian makes
+      it worse in one specific way: part 4 is titled **'Tko?'** while a completely
+      different document — the six-attributes article — is titled **'Tko je Bog?'**.
+      Two documents, three characters apart, one a cosmological argument and one the
+      know-god article. A title-keyed tool or a title-only reviewer picks wrong here on
+      a coin flip. This is the concrete Croatian case for guardrail #8 §3 and for the
+      §0.12 rule that credits are declared by PATH.
+
+      🟢 AND THE SAME CASE CONTAINS THE OPPOSITE TRAP: /a/savrsenog.html's title names
+      no attributes at all and its body is nothing but attributes. Both directions,
+      one case, one source.
+    note_no_reword: |
+      ⓘ NO REWORD NEEDED, AND THAT WAS NOT THE PREDICTION. Before measuring, this case
+      looked like the likeliest smell in the suite: the §0.7 variant-B framing is close
+      to /a/tkoje.html's own subtitle ('Tko je Bog? Kakav je on?') and to its first
+      attribute heading ('Može ga se upoznati'). Measured, it came in at **0.732, clear
+      of 0.75**, with all three credits at ranks 1, 2 and 6. The smell landed on case 1
+      instead. §0.12 failure mode #6 in the other direction: a question that looks
+      dangerous can be fine, and the one that looked safe was the one that smelled.
+      Recorded because guessing at smells without running the check is how batch-1
+      agents wasted rounds.
+    top_score: 0.732
+
+  # ── 4 ──────────────────────────── seeker 🔴 REVERSE TITLE TRAP CONFIRMED
+  - id: "eshr-seeker-tjeskoba" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Gotovo cijelo vrijeme sam napet i tjeskoban, čak i onda kad objektivno nemam zbog čega. Nudi li vjera išta konkretno za to?"
+    en: "I am tense and anxious almost the whole time, even when objectively I have no reason to be. Does faith offer anything concrete for that?"
+    credits:
+      - { path: "/a/koronavirus.html", en: "🔴 REVERSE TITLE TRAP, CONFIRMED ON CROATIAN. Titled 'Koronavirus (COVID-19)', which reads as an expired 2020 notice a reviewer would strike out. The subtitle is already broader — 'Kako se nositi s tjeskobom?' ('How to deal with anxiety') — and the body (13,554 ch) leaves the pandemic in its third paragraph and never returns: 'The list is very long… natural disasters, terrorism, climate change, racism, wars, corrupt government, poverty, sexual abuse, human trafficking, personal finances, illness, job security, stressful relationships, addictions.' This IS the source's general anxiety article. §0.12 lists the same trap on `hu` `pl` `sq` `tr` `pt` `es`; Croatian is the seventh.", rank: 2, score: 0.673 }
+      - { path: "/a/mirno.html", en: "Sleeping peacefully in an unstable world (14,237 ch) — 'Whatever the future holds, it is possible to be at peace and not be weighed down by worry and anxiety. Is there a place we can look for stability regardless of what is happening in the world or in our own life?' Croatian twin of the Hungarian /a/beke.html.", rank: 3, score: 0.669 }
+    rejected:
+      - { path: "/a/molitve.html", rank: 1, why: "🔴 RANK 1 AND REJECTED — the prayer article, ahead of both anxiety documents. Its subject is what it takes for God to answer a prayer. It is here because the question ends 'does faith offer anything concrete for that', and the prayer article is this source's densest 'what God does when you ask him' text. LEFT UNCREDITED AND THE QUESTION LEFT ALONE: engineering it out would mean removing the ask, and the miss is more informative recorded than hidden. Both real credits still return at ranks 2 and 3, so coverage is 2/2." }
+      - { path: "/a/ateistica.html", rank: 4, why: "credited to case 1" }
+      - { path: "/a/zasto.html", rank: 5, why: "credited to case 2 — why life is hard, i.e. hardship with a cause, not anxiety with none" }
+      - { path: "/a/tragedije.html", rank: 6, why: "credited to case 2 — crisis and tragedy, not free-floating anxiety. Same call `hu` made on /a/faj.html and `ru` on /a/gdebog.html." }
+      - { path: "/a/bibliji.html", rank: 7, why: "the Bible-reliability article at rank 7 for an anxiety question — a tail/adjacency match, not an answer" }
+      - { path: "/a/stovati.html", rank: 8, why: "credited to case 2" }
+    note: |
+      ⓘ CROATIAN HAS NO 'ANXIETY AND CHAKRA HEALING' ACCOUNT and no article whose title
+      is anxiety. The topic is carried by exactly two documents: a pandemic-titled
+      general-anxiety article and a peace-in-instability article. Same shape as `hu`,
+      thinner than `bg` (which has a dedicated 11.6k 'How do we deal with anxiety?').
+      Covered, and the shelf is shaped differently. Worth knowing before comparing
+      per-source numbers.
+    top_score: 0.68
+
+  # ── 5 ─────────────────────────────────────────────────────────────── believer
+  - id: "eshr-believer-tisina" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "Već mjesecima se molim za istu stvar i s druge strane je samo tišina. Radim li nešto krivo?"
+    en: "For months now I have been praying about the same thing and from the other side there is only silence. Am I doing something wrong?"
+    credits:
+      - { path: "/a/molitve.html", en: "Does God answer our prayers? (10,179 ch) — 'How should we pray? What does it take for God to answer a prayer?' Told by a former atheist who watched a praying friend week after week, and it takes the asker's question head-on with its own section: 'Zašto Bog ne odgovara na molitve svih ljudi?' ('Why does God not answer everyone's prayers?'). Croatian twin of the Hungarian /a/imadsagra.html, the Russian /a/molitvi.html and the Spanish /articulos/oraciones.html, all credited for this exact question shape.", rank: 1, score: 0.655 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. everystudent-hr carries exactly
+      one prayer article. Discovery found only two candidates for the topic at all, and
+      the second (/a/ateistica.html, 0.462) is the atheist's conversion account, matched
+      on one paragraph in which she prays. Nothing else on this source addresses
+      unanswered prayer. Same shape as `hu`, `bg` and `ru`, all of which also credit
+      exactly one document here — the §0.7 believer-thinness finding showing up in the
+      corpus rather than in the persona split.
+    rejected:
+      - { path: "/a/sawyer.html", rank: 2, why: "life-after-death account — a tail-adjacent match" }
+      - { path: "/a/ateistica.html", rank: 3, why: "credited to case 1" }
+      - { path: "/a/vatrom.html", rank: 7, why: "🔴 'Igra s vatrom (za muškarce)' — a young man's account of why he stopped having sex before marriage, at RANK 7 FOR A PRAYER QUESTION. This is the boilerplate tail, verified rather than assumed: the document's closing block is the estate's gospel summary ('That is why Jesus Christ, God in human flesh, came…'). It is also discovery's SECOND hit for `jesus-death` at 0.554, for the same reason." }
+      - { path: "/a/krijeiza.html", rank: 10, why: "'What is behind pornography?' at rank 10 for a prayer question — the second tail match in the same top 10, and the plainest illustration of §0.9 on this source" }
+    the_finding: |
+      🟢 THE TAIL IS PRESENT ON CROATIAN BUT IT IS WEAK, AND THIS CASE MEASURES HOW WEAK.
+      Ranks 7 and 10 for this prayer question are the sex article and the pornography
+      article — both matched on the shared invitation-prayer tail, both unmistakably
+      §0.9. But they arrive at 0.515 and 0.506 against the credit's 0.655, a gap of
+      0.14. Across all five cases the best rank any tail-shaped document reaches is 3
+      (/a/osobno.html, the Four Spiritual Laws tract, on case 3); nothing tail-shaped
+      ever takes rank 1 or rank 2. Compare `hu`, where a marriage article reached rank 7 at 0.574 against a
+      0.713 credit AND tails held ranks 1–3 of its cross case. §0.12 predicts severity
+      tracks testimony share; Croatian is 0% testimony and sits at the floor of that
+      prediction.
+    top_score: 0.655
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 5 cases · 15 credits · 15 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.12 5-case row
+# Paraphrase smells: 0 (max top score 0.738). Round 1 had 1, on case 1, fixed by two rewords.
+# Credits that do not retrieve: 1 — /a/stvaran.html on case 1, KEPT deliberately.
+#   Nothing was dropped: the one credit removed during the loop (/a/prirode.html) was
+#   re-credited in round 3 once the reworded question actually asked what it answers.
+# evidence_tier: llm-translated (operator to confirm)
+#
+# 🔴 THE LANGUAGE-SWEEP CASUALTY IS CLEAN. 41/41 documents are `lang hr`, zero null,
+#   zero duplicate paths, zero duplicate titles. The pre-sweep state (30 mislabelled
+#   `sr`, 11 null, an entirely fake `sr` bucket) is gone. Verified from the openings
+#   hazard report on today's database, not assumed from the sweep's own report.
+#
+# 🔴 SEVENTH SOURCE, SAME REVERSE TITLE TRAP: /a/koronavirus.html is the general
+#   ANXIETY article, not a pandemic notice. And Croatian adds a NEW variant of the
+#   title problem that no prior source has produced this sharply — /a/tko.html ('Tko?',
+#   part 4 of the cosmological chain) sits three characters from /a/tkoje.html
+#   ('Tko je Bog?', the six-attributes know-god article). Titles are not merely
+#   unreliable on this source; two of them are actively confusable.
+#
+# 🟢 ZERO TESTIMONY DOCUMENTS — THE BOILERPLATE TAIL'S QUIETEST SOURCE SO FAR.
+#   All 41 documents are `/a/` articles; there is no `/story/` bucket at all. §0.12
+#   predicted tail severity tracks testimony share, and this source is the low end of
+#   that prediction: across all five cases, the best rank any tail-shaped document
+#   reaches is 3 (/a/osobno.html on case 3), and none ever takes rank 1 or 2. The tail
+#   IS present — /a/vatrom.html ('Playing with fire', a sex-and-relationships article)
+#   is discovery's SECOND hit for `jesus-death` at 0.554, matched purely on its closing
+#   'Jesus Christ, God in human flesh, came…' paragraph — but with no testimony bucket
+#   to amplify it, it never reaches the top of a real case. Croatian is the control
+#   that confirms the §0.12 severity rule from the low side, as `pt` did.
+#
+# 🔴 CONTENT GAP — `jesus-death`. No article on this source has the atonement as its
+#   subject. Croatian joins `ru`, `zh-cn` and `mn`. Recorded as corpus composition per
+#   §0.12; NOT re-opened.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. /a/tko.html on case 3 — it is a cosmological-chain document credited for a
+#      know-god question, on the ground that its actual content is the personhood
+#      argument. `hu` made the identical call on /a/kicsoda2.html. If the operator
+#      wants that call reversed, reverse it in BOTH suites, not one.
+#   3. Four topics were dropped for budget, not for absence — `bible-trust`,
+#      `religions`, `trinity`, `purpose`. Each has an identified answer document listed
+#      in the header. If the operator wants Croatian at more than 5 cases, `trinity`
+#      (/a/trojstvo.html, discovery 0.641) and `bible-trust` (/a/bibliji.html, the
+#      28.6k flagship) are the two cleanest additions and need no new research.

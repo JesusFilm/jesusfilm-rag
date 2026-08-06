@@ -1,0 +1,317 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-hy` (Armenian, 1patasxan.com, 34 documents).
+# Campaign #111, BATCH 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 34 ÷ 8 = 4.25 → 4 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 n=4 row exactly.
+# Questions authored IN ARMENIAN (Eastern Armenian, the register the site uses),
+# not translated from the English topic menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   34 documents, all `/a/*.html`. There is NO `/story/` tree on this source.
+#   Acquired by SEED crawl (no sitemap) with the rule-1e "html" container fallback.
+#   Null-language documents: 0 of 34. Duplicate paths: 0. Duplicate titles: 0.
+#   Documents under 1,200 chars: 0 — this source has NO pure-tail pages (failure mode #2).
+#   Armenian has its own script and no sibling in the corpus, so the `hy` language
+#   bucket is this source alone — no cross-source competition in any retrieval below.
+#
+#   ⚠️ TESTIMONY SHARE ≈ 18% (6 of 34) — derived from the OPENINGS, not from paths
+#   (the `uk` finding: path-counting reads this source as 0% testimony and is wrong).
+#   First-person accounts carrying the shared invitation-prayer tail:
+#     /a/source.html      Josh McDowell — "I longed for happiness… Who am I?"
+#     /a/reallife.html    a compilation of first-person accounts ("according to John G.")
+#     /a/loneliness.html  Ashley Seitz — "I felt alone everywhere"
+#     /a/inevitable.html  Brandon Market — facing death without fear
+#     /a/knowGod.html     opens "When I was an atheist, I was looking for a philosophy…"
+#     /a/prayers.html     Marilyn Adamson, opens "When I was an atheist, I knew someone…"
+#
+#   🔑 THE TAIL MAGNET ON THIS SOURCE IS `/a/prayers.html` — the prayer article, exactly
+#   the `mk /a/molitvi306.html` shape, not a testimony page. Discovery surfaced it for
+#   FOUR topics (god-exists 0.492, suffering 0.555, anxiety 0.582, prayer 0.632) and in
+#   three of those the matched chunk is the peace-and-invitation tail, not prayer content.
+#   In the engine check it was RANK 1 for the evidence question in round 1 (0.675, ahead
+#   of both apologetics articles) and is still rank 2 after the reword. `/a/marriage.html`
+#   — one of the three estate articles §0.12 records as a repeat tail-carrier — surfaced
+#   in discovery for suffering, jesus-death and prayer, matched on its invitation prayer
+#   verbatim ("Lord Jesus…" / "open the door and I will come in"). Both carriers verified,
+#   not assumed. Batch-2's corrected rule holds: the invitation-prayer CHUNK SHAPE carries
+#   the defect wherever it is filed, and on `hy` it is filed under prayer and marriage.
+#
+# 🔴 THE FLAGGED DOCUMENT — `/a/bible.html`, 24,928 chars, RESOLVED: CREDIT IT.
+#   It is the source's BIBLE-RELIABILITY article, NOT an uncommented Gospel reproduction.
+#   Title "Ինչո՞ւ է Աստվածաշունչը վստահելի" ("Why the Bible is trustworthy"); it opens on
+#   authorship (40 authors over 1,500 years), archaeology and historical confirmation, and
+#   argues transmission directly: "some think the Bible, having been translated many times,
+#   could be full of errors — that logic would hold if those translations were made from
+#   different sources, but they were made directly from Greek, Hebrew and Aramaic". Its
+#   heavy scripture quotation is quoted AS EVIDENCE INSIDE ARGUMENT. Credited, at rank 1.
+#
+# 🔴 THE UNCOMMENTED GOSPEL REPRODUCTION ON THIS SOURCE IS `/a/whowas.html`
+#   — 20,922 chars, 13 chunks — and it is NOT inert.
+#   Title "Ո՞վ էր Հիսուս" ("Who was Jesus"), and its opening says it outright: "Below we
+#   briefly present Jesus' life and quote from one of the Bible's books, the Gospel of
+#   John. NO COMMENTARY HAS BEEN ADDED." Verified in the chunk store: chunk 5 is John 11
+#   (Lazarus), chunk 9 is John 19 (Pilate, "Crucify him, crucify him"), chunk 12 is John 20
+#   (Thomas), and the document ends on link furniture, not on argument.
+#   Same class as `sq /a/ishte.html` (24,883 chars, "no commentary added"), `sq
+#   /a/gjoni.html`, `es /articulos/biblia_juan.html` and the Arabic Gospel of John (#131).
+#   ⚠️ It takes a TOP-10 SLOT: rank 7, 0.603, on the cross question (case 3) — the exact
+#   behaviour §0.12's open decision #1 flags. Not credited anywhere, so it cannot corrupt
+#   a score, but it displaces a real document. This is a further live instance for the
+#   audit the operator is rebuilding, and it means §0.12's "only one left" is now wrong by
+#   at least the `sq` `de` `ro` `hy` count.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-hy hy
+#   → 29 distinct candidate documents of 34, all ten topics covered.
+#   English discovery topped out at 0.651 (trinity). Per the `uk` finding this
+#   UNDER-predicts the in-language score, so it was used only to find documents, never to
+#   reason about smell headroom. Confirmed on this source: in-language came back +0.085
+#   higher (0.651 → 0.736).
+# All 34 openings were then read from the database with character lengths before anything
+# was credited — guardrail #5. Two documents were then read FURTHER than the opening
+# because the opening alone was misleading; see the title-trap note on case 4.
+#
+# 🔴 SIX TOPICS DROPPED — AND NONE OF THEM IS A CONTENT GAP.
+#   At 4 cases the §0.7 menu loses six topics. `everystudent-hy` genuinely carries all
+#   ten; the drops are a SIZING constraint, not a corpus one. Naming the answer document
+#   for each, so the operator can see exactly what is being left unmeasured:
+#
+#   | Dropped topic | Persona | The answer document that exists but is not measured |
+#   |---|---|---|
+#   | know-god  | newcomer | `/a/whois.html` (4.4k) "Who is God? What is he like? SIX characteristics of God's nature" — the estate's six-attributes article, published here under an HONEST title (contrast `bg` `tr` `fa` `pt` `cs`, where it hides behind "Why can we rely on the God of the Bible?"). Backed by `/a/whypick.html` (15.9k, "Seeking the perfect God" — the same attribute list at length) and `/a/where.html` (3.7k, the flatland analogy for God's invisibility). |
+#   | suffering | skeptic  | `/a/why.html` (9.3k) "Why is life so hard" — terrorism, famine, sexual slavery, racism, then the girl abducted down the street and the relative with cancer. Backed by `/a/tragedy.html` (12.7k, "Where is God in misfortune", Marilyn Adamson), `/a/whyworship.html` (3.8k, "Why worship a God who allows terrible things", framed on child sexual abuse) and `/a/disaster.html` (6.4k, recovering after a natural disaster). FOUR documents — the deepest shelf in the source and the hardest drop. |
+#   | anxiety   | seeker   | `/a/peace.html` (16.0k) "Peace of mind in an unstable world". ⓘ Like `hu`, this source has NO article whose title is anxiety; UNLIKE `hu` `pl` `sq` `tr` `pt` `es` it also has NO coronavirus-titled article and NO chakra-healing account, so neither of §0.12's two reverse title traps exists here at all. The topic rests on this one peace article plus `/a/loneliness.html` (9.2k). |
+#   | prayer    | believer | `/a/prayers.html` (10.2k) "Does God answer our prayers" (Marilyn Adamson). Dropped by the PERSONA quota — the §0.7 n=4 row allows zero believer cases — not for lack of a document. ⚠️ This is also this source's tail magnet, so the one topic it would win honestly is the topic that is not measured. If the operator ever grows this suite, prayer is the first case to add. |
+#   | religions | skeptic  | `/a/connecting.html` (17.2k) "Connecting with the divine — Hinduism, Buddhism, Islam, Christianity and New Age" (Marilyn Adamson) — the estate's `/a/205` world-religions piece under a localised slug. Backed by `/a/religions.html` (3.4k, the differences stated plainly) and `/a/judaism.html` (7.0k, why Judaism does not accept Jesus as Messiah). |
+#   | trinity   | newcomer | `/a/trinity.html` (5.0k) "Is it possible to explain the Trinity?" — the three-dimensions analogy and the 1×1×1=1 formulation, explicitly "God speaks clearly of God the Father, God the Son and God the Spirit, and also stresses there is only ONE God". It was the HIGHEST English discovery hit in the whole source (0.651) and would very likely have been a clean rank-1 case. Dropped only because the single newcomer slot went to the atonement, which carries the campaign's `ru`/`zh-cn`/`mn` control question. |
+#
+# ENGINE-CHECK ROUND LOG — .tmp-diag/phase5-check.ts hy hy
+#   Round 1: 0 paraphrase smells · 1 credit not in top 10 · max top score 0.735 · 7 credits
+#   Round 2: 0 paraphrase smells · 0 credits not in top 10 · max top score 0.736 · 7 credits
+#   Round 3 (`--update`, the measured ranks/scores written into the cases below):
+#            0 paraphrase smells · 0 credits not in top 10 · max top score 0.736 · 7 credits
+#   One question was reworded (case 1). See its `reworded:` block — it is a clean
+#   confirmation of the `uk` refinement: changing WHICH OBJECTION the question makes moves
+#   reach and smell TOGETHER (0.675 → 0.667 and 1 of 2 credits → 2 of 2 in one round).
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 7 credited paths resolve to EXACTLY ONE document — 7/7.
+#   Guardrail #3a:   no credited document has a null language — 7/7.
+#   No credited document is under 1,200 chars; the smallest is /a/Godreal.html at 5,854.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Armenian). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Armenian and
+# can sanity-check the questions, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ────────────────────────────── skeptic 🔴 THE TAIL MAGNET IS VISIBLE HERE
+  - id: "eshy-skeptic-gitutyun" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Ընկերներս համոզված են, որ գիտությունն արդեն ամեն ինչ բացատրում է և Աստծո վարկածն ուղղակի ավելորդ է դարձել։ Ես չեմ ուզում պատասխանել զգացումով. կա՞ արդյոք մի բան, որ մենք գիտենք տիեզերքի կամ բջջի մասին և որը դժվար է բացատրել առանց Արարչի։"
+    en: "My friends are convinced that science already explains everything and the God hypothesis has simply become superfluous. I do not want to answer with a feeling — is there anything we know about the universe or about the cell that is hard to explain without a Creator?"
+    credits:
+      - { path: "/a/isthere.html", en: "'Does God exist?' — 'below we present SIX clear grounds that speak for God being real' (Marilyn Adamson, 19.1k chars). The source's flagship apologetics article; ground 1 is the complexity of the universe and of planet Earth, argued as evidence rather than as appeal.", rank: 1, score: 0.668 }
+      - { path: "/a/Godreal.html", en: "'Is God real?' — 'Science gives many grounds for believing in God. Why does DNA matter?' (5.9k). Antony Flew, one of atheism's leading spokesmen, on video in December 2004: 'super-intelligence is the only valid explanation for the origin of life and the complex structure of nature', then DNA read as a computer program in binary code. This is the source's SCIENTIFIC-EVIDENCE article and the direct answer to the 'science has made God superfluous' objection.", rank: 4, score: 0.647 }
+    reworded: |
+      ⚠️ REWORDED ONCE, and it is the cleanest confirmation on this source of the `uk`
+      refinement to §0.12 — reach and smell pull TOGETHER when the fix changes which
+      OBJECTION the question makes, rather than paraphrasing the same objection.
+      v1: "Ընկերներս ասում են, որ Աստծուն հավատալը ուղղակի ինքնախաբեություն է… կա՞ արդյոք
+           որևէ բան, որ իրականում կարելի է ստուգել, թե ամեն ինչ միայն զգացողության վրա է
+           հենված։" ("…believing in God is simply self-deception… is there anything that can
+           actually be checked, or does it all rest only on feeling?")
+           → top 0.675, NO smell, but only 1 of 2 credits returned and the whole top 10
+           went emotional — FAILURE MODE #5, textbook. Rank 1 was `/a/prayers.html` (the
+           tail magnet), and ranks 4–9 were peace, know-God, trust-Christ, natural-disaster,
+           WHO-IS-SATAN and where-is-God-in-misfortune. `/a/Godreal.html`, the science
+           article, was not in the top 10 at all. The word "feeling" in the question pulled
+           feeling documents even though the sentence was arguing AGAINST feeling.
+      v2 (kept): same persona and the same topic, but a different objection — from "is your
+           belief just an emotion?" to "hasn't science made God unnecessary?", naming the
+           two things this source actually argues from (the universe, the cell).
+           → **0.668, both credits returned at ranks 1 and 4.** The top score went DOWN
+           while coverage went UP — the two moved together, exactly as `uk` predicted.
+
+      ⚠️ `/a/Godreal.html` IS A TIE AND ITS RANK WILL FLAP. It scored 0.646 (rank 3) on the
+      verification round and 0.647 (rank 4) on the measured round, tied to three decimal
+      places with `/a/whypick.html`. Do not read a future rank 3 or rank 5 as a change in
+      the engine — §0.10 recorded the same tie-reorder on `esru-newcomer-krest` and §0.9
+      on `eshu-skeptic-vagyalom`. Coverage is 2/2 either way; only the ordinal moves.
+    the_finding: |
+      🔑 THE TAIL MAGNET IS STILL AT RANK 2 AFTER THE FIX, AND THAT IS THE MEASUREMENT.
+      `/a/prayers.html` (0.649) sits between the two credited apologetics articles on a
+      question that asks about DNA and cosmology. It is not a prayer match — it is the
+      article's peace-and-invitation tail, its own chunk. `everystudent-hy` has no `/story/`
+      tree at all, and a path-based reading would have called it a 0%-testimony source and
+      declared failure mode #1 harmless here. It is not harmless: one document absorbs the
+      whole tail load, exactly the `et` → `/a/elumuutuste.html` and `mk` → `/a/molitvi306.html`
+      pattern. Fifth source, same shape.
+    rejected:
+      - { path: "/a/prayers.html", rank: 2, why: "RANK 2 AND REJECTED — 'Does God answer our prayers'. The tail magnet. It was RANK 1 for v1 of this question. Its subject is answered prayer; it is credited to no case here because the prayer topic was dropped by the persona quota." }
+      - { path: "/a/whypick.html", rank: 3, why: "'Seeking the perfect God' — the six-attributes what-is-God-like article. It is the answer to the DROPPED know-god topic, not to an evidence question. Tied at 0.647 with the credited /a/Godreal.html; the two swap places between runs." }
+      - { path: "/a/why.html", rank: 5, why: "'Why is life so hard' — the suffering article, dropped topic. A different objection." }
+      - { path: "/a/tragedy.html", rank: 6, why: "'Where is God in misfortune' — dropped topic." }
+      - { path: "/a/where.html", rank: 7, why: "'Where is God' — the flatland analogy for how an invisible God can be perceived. Genuinely adjacent, and REJECTED on its text: its subject is God's invisibility given that he exists, not whether the natural world gives grounds to think he does." }
+      - { path: "/a/jesusislam.html", rank: 8, why: "credited to case 2" }
+      - { path: "/a/knowGod.html", rank: 9, why: "'What it means to know God' — a first-person account with the invitation tail" }
+      - { path: "/a/peace.html", rank: 10, why: "peace of mind — the dropped anxiety topic's article, and a residue of v1's emotional pull" }
+    top_score: 0.668
+
+  # ── 2 ─────────────────────────────────── skeptic 🔴 THE FLAGGED DOCUMENT IS HERE
+  - id: "eshy-skeptic-dzeragir" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "Դասախոսը մեզ ասաց, թե Աստվածաշունչն Աստծուց է, բայց ինձ համար դա մնում է հազարամյակներ առաջ մարդկանց գրած ու դարերի ընթացքում ձեռքով արտագրված տեքստ։ Ինչո՞ւ պետք է դրան այլ կերպ վերաբերվել, քան ցանկացած ուրիշ հին ձեռագրի։"
+    en: "The lecturer told us the Bible is from God, but to me it stays a text written by people thousands of years ago and copied by hand over centuries. Why should it be treated any differently from any other ancient manuscript?"
+    credits:
+      - { path: "/a/bible.html", en: "'Why the Bible is trustworthy' — 24.9k chars, the LONGEST document in this source. Authorship (40 authors over 1,500 years), archaeological and historical confirmation, and transmission argued head-on: 'some think the Bible, having been translated many times, could be full of errors — that logic would hold if those translations were made from different sources, but they were made directly from Greek, Hebrew and Aramaic'. VERIFIED to be the reliability article and NOT the estate's uncommented Gospel page; that one is /a/whowas.html, which is credited nowhere.", rank: 1, score: 0.736 }
+      - { path: "/a/jesusislam.html", en: "'Jesus and Islam' — 22.3k chars, six questions Muslims and many others ask. Question 1 IS this question: 'Has the Bible been altered compared with the original, or was it changed over time?', answered by pointing out that the Qur'an itself does not claim the Bible was corrupted but honours the Torah and the Zabur. The tahrif overlap already on record for `zh` `kk` `th` `bg` `ja` — a publishing fact, not an audience fact. Armenia is not Muslim-majority and the routing happens anyway.", rank: 2, score: 0.687 }
+    note: |
+      ⓘ NO REWORD NEEDED, and the shape borrowed from `hu` is why. `hu` hit a 0.755 smell
+      stating this as "how do I know today's text is the same as the original" and a WORSE
+      0.787 on the paraphrase, because two documents on that source both open with that
+      question. Starting from `hu`'s v3 shape — put it in a lived scene (a lecture) and ask
+      what makes it DIFFERENT FROM ANY OTHER OLD BOOK rather than whether it changed —
+      Armenian landed at 0.736 rank 1 + rank 2 first time. The §0.12 lesson transferred.
+      This is also the highest top score in the suite; 0.736 is clear of 0.75 but not by
+      much, and a future run may flap a few thousandths either way.
+    rejected:
+      - { path: "/a/connecting.html", rank: 3, why: "the world-religions article — matched on 'other sacred writings', a different subject. Credited to no case; the religions topic was dropped." }
+      - { path: "/a/where.html", rank: 4, why: "God's invisibility — unrelated to textual transmission" }
+      - { path: "/a/whypick.html", rank: 5, why: "the six-attributes article, dropped topic" }
+      - { path: "/a/faith.html", rank: 6, why: "'Beyond blind faith' — see the title-trap note on case 3. It is the JESUS-DEITY article, not a Bible-transmission article." }
+      - { path: "/a/whois.html", rank: 7, why: "'Who is God' — the six-attributes article, dropped topic" }
+      - { path: "/a/isthere.html", rank: 8, why: "credited to case 1" }
+      - { path: "/a/religions.html", rank: 9, why: "Christianity vs other religions — dropped topic" }
+      - { path: "/a/reallife.html", rank: 10, why: "credited to case 4 — a tail match here" }
+    top_score: 0.736
+
+  # ── 3 ───────────────────────── newcomer 🔴 TITLE TRAP + THE RAW-GOSPEL DOCUMENT
+  - id: "eshy-newcomer-khach" # topic: jesus-death
+    persona: newcomer
+    topic: jesus-death
+    q: "Իմ ծանոթ քրիստոնյաները խաչի մասին այնպես են խոսում, կարծես դրանով ամեն ինչ փոխվել է։ Ինձ համար դա մնում է երկու հազար տարի առաջ տեղի ունեցած մի մահապատիժ։ Ի՞նչ էր դա իրականում փոխելու։"
+    en: "The Christians I know talk about the cross as if everything changed through it. To me it stays an execution that took place two thousand years ago. What was it actually supposed to change?"
+    credits:
+      - { path: "/a/whydid.html", en: "'Why did Jesus die' — 'What purpose did Jesus' death and resurrection have? Why did he have to die on the cross for us?' A DEDICATED atonement article, 10.9k chars, working through the blasphemy charge, the handover to Rome, Pilate's verdict of no capital crime, the crowd, the crucifixion, and what it accomplished.", rank: 1, score: 0.695 }
+    the_finding: |
+      🟢 `everystudent-hy` HAS A DEDICATED ATONEMENT ARTICLE AND IT WINS RANK 1 CLEANLY —
+      0.695, ahead of every tail. This is a further control on the `ru`/`zh-cn`/`mn` gap:
+      those three sources cannot retrieve an atonement answer because they do not publish
+      one, and every source that publishes one retrieves it. Armenian ranks it BETTER than
+      Hungarian did (`eshu-newcomer-kereszt` got rank 5 behind three tail matches), which
+      fits the corrected batch-2 rule: `hu` is 24% testimony with many tail carriers, `hy`
+      is ~18% with the load concentrated in ONE document, and that one document
+      (`/a/prayers.html`) does not surface for the cross question at all.
+
+      ⚠️ THE RAW-GOSPEL DOCUMENT SURFACES HERE. `/a/whowas.html` — the uncommented Gospel
+      of John, 20.9k chars — is rank 7 at 0.603, matched on John's passion narrative. It
+      cannot corrupt a score because it is credited nowhere, but it occupies a top-10 slot
+      on the one question in this suite where the passion narrative is topical. This is
+      the concrete cost §0.12's open decision #1 is about.
+    rejected:
+      - { path: "/a/jesusislam.html", rank: 2, why: "RANK 2 AND REJECTED — credited to case 2. Its questions 4 and 5 do ask 'did Jesus die on the cross?' and 'was God dead for three days?', but that is HISTORICITY inside a tahrif article, not what the death accomplished. Same call `hu` made on /a/iszlam.html." }
+      - { path: "/a/religions.html", rank: 3, why: "'What is the difference between Christianity and other religions' (3.4k). Its point 4 does state the atonement plainly — 'on the cross Jesus bore the punishment for our sins and paid for them' — but its SUBJECT is the comparison. A boundary rejection; see the reviewer note in the SUMMARY." }
+      - { path: "/a/faith.html", rank: 4, why: "🔴 TITLE TRAP, AND A REVERSE ONE — 'Կույր հավատից այն կողմ' ('Beyond blind faith') names no subject, and its OPENING is about being convinced of God's existence, so both title and opening file it under god-exists. Read further (chunks 1–4) it is Paul E. Little's JESUS-DEITY article: 'What did Jesus say about himself?', the blasphemy charge, 'knowing him is the same as knowing God', and 'the crucial problem is whether he was telling the truth' — the trilemma. It answers neither the cross question nor the evidence question. Same call `hu` made on /a/hiten.html." }
+      - { path: "/a/knowGod.html", rank: 5, why: "first-person account with the invitation tail" }
+      - { path: "/a/source.html", rank: 6, why: "credited to case 4 — the Josh McDowell testimony, matched here on its gospel tail. Exactly the /a/forrasa.html behaviour `hu` recorded on this same question." }
+      - { path: "/a/whowas.html", rank: 7, why: "🔴 THE UNCOMMENTED GOSPEL OF JOHN — see the_finding and the header. Raw scripture, no commentary. Never credit." }
+      - { path: "/a/personally.html", rank: 8, why: "the Four Spiritual Laws page ('Principle one: God loves you and offers a wonderful plan for you'). A pure tail/adjacency match, the same document family as Part A's /a/personally.html." }
+      - { path: "/a/reallife.html", rank: 9, why: "credited to case 4" }
+      - { path: "/a/tragedy.html", rank: 10, why: "the suffering article, dropped topic — a tail match here" }
+    top_score: 0.695
+
+  # ── 4 ─────────────────── seeker ⚠ THE OPENING WAS NOT ENOUGH FOR ONE DOCUMENT
+  - id: "eshy-seeker-inchihamar" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "Ամեն օրս նույն կերպ է անցնում, և երեկոյան պառկում եմ այն զգացումով, որ դրանից ոչինչ չմնաց։ Ինքս ինձ հարցնում եմ՝ ինչի՞ համար է այս ամենը և ինչո՞ւ եմ ես ընդհանրապես այստեղ։"
+    en: "Every day of mine passes the same way, and in the evening I go to bed feeling that nothing was left of it. I ask myself what all of this is for and why I am even here."
+    credits:
+      - { path: "/a/reallife.html", en: "'Real life' — 'How do you find meaning, purpose, fulfilment in life, and being accepted?' 13.8k chars: the climber whose life emptied the moment he reached his one summit, the footballer who won every match of the tournament, the final-year student who had the friends and the memberships and nothing else. Ravi Zacharias quoted on a life with no larger meaning being 'without driving force, without substance or explanation'.", rank: 1, score: 0.614 }
+      - { path: "/a/source.html", en: "'The source of a changed life' (Josh McDowell, 15.4k) — 'Have you ever said to yourself: I hate my life?' then 'I was looking for answers to my questions — who am I, what am I doing in this world, where am I going?' The Armenian twin of the Hungarian /a/forrasa.html, the Estonian /a/elumuutuste.html, the Russian /a/istochnik.html and the Spanish /articulos/lafuente.html, all credited for this same question shape.", rank: 6, score: 0.591 }
+    note: |
+      ⚠️ THE 900-CHAR OPENING WAS NOT ENOUGH FOR `/a/then.html`, AND THAT IS A NEW
+      VARIANT OF FAILURE MODE #3 ON THIS SOURCE.
+      `/a/then.html` ("What happens next", 7.3k) is rank 3 here at 0.600, and its opening
+      is a purpose article almost word for word: "today you are maybe a student of 18 to
+      24, but what about the future? You will graduate, work, marry, have children, change
+      jobs a few times, buy a house… fine, and then? You will go to your children's football
+      games… then you retire, walk in the mornings, work in the garden a bit… then the
+      newspapers, the books and the television." Judged on the opening alone I would have
+      credited it. Read further (chunks 1–4) it turns entirely and never turns back: "some
+      call it paradise, some Heaven, some also speak of hell… many are convinced that if
+      they are 'good enough' people they will go to Heaven after death. Is that how it
+      works?" — then human imperfection, then a link to the Four Spiritual Laws page. Its
+      subject is what happens AFTER death and whether being good is enough, not what life
+      is for. REJECTED on the body. Guardrail #5 says judge on the opening rather than the
+      title; this document says the opening is the floor, not the ceiling.
+    the_finding: |
+      ⓘ FIFTH LANGUAGE, SAME EMPTINESS MISFIRE — WITH A DIFFERENT ARTICLE.
+      §0.12 records `/a/blues.html` (the drinking-and-despair testimony) misfiring on the
+      emptiness question in `es` `ru` `hu` and `bn`. `everystudent-hy` does not publish
+      that article at all. The role is filled instead by `/a/loneliness.html` (rank 7,
+      0.587) — Ashley Seitz's first-person account, whose subtitle literally begins "instead
+      of hiding the feeling of EMPTINESS (դատարկություն)". So the misfire is not a property
+      of `/a/blues.html` specifically: an emptiness-shaped question pulls whichever
+      first-person emotional-pain account the source happens to carry.
+    rejected:
+      - { path: "/a/peace.html", rank: 2, why: "'Peace of mind in an unstable world' — the dropped anxiety topic's article. Its subject is security when the world is unstable, not what a life is for." }
+      - { path: "/a/then.html", rank: 3, why: "see the note above — its opening reads as a purpose article and its body is about life after death and whether being good is enough. Rejected on the body, and it is the closest boundary call in the suite." }
+      - { path: "/a/knowGod.html", rank: 4, why: "'What it means to know God' — a first-person account with the invitation tail" }
+      - { path: "/a/why.html", rank: 5, why: "the suffering article, dropped topic" }
+      - { path: "/a/loneliness.html", rank: 7, why: "Ashley Seitz on loneliness and emptiness. Its subject is loneliness and the things people do to avoid being alone with themselves — see the_finding. Rejected on subject." }
+      - { path: "/a/isthere.html", rank: 8, why: "credited to case 1" }
+      - { path: "/a/whypick.html", rank: 9, why: "the six-attributes article, dropped topic" }
+      - { path: "/a/faith.html", rank: 10, why: "the Jesus-deity article — see the title trap on case 3" }
+    top_score: 0.614
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 7 credits · 7 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 n=4 row
+# Topics used: god-exists · bible-trust · jesus-death · purpose
+# Topics dropped: know-god · suffering · anxiety · prayer · religions · trinity
+#   — all six ARE carried by this source; see the table in the header for the answer
+#   document of each. There is NO content gap on `everystudent-hy`.
+# Paraphrase smells: 0 in both rounds. Max top score 0.736 (case 2).
+# Credits that do not retrieve: 0. Measured ranks: 1, 4 · 1, 2 · 1 · 1, 6.
+#   All four cases have a credited document at RANK 1.
+# evidence_tier: llm-translated (proposed)
+#
+# 🔴 TWO TITLE TRAPS, BOTH VERIFIED ON THIS SOURCE RATHER THAN ASSUMED FROM PRECEDENT.
+#   1. `/a/faith.html` — "Կույր հավատից այն կողմ" ("Beyond blind faith"). Title names no
+#      subject; opening is about being convinced God exists. Body is Paul E. Little's
+#      JESUS-DEITY article (the trilemma). It appears in the top 10 of THREE of the four
+#      cases and answers none of them. Uncredited everywhere.
+#   2. `/a/then.html` — "Ի՞նչ է տեղի ունենում հետո" ("What happens next"). Opening is a
+#      purpose article verbatim; body is judgment and life after death. This one defeats
+#      the OPENING, not just the title, which is a variant §0.12 has not recorded before.
+#   ⓘ AND TWO EXPECTED TRAPS ARE ABSENT. §0.12's systematic list did not transfer:
+#      `hy` has NO coronavirus-titled anxiety article, NO chakra-healing account, NO
+#      "Why can we rely on the God of the Bible?" retitling (it publishes the six-attributes
+#      piece honestly as "Ո՞վ է Աստված" / "Who is God"), and NO Nothing→Something→Who→Who 2
+#      cosmological series — it never localised that chain at all, like `et`. Verifying
+#      rather than assuming was the right call in both directions.
+#
+# 🔑 FAILURE MODE #1 IS LIVE ON A SOURCE WITH NO `/story/` TREE. `everystudent-hy` has zero
+#   testimony PATHS and ~18% testimony CONTENT, and one document — `/a/prayers.html` — has
+#   absorbed the whole tail-magnet load. It was rank 1 for the evidence question before the
+#   reword and is rank 2 after it. Fifth confirmation of the corrected batch-2 rule.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/whowas.html` is a live raw-scripture document (20.9k, "no commentary added"),
+#      and it takes rank 7 on case 3. §0.12's open decision #1 asked whether `sq
+#      /a/ishte.html` was "the only one left" — it is not; this is another, and the
+#      campaign has since confirmed `de` and `ro` too. Exclude or leave inert?
+#   3. `/a/religions.html` on case 3 (rank 3) — REJECTED, but its point 4 states the
+#      atonement in one clear sentence. Crediting it would make case 3 a 2-credit case at
+#      ranks 1 and 3. I judged the comparison is its subject; the operator may disagree.
+#   4. `/a/then.html` on case 4 (rank 3) — REJECTED on its body after its opening said
+#      otherwise. This is the closest call in the suite and the reasoning is in the case's
+#      `note:` block. If the operator reads it as a "what is your life adding up to"
+#      article, it is a credit.

@@ -1,0 +1,416 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-de` (45 documents, duentscheidest.com).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 45 ÷ 8 = 5.6 → 5 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7 n=5 row exactly.
+# Questions authored IN GERMAN, not translated from the English topic menu (§0.6).
+#
+# ══ CORPUS SHAPE — read this before judging any hit ══════════════════════════
+#   45 documents, ALL under `/artikel/`. There is no `/story/` directory on this source.
+#   🔴 A PATH-BASED TESTIMONY COUNT READS 0% HERE AND IS WRONG. §0.12 says tail severity
+#   "tracks the testimony share", measured on `hu` as 24% `/story/`. German files its
+#   personal accounts as ordinary articles: `/artikel/hoffnung.html` (Steve Sawyer, AIDS,
+#   21.2k), `/artikel/atheistin.html` (Marilyn Adamson's own conversion), `/artikel/
+#   lebensveranderung.html` (Josh McDowell), `/artikel/schonheit.html` (a fashion model),
+#   `/artikel/neunzehn.html` (a former stripper/prostitute), `/artikel/heilung.html`
+#   (Rachel Fatyanov), `/artikel/liebeoderbegierde.html` (Duncan Moore) and
+#   `/artikel/echtesleben.html` (three first-person accounts) — 8 of 45 ≈ 18% by CONTENT.
+#   So `de` is a `hu`-class source that a path count would score as a `pt`-class one.
+#   ⚠️ Whoever computes testimony share for the estate must count content, not paths.
+#
+#   Hazards (from .tmp-diag/phase5-openings.ts, run first):
+#     ✅ every path resolves to exactly one document
+#     ✅ no null-language documents (45/45 lang=de) — guardrail #3a, nothing excluded
+#     ✅ no duplicate titles (the hazard that bit `bg`)
+#     ✅ no document under 1,200 chars — ZERO pure-tail documents (failure mode #2)
+#   Shortest documents, both read in full and both real content, not tails:
+#     `/artikel/Gottgut.html` 1,604 ch / 1 chunk — a free-will theodicy video transcript
+#       (the square-circle argument), the twin of `hu` `/a/jo.html`.
+#     `/artikel/collins.html` 2,252 ch / 2 chunks — Francis Collins on the 15 fine-tuned
+#       cosmological constants. Neither is credited; see the drop note on case 1.
+#
+# ══ DISCOVERY ════════════════════════════════════════════════════════════════
+#   .tmp-diag/phase5-partb-discover.ts everystudent-de de
+#   → 42 distinct candidate documents of 45, ALL TEN TOPICS COVERED.
+#   ⚠️ This contradicts the Phase-4 smoke, which returned only 1 `de` hit above the 0.37
+#   minScore. The pool is not thin; the smoke was one query against a small subcorpus.
+#   Every one of the 45 documents was then read from the database (title + character
+#   length + opening ~900 chars, and six of them at 2,400 chars) before anything was
+#   credited — guardrail #5.
+#
+# ══ WHICH TOPICS, AND WHY THE OTHER FIVE ARE NOT HERE ════════════════════════
+#   🔴 NOTHING WAS DROPPED FOR LACK OF CONTENT. `everystudent-de` genuinely carries all
+#   ten §0.7 topics. Five cases is a QUOTA (45 ÷ 8), not a content gap, and the operator
+#   should read it that way. The five kept were chosen on two grounds:
+#     (a) the §0.7 persona row for n=5 (skeptic 2 · newcomer 1 · seeker 1 · believer 1)
+#         allows only two of the four skeptic topics and one of the three newcomer ones;
+#     (b) CLUSTER DISTINCTNESS. The discovery report's own "surfaced by more than one
+#         topic" section shows `suffering` and `anxiety` sharing most of their pool
+#         (`leid` `angst` `staune` `frieden`). Running both would measure the same shelf
+#         twice in a five-case suite, so `anxiety` was kept and `suffering` dropped.
+#         Confirmed after the fact: `/artikel/leid.html` and `/artikel/staune.html`, the
+#         two documents `suffering` would have credited, both appear in case 4's top 10.
+#
+#   The five NOT drafted, with the document each would credit, so the suite can be
+#   extended later without repeating discovery:
+#     `know-god`    → `/artikel/werist.html` (Wer oder was ist Gott? — six traits, 0.594)
+#                     + `/artikel/beziehung-zu-Gott.html`. This is the §0.7-confirmed
+#                     landing document for know-god variant B. ADD THIS FIRST.
+#     `suffering`   → `/artikel/leid.html` 0.603 · `/artikel/staune.html` 0.587
+#                     · `/artikel/Gottgut.html` 0.585 · `/artikel/Gottanbeten.html` 0.575
+#                     (four credits — the richest dropped topic).
+#     `trinity`     → `/artikel/dreieinigkeit.html` 0.699 + `/artikel/hgeist.html`.
+#     `purpose`     → `/artikel/echtesleben.html` 0.574 + `/artikel/lebensveranderung.html`
+#                     + `/artikel/philosophie.html`.
+#     `bible-trust` → `/artikel/bibel.html` 0.654 (25.7k, "Wer hat die Bibel geschrieben?").
+#                     ⓘ ONE credit only, and that is the finding: `de` has NO Islam article,
+#                     so the tahrif route recorded for `ja`/`zh`/`bg` in §0.12 does not exist
+#                     here. German patterns with `cs` and `fa` (no Islam article at all) and
+#                     answers bible-trust head-on with a standalone transmission piece.
+#
+# ══ ENGINE-CHECKED TWICE — .tmp-diag/phase5-check.ts de de ═══════════════════
+#   Round 1: 0 paraphrase smells (max top score 0.708) · 2 credits not in top 10 · 13 credits
+#   Round 2: 0 paraphrase smells (max top score 0.705) · 1 credit not in top 10 · 11 credits
+#            — and that one is a DELIBERATE keep, see `wunschdenken` below.
+#   Per-case round-2 top scores: 0.701 · 0.668 · 0.669 · 0.705 · 0.672.
+#   ⓘ REACH, NOT SMELL, WAS THE ONLY CONSTRAINT ON THIS SOURCE. No question in either
+#   round came within 0.04 of the 0.75 line; the suite ceiling is 0.708. This is the same
+#   shape §0.12 recorded for Persian (topped out at 0.710 over five rounds) — the smell
+#   threshold is not universal and was never the binding constraint here. Judge this
+#   suite by which documents came back, not by the numbers.
+#
+#   MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped:
+#     Guardrail #8 §3: all 11 credited paths resolve to EXACTLY ONE document — 11/11.
+#     Guardrail #3a:   no credited document has a null language — 11/11.
+#     No credited document is under 1,200 chars.
+#
+# evidence_tier: proposed `llm-translated`. This is a fact about the REVIEWER, not the
+# language — if anyone on the team reads German and can sanity-check the questions and
+# the glosses, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS
+  - id: "esde-skeptic-wunschdenken" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "In meinem Freundeskreis gilt der Glaube an Gott als reines Wunschdenken. Ich hätte gern gewusst, ob dahinter etwas Belastbares steht — etwas, das auch jemand nachprüfen kann, der von sich aus gar nicht glauben will."
+    en: "In my circle of friends, believing in God counts as pure wishful thinking. I would like to know whether there is anything solid behind it — something that could also be checked by someone who has no wish to believe in the first place."
+    credits:
+      - { path: "/artikel/atheistin.html", en: "How an atheist found God (Marilyn Adamson, 16.4k) — she asked believers how they knew and got only 'you just know'. Her own turn is stated as exactly the fact-versus-feeling contrast this question is about: 'I methodically recalled five OBJECTIVE reasons why I believed God existed. So my belief in God rested not on feelings but on facts and reasons.'", rank: 3, score: 0.677 }
+      - { path: "/artikel/ichkann.html", en: "I cannot believe — I need proof (3.6k). Written directly at the German asker: 'about a third of Germans think this way, as surveys show. They are atheists, or church members for whom faith has no relevance to daily life.' It answers by taking apart what proof means in ordinary life — the chair analogy, the aspirin bought at the chemist — and argues everyone already lives on warranted trust rather than proof. The one article here that engages the demand-for-proof stance itself instead of offering evidence.", rank: 1, score: 0.7 }
+      - { path: "/artikel/gibtes.html", en: "Does God exist — six reasons why God really is there (Marilyn Adamson, 19.2k). The source's flagship apologetics article. Opens: 'Is there a God? Is there evidence for it? The following article sets out indications, facts and reasons why it is reasonable to believe in God.'", rank: 2, score: 0.69 }
+      - { path: "/artikel/universum.html", en: "Did God create the universe? (10.4k) — the Big Bang as a genuine beginning, and what has to lie outside space, time and matter to have caused it. 🔴 KEPT DELIBERATELY, see below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/artikel/universum.html` is this source's SCIENCE-EVIDENCE article and it closes on
+      precisely what the question asks for: "if you ever wanted to believe in God but
+      certainly did not want to do so in contradiction with known scientific facts,
+      science gives you a reason to believe that God exists and powerfully created all
+      things." A question asking whether anything holds up for someone who does not want
+      to believe is answered by that document. Dropping it would be dishonest, so it is
+      KEPT and this case will score 3/4 coverage on purpose. Same treatment `hu` gave
+      `/a/dns.html` and `bg` gave `esbg-skeptic-katastrofa`.
+
+      What it measures: for a question that explicitly asks for something checkable, the
+      engine returns `/artikel/wunder.html` at rank 4 (the article about why God does NOT
+      prove himself), `/artikel/angst.html` — the anxiety article — at rank 5, and
+      `/artikel/staune.html` at rank 10, all ahead of the science article, which does not
+      make k=10 at all. The anxiety article surviving at rank 5 is failure mode #5
+      persisting through a reword that deliberately removed every emotional word from the
+      question; see `reworded` below.
+    reworded: |
+      ⚠️ REWORDED ONCE, for REACH — there was never a smell to fix on this source.
+      v1: "…Gibt es dafür irgendetwas Belastbares, oder läuft am Ende alles nur auf ein
+           Gefühl hinaus?" ("…or does it all come down to a feeling in the end?")
+           → top 0.708, no smell, 3 of 5 credits returned at ranks 1, 2, 4. The closing
+           "Gefühl" clause is textbook failure mode #5: it put `/artikel/angst.html`
+           (anxiety) at rank 5, `/artikel/leid.html` (suffering) at rank 6 and
+           `/artikel/frieden.html` (inner peace) at rank 10, while BOTH cosmology
+           articles fell out of the top 10 entirely.
+      v2 (kept): drops "Gefühl" and asks instead for something a person who does not want
+           to believe could check.
+           → **0.708 → 0.701, and the three returning credits tightened from ranks
+           1, 2, 4 to ranks 1, 2, 3.** `/artikel/frieden.html` left the top 10 and
+           `/artikel/leid.html` fell from 6 to 8, so removing the emotional word did
+           displace two of the three emotional documents. It did NOT buy the science
+           article back, and `/artikel/angst.html` held rank 5 regardless.
+      🔑 The lesson for the next agent: on this estate, removing emotional framing buys
+      RANK among the documents that were already reaching. It does not reach documents
+      that were not. Recorded as a real result, not papered over — on `everystudent-de`
+      the god-exists question retrieves the three discursive/testimonial evidence
+      articles and neither of the two cosmological ones.
+    rejected:
+      - { path: "/artikel/wunder.html", rank: 4, why: "'Why does God not perform spectacular miracles and prove he exists?' (3.6k, Philip Yancey on 'the miracle of restraint'). It surfaced at 0.589 in discovery, held rank 3 in round 1 and rank 4 here, and reads like a perfect hit. Its subject is God's RETICENCE — why he does not compel belief — which is a different objection from whether there are grounds. Identical call to the one `hu` made on its twin /a/csodat.html." }
+      - { path: "/artikel/angst.html", rank: 5, why: "🔴 THE ANXIETY ARTICLE AT RANK 5 FOR A GOD-EXISTS QUESTION, and it survived the de-emotionalising reword. Credited to case 4. It reaches because its own text digresses into 'God? Does he even exist? Can there be a God? That question sent me on a long journey of questioning and researching.'" }
+      - { path: "/artikel/glaube.html", rank: 6, why: "'Who is Jesus? Is Jesus God? The proof' (Paul E. Little, 24.6k) — evidence, but for Jesus' deity specifically, which is a narrower claim than whether there is a God at all" }
+      - { path: "/artikel/werist.html", rank: 7, why: "'Wer oder was ist Gott?' — the six-attributes article, i.e. the answer document for the undrafted `know-god` topic. Its subject is what God is like, not whether belief is grounded." }
+      - { path: "/artikel/leid.html", rank: 8, why: "'Where is God in all the suffering?' — the article the dropped `suffering` topic would have credited first. Was rank 6 before the reword." }
+      - { path: "/artikel/beziehung-zu-Gott.html", rank: 9, why: "what knowing God is like — a 'begin here' page, boilerplate-adjacent" }
+      - { path: "/artikel/staune.html", rank: 10, why: "'Marvel at God's goodness' — a theodicy article under a devotional title, and the second document the dropped `suffering` topic would have credited" }
+    dropped_after_engine_check:
+      - { path: "/artikel/nichts.html", why: "'Was there ever the great Nothing?' (6.1k) — the sealed-room thought experiment: a room the size of a football pitch, no doors, no windows, absolutely nothing inside, and no way to get anything into it, therefore nothing cannot yield something. Filed under 'Gottes Existenz' and it surfaced in discovery, but it argues about the ORIGIN OF THE UNIVERSE and does not mention God until late. It did not make k=10 in round 1, and on reading, correctly so — the question asks whether belief in God is more than wishful thinking, not where everything came from. Dropped. One deliberate miss per case is enough, and `/artikel/universum.html` is the better one to keep." }
+      - { path: "/artikel/collins.html", why: "'Scientific pointers to God' — Francis Collins on the 15 fine-tuned cosmological constants (2,252 ch, 2 chunks). Real content, not a pure tail, and on subject. Dropped because its own header line says 'Siehe Artikel Gibt es einen Gott?' — it is the abridged VIDEO companion to /artikel/gibtes.html, which is already credited and carries the same fine-tuning argument at length. Same call `hu` made on /a/isten-segitsege.html: crediting a document and its own video twin measures one text twice and inflates the denominator." }
+    note: |
+      🔴 THE *NOTHING → SOMETHING → WHO → WHO 2* TRAP APPEARS HERE IN A TRUNCATED FORM,
+      and the truncation is itself the finding. Eight sources (`hu` `pl` `mn` `sk` `pt`
+      `es` `fa` `cs`) carry this cosmological argument as FOUR documents with contentless
+      sequential titles. `everystudent-de` publishes only the FIRST part —
+      `/artikel/nichts.html`, "Gab es das große Nichts?" — and there is no German "Etwas",
+      "Wer" or "Wer 2". A reviewer who knows the four-part pattern will go looking for the
+      other three; on this source they do not exist. The one that does exist is still
+      unjudgeable by title and had to be read before it could be dropped.
+    top_score: 0.7
+
+  # ── 2 ────────────────────────────────────────────────────────────── skeptic
+  - id: "esde-skeptic-kollege" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "Ein Kollege von mir ist Muslim, eine Bekannte praktiziert Buddhismus, und beide sind von ihrer Sache genauso überzeugt wie meine christlichen Freunde. Warum sollte ausgerechnet das Christentum näher an der Wahrheit sein als die anderen?"
+    en: "A colleague of mine is Muslim, an acquaintance practises Buddhism, and both are just as convinced of their own thing as my Christian friends are. Why should Christianity of all things be closer to the truth than the others?"
+    credits:
+      - { path: "/artikel/hochsten.html", en: "Contact with the Highest (Marilyn Adamson, 19.4k). Subtitle: 'Hinduism, Buddhism, Christianity, Islam, New Age — is it not all the same thing?' Walks each belief system in turn, then compares Christianity with the others. This is the estate's /a/205 world-religions piece under a localised slug — the same article as Hungarian /a/istenkereses.html, Swahili /a/kuunganishwa.html and French /a/205divin.html (§0.7).", rank: 1, score: 0.668 }
+      - { path: "/artikel/religionen.html", en: "Jesus and the other religions (2.9k) — five numbered differences, stated flatly: in many religions people strain to reach God and only ever get there in fragments, whereas in Christ God came down to us; no other founder claimed to be God; no other founder did those miracles; in other religions people punish themselves for their guilt with scourging, mortification or sacrificial rites; other religions speak of reincarnation, Jesus of bodily resurrection.", rank: 2, score: 0.629 }
+    note: |
+      🟢 THE CLEANEST CASE IN THE SUITE — ranks 1 and 2, first attempt, no reword, and
+      it settles the §0.7 misread from the other side. An earlier pass reported the
+      `religions` topic as landing on generic 'connecting with God' pages instead of the
+      world-religions comparison, and §0.7 records that as WRONG because it judged by
+      title. `/artikel/hochsten.html` translates as "Contact with the Highest", which is
+      exactly what a generic connect-with-God page would be called. It is the comparison
+      article, and this suite is the first time it is credited in a case rather than a probe.
+
+      ⚠️ The question deliberately does NOT list the religions in hochsten.html's own
+      order. `hu` wrote "Hinduism, Buddhism and Islam make the same big claims as
+      Christianity" for this topic and scored **0.813** — the worst smell in batch 1 —
+      because that reproduces the article's subtitle. Putting the same objection in the
+      asker's workplace and naming only two faiths keeps it at 0.668.
+    rejected:
+      - { path: "/artikel/lebensveranderung.html", rank: 3, why: "Josh McDowell's 'I hated my life' account. Matched on its passage about Christians who seemed settled and unhurried — a testimony, not a comparison." }
+      - { path: "/artikel/hoffnung.html", rank: 4, why: "Steve Sawyer's AIDS testimony. Tail match." }
+      - { path: "/artikel/philosophie.html", rank: 5, why: "'The standing of philosophy' — Socrates, Plato, Peter Kreeft on the search for a reliable wisdom. Adjacent, but its subject is philosophy's questions, not a comparison of faiths." }
+      - { path: "/artikel/gibtes.html", rank: 6, why: "credited to case 1" }
+      - { path: "/artikel/echtesleben.html", rank: 7, why: "three first-person accounts — testimony, tail match" }
+      - { path: "/artikel/beziehung-zu-Gott.html", rank: 8, why: "what knowing God is like" }
+      - { path: "/artikel/glaube.html", rank: 9, why: "'Who is Jesus? Is Jesus God? The proof' (Paul E. Little) — Jesus' deity, a different question" }
+      - { path: "/artikel/einchrist.html", rank: 10, why: "'When is a Christian a Christian?' — an INTRA-Christian question about church membership and denominations. Same call `hu` made on /a/katolikus.html and `ru` on /a/katolikom.html." }
+    top_score: 0.668
+
+  # ── 3 ──────────────── newcomer 🔴 THE TAIL TEST + A SECOND RAW-SCRIPTURE SURVIVOR
+  - id: "esde-newcomer-hinrichtung" # topic: jesus-death
+    persona: newcomer
+    topic: jesus-death
+    q: "Für Christen scheint der Tod von Jesus am Kreuz alles verändert zu haben. Für mich ist das erst mal nur eine Hinrichtung vor zweitausend Jahren – was genau soll die bewirkt haben?"
+    en: "For Christians, the death of Jesus on the cross seems to have changed everything. To me it is, first of all, just an execution two thousand years ago — what exactly is it supposed to have accomplished?"
+    credits:
+      - { path: "/artikel/starb.html", en: "The crucifixion of Jesus — why did Jesus die? (10.8k). A DEDICATED atonement article: 'This is what the death and resurrection of Jesus, the crucifixion of Jesus Christ, was about.' Works through why crucifixion was reserved for the worst criminals and who demanded his death, then the two reasons he accepted it — the second one being 'it was for us'.", rank: 1, score: 0.669 }
+    the_finding: |
+      🟢 THE BOILERPLATE TAIL FIRES HERE AND LOSES, AND THAT IS THE POINT OF THIS CASE.
+      §0.12 says tail severity tracks the testimony share: `hu` at 24% `/story/` had tails
+      at ranks 1, 2 AND 3 for its cross case and pushed the atonement article down to
+      rank 5; `pt` with zero testimonies kept its atonement article at rank 1.
+
+      `everystudent-de` is the configuration that separates the two claims — 0% testimony
+      by PATH (there is no `/story/` directory at all) but ~18% by CONTENT. Measured:
+
+        rank 1  0.669  /artikel/starb.html                              ← THE ANSWER
+        rank 2  0.652  /artikel/leid.html                    suffering article, gospel tail
+        rank 3  0.648  /artikel/Gott-personlich-kennenlernen-video.html  Four Spiritual Laws
+        rank 4  0.616  /artikel/echtesleben.html             testimony, gospel tail
+        rank 5  0.612  /artikel/lebensveranderung.html       testimony, gospel tail
+        rank 6  0.611  /artikel/frieden.html                 inner peace, gospel tail
+        rank 7  0.610  /artikel/beziehung-zu-Gott.html       know-God article, gospel tail
+        rank 9  0.602  /artikel/glaube.html                  Jesus' DEITY, not the cross
+        rank 10 0.598  /artikel/hoffnung.html                AIDS testimony, gospel tail
+
+      🔑 So the tail is PRESENT and takes eight of the nine slots below the answer, but it
+      does NOT outrank a dedicated atonement article. `de` behaves like `pt`, not like
+      `hu`, despite being an `hu`-class source by content. That is evidence the driver is
+      not the raw testimony share but whether the source publishes a dedicated atonement
+      article at all — which is what §0.12's own 8-of-11 table already implies.
+
+      The tail was verified, not assumed: the matched chunk of `/artikel/hoffnung.html` in
+      the discovery pass is the invitation prayer verbatim — "Herr Jesus, ich brauche
+      dich. Ich danke dir, dass du für mich am Kreuz gestorben bist. Ich bitte dich, in
+      mein Leben zu kommen…" — and the same prayer closes `/artikel/einsamkeit.html`
+      (loneliness) and `/artikel/vergifteter.html` (pornography). Sixth source, sixth
+      confirmation of §0.9.
+
+      ⓘ ON THE ATONEMENT GAP (settled, not re-opened): `de` HAS a dedicated article and
+      ranks it 1. It joins the 8-of-11 majority; nothing here disturbs §0.12.
+    dropped_after_engine_check:
+      - path: "/artikel/werwar.html"
+        why: |
+          🔴 THIS DROP CARRIES A FINDING THE OPERATOR NEEDS — READ IT EVEN IF THE DROP
+          ITSELF IS UNCONTROVERSIAL.
+
+          "Wer war Jesus?" is the LARGEST document on this source at 26,343 chars, and it
+          RETURNED at rank 8 / 0.603 in round 1, so this is not a reach problem. Its own
+          opening states its subject: "you can quickly form an accurate picture of what
+          Jesus' life, death and resurrection were about … and why his life matters so
+          much for you."
+
+          Dropped for two reasons, in this order:
+          1. IT IS A RAW-SCRIPTURE DOCUMENT. The rest of its opening reads: "The following
+             texts give you a short insight into the life of Jesus Christ. They are
+             extracts taken directly from the GOSPEL OF JOHN, a book of the Bible, WITHOUT
+             ADDITIONAL COMMENTARY." That is word for word the class §12 excludes and
+             §0.12 OPEN DECISION 1 governs — the same class as `sq` /a/ishte.html
+             (24,883 ch, "no commentary added"), `sq` /a/gjoni.html, `es`
+             /articulos/biblia_juan.html and the Arabic Gospel of John.
+             ⚠️ §0.12 states that an audit of all 45 sources found `sq` /a/ishte.html was
+             "THE ONLY ONE LEFT". IT IS NOT. `/artikel/werwar.html` is a second survivor.
+             THE AUDIT NEEDS RE-RUNNING before that decision is closed. Crediting it would
+             also put a golden answer key on a document the campaign may delete.
+          2. ON ITS TEXT IT DOES NOT ANSWER THIS QUESTION ANYWAY. It presents the events —
+             Nicodemus at night, the crucifixion, the resurrection — as narrative with no
+             commentary. A reader asking what the death ACCOMPLISHED is not answered by
+             primary text; that is exactly what /artikel/starb.html is for.
+
+          Leaving it uncredited also keeps `de` consistent with `sq`, where the equivalent
+          document is inert and therefore cannot corrupt a score either way.
+    rejected:
+      - { path: "/artikel/leid.html", rank: 2, why: "RANK 2 AND REJECTED — 'Where is God in all the suffering?' matched on its gospel block ('God so loved people that he gave his only Son'), not on its subject." }
+      - { path: "/artikel/Gott-personlich-kennenlernen-video.html", rank: 3, why: "The Four-Spiritual-Laws video transcript — 'how to begin a personal relationship with God right now'. Exactly the /a/personally.html shape from Part A. Tail match." }
+      - { path: "/artikel/echtesleben.html", rank: 4, why: "Real life — three people who reached the summit and were still empty. Matched on its closing gospel block ('Jesus Christ took all our sins on himself when he willingly died on a cross'), not on its subject." }
+      - { path: "/artikel/lebensveranderung.html", rank: 5, why: "Josh McDowell's testimony. Tail match." }
+      - { path: "/artikel/frieden.html", rank: 6, why: "inner peace — credited to case 4. Tail match here." }
+      - { path: "/artikel/beziehung-zu-Gott.html", rank: 7, why: "what knowing God is like — its matched chunk is the wall-of-sin-removed passage, which is tail language" }
+      - { path: "/artikel/werwar.html", rank: 8, why: "raw Gospel-of-John extracts — see the drop note above; this is the second raw-scripture survivor in the estate" }
+      - { path: "/artikel/glaube.html", rank: 9, why: "'Who is Jesus? — Is Jesus God? — The proof' (Paul E. Little, 24.6k). Its subject is Jesus' DEITY and whether he claimed it, not what his death accomplished. Same call `hu` made on its twin /a/hiten.html." }
+      - { path: "/artikel/hoffnung.html", rank: 10, why: "Steve Sawyer's AIDS testimony. Tail match — and the specimen that proves the tail exists on this source." }
+    top_score: 0.669
+
+  # ── 4 ──────────────────────── seeker 🔴 REVERSE TITLE TRAP + A COUNTEREXAMPLE
+  - id: "esde-seeker-unruhig" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Ich bin fast dauernd angespannt und innerlich unruhig, auch dann, wenn objektiv gerade gar nichts Schlimmes ansteht. Ich habe schon mit allem Möglichen versucht, das loszuwerden. Hat der Glaube dafür überhaupt etwas anzubieten?"
+    en: "I am tense and inwardly restless almost constantly, even when objectively nothing bad is going on. I have already tried all sorts of things to get rid of it. Does faith have anything at all to offer for that?"
+    credits:
+      - { path: "/artikel/angst.html", en: "Dealing with anxiety (Marilyn Adamson, 13.0k) — 'how can we deal with fear, stress and other worries and find more peace?' Opens with the list that makes it general rather than topical: terrorism, climate change, racism, wars, government inaction, poverty, sexual assault, human slavery, natural disasters, personal finances, illness, job security, difficult relationships, addiction.", rank: 1, score: 0.705 }
+      - { path: "/artikel/frieden.html", en: "How to find inner calm in this unstable world (16.7k) — 'whatever the future brings, you can have inner peace and confidence if you know this'. About having a constant when the circumstances are not.", rank: 2, score: 0.632 }
+      - { path: "/artikel/heilung.html", en: "Fears and healing — Rachel Fatyanov (3.4k). 🔴 REVERSE TITLE TRAP. Reads as New Age promotion; it is a first-person account of chronic anxiety: loneliness, depression, anxiety states and mood swings during and after her studies, then self-help articles, Zen, yoga, New Age and occult practice, books, horoscopes, clairvoyants, palm readers, meditation, energy healing, and roughly EUR200 on an online chakra-healing programme. A title-only reviewer discards it. German twin of Russian /a/chakr.html and Hungarian /a/csakra.html, credited in both.", rank: 4, score: 0.585 }
+    the_finding: |
+      🟢 GERMAN IS A CLEAN COUNTEREXAMPLE TO TWO OF THE THREE SYSTEMATIC TITLE TRAPS —
+      and a fresh instance of the third, in the same case.
+
+      §0.12 lists the *"Coronavirus"* reverse trap as systematic across `hu` `pl` `sq`
+      `tr` `pt` `es`: the source's general anxiety article is published under a pandemic
+      title a reviewer would strike as expired. **`everystudent-de` does not do this.**
+      Its anxiety article is titled "Mit der Angst umgehen" ("Dealing with anxiety"), the
+      subject is on the tin, and there is no coronavirus page anywhere in the 45.
+      §0.12's *"Why can we rely on the God of the Bible?"* trap (`bg` `tr` `fa` `pt` `cs`)
+      is likewise absent — the German six-attributes article is titled "Wer oder was ist
+      Gott?", which says exactly what it is.
+      ⚠️ So those traps are PUBLISHING choices per site, not estate-wide constants.
+
+      🔴 The third one is present and is as bad as anywhere: `/artikel/heilung.html`,
+      "Ängste & Heilung", is the chakra/New-Age reverse trap, and it is credited above at
+      rank 4. Read only the title and you delete one of the three anxiety documents on
+      this source.
+    rejected:
+      - { path: "/artikel/gebete.html", rank: 3, why: "the prayer article — credited to case 5. At rank 3 here because its matched passage is about waiting on God's help." }
+      - { path: "/artikel/leid.html", rank: 5, why: "'Where is God in all the suffering?' — its subject is crisis, disaster and attacks, not anxiety with nothing objectively wrong. Same call `hu` made on /a/faj.html and `ru` on /a/gdebog.html. This is the article the dropped `suffering` topic would have credited first, and it is in this top 10 — the evidence for the cluster-overlap reason those two topics were not both drafted." }
+      - { path: "/artikel/beziehung-zu-Gott.html", rank: 6, why: "what knowing God is like — a 'begin here' page, boilerplate-adjacent" }
+      - { path: "/artikel/ichkann.html", rank: 7, why: "'I cannot believe — I need proof' at rank 7 for an anxiety question, credited to case 1. A lexical match, not a topical one: its chair analogy digresses into people 'whose lifestyle is marked by this fear, whom you find in psychiatry or therapy'." }
+      - { path: "/artikel/lebensveranderung.html", rank: 8, why: "Josh McDowell's testimony. Tail match." }
+      - { path: "/artikel/staune.html", rank: 9, why: "'Marvel at God's goodness' — a devotional-sounding title over a theodicy article ('why is suffering in this world so persistent? Sexual abuse, fraud, murder, slavery, corruption, racism'). Another title trap, and the article the dropped `suffering` topic would have credited second." }
+      - { path: "/artikel/neunzehn.html", rank: 10, why: "'Nineteen men later' — a former stripper and prostitute's account, at rank 10 for an anxiety question. Tail match." }
+    top_score: 0.705
+
+  # ── 5 ───────────────────────────────────────────────────────────── believer
+  - id: "esde-believer-still" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "Ich bete jetzt seit über einem Jahr um dieselbe Sache, und es bleibt einfach still. Mache ich dabei irgendetwas falsch, oder höre ich nur nicht richtig hin?"
+    en: "I have been praying about the same thing for over a year now, and it just stays silent. Am I doing something wrong, or am I simply not listening properly?"
+    credits:
+      - { path: "/artikel/gebete.html", en: "How do you pray? — which prayers does God answer (7.2k, Marilyn Adamson). 'How do you pray so that God hears the prayer? Have you ever met someone who relies completely on God?' Told by a former atheist watching a praying friend bring a new story every week until 'coincidence' stopped sounding like an explanation. German twin of Spanish /articulos/oraciones.html, Russian /a/molitvi.html, Bulgarian 'Отговаря ли Бог на молитвите ни?' and Hungarian /a/imadsagra.html — all credited for this exact question shape.", rank: 1, score: 0.672 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-de` carries exactly
+      one prayer article in 45 documents. This is the same shape `hu`, `bg` and `ru` all
+      reported — each credits exactly one document here — and it is the §0.7 believer-
+      thinness finding showing up in the corpus rather than in the persona split. The
+      estate publishes seeker apologetics, not discipleship.
+
+      🔴 CROSS-SOURCE REPLICATION OF THE `hu` PRAYER DEFECT, EXACTLY. `hu` recorded
+      "'Is there hope for a lasting marriage?' at rank 7 for a prayer question — a pure
+      tail match, and the plainest illustration of the defect in this suite."
+      `everystudent-de` returns `/artikel/heiraten.html` ("Lohnt es sich noch zu
+      heiraten?" — is it still worth marrying?) at **rank 8, 0.513**, and
+      `/artikel/suche.html` (sex and the search for intimacy) at **rank 9, 0.500**, for
+      the German prayer question. Same estate articles, same misfire, second language.
+      Ranks 2 through 10 here are an AIDS testimony, an atheist's conversion, a
+      loneliness article, two Four-Spiritual-Laws videos, the anxiety article, marriage,
+      sex-and-intimacy, and inner peace — nine tail and tail-adjacent matches, and
+      nothing on this source that answers unanswered prayer.
+    rejected:
+      - { path: "/artikel/hoffnung.html", rank: 2, why: "Steve Sawyer's AIDS testimony. Its matched passage is his mother watching her son die — moving, and not about unanswered prayer. Tail match." }
+      - { path: "/artikel/atheistin.html", rank: 3, why: "credited to case 1. Its matched passage is about God speaking through the Bible when she needs insight — a testimony passage, not an answer on silence." }
+      - { path: "/artikel/einsamkeit.html", rank: 4, why: "loneliness — matched on its closing invitation prayer. Tail match." }
+      - { path: "/artikel/Gottes-Hilfe-video.html", rank: 5, why: "'God's help in hard times' — a 5.9k video transcript, crisis help. Tail match." }
+      - { path: "/artikel/Gott-personlich-kennenlernen-video.html", rank: 6, why: "the Four-Spiritual-Laws video. Tail match." }
+      - { path: "/artikel/angst.html", rank: 7, why: "credited to case 4" }
+      - { path: "/artikel/heiraten.html", rank: 8, why: "🔴 MARRIAGE, at rank 8 for a prayer question. A pure tail match and the plainest illustration of the defect in this suite — and the same one `hu` recorded at rank 7 for its prayer case." }
+      - { path: "/artikel/suche.html", rank: 9, why: "sex and the search for intimacy, at rank 9 for a prayer question. Tail match." }
+      - { path: "/artikel/frieden.html", rank: 10, why: "credited to case 4" }
+    top_score: 0.672
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 5 cases · 11 credits · 11 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7 n=5 row
+# Topics used: god-exists · religions · jesus-death · anxiety · prayer
+# Topics not drafted: know-god · suffering · purpose · bible-trust · trinity — ALL FIVE
+#   ARE CARRIED BY THIS SOURCE. They are out on the n=5 quota and on cluster overlap,
+#   not on content. Each one's answer document is named in the header.
+# Paraphrase smells: 0 in both rounds. Suite ceiling: 0.705 (0.708 in round 1). The 0.75
+#   line was never in play — reach was the only constraint, exactly as §0.12 recorded for
+#   Persian. Only one question was reworded, and for reach, not smell.
+# Credits that do not retrieve: 1 (`/artikel/universum.html` on `wunschdenken`), kept.
+# evidence_tier: llm-translated
+#
+# 🔴 THREE THINGS THIS SOURCE CHANGES IN THE ESTATE PICTURE
+#
+# 1. TESTIMONY SHARE MUST BE COUNTED BY CONTENT, NOT BY PATH. `everystudent-de` has no
+#    `/story/` directory at all, so the §0.12 metric reads 0%. Eight of its 45 articles
+#    (~18%) are first-person accounts filed under `/artikel/`. Any cross-source table
+#    built from path prefixes will misclassify this source, and probably others. Case 3
+#    then shows the tail firing hard (eight of nine slots below the answer) while still
+#    losing to a dedicated atonement article — so the predictor of tail SEVERITY may be
+#    whether a dedicated article exists, not the testimony share at all.
+#
+# 2. 🔴 THE RAW-SCRIPTURE AUDIT IN §0.12 IS INCOMPLETE. Open decision 1 states that an
+#    audit of all 45 sources found `sq` /a/ishte.html to be "the only one left".
+#    `/artikel/werwar.html` (26,343 ch, the largest document on this source) is a second:
+#    "extracts taken directly from the Gospel of John … without additional commentary."
+#    It returns at rank 8 for the jesus-death question, so it is taking top-10 slots
+#    exactly as the Albanian one does. It is NOT credited here, so it cannot corrupt a
+#    score — but the audit needs re-running before that decision is closed.
+#
+# 3. TWO OF THE THREE SYSTEMATIC TITLE TRAPS ARE ABSENT HERE, WHICH MAKES THEM
+#    PUBLISHING CHOICES RATHER THAN ESTATE CONSTANTS. There is no coronavirus-titled
+#    anxiety article (the anxiety article is titled "Mit der Angst umgehen"), and the
+#    six-attributes article is titled "Wer oder was ist Gott?" rather than "Why can we
+#    rely on the God of the Bible?". The cosmological series appears in TRUNCATED form —
+#    only part 1, "Gab es das große Nichts?", with no Etwas/Wer/Wer 2 to follow it.
+#    The chakra reverse trap IS present, as `/artikel/heilung.html`, credited in case 4.
+#
+# ⓘ NO CONTENT GAP AT ALL. All ten §0.7 topics are answerable from these 45 documents.
+#   The only thin shelves are prayer (one article) and bible-trust (one article, and no
+#   Islam article — `de` patterns with `cs`/`fa`, not with `ja`/`bg`).
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/artikel/universum.html` on case 1 — KEEP (recommended: it records the science
+#      article losing to the anxiety and suffering articles for a question that asks for
+#      something checkable) or DROP. Case 1 scores 3/4 by design if kept.
+#   3. `/artikel/werwar.html` on case 3 — I DROPPED it, on the raw-scripture class and on
+#      its text. The operator may credit it if §0.12 open decision 1 resolves toward
+#      keeping raw scripture in the corpus. It does retrieve, at rank 8.
+#   4. `/artikel/collins.html` on case 1 — dropped as the abridged video twin of the
+#      credited `/artikel/gibtes.html`. Credit it instead only if the campaign wants short
+#      video transcripts represented in the keys.

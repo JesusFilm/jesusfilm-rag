@@ -1,0 +1,329 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ne` (20 documents, nepalistudent.net).
+# Campaign #111, BATCH 2, tier D. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 20 documents → 4 cases (the tier-D floor). Personas: skeptic 2 · newcomer 1 · seeker 1.
+# Questions authored IN NEPALI, not translated from the English §0.7 menu (§0.6).
+#
+# ══ LANGUAGE VERIFICATION — the one thing this source had to be checked for ══
+#   Nepali was a total language-sweep casualty: all 20 documents were mislabelled `hi`
+#   (Hindi) until 2026-07-31, because Nepali and Hindi share Devanagari and tinyld reads
+#   Nepali as Hindi at confidence 1.00. CONFIRMED FIXED. The openings hazard report reads
+#   `lang ne` on all 20, 0 null-language, 0 duplicate paths. Every opening was read and the
+#   text is unambiguously NEPALI, not Hindi: the honorific verb paradigm (हुनुहुन्छ,
+#   गर्नुहोस्, भन्नुभयो, गर्नुभयो), the Nepali copulas (हो / हुन् / छन्), the second person
+#   तपाईं and the postposition -लाई/-सँग. No Hindi document is present. Nothing to report.
+#
+# ══ CORPUS SHAPE — read this before judging any hit ══
+#   20 documents, all `/a/*.html`. THERE IS NO `/story/` TREE — which by the `uk` finding
+#   means path-counting would read this source as 0% testimony and be WRONG. Derived from
+#   the openings instead:
+#     · 2 of 20 (10%) are FULL first-person conversion accounts carrying the shared
+#       invitation tail — /a/atheist.html (Marilyn Adamson) and /a/source.html (Josh McDowell).
+#     · 3 more open first-person but their SUBJECT is the topic, not the conversion —
+#       /a/prayer.html, /a/relationship-with-god.html, /a/loneliness.html. Call it 25%
+#       first-person-framed, 10% testimony proper.
+#   Pure-tail documents: 0 under 1,200 chars. But TWO are tail-shaped above the line and
+#   must never be credited — /a/fol.html (2,806ch, "Starting with God", entirely the
+#   post-decision follow-up) and /a/know-God.html (6,971ch, the FOUR SPIRITUAL LAWS page:
+#   "Principle One: God loves you and has a wonderful plan for your life" → prayer → Amen).
+#   Both surfaced in the top 10 of the jesus-death case at ranks 6 and 7. The character-length
+#   watchlist does NOT catch either of them.
+#   Duplicate titles: 1, and it is a live trap — see case 3.
+#
+#   🔑 THIS SOURCE'S ONE TAIL MAGNET IS `/a/ideal-god.html` (16.1k). Its final chunk is the
+#   full invitation prayer ("thank you for taking all my sins on yourself… I ask you to come
+#   into my life as my Saviour and Lord"). English discovery surfaced it for SIX of the ten
+#   topics including bible-trust, religions and trinity, and it returns in the top 10 of ALL
+#   FOUR cases in this suite (ranks 4, 3, 10, 4). It is credited nowhere. This is the §0.12
+#   batch-2 prediction — "at 0% /story/ testimony, ONE document absorbs the entire tail
+#   load" — confirmed on a fifth source.
+#
+# ══ LARGEST CATEGORY — the `am` pre-drafting check ══
+#   By the site's own breadcrumb: "मेरो जीवन" (My life) is 7 of 20 = 35%, the largest shelf —
+#   peace-of-mind, source, toxic (pornography), intimacy (sex), prayer, loneliness,
+#   purpose-in-life. Treated as unusable question vocabulary: सम्बन्ध (relationship),
+#   प्रेम/माया (love), एक्लो (lonely), खाली (empty), सन्तुष्टि (satisfaction/fulfilment),
+#   शान्ति (peace), यौन (sex), लत (addiction). The sex/addiction sub-shelf is only 2 of 20
+#   (10%), much smaller than `am`'s 29%, and it never reached above rank 10 in any round.
+#
+# ══ DISCOVERY ══ .tmp-diag/phase5-partb-discover.ts everystudent-ne ne
+#   → 15 of 20 documents surfaced. Nine of the ten §0.7 topics reached a real article.
+#     `religions` did not — see CONTENT GAPS in the SUMMARY.
+#   Every one of the 20 documents was then read from the database (openings + full chunk
+#   text for all six credits and both duplicate-title documents) before anything was credited.
+#
+# ══ ENGINE-CHECKED THREE TIMES ══ .tmp-diag/phase5-check.ts ne ne
+#   Round 1: 0 smells · 1 credit not in top 10 · max top score 0.694 · 6 credits
+#   Round 2: 0 smells · 0 credits not in top 10 · max top score 0.684 · 5 credits
+#            (case 1 reworded; /a/where-is-god.html dropped — reasoning on the case)
+#   Round 3: 0 smells · 0 credits not in top 10 · max top score 0.684 · 6 credits, FINAL
+#            (/a/source.html added to case 4 on cross-source consistency; --update run)
+#   🔴 The 0.75 smell line was never approached — the suite's ceiling is 0.684 and two
+#   cases sit in the 0.58s. Consistent with the brief's prediction that no tier-B/C/D
+#   source reaches it. Every round went to REACH.
+#
+# ══ MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped ══
+#   Guardrail #8 §3: all 6 credited paths resolve to EXACTLY ONE document — 6/6.
+#   Guardrail #3a:   no credited document has a null language — 6/6.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Nepali). A fact about the
+# REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+cases:
+  - id: "esne-skeptic-adhar" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "मेरा साथीहरू भन्छन्, ईश्वर मान्नु भनेको मनले चाहेको कुरालाई साँचो ठान्नु मात्रै हो। मलाई सोध्न मन छ — यो संसार, यो ब्रह्माण्ड र यहाँका कुराहरूले नै उहाँ हुनुहुन्छ भन्ने कुनै जाँच्न मिल्ने सङ्केत दिन्छन् कि दिँदैनन्?"
+    en: "My friends say that believing in God is just treating what the mind wishes as true. I want to ask — do this world, this universe and the things in it themselves give any examinable sign that he exists, or not?"
+    credits:
+      - { path: "/a/is-there-a-god.html", en: "Does God exist? — Marilyn Adamson, 18.8k chars, the source's flagship apologetics article: 'there are six clear reasons that God really exists', argued from the universe's fine-tuning, the earth's placement and DNA rather than from feeling. The direct answer to 'is there anything examinable'.", rank: 2, score: 0.668 }
+      - { path: "/a/atheist.html", en: "How an atheist found God — Marilyn Adamson's own account of asking believers 'how do you KNOW God exists?' and getting 'well, you just know'. She states the problem the question states: 'I really did not KNOW, and there was no solid evidence.' Then the facts that moved her.", rank: 1, score: 0.684 }
+    top_score: 0.684
+    reworded: |
+      ⚠️ REWORDED ONCE, and it is the `uk` finding reproduced: reach and smell pulled
+      TOGETHER because the edit changed WHICH objection the question makes, not its wording.
+      v1: "…म तर्क गर्न चाहन्छु, तर मसँग देखाउन सक्ने जाँच्न मिल्ने कुनै आधार छैन। त्यस्तो केही छ?"
+          ("…I want to argue back, but I have no examinable grounds to point to. Is there
+          anything of that kind?") → top 0.694, no smell, both apologetics credits returned
+          at ranks 1 and 3 — but /a/prayer.html was RANK 2 and /a/is-there-a-god.html, the
+          source's flagship six-reasons article, was beaten by it.
+      v2 (kept): changes the objection from "I have nothing to argue with" (a personal-need
+          framing, which failure mode #5 says retrieves personal documents) to "does the
+          world itself give a sign" (an evidential framing).
+          → 0.694 → 0.684, and /a/is-there-a-god.html went rank 3 → rank 2, 0.641 → 0.668,
+          while /a/prayer.html fell to rank 3. Smell also improved. One edit, both directions.
+    the_finding: |
+      🔴 THE TESTIMONY OUTRANKS THE ARGUMENT, IN BOTH ROUNDS, ON A 10%-TESTIMONY SOURCE.
+      /a/atheist.html (a first-person conversion account) is rank 1 in v1 AND v2; the 18.8k
+      six-reasons apologetics article never gets above rank 2. Both are credited so the case
+      scores 2/2, but the ORDER is the observation: this is failure mode #1 at its mildest
+      expression — not a wrong document winning, but the personal document winning.
+      Compare `hu` (24% testimony), where the equivalent question put three testimonies ahead
+      of the science article and cost a credit outright.
+    rejected:
+      - { path: "/a/prayer.html", rank: 3, why: "'Does God answer our prayers?' — it OPENS with Marilyn Adamson's atheist-watching-a-praying-friend evidence argument ('after a while, coincidence sounded very weak'), which is what matches. Its SUBJECT is prayer. Rejected on subject; it is the source's prayer article and would be the key for the §0.7 prayer topic if this suite carried one." }
+      - { path: "/a/ideal-god.html", rank: 4, why: "the suite's tail magnet — see the corpus-shape note. Its subject is God's attributes, not evidence." }
+      - { path: "/a/tragedy.html", rank: 5, why: "'Where is God in the midst of tragedy?' — the source's suffering article. A different objection." }
+      - { path: "/a/who-is-god.html", rank: 6, why: "the six-attributes what-is-God-like article — the `know-god` key, not an evidence document." }
+      - { path: "/a/loneliness.html", rank: 7, why: "loneliness, at rank 7 for an evidence question. Tail-adjacent match." }
+      - { path: "/a/where-is-god.html", rank: 8, why: "DROPPED after round 1 — see dropped_after_engine_check." }
+      - { path: "/a/is-jesus-god.html", rank: 9, why: "BOUNDARY. Titled 'Beyond blind faith' (Paul E. Little) and it does open evidentially: 'it is impossible to know conclusively whether God exists unless he takes the first step and reveals himself… we must examine the horizon of history for a sign. There is one clear sign.' But its subject is JESUS' identity and deity, not evidence from the created world. Same call `hu` made on /a/hiten.html, the same estate article, for the same topic." }
+      - { path: "/a/peace-of-mind.html", rank: 10, why: "peace and stability — the anxiety key, not evidence." }
+    dropped_after_engine_check:
+      - path: "/a/where-is-god.html"
+        why: >-
+          "Where is God?" (3.6k) — 'People say show me God. But if God is invisible, how can
+          he show himself?' Then the two-dimensional-paper analogy: flat beings cannot see
+          you, only the fingertip that enters their world. I credited it in round 1 as
+          answering the 'you cannot examine him' objection and it did not return. On
+          re-reading it is a DROP, not a kept miss: its subject is God's INVISIBILITY and
+          how he made himself seen, which answers "why can't I see him", not "what in the
+          world points to him". The engine agrees — English discovery filed it under
+          `know-god` at 0.515 and never surfaced it for `god-exists` at all. It now returns
+          at rank 8 under the v2 wording, so this is a subject call and not a reach failure.
+          OPERATOR MAY OVERRIDE: it is the closest thing on this source to a boundary credit.
+
+  - id: "esne-skeptic-sarieko" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "बाइबल दुई हजार वर्षभन्दा पुरानो हो र छापाखाना आउनुअघि पुस्तौंपुस्ता हातैले सारिएको हो। सार्दै जाँदा शब्दहरू फेरिएनन् भनेर आजका मानिसले कसरी दाबी गर्न सक्छन्?"
+    en: "The Bible is more than two thousand years old and was copied by hand generation after generation before the printing press existed. How can people today claim the words did not change as they were copied?"
+    credits:
+      - { path: "/a/bible.html", en: "Can you trust the Bible? — 22.4k chars, the source's longest document and its only Bible-reliability article. Chunk 4 is exactly this question: 'comparing the manuscripts in hand, from 1,000 years ago, we find 99.5% agreement, and the 0.5% of differences are minor spelling and sentence structure that do not change the meaning… all ancient manuscripts were written on papyrus, which decayed, so people made hand copies from the original sources to preserve the message.' Chunk 5 is the Homer/Herodotus/Plato/Caesar manuscript-gap-and-count table.", rank: 1, score: 0.669 }
+    top_score: 0.669
+    note: |
+      🟢 THE CLEANEST CASE IN THE SUITE, AND THE ESTATE'S `bible-trust` QUESTION IS SETTLED
+      HERE BY PUBLISHING, NOT BY AUDIENCE — exactly as §0.12 says.
+      Nepal is Hindu-majority, so the reasonable prior was that `bible-trust` would route
+      through an Islam or a world-religions article the way Japan's does. IT CANNOT:
+      `everystudent-ne` HAS NO ISLAM ARTICLE AND NO WORLD-RELIGIONS ARTICLE AT ALL. It
+      answers the question head-on with a dedicated manuscript-transmission piece instead,
+      the way Czech and Portuguese do. Audience predicted nothing; the shelf decided it.
+
+      One credit is the honest count, and the score gap proves it: 0.669 at rank 1, then a
+      0.16 cliff to rank 2 (0.505). Ranks 2–10 are the peace article, the tail magnet, two
+      testimonies, the Four Spiritual Laws page and — at rank 10 — the PORNOGRAPHY article
+      at 0.433 for a manuscript-transmission question. That is the boilerplate tail, visible
+      but comfortably beaten.
+    rejected:
+      - { path: "/a/peace-of-mind.html", rank: 2, why: "peace of mind, 0.505 — a 0.16 gap below the credit. Tail-adjacent." }
+      - { path: "/a/ideal-god.html", rank: 3, why: "the tail magnet." }
+      - { path: "/a/is-jesus-god.html", rank: 4, why: "Jesus' deity; it cites manuscripts in passing but is not about transmission." }
+      - { path: "/a/atheist.html", rank: 5, why: "credited to case 1." }
+      - { path: "/a/source.html", rank: 6, why: "credited to case 4." }
+      - { path: "/a/know-God.html", rank: 7, why: "the FOUR SPIRITUAL LAWS page — a pure tail-shaped document at 6,971 chars, above the 1,200-char watchlist and therefore NOT flagged by it. Never credit." }
+      - { path: "/a/where-is-god.html", rank: 8, why: "God's invisibility; dropped from case 1." }
+      - { path: "/a/is-there-a-god.html", rank: 9, why: "credited to case 1." }
+      - { path: "/a/toxic.html", rank: 10, why: "'The reality of toxic pornography' at rank 10 for a manuscript question. The plainest boilerplate-tail specimen in this suite." }
+
+  - id: "esne-newcomer-krus" # topic: jesus-death
+    persona: newcomer
+    topic: jesus-death
+    q: "मेरा ख्रीष्टियन साथीहरूले क्रूसको कुरा गर्दा त्यसले सबथोक फेरिदियो जस्तो गरी बोल्छन्। मलाई भने त्यो दुई हजार वर्षअघिको एउटा मृत्युदण्ड मात्रै लाग्छ। त्यसले वास्तवमा के फेर्यो?"
+    en: "When my Christian friends talk about the cross they speak as if it changed everything. To me it just looks like an execution from two thousand years ago. What did it actually change?"
+    credits:
+      - { path: "/a/why-did-jesus-die.html", en: "The genuine atonement article, 9.6k chars: the crucifixion narrative, then 'why did Jesus permit his own crucifixion? For two reasons', then the penalty for sin, the Old Testament lamb sacrificed in their place and its temporariness, and finally 'Jesus did not merely bear the penalty for our offences — he removed the barrier that separates us from God.' 🔴 Credited by PATH: another document on this source carries the IDENTICAL title. See the title-trap note.", rank: 1, score: 0.59 }
+    top_score: 0.59
+    the_finding: |
+      🔴 THE JAPANESE DUPLICATE-TITLE TRAP IS LIVE ON THIS SOURCE, AND BOTH DOCUMENTS RETURN.
+      TWO documents are titled "येशू किन मर्नुभयो?" ("Why did Jesus die?") and they carry the
+      IDENTICAL subtitle line ("Jesus' death and resurrection — what was it about the
+      crucifixion of Jesus Christ…"). They are different articles:
+
+        /a/why-did-jesus-die.html  9.6k  ← THE ANSWER. Crucifixion narrative → why he allowed
+                                          it → sin's penalty → the substitutionary lamb →
+                                          "he removed the barrier that separates us from God."
+                                          No invitation prayer; the last chunk is substance.
+        /a/relationship-with-god.html 10.5k ← NOT the answer. Marilyn Adamson, first person
+                                          ("when I was an atheist I was searching for a
+                                          philosophy of life"), on what a relationship with
+                                          God is and whether God can change your life. Its
+                                          final chunk IS the invitation prayer.
+
+      They come back at rank 1 and rank 8 of this same case. Crediting by TITLE was a coin
+      flip; crediting by PATH is why this case is right. Third campaign source to hit this
+      class of trap and the first where BOTH halves of the duplicate retrieve for the same
+      question. `phase5-bg-check.ts` (which resolves credits from titles) would have been
+      unsafe here — §0.12's warning, demonstrated.
+
+      🟢 AND THIS IS A NINTH CONTROL FOR THE RUSSIAN ATONEMENT GAP. `everystudent-ne` has a
+      dedicated "why did Jesus die?" article, it returns at RANK 1, and the case scores 1/1.
+      §0.12 recorded 8 of 11 batch-1 sources with one; make it 9. `esru-newcomer-krest`'s
+      expected miss stays corpus composition. Do not re-open it.
+    rejected:
+      - { path: "/a/is-jesus-god.html", rank: 2, why: "'Beyond blind faith' (Paul E. Little) — Jesus' DEITY and whether he claimed to be God. A different question from what his death accomplished. Same call `hu` made on /a/hiten.html." }
+      - { path: "/a/source.html", rank: 3, why: "Josh McDowell's testimony, matched on its tail. Credited to case 4, where its subject lies." }
+      - { path: "/a/peace-of-mind.html", rank: 4, why: "peace of mind, at rank 4 for an atonement question. Tail match." }
+      - { path: "/a/bible.html", rank: 5, why: "credited to case 2. It narrates Jesus' death as history, but its subject is the Bible's reliability." }
+      - { path: "/a/know-God.html", rank: 6, why: "the FOUR SPIRITUAL LAWS page. Pure tail shape, never credited." }
+      - { path: "/a/fol.html", rank: 7, why: "'Starting with God' (2,806ch) — entirely the post-decision follow-up: 'if I invited Jesus in, how do I know he is really there?' A pure-tail document ABOVE the 1,200-char watchlist, so the length flag does not catch it. Never credit." }
+      - { path: "/a/relationship-with-god.html", rank: 8, why: "🔴 THE TITLE TRAP. Identical title AND identical subtitle to the credited document, different article. Rejected on its opening and its full text — see the_finding." }
+      - { path: "/a/tragedy.html", rank: 9, why: "the suffering article." }
+      - { path: "/a/ideal-god.html", rank: 10, why: "the tail magnet." }
+    note: |
+      ⓘ "पाप क्षमा" (forgiveness of sins) was deliberately kept OUT of this question, per the
+      §0.12 Turkish finding that it is the estate's trigger phrase. The word appears in the
+      tail of /a/ideal-god.html, /a/know-God.html, /a/relationship-with-god.html, /a/toxic.html
+      and /a/fol.html on this source — five of the six tail carriers. The question asks what
+      the cross CHANGED instead. Result: the tail documents are present in the top 10 but all
+      sit below the atonement article, which holds rank 1.
+
+  - id: "esne-seeker-batnu" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "बिहान उठ्छु, काम गर्छु, सुत्छु — हरेक दिन उस्तै। साँझ पर्दा लाग्छ, आज केही पनि थपिएन। मेरो बाँच्नुको मतलब के हो, त्यो कसरी थाहा पाउने?"
+    en: "I get up in the morning, work, sleep — every day the same. When evening comes it feels like nothing was added today. What is the point of my living, and how would I find that out?"
+    credits:
+      - { path: "/a/purpose-in-life.html", en: "What is my life's purpose? — the hammer parable told at length: a hammer with a soul, left in the toolbox, used for cutting branches and enjoying it, and still unfulfilled at the end of the day because it was made to drive nails. Then: 'the deepest desire of our heart is to know God… when we keep God out and look for fulfilment in something else, we never find it.' The source's dedicated purpose article.", rank: 1, score: 0.584 }
+      - { path: "/a/source.html", en: "The source of a changed life (Josh McDowell) — 'Have you ever found yourself saying I hate my life? I wanted to be happy… I was also looking for the meaning of life, searching for answers to the questions: Who am I? Why am I here in the world? Where am I going?' The Nepali twin of the Hungarian /a/forrasa.html, the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Bulgarian 'Have you ever said I hate my life', ALL of which are credited for this same question shape. It is a testimony carrying the invitation tail, and it is credited on subject, not on the tail.", rank: 6, score: 0.491 }
+    top_score: 0.584
+    note: |
+      ⓘ /a/source.html WAS ADDED IN ROUND 3, ON CROSS-SOURCE CONSISTENCY, NOT ON ITS SCORE.
+      It is one of this source's two full testimonies and it carries the invitation tail, so
+      the default instinct is to reject it. Four sibling suites (`hu` `es` `ru` `bg`) credit
+      this same estate article for this same question shape, and its own opening is three
+      purpose questions verbatim. Rejecting it here would have made `ne` inconsistent with
+      four suites already in the keys. It returns at rank 6, comfortably behind the dedicated
+      purpose article at rank 1 — which is the right order and is worth measuring.
+
+      ⚠️ The question deliberately avoids खाली ("empty") and एक्लो ("lonely"): the 35%
+      "My life" shelf owns that vocabulary and /a/loneliness.html was the risk. It sits at
+      rank 8, uncredited, which is where it belongs.
+    rejected:
+      - { path: "/a/atheist.html", rank: 2, why: "credited to case 1. Matched on its 'I was searching for meaning' framing; its subject is evidence for God." }
+      - { path: "/a/relationship-with-god.html", rank: 3, why: "the title-trap document from case 3. Its chunk 1 does say 'when we begin a personal relationship with God, life starts to make sense' — but its subject is what that relationship IS, and it is a tail carrier. Rejected." }
+      - { path: "/a/ideal-god.html", rank: 4, why: "the tail magnet, in its fourth of four cases." }
+      - { path: "/a/peace-of-mind.html", rank: 5, why: "peace and stability; the anxiety key." }
+      - { path: "/a/is-jesus-god.html", rank: 7, why: "Jesus' deity." }
+      - { path: "/a/loneliness.html", rank: 8, why: "'What to do with loneliness' — its subject is loneliness and the fear of being alone, not what a life is for. The document the question was worded to avoid; it did not win." }
+      - { path: "/a/tragedy.html", rank: 9, why: "the suffering article." }
+      - { path: "/a/is-there-a-god.html", rank: 10, why: "credited to case 1." }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 6 credits · 6 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 4-case row exactly.
+# Paraphrase smells: 0 in every round. Suite ceiling 0.684; two cases sit at 0.58–0.59.
+# Credits that do not retrieve: 0. Credits dropped after the engine check: 1.
+# evidence_tier: llm-translated (operator to confirm).
+#
+# ── WHY FOUR CASES AND NOT MORE ─────────────────────────────────────────────
+# 20 documents is close to enumeration, so the four topics chosen are the four whose answer
+# documents are the most clearly DISTINCT — one dedicated article each, no overlap:
+#   god-exists  → /a/is-there-a-god.html + /a/atheist.html
+#   bible-trust → /a/bible.html
+#   jesus-death → /a/why-did-jesus-die.html
+#   purpose     → /a/purpose-in-life.html + /a/source.html
+#
+# SIX TOPICS DROPPED. Only ONE is a real content gap; the other five are size, and each has
+# a genuine article that a future expansion of this suite should use:
+#
+#   🔴 religions   — CONTENT GAP, and it is the finding for this source. `everystudent-ne`
+#                    publishes NO world-religions comparison and NO Islam article. English
+#                    discovery returned only /a/source.html (0.484, the Josh McDowell
+#                    testimony) and /a/ideal-god.html (0.467, the tail magnet) — no document
+#                    on this source compares Christianity with Hinduism, Buddhism or Islam.
+#                    The estate's `/a/205` world-religions article (German /artikel/hochsten,
+#                    Swahili /a/kuunganishwa, Hungarian /a/istenkereses, French /a/205divin)
+#                    IS NOT LOCALISED HERE. ⚠️ Nepal is ~81% Hindu, so the audience-based
+#                    prior would have predicted this topic to be the source's strongest.
+#                    It is its only absent one. Audience predicts nothing; check the shelf.
+#                    Manufacturing a case here would have been a guardrail #3a defect.
+#
+#   know-god     — dropped for SIZE. /a/who-is-god.html (5.5k, the six-attributes article)
+#                  and /a/ideal-god.html (16.1k) both exist and reached 0.531 / 0.569 in
+#                  discovery. Use /a/who-is-god.html if the suite is ever widened; note that
+#                  /a/ideal-god.html is the tail magnet and would need care.
+#   suffering    — dropped for SIZE. /a/tragedy.html ("Where is God in the midst of tragedy?",
+#                  12.7k) is a real key, 0.535 in discovery.
+#   anxiety      — dropped for SIZE. /a/peace-of-mind.html ("Peace of mind in an unstable
+#                  world", 15.7k) is a real key, 0.559 in discovery.
+#   prayer       — dropped for SIZE and by the persona table (a 4-case suite has no believer
+#                  slot). /a/prayer.html ("Does God answer our prayers?", 10.9k) is a real
+#                  key and scored 0.643 — the second-highest discovery score on the source.
+#                  This is the topic to add FIRST if the suite is widened to five.
+#   trinity      — dropped for SIZE. /a/trinity.html (5.2k, the 1×1×1=1 explanation) exists
+#                  and scored the HIGHEST English discovery score on this source, 0.655.
+#                  ⚠️ Its title is literally "Can you explain the Trinity?", so a question
+#                  built from the §0.7 scaffold would need the `ru`/`bg`/`hu` reframing
+#                  ("what a newcomer notices in a service") to avoid a paraphrase smell.
+#
+# ── TITLE TRAPS FOUND, ALL VERIFIED ON THIS SOURCE ──────────────────────────
+# 1. 🔴 DUPLICATE TITLE, BOTH HALVES RETRIEVE. /a/why-did-jesus-die.html and
+#    /a/relationship-with-god.html share the title "येशू किन मर्नुभयो?" AND the subtitle.
+#    Only the first is the atonement article. They come back at ranks 1 and 8 of the SAME
+#    case. First campaign instance where both halves of a duplicate title retrieve together.
+# 2. 🔴 /a/know-God.html — titled "व्यक्तिगत रूपमा परमेश्वरलाई चिन्नु" ("Knowing God
+#    personally"), which reads as the perfect `know-god` key. It is the FOUR SPIRITUAL LAWS
+#    page: "Principle One: God loves you and has a wonderful plan for your life" → the
+#    invitation prayer → "Amen". 6,971 chars, so the under-1,200 pure-tail flag misses it.
+#    The real `know-god` articles are /a/who-is-god.html and /a/ideal-god.html.
+# 3. 🔴 /a/relationship-with-god.html — the URL slug is the HONEST half here and the title is
+#    the misleading half, the reverse of `et /a/kuidas.html`. Judged by slug it is a
+#    relationship article, which is correct; judged by title it is the atonement article,
+#    which is wrong.
+# 4. ⓘ THE THREE SYSTEMATIC TRAPS FROM §0.12 WERE CHECKED AND NONE OF THEM EXISTS HERE.
+#    No "why can we rely on the God of the Bible" retitling (this source's six-attributes
+#    article is honestly titled "परमेश्वर को हुनुहुन्छ?" = "Who is God?"). No
+#    Nothing→Something→Who→Who-2 cosmological series — it is not localised into Nepali at
+#    all, like `et`. No coronavirus-titled anxiety article and no chakra-titled anxiety
+#    account. Per the brief's Romanian and German warning: these are per-site publishing
+#    choices, and on this site they were not made.
+#
+# ── WHAT THE REVIEWER MUST DECIDE ───────────────────────────────────────────
+# 1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language. Nepali is
+#    the language most in need of a human check in this batch — see the language note at the
+#    top of this file for why it was mislabelled Hindi for months.
+# 2. /a/where-is-god.html on case 1 — I DROPPED it (subject is God's invisibility, not
+#    evidence from the world; discovery filed it under `know-god`). It returns at rank 8, so
+#    crediting it costs nothing mechanically. It is this suite's only boundary credit.
+# 3. /a/source.html on case 4 — I CREDITED it, on consistency with `hu` `es` `ru` `bg`, all
+#    of which credit this same estate article for this same question shape. It is a testimony
+#    carrying the invitation tail, so an operator applying a strict no-testimony rule would
+#    drop it. Dropping it makes case 4 a 1/1 case and makes `ne` inconsistent with four
+#    suites already in the answer keys.
+# 4. Four cases over 20 documents. `religions` is a genuine gap; the other five dropped
+#    topics are size, and `prayer` (0.643) and `trinity` (0.655) are the two strongest
+#    candidates if the operator wants six cases here instead of four.

@@ -1,0 +1,400 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ka` (16 documents, Georgian,
+# kovelistudenti.com). Campaign #111, tier D. Working record — NOTHING here has been
+# written to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator
+# approval turn that has not happened.
+#
+# Sizing: tier D floor → 4 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the §0.7 four-case row exactly.
+# Questions authored IN GEORGIAN, never translated from the English topic menu (§0.6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CORPUS SHAPE — read this before judging any hit
+# ─────────────────────────────────────────────────────────────────────────────
+#   16 documents, ALL under `/a/`. There is no `/story/` tree on this site at all.
+#   Duplicate paths: 0. Duplicate titles: 0. Null-language documents: 0.
+#
+#   ⚠️ LANGUAGE DETECTION. `tinyld` returns NOTHING for Georgian script, so all 16
+#   documents sat null-language until the 2026-07-31 LLM sweep resolved 16/16 at
+#   confidence 1.00. Guardrail #3a is satisfied — but only because of that sweep.
+#   Verified again here: the openings hazard report prints "no null-language
+#   documents", and the check script re-asserts it on every credited path.
+#
+#   🟢 FAILURE MODE #2 (pure-tail documents) CANNOT FIRE ON THIS SOURCE.
+#   Zero documents under 1,200 chars. The smallest is 4,042 chars; the largest is
+#   29,243; the mean is 15,033 — the highest average document length in the
+#   campaign. Every one of the 16 is a substantial article, which is also why each
+#   one covers several topics (see the drops below).
+#
+#   ⚠️ TESTIMONY SHARE: 3 of 16 = 19%, and PATH-COUNTING READS IT AS 0%.
+#   This is the `uk` finding again. Derived from the openings, the first-person
+#   accounts are:
+#     /a/shetsvlili302.html  Josh McDowell — "I expected to be happy… Who am I?
+#                            Why am I where I am? Where am I going?"
+#     /a/shesakheb509.html   Laura Krauss Calenberg — the fashion model on European
+#                            magazine covers, later bedridden
+#     /a/sheqvare503.html    anonymous young man, ten reasons he now waits
+#   None of them sits under `/story/`. A path-based estimate would have said this
+#   source is testimony-free and the boilerplate tail harmless.
+#
+#   🔴 LARGEST CATEGORY = RELATIONSHIPS/SEX/MARRIAGE, 3 of 16 = 19%.
+#   `/a/khangrdzlivi502.html` (lasting marriage, 22.7k), `/a/sheqvare503.html`
+#   (dating/sex, 20.7k), `/a/seksi501.html` (sex and intimacy, 13.1k) — 56.5k chars,
+#   the second-largest shelf after apologetics. Per the `am` finding, its vocabulary
+#   was treated as UNUSABLE while drafting: no case uses სიცარიელე (emptiness),
+#   მარტოობა (loneliness), სიყვარული (love), ურთიერთობა (relationship), ქორწინება
+#   (marriage) or სექსი. This was not theoretical — `/a/sheqvare503.html`'s own
+#   OPENING contains "სიცარიელის განცდა" ("a feeling of emptiness"), and the English
+#   discovery probe for `purpose`, which used the word "empty", pulled that dating
+#   article to rank 3 at 0.510. Case 4 was written around the ban and it stayed out.
+#
+#   ⚠️ THE TAIL MAGNET IS `/a/kavshiri205.html` AND `/a/ratom107.html`, TIED.
+#   Each surfaced for SEVEN of the ten discovery topics — kavshiri205 for
+#   god-exists, know-god, suffering, anxiety, jesus-death, religions and trinity;
+#   ratom107 for god-exists, know-god, suffering, anxiety, jesus-death, bible-trust
+#   and prayer. Neither is a testimony; both are 18k+ broad articles whose gospel
+#   summary is its own chunk. Note the estate's usual magnet — the Four Spiritual
+#   Laws page `/a/shevicnoth401.html` — surfaced for only TWO topics here, so the
+#   0%-testimony rule of thumb about "one document absorbing the load" points at
+#   the wrong document on this source.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-ka ka
+# ─────────────────────────────────────────────────────────────────────────────
+#   → 16 distinct candidate documents of 16. With 16 documents and 4 cases this is
+#     close to enumeration, so cases were chosen for DOCUMENT DISTINCTNESS: each of
+#     the four owns an answer document no other case touches.
+#   Every one of the 16 documents was read from the database (title + opening
+#   ~900 chars) before anything was credited — guardrail #5.
+#
+#   Three topics returned a clean single-document winner well clear of the field:
+#     prayer      0.660  /a/pasukhobs309.html   (next 0.475)
+#     bible-trust 0.636  /a/bibliisa215.html    (next 0.451)
+#     religions   0.632  /a/kavshiri205.html    (next 0.455)
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# TOPICS DROPPED — three genuine content gaps, three overlap casualties
+# ─────────────────────────────────────────────────────────────────────────────
+#   🔴 CONTENT GAPS — this source does not carry these:
+#
+#   anxiety      NO anxiety article of any kind, and no reverse-title-trap
+#                substitute either (`ka` has no coronavirus page, no chakra/occult
+#                account, no peace-of-mind page). The discovery probe returned the
+#                TRAGEDY article (0.569), the suffering article (0.554), the PRAYER
+#                article (0.527) and — at 0.476 — `/a/seksi501.html`, i.e. the
+#                relationship shelf. Nothing here answers "I am anxious with nothing
+#                objectively wrong". Not manufacturable.
+#
+#   jesus-death  NO dedicated atonement article. Discovery returned a paragraph of
+#                the WORLD-RELIGIONS article (0.554 — "Jesus took our sins on
+#                himself, suffered on the cross and died in our place") and the Four
+#                Spiritual Laws page (0.550). Both state the atonement inside a
+#                document about something else. This is the same shape as `ru`,
+#                `zh-cn` and `mn`; §0.12 says record it as corpus composition and do
+#                not re-open it. Recorded, closed.
+#
+#   trinity      NO trinity article, and this is the starkest probe result in the
+#                campaign so far: the trinity discovery probe returned EXACTLY ONE
+#                own-source document — `/a/kavshiri205.html` at 0.514 — which is the
+#                world-religions article already credited to case 2. Every other
+#                topic returned 2–6 candidates. One document, and it is the wrong one.
+#
+#   ⚠️ OVERLAP CASUALTIES — these topics ARE carried; they lost their slot to the
+#   four-case cap, and the operator should know they are available:
+#
+#   prayer       `/a/pasukhobs309.html` (10.5k) at **0.660 — the single strongest
+#                topic hit in the entire discovery pass**, and the next document is
+#                0.185 behind it. Dropped ONLY because the four-case persona row is
+#                skeptic 2 · newcomer 1 · seeker 1 with no believer slot.
+#                🟢 IF THIS SUITE EVER GROWS TO FIVE CASES, ADD PRAYER FIRST.
+#
+#   suffering    TWO dedicated documents — `/a/ratom602.html` (0.607, "Why do people
+#                get cancer? Why do earthquakes level whole cities?") and
+#                `/a/sadaris601.html` (0.580, "Where is God when tragedy strikes?").
+#                A strong case in its own right. Dropped because there are only two
+#                skeptic slots and bible-trust and religions each own a document
+#                nothing else in the source touches, whereas both suffering articles
+#                also surface for god-exists, anxiety, jesus-death and prayer.
+#
+#   god-exists   `/a/Ghmerti101.html` (19.6k, Marilyn Adamson) exists and led its
+#                probe at 0.578. Dropped because it shares its shelf with case 3:
+#                `/a/ratom107.html` and `/a/Ghmerti109.html` are both credited to
+#                know-god AND both surface for god-exists. Running both topics would
+#                have measured one shelf twice — the enumeration risk this tier was
+#                warned about.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ENGINE-CHECK ROUND LOG — .tmp-diag/phase5-check.ts ka ka
+# ─────────────────────────────────────────────────────────────────────────────
+#   Round 1:  0 smells · 0 credits missing · max top score 0.714  — AND STILL WRONG.
+#             This round is the cleanest specimen of FAILURE MODE #6 in the batch:
+#             every mechanical check passed and two of the four cases were broken.
+#             Case 2's credit was at RANK 6, behind the MARRIAGE article at rank 1
+#             (0.618). Case 4's credits were at ranks 5 and 7, behind the BEAUTY
+#             article at rank 1 (0.590) and the DATING article at rank 2 (0.537).
+#             The relationship shelf owned both top slots. A reviewer reading only
+#             the summary line ("0 smells, 0 credits missing") would have shipped it.
+#   Round 2:  1 smell · 0 credits missing · max top score 0.799.
+#             Case 4 FIXED (rank 1 + rank 4; the beauty article fell 1 → 6).
+#             Case 2 fixed for reach and broke on smell: naming Islam + Buddhism and
+#             asking "they all say completely different things about God" reproduced
+#             `/a/kavshiri205.html`'s own thesis sentence → 0.618 → 0.799, rank 6 → 1.
+#             Textbook "reach and smell pull in opposite directions".
+#   Round 3:  0 smells · 0 credits missing · max top score 0.715 — SETTLED.
+#             Case 2 fixed by the `uk` rule: change WHICH OBJECTION the question makes,
+#             do not paraphrase. v3 drops the doctrinal comparison entirely and asks
+#             the accident-of-birth objection instead ("I got Christianity by being
+#             born in Georgia; my classmate got Islam by being born elsewhere").
+#             → 0.799 → 0.686, credit held at rank 2. Reach and smell moved TOGETHER,
+#             exactly as the `uk` finding predicts for an objection-change edit.
+#
+#   ⓘ THE 0.75 LINE WAS TOUCHED EXACTLY ONCE, AND ONLY BY A DEFECT. Every settled
+#   question sits at 0.685–0.715. Consistent with the tier-B result that 0.75 is
+#   effectively unreachable on this estate; the one 0.799 was a genuine restatement,
+#   not headroom.
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Georgian. This
+# is a fact about the REVIEWER, not the language. If anyone on the team reads
+# Georgian and can sanity-check the questions, it should be `human-verified`.
+# OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eska-skeptic-khelnatserebi" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "უნივერსიტეტში გვასწავლიდნენ, რომ ძველი ხელნაწერები საუკუნეების განმავლობაში გადამწერების ხელში სახეს იცვლიდა. მე რატომ უნდა მივიღო ბიბლია ისტორიულ წყაროდ და არა უბრალოდ ლეგენდების კრებულად?"
+    en: "At university we were taught that ancient manuscripts changed shape in the hands of copyists over the centuries. Why should I accept the Bible as a historical source rather than just a collection of legends?"
+    credits:
+      - { path: "/a/bibliisa215.html", en: "Why you can believe the Bible (29.2k — the LONGEST document in the source, 20 chunks). Its opening is the whole answer: 'Ancient history supports the reliability of the Bible as a historical record. The Gospels give us numerous credible accounts of Jesus' life. Archaeology supports the biblical narrative. Textual research proves that the books of the Bible have not been altered since they were first written.' The only Bible-reliability article on this source.", rank: 1, score: 0.715 }
+    top_score: 0.715
+    rejected:
+      - {path: "/a/mighma201.html",     rank: 2, why: "⚠️ BOUNDARY — THE REVIEWER MAY WANT TO OVERRIDE THIS. 'Beyond blind faith' (22.9k, Paul Little): the life of Jesus Christ, was he the Son of God, and why believing him is not blind faith. It argues from the historical record, so it is adjacent — but its SUBJECT is Jesus' identity, not whether the biblical TEXT survived transmission. Rejected on the text, on the same reasoning `hu` used to reject /a/hiten.html. The 0.151 gap behind rank 1 supports the call."}
+      - {path: "/a/ratom107.html",      rank: 3, why: "the what-is-God-like article — credited to case 3. Matched on 'the God revealed in the Bible' in its opening line."}
+      - {path: "/a/shetsvlili302.html", rank: 4, why: "Josh McDowell testimony — credited to case 4. See the MAGNET finding in the SUMMARY: this is its third of four appearances."}
+    note: |
+      🟢 THE CLEANEST CASE IN THE SUITE. Rank 1 at 0.715 with the next document
+      0.151 behind, and only three own-source documents in the top 10 at all — the
+      one topic on this source where a single article owns the answer outright.
+      ⚠️ IT ALSO NEEDED A DELIBERATE SHAPE. The `hu` v3 fix was reused: this article's
+      OPENING is "How can we know that the Bible we have today can be trusted… textual
+      research proves the books of the Bible have not been altered", so asking "has it
+      changed since the original?" would have restated it. The question instead asks
+      what makes the Bible different from any other ancient document, set in a
+      university lecture. No reword was needed; it landed clean first time.
+
+  # ── 2 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eska-skeptic-kursze" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "საქართველოში დაბადებულს ქრისტიანობა მერგო, ჩემს თანაკურსელს კი ისლამი — მხოლოდ იმიტომ, რომ სხვაგან დაიბადა. რატომ უნდა ჩავთვალო, რომ სწორედ მე მოვხვდი მართალ მხარეს?"
+    en: "Being born in Georgia, Christianity is what fell to me, and Islam to my classmate — only because he was born somewhere else. Why should I assume that I happen to be the one who ended up on the right side?"
+    credits:
+      - { path: "/a/kavshiri205.html", en: "Contact with the divine (18.7k, Marilyn Adamson) — this source's /a/205 world-religions article. Subtitle: 'Are all the world religions the same? A short survey of Hinduism, Buddhism, Islam, Christianity and the New Age.' The body draws the distinction plainly: 'Hinduism acknowledges numerous gods and goddesses. Buddhists say there is no deity. New Age followers believe they themselves are God. Muslims believe in a mighty but unknowable God. Christians believe in a loving God who revealed himself…'", rank: 2, score: 0.68 }
+    top_score: 0.686
+    reworded: |
+      ⚠️ REWORDED TWICE, AND IT COST BOTH EXTRA ROUNDS IN THE SUITE.
+      v1: "ჩემს კურსზე რამდენიმე სხვადასხვა სარწმუნოების ადამიანია… რატომ უნდა ვიფიქრო,
+           რომ სწორედ ერთი მათგანია მართალი?" — the `hu` fix applied blind: put the
+           objection in the asker's surroundings and DROP the religion list.
+           → top 0.618, no smell, but the credit fell to RANK 6 and rank 1 was
+           `/a/khangrdzlivi502.html` — THE MARRIAGE ARTICLE. With no religion named,
+           the question had no anchor and the 19% relationship shelf took it.
+           The suspected driver is "ნათესავები" (relatives) plus a purely abstract
+           sincerity objection. `hu`'s fix does not transfer to a 16-document source.
+      v2: "ჩემი ორი ახლო მეგობარი მუსლიმია, კიდევ ერთი ბუდიზმით არის გატაცებული. სამივე
+           სრულიად სხვადასხვა რამეს ამბობს ღმერთზე…" → top **0.799 🔴 PARAPHRASE SMELL**,
+           the worst score in the draft, credit at rank 1. "They all say completely
+           different things about God" is this article's own thesis sentence.
+           Reach fixed, smell broke — 0.618 → 0.799 in one edit.
+      v3 (kept): changes WHICH OBJECTION is being made, per the `uk` finding — from a
+           doctrinal comparison to the accident-of-birth objection, which the article
+           answers but nowhere states. Names Christianity and Islam (the anchor v1
+           lacked) without listing them as the subtitle does.
+           → **0.618 → 0.799 → 0.686**, credit at rank 2. Reach AND smell improved
+           together, which a paraphrase edit cannot do.
+    rejected:
+      - {path: "/a/shetsvlili302.html",  rank: 1, why: "RANK 1 AND REJECTED — Josh McDowell's changed-life testimony. Its 'Christianity is not a religion, it is a relationship' passage matches, but the document is one man's account, not a comparison of religions. Identical call to `hu`'s rejection of /a/forrasa.html at rank 3 for this same topic. Credited to case 4, where its subject lies. Rank 1 is only 0.006 ahead of the credit — expect this pair to flap between runs."}
+      - {path: "/a/khangrdzlivi502.html", rank: 3, why: "THE MARRIAGE ARTICLE, still at rank 3 for a world-religions question after two rewords — and it was RANK 1 for v1. The relationship shelf is this source's persistent noise floor."}
+      - {path: "/a/shevicnoth401.html",   rank: 4, why: "the Four Spiritual Laws page — the estate's classic tail carrier, matching on its gospel-summary chunk"}
+      - {path: "/a/shesakheb509.html",    rank: 5, why: "the fashion-model testimony"}
+      - {path: "/a/sadaris601.html",      rank: 6, why: "'Where is God when tragedy strikes?' — the suffering shelf; the dropped `suffering` topic's document"}
+      - {path: "/a/mighma201.html",       rank: 7, why: "Jesus' deity (Paul Little) — see case 1"}
+      - {path: "/a/ratom602.html",        rank: 8, why: "'Why' — the other suffering article"}
+      - {path: "/a/Ghmerti101.html",      rank: 9, why: "'Does God exist?' — the dropped `god-exists` topic's document"}
+      - {path: "/a/pasukhobs309.html",    rank: 10, why: "the prayer article — the dropped `prayer` topic's document"}
+    note: |
+      ⓘ WITH 16 DOCUMENTS AND topK 10, EVERY CASE ENUMERATES MOST OF THE CORPUS.
+      This case returns 9 uncredited own-source documents in the top 10, i.e. 10 of
+      16 documents. That is a property of the corpus size, not a defect in the
+      question — the scores are tightly packed (0.586–0.686 across all ten) because
+      almost every article on this site closes with the same gospel summary. Judge
+      this suite on which document is at the TOP, not on how many came back.
+
+  # ── 3 ────────────────────────────────── newcomer 🔴 TITLE TRAP #1, IN REVERSE
+  - id: "eska-newcomer-energia" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "როცა ვინმე ღმერთზე ლაპარაკობს, მე მხოლოდ რაღაც ბუნდოვანი ენერგია წარმომიდგენია სადღაც მაღლა. საერთოდ პიროვნებაა ის თუ არა?"
+    en: "When someone talks about God, all I picture is some vague energy somewhere up above. Is he even a person at all?"
+    credits:
+      - { path: "/a/ratom107.html", en: "🔴 TITLE TRAP #1 (the 'why can we rely on the God of the Bible?' trap) — RUNNING IN REVERSE ON THIS SOURCE. §0.12 records the trap as an honest-looking title hiding the six-attributes article. Here the TITLE is the honest half — 'შვიდი დამახასიათებელი რამ ღმერთის შესახებ' = 'Seven characteristic things about God' — and the H1/opening carries the trap phrasing: 'Why should we seek the God who is revealed in the Bible?' 18.1k chars, an enumerated attribute list: '1. The nature of God — a God incomparably greater than us…', later 'he is invisible; we can talk to him, ask him questions and listen to him, and he will answer.' Same document family as `et /a/kuidas.html`: the reliable and unreliable halves are swapped relative to the estate norm.", rank: 1, score: 0.688 }
+      - { path: "/a/Ghmerti109.html", en: "Who is God? (4.3k) — 'Who is God? What is he like? SIX characteristic marks of God… God is knowable. The God who created the universe in all its fullness can be known by us. He speaks to us about himself… he calls us into a relationship with him, so that we can know him personally… God is approachable.' The estate's six-attributes article, the twin of the Russian /a/ktoeto.html and the Hungarian /a/milyen.html.", rank: 4, score: 0.619 }
+    note: |
+      ⓘ SEVEN vs SIX, AND WHY BOTH ARE CREDITED. `/a/ratom107.html` announces SEVEN
+      characteristics and `/a/Ghmerti109.html` announces SIX. They are not the same
+      article at two lengths — they are two different enumerations from the estate's
+      what-is-God-like shelf, published separately here (18.1k and 4.3k). Crediting
+      both measures the shelf, not one text twice.
+    top_score: 0.688
+    rejected:
+      - {path: "/a/Ghmerti101.html",  rank: 2, why: "'Does God exist?' (Marilyn Adamson) — its subject is WHETHER God exists, not what he is like. This is precisely why `god-exists` was dropped as a topic: it and know-god share one shelf on a 16-document source, and running both would measure it twice."}
+      - {path: "/a/sadaris601.html",  rank: 3, why: "'Where is God when tragedy strikes?' — matched on its long passage about what God is like in a crisis ('our protecting strength, a help in trouble'), but its subject is suffering"}
+      - {path: "/a/kavshiri205.html", rank: 5, why: "credited to case 2. Its chunk on 'a personal God whom we can know personally' is a genuine near-miss for this question — the reviewer may consider crediting it, though it would then be double-credited across cases 2 and 3."}
+      - {path: "/a/pasukhobs309.html", rank: 6, why: "the prayer article"}
+      - {path: "/a/ratom602.html",    rank: 7, why: "'Why' — suffering"}
+      - {path: "/a/raaris305.html",   rank: 8, why: "credited to case 4"}
+      - {path: "/a/shevicnoth401.html", rank: 9, why: "the Four Spiritual Laws page — tail match"}
+    no_reword: |
+      🟢 NO REWORD NEEDED — the `ru`/`bg`/`hu` question shape transferred intact.
+      The "when someone says God I picture a hazy energy somewhere up there; is he even
+      a person?" framing landed at rank 1 first time, 0.688. Fourth source in a row
+      where this shape works, and it is the shape that avoids restating "ვინ არის
+      ღმერთი? რას ჰგავს ის?" — which is `/a/Ghmerti109.html`'s literal opening line.
+
+  # ── 4 ─────────────────── seeker 🔴 WRITTEN AROUND THE RELATIONSHIP-SHELF BAN
+  - id: "eska-seeker-saghamos" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "ყველაფერს ისე ვასრულებ, როგორც საჭიროა, სამსახურსაც და სწავლასაც, მაგრამ სულ თან დამყვება შეგრძნება, რომ ეს ყველაფერი არსად მიდის. ადამიანი საერთოდ რისთვის არსებობს? აქვს კი ჩემს ცხოვრებას რაიმე დანიშნულება?"
+    en: "I do everything the way I am supposed to, work and studies alike, but a feeling follows me around that all of it is going nowhere. What does a person exist for at all? Does my life have any purpose to it?"
+    credits:
+      - { path: "/a/raaris305.html", en: "What is the purpose of my life? (4.0k) — the hammer parable told at length: a hammer exists to drive nails; imagine a hammer that is never used, lying in the toolbox and vaguely dissatisfied without knowing why. The only dedicated purpose article on this source.", rank: 4, score: 0.612 }
+      - { path: "/a/shetsvlili302.html", en: "The source of a changed life (15.3k, Josh McDowell) — 'I expected to be happy. I wanted to be one of the happiest people on earth. I wanted my life to have meaning. I was looking for answers to the questions: Who am I? Why am I where I am? Where am I going?' A testimony, but its SUBJECT is the search for meaning. The Georgian twin of the Hungarian /a/forrasa.html, the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Estonian /a/elumuutuste.html, all credited for this same question shape.", rank: 1, score: 0.685 }
+    the_ban: |
+      🔴 THIS CASE IS THE `am` FINDING APPLIED BEFORE DRAFTING, NOT AFTER.
+      The English discovery probe for `purpose` used the word "empty" and returned
+      `/a/sheqvare503.html` — the dating/sex article — at rank 3, 0.510, because its
+      own opening reads "…the morning after I always had a feeling of EMPTINESS
+      (სიცარიელის განცდა), disappointment even." 19% of this source is the
+      relationship shelf. So the Georgian question was written with სიცარიელე
+      (emptiness), მარტოობა (loneliness) and ურთიერთობა (relationship) banned
+      outright.
+
+      ⚠️ THE BAN WAS NECESSARY BUT NOT SUFFICIENT — this is the finding worth keeping.
+      v1 obeyed the ban in full ("every evening I go to bed as if the whole day just
+      ran out and nothing was left") and the shelf came anyway: rank 1 was
+      `/a/shesakheb509.html`, the FASHION-MODEL testimony (0.590), rank 2 was the
+      dating article (0.537), and the two credits sat at ranks 5 and 7. Avoiding the
+      shelf's WORDS does not avoid the shelf when the question is purely emotional —
+      that is failure mode #5 on top of #4.
+      v2 (kept) adds the thing v1 left out: it asks the purpose question DIRECTLY
+      ("what does a person exist for at all? does my life have any დანიშნულება?").
+      `დანიშნულება` — "the function a thing was made for" — is the hammer parable's
+      own concept while being a different word from the title's `მიზანი`.
+      → **0.590 → 0.685.** The beauty article fell 1 → 6, `/a/raaris305.html` rose
+      7 → 4 and `/a/shetsvlili302.html` rose 5 → 1. The dating article is still at
+      rank 3 and no wording removed it.
+    top_score: 0.685
+    rejected:
+      - {path: "/a/ratom107.html",   rank: 2, why: "the what-is-God-like article — credited to case 3"}
+      - {path: "/a/sheqvare503.html", rank: 3, why: "🔴 THE DATING ARTICLE, AT RANK 3 FOR A LIFE-PURPOSE QUESTION, AFTER A REWORD SPECIFICALLY DESIGNED TO KEEP IT OUT. Its 'ten reasons I now wait' body includes a section on finding something more satisfying than what he was chasing, and it carries the invitation tail. It went 2 → 3 across the reword and would not go further. This is the plainest illustration in the suite of the `am` category-dominance defect."}
+      - {path: "/a/ratom602.html",   rank: 5, why: "'Why' — its 'God is not what matters most in life' passage matches, but its subject is suffering"}
+      - {path: "/a/shesakheb509.html", rank: 6, why: "the fashion model on lasting beauty — WAS RANK 1 for v1 of this question. Its subject is self-worth built on appearance, not life purpose. Same call as `hu`'s rejection of /a/szepseg.html and `ru`'s of /a/krasoti.html."}
+      - {path: "/a/kavshiri205.html", rank: 7, why: "credited to case 2"}
+      - {path: "/a/Ghmerti101.html", rank: 8, why: "'Does God exist?'"}
+      - {path: "/a/sadaris601.html", rank: 9, why: "suffering"}
+      - {path: "/a/mighma201.html",  rank: 10, why: "Jesus' deity"}
+    the_inversion: |
+      ⚠️ THE TESTIMONY OUTRANKS THE DEDICATED ARTICLE, AND BOTH ARE CREDITED.
+      `/a/shetsvlili302.html` (Josh McDowell, 15.3k) is rank 1 at 0.685; the only
+      dedicated purpose article, `/a/raaris305.html` (4.0k, the hammer parable), is
+      rank 4 at 0.612. Coverage is 2/2 either way, so this costs nothing — but it is
+      the single clearest number in this source for the `et` magnet pattern, and the
+      length asymmetry is the likely cause: 4.0k is the SECOND-SMALLEST document in a
+      corpus averaging 15.0k, so it has 3 chunks to the testimony's 11.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 6 credits · 6 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the §0.7 four-case row exactly
+# Topics used:    bible-trust · religions · know-god · purpose
+# Topics dropped: anxiety, jesus-death, trinity (CONTENT GAPS — not carried)
+#                 prayer, suffering, god-exists (OVERLAP CASUALTIES — carried, no slot)
+# Paraphrase smells: 0 (max top score 0.715). Credits not in top 10: 0.
+# Verification: 6/6 paths resolve to exactly one document · 0 null-language credits.
+# Rounds: 3. Two questions reworded; one of them twice.
+# evidence_tier: llm-translated
+#
+# 🔴 THE HEADLINE FINDING — ROUND 1 PASSED EVERY MECHANICAL CHECK AND WAS WRONG.
+#   Round 1: "0 verification failures, 0 paraphrase smells, 0 credits missing, max
+#   0.714." Two of the four cases were broken. Case 2's credit was at rank 6 behind
+#   the MARRIAGE article at rank 1; case 4's were at ranks 5 and 7 behind the BEAUTY
+#   article at rank 1 and the DATING article at rank 2. Failure mode #6 in its purest
+#   form: the summary line is not evidence of a good question, and on a 16-document
+#   source where every article scores within 0.10 of every other, the summary line is
+#   worth even less than usual. Both fixes came from reading WHICH documents returned.
+#
+# 🔴 THE `am` CATEGORY-DOMINANCE FINDING REPLICATES, AND EXTENDS.
+#   19% of this source (3 of 16 documents, 56.5k chars) is the relationship/sex/
+#   marriage shelf, and it took rank 1 on TWO of the four topics in round 1. The `am`
+#   prescription — ban the shelf's vocabulary before drafting — was applied from the
+#   start and was NOT ENOUGH: case 4's v1 used none of the banned words and the
+#   fashion-model testimony still came back at rank 1. What actually cleared it was
+#   asking the topic question DIRECTLY rather than describing a feeling (#5 + #4
+#   compounding). And even then `/a/sheqvare503.html` held rank 3 and would not move.
+#   🔑 EXTENSION FOR THE NEXT AGENT: on a small source, banning the dominant shelf's
+#   words removes the lexical pull but not the emotional pull. You must ALSO give the
+#   question an explicit topical anchor. A purely experiential question has nothing
+#   for the right document to win on.
+#
+# 🔴 `/a/shetsvlili302.html` IS THIS SOURCE'S MAGNET — 3 of 4 cases, rank 1 twice.
+#   The Josh McDowell changed-life testimony returns in the top 10 of cases 1 (rank 4),
+#   2 (RANK 1) and 4 (RANK 1). It is credited only on case 4, where the search for
+#   meaning genuinely is its subject. This is the `et` pattern exactly — `et` had the
+#   SAME article, `/a/elumuutuste.html`, in 4 of 5 cases. Two sources, one article,
+#   same behaviour: 🔑 THE JOSH MCDOWELL TESTIMONY IS AN ESTATE-LEVEL TAIL MAGNET,
+#   ALONGSIDE THE DATING AND MARRIAGE ARTICLES AND THE FOUR SPIRITUAL LAWS PAGE.
+#   Add it to the confirmed repeat-carrier list in §0.12.
+#
+# ⚠️ THE TESTIMONY SHARE IS 19%, NOT 0% — AND PATH-COUNTING SAYS 0%.
+#   There is no `/story/` tree on kovelistudenti.com at all; all 16 documents sit
+#   under `/a/`. Three of them are first-person accounts (shetsvlili302, shesakheb509,
+#   sheqvare503) and all three carry the invitation tail. Second confirmation of the
+#   `uk` finding after `bn`. Derive the share from the openings, never from the path.
+#
+# 🔴 TITLE TRAP #1 IS PRESENT BUT RUNS IN REVERSE. `/a/ratom107.html` is the
+#   "why can we rely on the God of the Bible?" article — except on this source the
+#   TITLE is the honest half ("Seven characteristic things about God") and the
+#   H1/opening carries the trap phrasing. Crediting it on the §0.12 precedent alone
+#   would have worked here by luck; it was credited on its opening, which is the only
+#   reason the call is safe. Same swap `et` found on /a/kuidas.html.
+#   ⓘ TRAPS 2 AND 3 DO NOT EXIST HERE: there is no Nothing→Something→Who→Who 2
+#   cosmological series (never localised into Georgian), no coronavirus page and no
+#   chakra/occult page. `ka` is one more data point that these are per-site
+#   publishing choices, not estate constants.
+#
+# 🟢 THE GEORGIAN LANGUAGE WORRY WAS UNFOUNDED. `tinyld` returns nothing for Georgian
+#   script and all 16 documents sat null-language until the 2026-07-31 LLM sweep.
+#   Post-sweep, retrieval behaves normally: every credit resolved, every credit
+#   returned in the top 10, and the two failures in this suite were both question
+#   defects that reproduced the known cross-language failure modes exactly. Nothing
+#   in this source's behaviour is language-specific.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#      If anyone reads Georgian, this should be `human-verified`.
+#   2. `/a/mighma201.html` on case 1 (rank 2, 0.564) — I REJECTED it. It is Paul
+#      Little's historical case for Jesus, adjacent to but not about the Bible's
+#      textual transmission. Crediting it would make case 1 a 2-credit case at 2/2.
+#   3. `/a/kavshiri205.html` on case 3 (rank 5, 0.614) — I REJECTED it. Its
+#      "a personal God we can know personally" chunk genuinely answers "is he a
+#      person?", but it is already credited to case 2 and this suite otherwise has no
+#      document credited twice.
+#   4. THE SUITE IS FOUR CASES BECAUSE OF THE TIER-D FLOOR, NOT BECAUSE THE SOURCE
+#      RAN OUT. Three more topics are cleanly answerable — prayer (0.660, the
+#      strongest single hit in the whole discovery pass), suffering (two dedicated
+#      documents) and god-exists (one 19.6k document). If the operator wants a
+#      5-case `ka`, add **prayer** and the persona row becomes skeptic 2 · newcomer 1
+#      · seeker 1 · believer 1, which is the §0.7 five-case row with one substitution.

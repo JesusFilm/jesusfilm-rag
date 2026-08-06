@@ -28,13 +28,12 @@ committed and measured, and after the mandatory CLOSING PART A SWEEP ran clean.
 **47 of 48 registered · 45 acquired · 2 deferred · 1 open · 2,281 documents ·
 0 duplicate-content groups · 0 doctype leaks · 0 null-language**
 
-> ✅ **THE CAMPAIGN IS COMMITTED, AND NOT YET PUSHED.**
-> Four commits sit on `feat/everystudent-siblings` ahead of `main`:
-> `578a76a` (Phase 4 close) → `0c56a3d` (`evidence_tier`) → `cd18b6c` (batch 1,
-> 140 cases) → `68bec19` (docs) → `457ee51` (batch 2, 146 cases).
-> **Nothing is pushed and no PR exists — that is Phase 6.** `.tmp-diag/` is
-> git-ignored and must NOT be committed; `eval/results-*.md` is ignored except
-> `*-keep.md`.
+> ✅ **PHASE 6 IS DONE — THE CAMPAIGN IS PUSHED AND THE PR IS OPEN.**
+> **[PR #139](https://github.com/JesusFilm/jesusfilm-rag/pull/139)** — one PR for
+> all 48 sources, exactly as the operator specified on 2026-07-28.
+> **30 commits · 163 files · +54,943 / −14.** Awaiting review; **not merged.**
+> `.tmp-diag/` is git-ignored and must NOT be committed; `eval/results-*.md` is
+> ignored except `*-keep.md`.
 
 **Phases 1–2 CLOSED. Phase 3 COMPLETE. Phase 4 COMPLETE (47/47).
 ✅ PHASE 5 COMPLETE — §0.6 (baseline + probes), §0.7 (topic set), §0.9 (Part A),
@@ -128,8 +127,8 @@ The closing Part A sweep ran over all 270 pre-batch cases and came back a **no-o
 |---|---|---|---|
 | 1 | ✅ **DONE 2026-08-06 — `evaluate` flipped green for all 44 sources with suites** | Ran through `pnpm status:set` (never hand-edited); `pnpm status:check` passes. Rollup is now 47 `done` · 2 `deferred` · 1 `in-progress` (`ru-ca`, reason recorded in the file). | none |
 | 2 | ✅ **DONE 2026-08-06 — the 13 raw-scripture "Who was Jesus?" documents are excluded** | Registry rules + corpus removal + re-eval. **No measurable effect**, as expected — nothing credited them. It also uncovered the **±0.004 eval noise floor**, which matters more than the exclusion did. §0.14. | ✅ control held |
-| 3 | **Phase 6 — ONE pull request for all 48 sources** ⬅ **NEXT** | Nothing is pushed. Title must be lowercase (commitlint). Then merge to `main`. | operator |
-| 4 | **Phase 7 — production, on Jaco's VM** | `acquire:production` → `index:production` → retrieve smoke → `eval:production`. **The language sweep is MANDATORY, not optional** — see the warning below. | operator |
+| 3 | ✅ **DONE 2026-08-06 — Phase 6, one PR for all 48 sources** | **[PR #139](https://github.com/JesusFilm/jesusfilm-rag/pull/139)** · 30 commits · 163 files · +54,943 / −14. **Open, not merged** — merging is Jaco's call. | ⬅ **awaiting review** |
+| 4 | **Phase 7 — production, on Jaco's VM** ⬅ **NEXT, after the merge** | `acquire:production` → `index:production` → retrieve smoke → `eval:production`. **The language sweep is MANDATORY, not optional** — see the warning below. | operator |
 
 🔴 **PHASE 7 WILL REPRODUCE THE ENTIRE LANGUAGE INCIDENT UNLESS THE SWEEP IS
 RE-RUN.** Prod re-detects with `tinyld` at ingest, so it will regenerate **all 225
@@ -2127,8 +2126,8 @@ commands.** Not 48 rounds of anything.
 ✅ PHASE 3  index locally                 ← ONE run, all 48 at once
 ✅ PHASE 4  retrieve spot-check           ← per-language smoke, scripted   47/47
 ✅ PHASE 5  eval locally                  ← ended up as TWO batches, not per-language
-⬜ PHASE 6  ONE pull request for all 48   ← then merge to main    ⬅ NEXT
-⬜ PHASE 7  prod, on Jaco's VM            ← acquire → index → retrieve → eval
+✅ PHASE 6  ONE pull request for all 48   ← PR #139, OPEN, awaiting review
+⬜ PHASE 7  prod, on Jaco's VM            ← acquire → index → retrieve → eval  ⬅ NEXT
 ```
 
 ⓘ One corpus change is queued ahead of Phase 6 and is **not** a new phase: the
@@ -2162,8 +2161,9 @@ locally acquired.
 Phase 4 (retrieve smoke) is CLOSED — 47/47, see §0.5.
 ✅ PHASE 5 IS CLOSED as of 2026-08-06 — §0.13 supersedes this whole box.**
 
-**➡️ NEXT SESSION RESUMES AT THE RAW-SCRIPTURE EXCLUSION (step 2 of §0 START
-HERE), THEN PHASE 6 — one PR for all 48 sources.** There is no drafting left.
+**➡️ PHASES 1-6 ARE ALL CLOSED. NEXT SESSION RESUMES AT PHASE 7 — production,
+on Jaco's VM, once [PR #139](https://github.com/JesusFilm/jesusfilm-rag/pull/139)
+merges.** There is no drafting and no local work left.
 
 Settled 2026-08-03/06, do not re-litigate:
 - **Scope:** all 45 languages get golden treatment (§7).

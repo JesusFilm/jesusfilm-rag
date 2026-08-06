@@ -199,6 +199,19 @@ export const everystudentDe: SourceEntry = {
     // The whole article corpus and nothing else: 45 of the 70 distinct sitemap URLs.
     articleHints: ["^https://www\\.duentscheidest\\.com/artikel/[^/]+\\.html$"],
     block: [
+      // The estate's "Who was Jesus?" page (26,343 chars) — curated highlights
+      // from the Gospel of John carrying the family's own formula: excerpts
+      // taken straight from the Bible with NO COMMENTARY ADDED. Verbatim
+      // Scripture, not ministry writing, so it is excluded 2026-08-06 under the
+      // same estate-wide policy that blocked the FULL Gospel of John
+      // (`sq /a/gjoni.html` 98.9k, `es /articulos/biblia_juan.html` 100.4k) and
+      // `everystudent-ar`'s /bible/**.pdf: "outside what this corpus answers
+      // from". This is the ~20-26k curated version of the same thing; all 13
+      // instances across the estate go together (campaign #111 §0.13).
+      // NOT inert — sibling copies took ranks 7 and 8 on a cross question,
+      // consuming top-10 slots a real answer would hold.
+      // It matches the article shape, so only a URL block catches it.
+      "^https://www\\.duentscheidest\\.com/artikel/werwar\\.html$",
       // Audio-player pages reprinting the article as a transcript — all 11 slugs
       // have an /artikel/ twin; /audio/gibtes.html shares 73.3% of its 12-word
       // shingles with /artikel/gibtes.html. Ingesting both double-counts.

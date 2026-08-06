@@ -39,7 +39,14 @@ describe("everystudent-hy registry entry", () => {
     expect(everystudentHy.crawl.allow).toBeUndefined();
     expect(everystudentHy.crawl.articleHints).toBeUndefined();
     expect(everystudentHy.crawl.block).toBeUndefined();
-    expect(everystudentHy.crawl.seedPaths).toHaveLength(34);
+    // 33, not 34: /a/whowas.html was removed 2026-08-06 under the estate-wide
+    // scripture policy — 20,922 chars of Gospel-of-John excerpts that say so
+    // themselves («Ոչ մի մեկնաբանություն ավելացված չէ» — no commentary added).
+    // It was the one seed the entry's original "no Scripture pages" audit
+    // missed, because that audit measured citation DENSITY and this page is
+    // continuous narrative. Campaign #111 §0.13.
+    expect(everystudentHy.crawl.seedPaths).toHaveLength(33);
+    expect(everystudentHy.crawl.seedPaths).not.toContain("/a/whowas.html");
     // Bare Apache, no Cloudflare layer anywhere — plain HTTP, not Firecrawl.
     expect(everystudentHy.crawl.fetchStrategy).toBeUndefined();
     expect(everystudentHy.languages).toEqual(["hy"]);
@@ -101,7 +108,7 @@ describe("everystudent-hy registry entry", () => {
     expect(seeds).not.toContain("/contact.html");
     expect(seeds.filter((p) => p.startsWith("/m/"))).toEqual([]);
     // What remains is exactly the article corpus, each a distinct /a/ page.
-    expect(seeds.filter((p) => /^\/a\/[A-Za-z]+\.html$/.test(p))).toHaveLength(34);
+    expect(seeds.filter((p) => /^\/a\/[A-Za-z]+\.html$/.test(p))).toHaveLength(33);
     expect(new Set(seeds).size).toBe(seeds.length);
   });
 });

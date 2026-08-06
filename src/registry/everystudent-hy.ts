@@ -86,8 +86,19 @@
  *     `/4laws.html` and `/gospel.html` all return 404. The estate-standard
  *     signup landers this campaign drops elsewhere simply are not published on
  *     this banner.
- *   - **No Scripture pages.** Every one of the 34 seeds is ministry writing.
- *     The longest, `/a/bible.html` (24,928 ch, «Ինչո՞ւ է Աստվածաշունչը
+ *   - 🔴 **CORRECTED 2026-08-06 — this claim was WRONG.** It read "No Scripture
+ *     pages. Every one of the 34 seeds is ministry writing." **One of them was
+ *     not:** `/a/whowas.html` (20,922 ch) is the estate's "Who was Jesus?" page,
+ *     curated highlights from the Gospel of John that say so in their own first
+ *     paragraph — «Ոչ մի մեկնաբանություն ավելացված չէ», no commentary added.
+ *     It is now removed from `seedPaths`, leaving **33 seeds**, all of which
+ *     genuinely are ministry writing. ⚠️ **Why the original audit missed it:**
+ *     it measured scripture-citation DENSITY, and this page's citations are
+ *     continuous Gospel narrative rather than the dense chapter-and-verse
+ *     apparatus the density test looks for. Density under-detects; the reliable
+ *     test is the article's own stated formula (campaign #111 §0.13 finding 3).
+ *     The rest of the original finding stands and is worth keeping:
+ *     the longest page, `/a/bible.html` (24,928 ch, «Ինչո՞ւ է Աստվածաշունչը
  *     վստահելի» — "Why is the Bible trustworthy"), is an apologetics ESSAY about
  *     the Bible, not the Bible: it argues in an author's voice and closes on a
  *     numbered secondary-source bibliography (Strobel, Geisler, McDowell,
@@ -304,7 +315,14 @@ export const everystudentHy: SourceEntry = {
       "/a/where.html",
       "/a/whodoyousay.html",
       "/a/whois.html",
-      "/a/whowas.html",
+      // "/a/whowas.html" — REMOVED 2026-08-06. 20,922 chars of curated
+      // highlights from the Gospel of John: "Ոչ մի մեկնաբանություն ավելացված
+      // չէ" — no commentary added. Verbatim Scripture, not ministry writing,
+      // excluded under the estate-wide policy with all 13 sibling copies
+      // (campaign #111 §0.13). ⚠️ This one was NOT inert: it took rank 7
+      // (0.603) on a cross question during drafting, consuming a top-10 slot a
+      // real answer would hold. A `block` rule would be dead config here —
+      // this is a seed-only source, so the seed list IS the filter.
       "/a/why.html",
       "/a/whydid.html",
       "/a/whypick.html",
@@ -342,7 +360,7 @@ export const everystudentHy: SourceEntry = {
       // .fctable, .shareiconsmenupg, .relatedbottom.
     ],
     requestDelayMs: 1000, // direct fetches, bare Apache; 0 x 429 across ~130 probes
-    maxPages: 60, // 34 seeds + headroom
+    maxPages: 60, // 33 seeds + headroom
     minContentLength: 250,
   },
 };

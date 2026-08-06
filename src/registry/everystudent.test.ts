@@ -30,7 +30,11 @@ describe("everystudent registry entry", () => {
     // and /sitemap.xml is 403 to plain HTTP anyway. A `sitemaps` entry here
     // would re-pay per scrape for URLs we already hold.
     expect(entry.crawl.sitemaps).toBeUndefined();
-    expect(entry.crawl.seedPaths).toHaveLength(117);
+    // 116, not 117: /wires/who-was-jesus.html was removed 2026-08-06 under the
+    // estate-wide scripture policy — 22,465 chars of Gospel-of-John excerpts
+    // with, in the page's own words, "no commentary added" (campaign #111).
+    expect(entry.crawl.seedPaths).toHaveLength(116);
+    expect(entry.crawl.seedPaths).not.toContain("/wires/who-was-jesus.html");
   });
 
   it("everystudent seeds exclude the /podcasts/ duplicates and the section indexes", () => {

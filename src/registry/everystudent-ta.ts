@@ -357,6 +357,19 @@ export const everystudentTa: SourceEntry = {
     // appears in any URL.
     articleHints: ["^https://www\\.ungalthervuenna\\.com/a/[^/]+\\.html$"],
     block: [
+      // The estate's "Who was Jesus?" page (25,957 chars) — curated highlights
+      // from the Gospel of John carrying the family's own formula: excerpts
+      // taken straight from the Bible with NO COMMENTARY ADDED. Verbatim
+      // Scripture, not ministry writing, so it is excluded 2026-08-06 under the
+      // same estate-wide policy that blocked the FULL Gospel of John
+      // (`sq /a/gjoni.html` 98.9k, `es /articulos/biblia_juan.html` 100.4k) and
+      // `everystudent-ar`'s /bible/**.pdf: "outside what this corpus answers
+      // from". This is the ~20-26k curated version of the same thing; all 13
+      // instances across the estate go together (campaign #111 §0.13).
+      // NOT inert — sibling copies took ranks 7 and 8 on a cross question,
+      // consuming top-10 slots a real answer would hold.
+      // It matches the article shape, so only a URL block catches it.
+      "^https://www\\.ungalthervuenna\\.com/a/whowas\\.html$",
       // The 7 section indexes (existence, questions, relationships, knowing,
       // forum, map, about) — headline+teaser link lists extracting 265-1,176
       // chars, so they CLEAR the 250 floor and only a URL block excludes them.

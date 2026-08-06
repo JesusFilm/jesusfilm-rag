@@ -20,29 +20,37 @@ next one starts from truth. A stale board is worse than none: it is the exact
 failure `docs/STATUS.md` hit on 2026-07-17, when a narrative doc reported a
 finished cutover as pending.
 
-**Last regenerated: 2026-08-04, end of session — after BATCH 1 (all 11 remaining
-tier-A sources) was drafted in parallel, approved in one turn, written and
-measured. 14 of 45 golden suites are done.**
+**Last regenerated: 2026-08-06, end of session — after BATCH 2 (all 30 remaining
+sources, tiers B+C+D) was drafted in parallel, approved in one turn, written,
+committed and measured, and after the mandatory CLOSING PART A SWEEP ran clean.
+🎉 PHASE 5 IS COMPLETE: 44 of 45 acquired sources have a golden suite.**
 
 **47 of 48 registered · 45 acquired · 2 deferred · 1 open · 2,281 documents ·
 0 duplicate-content groups · 0 doctype leaks · 0 null-language**
 
-> 🔴 **NOTHING IN THIS CAMPAIGN IS COMMITTED YET.**
-> The whole of Phase 5 — **270 cases** in `eval/qa-golden.yaml`, **15**
-> `eval/candidates-*.yaml` working records, **5** `eval/results-*-keep.md` runs,
-> the `scripts/eval*.ts` `evidence_tier` work, and this file — is **uncommitted
-> on `feat/everystudent-siblings`**. Last commit is `578a76a` (Phase 4 close).
-> **A fresh session should commit before doing anything else.** `.tmp-diag/` is
+> ✅ **THE CAMPAIGN IS COMMITTED, AND NOT YET PUSHED.**
+> Four commits sit on `feat/everystudent-siblings` ahead of `main`:
+> `578a76a` (Phase 4 close) → `0c56a3d` (`evidence_tier`) → `cd18b6c` (batch 1,
+> 140 cases) → `68bec19` (docs) → `457ee51` (batch 2, 146 cases).
+> **Nothing is pushed and no PR exists — that is Phase 6.** `.tmp-diag/` is
 > git-ignored and must NOT be committed; `eval/results-*.md` is ignored except
 > `*-keep.md`.
 
 **Phases 1–2 CLOSED. Phase 3 COMPLETE. Phase 4 COMPLETE (47/47).
-PHASE 5 IS IN PROGRESS — §0.6 (baseline + probes), §0.7 (topic set), §0.9
-(Part A ✅ CLOSED), §0.8/§0.10/§0.11/§0.12 (Part B — 14 of 45 suites written).**
+✅ PHASE 5 COMPLETE — §0.6 (baseline + probes), §0.7 (topic set), §0.9 (Part A),
+§0.8/§0.10/§0.11 (suites 1–3), §0.12 (batch 1, 11 sources), §0.13 (batch 2, 30
+sources), and the closing Part A sweep (§0.13) which came back a NO-OP.**
 The bulk `pnpm index` ran to completion on 2026-07-30 (operator-approved) through
 the ADR-0015 gateway.
 
 ### 🔴 OPERATOR DIRECTION 2026-08-04 — STOP THE ONE-SOURCE-AT-A-TIME LOOP. GO BULK.
+
+> ✅ **CARRIED OUT IN FULL.** Two batches replaced 42 approval turns with 2:
+> batch 1 (11 sources, §0.12) and batch 2 (**all 30 remaining**, §0.13). The
+> section below is kept because it is the *reasoning*, and because Phase 6+7 must
+> not quietly reintroduce the per-source shape. Jaco repeated the direction on
+> 2026-08-06 — *"we can't continue one source at a time"* — which is what turned
+> batches B, C and D into a single 30-source batch.
 
 **Jaco's words:** *"I'm not liking this one by one thing we are doing — if I knew
 this would be the approach I could have just run `/slice` on each of the 48
@@ -107,66 +115,39 @@ The judgement is the product, not the ceremony. Every source in a batch still ge
 5. Verify every credited path resolves to exactly one document, no null-language.
 6. `# EN:` gloss + `# RETRIEVED` block + `evidence_tier: llm-translated`.
 
-### ⏭️ START HERE — BATCH B = the 14 mid-tier sources (41–67 docs each)
+### ⏭️ START HERE — PHASE 5 IS DONE. THE REMAINING WORK IS SHIPPING, NOT MEASURING.
 
-**Batch 1 (tier A) is CLOSED — all 14 sources ≥70 docs now have suites. See §0.12
-for the record, the results and the reusable agent brief.** Batch B has not started.
+**All drafting, checking, approving, writing and measuring is finished.** 44 of 45
+acquired sources have a golden suite; `ru-ca` was deliberately skipped (5
+documents — a 4-case floor would enumerate the corpus, not measure it; §16).
+The closing Part A sweep ran over all 270 pre-batch cases and came back a **no-op**.
 
-⚠️ **The list below is DERIVED FROM THE DATABASE, not from §0.7's tier table.**
-§0.7 estimated "B = 16 sources, 830 docs"; the real count is **14 sources, 696
-docs**. §0.7's tiering was drawn up before `sr`/`he` were deferred. **Trust this
-query, per §0.1** (counts come from the database, never from prose):
+**Do these in order. Nothing below needs a new eval except step 2.**
 
-```bash
-docker exec jesusfilm-rag-db psql -U jesusfilm_rag -d jesusfilm_rag -c "
-  select s.key, count(*) docs, greatest(4, least(10,(count(*)/8)::int)) cases
-  from documents d join sources s on s.id=d.source_id
-  where s.key like 'everystudent-%' and s.key not in ('everystudent-ar','everystudent-fr')
-  group by 1 order by 2 desc;"
-```
+| # | Step | What it is | Gate |
+|---|---|---|---|
+| 1 | ✅ **DONE 2026-08-06 — `evaluate` flipped green for all 44 sources with suites** | Ran through `pnpm status:set` (never hand-edited); `pnpm status:check` passes. Rollup is now 47 `done` · 2 `deferred` · 1 `in-progress` (`ru-ca`, reason recorded in the file). | none |
+| 2 | ✅ **DONE 2026-08-06 — the 13 raw-scripture "Who was Jesus?" documents are excluded** | Registry rules + corpus removal + re-eval. **No measurable effect**, as expected — nothing credited them. It also uncovered the **±0.004 eval noise floor**, which matters more than the exclusion did. §0.14. | ✅ control held |
+| 3 | **Phase 6 — ONE pull request for all 48 sources** ⬅ **NEXT** | Nothing is pushed. Title must be lowercase (commitlint). Then merge to `main`. | operator |
+| 4 | **Phase 7 — production, on Jaco's VM** | `acquire:production` → `index:production` → retrieve smoke → `eval:production`. **The language sweep is MANDATORY, not optional** — see the warning below. | operator |
 
-| Source | Docs | Cases |
-|---|---:|---:|
-| `vi` 67 · `ro` 64 | 131 | 8 each |
-| `id` 57 | 57 | 7 |
-| `ms` 52 · `mk` 49 · `lt` 49 · `bn` 48 | 198 | 6 each |
-| `uk` 47 · `et` 46 · `zh-tw` 46 · `de` 45 · `th` 44 · `am` 41 · `hr` 41 | 310 | 5 each |
+🔴 **PHASE 7 WILL REPRODUCE THE ENTIRE LANGUAGE INCIDENT UNLESS THE SWEEP IS
+RE-RUN.** Prod re-detects with `tinyld` at ingest, so it will regenerate **all 225
+nulls and all 182 mislabels** from scratch — §0.4's fix lives in the *local*
+database, not in the code path. For Persian this is a **certainty, not a risk**:
+§0.12 measured that **74 of 75 Persian documents contain Arabic-form ي/ك**, so the
+text genuinely reads as Arabic to a character-frequency detector. Commands: §0.4.
 
-**14 sources · 696 docs · ≈ 82 cases.** Run as ONE batch: draft all 14 in
-parallel, present once, write once, then a single `pnpm eval`. **Do not revert to
-one-source-at-a-time — the operator ruled against it on 2026-08-04** (see the
-OPERATOR DIRECTION block above).
+#### What is deliberately NOT being done, and why
 
-#### The whole remaining runway, from the same query
-
-| Batch | Sources | Docs | ≈ Cases |
-|---|---:|---:|---:|
-| **B** — mid (41–67) ⬅ **NEXT** | 14 | 696 | 82 |
-| **C** — small (30–38) | 9 | 300 | 36 |
-| **D** — tiny (5–23) | 8 | 126 | 32 |
-| **TOTAL REMAINING** | **31** | **1,122** | **≈150** |
-
-Then `qa-golden.yaml` reaches roughly **420 cases**, and the mandatory closing
-Part A sweep (§0.12) runs.
-
-ⓘ `ru-ca` holds only **5 documents** and the floor of 4 cases would be almost one
-question per document — §16 already records it as a mirror of `everystudent-ru`.
-**Decide in batch D whether it gets a suite at all**; a 4-case suite over 5
-documents enumerates rather than measures.
-
-⚠️ **Persona balance below 10 cases.** §0.7's skeptic 4 · newcomer 3 · seeker 2 ·
-believer 1 is defined for ten. For 4–6 cases keep **at least three personas** and
-stay skeptic-weighted; say in the candidates file which topics were dropped.
-
-⚠️ **Four sources in batch B need the care `everystudent-es` got:**
-- **`zh-tw`** shares the `zh` bucket with `zh-cn` AND `thelife-zh`, and it is the
-  weakest source in the whole suite today (**coverage 0.500 on n=3**, carried
-  entirely by borrowed credits). Its own suite should fix that — check it does.
-- **`hr` `am` `hi`** were language-sweep casualties (§0.4). Their buckets held
-  foreign documents until 2026-07-31. Verify labels before crediting.
-
-Templates: §0.12's agent brief (complete, ready to paste), plus §0.10/§0.11.
-Assembly + verification: `.tmp-diag/assemble-batch.ts` (see §0.12).
+| Item | Ruling |
+|---|---|
+| `ru-ca` suite | **Skipped.** 5 documents; revisit only if it ever grows past ~20. |
+| `lv` (49 articles) | **Rights, not engineering** — `robots.txt` names `ClaudeBot`. Ask Agape Students Latvia → [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133). Do not out-engineer it. |
+| `sr` · `he` | Deferred by decision → [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129) · [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132) |
+| `cru` duplicate content | Real defect, **out of campaign scope** — one prayer article at 5 paths (~105 duplicate chunks) + 9 duplicate-title pairs. Needs its own ticket. |
+| English-estate coverage | `starting-with-god` 0.375 · `jesusfilm-org` 0.537 · `sightline-ministry` 0.563 · `thelife` 0.616 · `cru` 0.626 drag `en` to **0.641**. Pre-existing, untouched by this campaign, and now **the largest quality gap in the corpus**. Its own slice. |
+| DNA/Flew retry on `hu`/`ro` | Optional polish. A kept miss is a legitimate recorded gap. §0.13 finding 4. |
 
 **Measured state, 2026-07-30 (queries in §0.1):**
 
@@ -182,25 +163,35 @@ Assembly + verification: `.tmp-diag/assemble-batch.ts` (see §0.12).
 | Gate | **764 tests green** (761 + 3 for `evidence_tier`) |
 | Retrieve (Phase 4) | ✅ **47 / 47, zero wrong-language hits** (2026-08-03) — see §0.5 |
 | Language | ✅ **FIXED 2026-07-31** — 225 `null` → **0**; 182 mislabelled → **0**. See §0.4 |
-| Eval, latest | **270 cases** · recall@10 **1.000** · coverage **0.841** · recall@3 **0.956** · MRR **0.857** · P@1 **0.759** — `eval/results-2026-08-04-batch1-tierA-keep.md` |
+| Eval, latest | **416 cases** · recall@10 **1.000** · coverage **0.887** · recall@3 **0.966** · MRR **0.872** · P@1 **0.781** — `eval/results-2026-08-06-post-scripture-exclusion-keep.md` |
+| ⚠️ Eval noise floor | 🔴 **±0.004.** Two runs an hour apart drift on **240 of 416 cases**; the embedder is not bit-deterministic. **Ignore coverage moves under ~0.005 and single-credit flips** — §0.14 |
+| Corpus | **13,956 docs · 47,426 chunks · 47,426 embeddings** after the raw-scripture exclusion (was 13,969 / 47,618) |
 | Retrieval floor (Phase 5) | ✅ **mean self@1 0.830 · self@10 0.973** over 376 queries — **no language collapses** — §0.6 |
 | Eval scope | ✅ **ALL 45 languages**, `evidence_tier` on unverifiable evidence (Jaco, 2026-08-03) — §7 |
 | Topic set (§0.7) | ✅ **10 topics APPROVED** 2026-08-03, engine-checked over 13→128-doc corpora |
-| Golden suites written | **14 of 45** — `zh-cn` `ru` `bg` (§0.8/§0.10/§0.11) + the 11 tier-A sources of batch 1 (§0.12). ⚠ a fresh suite's first number is n=10 and NOISY — see §0.11 |
+| Golden suites written | ✅ **44 of 45 acquired sources.** `zh-cn` `ru` `bg` (§0.8/§0.10/§0.11) + 11 tier-A (§0.12) + **30 in batch 2** (§0.13). Only `ru-ca` has none, by decision. ⚠ a fresh suite's first number is n=4–10 and NOISY — §0.11 |
 | Part A (18 cases) | ✅ **DONE 2026-08-04** — 26 credits over 8 cases; P@1 **0.707 → 0.736**; 3 cases went rank 4/7 → **rank 1** — §0.9 |
 | Batch 1 — tier A (11 sources) | ✅ **DONE 2026-08-04** — 110 cases · 315 credits · all 11 at recall@10 **1.000** — §0.12 |
-| Batch B — mid tier (**14** sources, 41–67 docs) | ⬜ **NOT STARTED — this is the next action.** ≈82 cases — see START HERE |
-| Batch C (9 sources, 30–38 docs) · Batch D (8 sources, 5–23 docs) | ⬜ not started — ≈36 + ≈32 cases |
-| 🔴 CLOSING Part A sweep | ⬜ **REQUIRED, not optional** — see §0.12 |
+| Batch 2 — tiers B+C+D (**30** sources) | ✅ **DONE 2026-08-06** — 146 cases · 333 credits · **every one of the 30 at recall@10 1.000** — §0.13 |
+| 🔴 CLOSING Part A sweep | ✅ **DONE 2026-08-06 — NO-OP.** All 270 pre-batch cases swept; 10 flagged, every one already ruled on in §0.9. Nothing to write — §0.13 |
+| Regression the campaign caused | ✅ **REPAIRED.** `es` 0.896 → **0.938** (back to pre-campaign); `zh` 0.733 → **0.843** (97% of the drop recovered). §0.6 called it a stale-key artefact, not a retrieval regression, and was right. |
 
-Per-stage state: **45 sources at `acquire: green` + `ingest: green`**;
-`retrieve`/`evaluate` still `pending` in `docs/source-status.yaml`. `sr` and `he`
-remain `deferred` with every stage pending — they were correctly NOT flipped.
+Per-stage state in `docs/source-status.yaml`, **verified by `pnpm status:check`
+on 2026-08-06**: **45 sources at `acquire`/`ingest`/`retrieve` green**, and **44
+of them now `evaluate: green` and `status: done`** — flipped 2026-08-06 through
+`pnpm status:set`, the only sanctioned mutator (the file must never be
+hand-edited). Rollup: **47 `done` · 2 `deferred` · 1 `in-progress`.**
 
-⚠️ **`retrieve` was NOT flipped to green despite Phase 4 passing 47/47**, and
-that is deliberate, not an oversight: §7 says do not write stage verdicts into
-`docs/source-status.yaml` while Phase 5 is mid-flight. Flip `retrieve` and
-`evaluate` together, once per source, when its golden suite lands.
+- `ru-ca` is the lone `in-progress` — `evaluate: pending`, with the reason now
+  recorded in the file itself: it has no golden suite by decision.
+- `sr` and `he` remain `deferred` with every stage pending — correctly NOT flipped.
+- `everystudent` (en), `-ar` and `-fr` were already `done`; they are the three
+  walled banners and are not part of this campaign.
+
+ⓘ **`retrieve` went green at Phase 4 (2026-08-02/03), `evaluate` only now.** §7
+says do not write stage verdicts while Phase 5 is mid-flight, and flip `evaluate`
+once per source when its golden suite lands. Phase 5 is closed, so all 44 flipped
+in one pass rather than 44 separate turns.
 
 The 8 `everystudent-zh-cn` documents left by the earlier stopped run were
 **kept**, not rolled back; the bulk run drained the remaining 120 and skipped
@@ -1273,7 +1264,9 @@ lesson either way, so nothing depends on it today.
 ⚠️ **SUPERSEDED 2026-08-04 — this describes the retired one-at-a-time loop.**
 The operator stopped it; see the OPERATOR DIRECTION block in §0. **Tier A is now
 COMPLETE — all 14 of its sources have suites** (`zh-cn` §0.8, `ru` §0.10, `bg`
-§0.11, and the 11 of batch 1 in §0.12). Next is **batch B**, 14 mid-tier sources.
+§0.11, and the 11 of batch 1 in §0.12). ✅ **And so is everything after it:
+batches B, C and D all landed together on 2026-08-06 as one 30-source batch
+(§0.13). There is no "next batch" — Phase 5 is closed.**
 The per-source recipe below still applies to each source WITHIN a batch —
 `.tmp-diag/phase5-partb-discover.ts <sourceKey> <language>` and the §0.7 topic
 menu. **`es`'s Part A credits are already in**, so its Part B pass no longer
@@ -1492,10 +1485,14 @@ reads **0.956**. Do not act on a per-source number below ~8 cases.
 Batch 1 found three that §0.9/§0.11 did not have. All six, in the order they bite:
 
 1. **BOILERPLATE TAIL** (§0.9). Nearly every article closes with the same
-   gospel-summary + invitation prayer, which is its own chunk. Severity **tracks
-   the testimony share**: `hu` is 24% `/story/` and had tails at ranks 1, 2 AND 3
-   for its cross case; `pt` has zero testimonies and kept the atonement article at
-   rank 1. 🔑 **"Forgiveness of sins" is the estate's trigger phrase** — Turkish
+   gospel-summary + invitation prayer, which is its own chunk. ⚠️ **Severity does
+   NOT track the testimony share — that claim was wrong and §0.13 finding 5
+   replaces it.** It tracks **how many documents carry the invitation-prayer
+   chunk, wherever they are filed**; at 0% testimony ONE magnet document absorbs
+   the entire load (`mk /a/molitvi306.html` was rank 1 for anxiety in a source
+   with no story tree at all). The original evidence still stands as far as it
+   goes: `hu` is 24% `/story/` and had tails at ranks 1, 2 AND 3 for its cross
+   case. 🔑 **"Forgiveness of sins" is the estate's trigger phrase** — Turkish
    put it in a question and got Catholic-vs-Christian at rank 1, marriage advice at
    rank 2, sex-and-intimacy at rank 6. Removing it dropped 0.755 → 0.701 and
    cleared **all five tails** from the top 10. **Never put it in a question.**
@@ -1526,12 +1523,24 @@ Batch 1 found three that §0.9/§0.11 did not have. All six, in the order they b
 five rounds — 0.75 was never reachable, and all five rounds went to *reach*.
 Calibrate per source; judge reach by which documents return.
 
+🔴 **Do not generalise that into "small sources cannot smell" — §0.13 finding 1
+proves the opposite, and I got this backwards in writing.** Smell risk **rises**
+as the corpus **shrinks**: at 13 documents each topic has exactly one article and
+no near-duplicates to split the similarity, so a well-aimed question lands almost
+on the document itself. `sw` (13 docs) hit **0.814**, higher than any 41–67-doc
+source ever reached. **Never reason about smell headroom from anything except the
+in-language check.**
+
 #### Estate-level findings, now quantified
 
-**The atonement gap is settled.** 8 sources have a dedicated "why did Jesus die?"
+**The atonement gap.** 8 tier-A sources have a dedicated "why did Jesus die?"
 article and rank it 1–5 (`cs` has TWO, at ranks 1 and 2). 3 do not — `ru`,
-`zh-cn`, `mn`. **`esru-newcomer-krest`'s expected miss is corpus composition,
-confirmed eight times.** Do not re-open it.
+`zh-cn`, `mn`. ⚠️ **The 8-vs-3 ratio is a tier-A artefact and inverts across the
+estate: batch 2's first 13 sources ran 4 with, 9 without, taking the running
+total to 12 of 24 measured sources WITHOUT one** (§0.13 finding 2). It does not
+track document count — `vi` (67 docs) and `ro` (64) are the two largest in that
+group and both lack it. **`esru-newcomer-krest`'s expected miss is corpus
+composition, confirmed a dozen times over.** Do not re-open it.
 
 **The `bible-trust`/*tahrif* pattern is about PUBLISHING, not audience — an
 earlier generalisation in this file was wrong.** Japan (not Muslim-majority)
@@ -1546,16 +1555,21 @@ reads as Arabic to a character-frequency detector. **The sweep fixed the labels,
 not the text.** So §0.4's "prod will reproduce the mislabels" is a *certainty* for
 Persian, not a precaution — Phase 7's re-sweep is mandatory.
 
-#### Two OPEN decisions carried out of batch 1
+#### Two decisions carried out of batch 1 — #1 RESOLVED, #2 still open
 
-1. 🔴 **A raw-scripture document survived the §12 exclusion.**
+1. ✅ **RESOLVED 2026-08-06, and the premise below was WRONG — there are 13, not 1.**
    `everystudent-sq` `/a/ishte.html`, 24,883 chars, opens *"These are extracts
    taken directly from the Gospel of John… **no commentary added**"* then runs
    into John 3. Same class as `sq /a/gjoni.html` (98.9k), `es
    /articulos/biblia_juan.html` (100.4k) and the Arabic Gospel of John (#131) —
-   all three of which WERE excluded. **Audited all 45 sources: it is the only one
-   left.** Not credited anywhere, so it cannot corrupt a score, but it takes
-   top-10 slots (rank 6 and 8 during drafting). **Exclude it, or leave it inert?**
+   all three of which WERE excluded.
+   🔴 **"Audited all 45 sources: it is the only one left" is false.** It is one
+   instance of the estate's **"Who was Jesus?"** page, which exists in **13
+   sources** — see §0.13 finding 3 for the full table and the audit method that
+   found them (a verse-density regex under-detects; slug family + size band does
+   not). It is also **not inert**: `hy /a/whowas.html` takes rank 7 and
+   `de /artikel/werwar.html` rank 8, consuming slots a real answer would hold.
+   **Jaco approved excluding all 13 on 2026-08-06** — that is step 2 of START HERE.
 2. **`cru` carries a duplicate-content defect that degrades the live Spanish eval.**
    One prayer article at **5 paths** (`21/22/23/24-cosas-por-las-cuales-orar…`,
    ~21 chunks each ≈ 105 duplicate chunks) plus **9 more duplicate-title pairs** in
@@ -1571,20 +1585,26 @@ agents compared different articles; `fa` has no chakra document.
 
 #### 🔴 THE CLOSING PART A SWEEP — required, and bulk made it necessary
 
+> ✅ **RAN 2026-08-06 and came back a NO-OP.** Record in §0.13.
+
 Per-source Part A is impossible now. The living-relevant-set rule says a new
 source makes prior questions answerable by new documents; with 42 sources landing
 in batches, **one final Part A sweep over every existing case must run after the
 last suite lands.** Without it the keys go stale exactly as §0.9 found them.
-`.tmp-diag/phase5-parta.ts` is the starting point — widen its case filter from
-`tlzh-`/`cru-es-` to every case, and widen its 240-char text slice.
+`.tmp-diag/phase5-parta.ts` was the starting point — widened into
+`.tmp-diag/phase5-parta-sweep.ts` as specified (every case, 600-char slice).
 
 #### 🧰 The batch machinery — reuse it verbatim
+
+⚠️ **The per-source check scripts named below were SUPERSEDED in batch 2 by one
+generic tool.** Hand-writing a bespoke check per source was the real reason batch
+1 was slow — not lack of parallelism. Use `phase5-check.ts`. See §0.13.
 
 | Tool | What it does |
 |---|---|
 | `.tmp-diag/phase5-partb-discover.ts <key> <lang>` | candidate pool with chunk text, per §0.7 topic |
-| `.tmp-diag/phase5-hu-check.ts` / `phase5-tr-check.ts` | **the correct engine-check pattern** — declares credits by PATH, uses the DB only to VALIDATE (uniqueness + non-null language), fails loudly |
-| `.tmp-diag/assemble-batch.ts [--write] <keys…>` | reads every `eval/candidates-everystudent-<k>.yaml`, **re-verifies every claim against the database**, emits the `qa-golden.yaml` block. Aborts the whole batch on any failure — a partial write is worse than none. Dry-run without `--write`. |
+| ~~`.tmp-diag/phase5-hu-check.ts` / `phase5-tr-check.ts`~~ | the correct *pattern* — credits declared by PATH, DB used only to VALIDATE — but **replaced by the generic `phase5-check.ts`** |
+| `.tmp-diag/assemble-batch.ts [--write] [--show] <keys…>` | reads every `eval/candidates-everystudent-<k>.yaml`, **re-verifies every claim against the database**, emits the `qa-golden.yaml` block. Aborts the whole batch on any failure — a partial write is worse than none. Dry-run without `--write`. |
 
 ⚠️ **Do NOT copy `.tmp-diag/phase5-bg-check.ts`** — it resolves credit paths from
 TITLES. Japanese found a duplicated title naming two DIFFERENT documents, one of
@@ -1607,6 +1627,419 @@ the two verification queries; the output-file spec; and a **YAML-parses check**
 `{...}` flow mapping). Ask for the return as data: counts, per-round check
 numbers, verification results, every trap instance with its document, content
 gaps, and what the reviewer must decide.
+
+### 0.13 ✅ BATCH 2 — ALL 30 REMAINING SOURCES IN ONE BATCH. PHASE 5 CLOSED (2026-08-06)
+
+**Jaco, opening the session: *"I'm entirely unsure where we've got to, but I do
+know we can't continue one source at a time. We need to knock out the remaining
+work fast."*** So tiers B, C and D were collapsed into **one batch of 30 sources**
+— drafted by 30 parallel subagents, approved in ONE turn, written with one
+command, committed as `457ee51`, measured with one eval. Cases **270 → 416**.
+
+#### 🔑 What actually made batch 1 slow — it was not a lack of parallelism
+
+Batch 1 already ran 11 agents concurrently. The cost was that **every agent
+hand-wrote its own bespoke check script** (`phase5-hu-check.ts`,
+`phase5-tr-check.ts`, …) before it could measure anything. Two generic tools
+removed that entirely, and both were validated by **reproducing `hu`'s recorded
+batch-1 numbers exactly** before a single new agent was launched:
+
+| Tool | What it replaced |
+|---|---|
+| `.tmp-diag/phase5-openings.ts <key>` | per-agent SQL. Pure-DB, no embedder. Dumps every document's path/title/**char length**/chunks/language/opening, plus a hazard report and a short-document watchlist. |
+| `.tmp-diag/phase5-check.ts <key> <lang> [--update]` | **all 30 bespoke check scripts.** Reads `eval/candidates-everystudent-<key>.yaml` — *the same file `assemble-batch.ts` consumes* — so draft, check and the eventual qa-golden block cannot drift. Verifies first and **exits before retrieval on failure**; then reports top score, smell verdict, every credit's rank, and every uncredited own-source hit with its char length. `--update` writes measured ranks back into the YAML, comments preserved, so the `# RETRIEVED` block is **measured, never typed**. |
+
+#### The 30 suites
+
+Tier B — mid (41–67 docs):
+
+| Source | Docs | Cases | Credits | Rounds | Coverage | Source | Docs | Cases | Credits | Rounds | Coverage |
+|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|
+| `vi` | 67 | 8 | 22 | 4 | 0.927 | `et` | 46 | 5 | 12 | 5 | **1.000** |
+| `ro` | 64 | 8 | 21 | 3 | 0.975 | `zh-tw` | 46 | 5 | 11 | 3 | 0.813 ⁽¹⁾ |
+| `id` | 57 | 7 | 16 | 3 | 0.952 | `de` | 45 | 5 | 11 | 2 | 0.950 |
+| `ms` | 52 | 6 | 16 | 4 | **1.000** | `th` | 44 | 5 | 10 | 3 | **1.000** |
+| `mk` | 49 | 6 | 16 | 3 | 0.967 | `hr` | 41 | 5 | 15 | 4 | 0.960 |
+| `lt` | 49 | 6 | 15 | 3 | **1.000** | `am` | 41 | 5 | 11 | 3 | 0.933 |
+| `bn` | 48 | 6 | 14 | 2 | 0.958 | | | | | | |
+| `uk` | 47 | 5 | 16 | 2 | **1.000** | | | | | | |
+
+Tier C — small (30–38 docs) · Tier D — tiny (13–23 docs):
+
+| Source | Docs | Cases | Credits | Coverage | Source | Docs | Cases | Credits | Coverage |
+|---|---:|---:|---:|---:|---|---:|---:|---:|---:|
+| `it` | 38 | 4 | 10 | 0.938 | `sl` | 23 | 4 | 6 | **1.000** |
+| `ko` | 37 | 4 | 12 | **1.000** | `ne` | 20 | 4 | 6 | **1.000** |
+| `hi` | 34 | 4 | 8 | **1.000** | `om` | 18 | 4 | 7 | **1.000** |
+| `hy` | 34 | 4 | 7 | **1.000** | `kk` | 17 | 4 | 7 | **1.000** |
+| `ur` | 33 | 4 | 9 | **1.000** | `ka` | 16 | 4 | 6 | **1.000** |
+| `el` | 32 | 4 | 7 | 0.875 | `ti` | 14 | 4 | 8 | **1.000** |
+| `my` | 31 | 4 | 11 | 0.833 | `sw` | 13 | 4 | 5 | **1.000** |
+| `ta` | 31 | 4 | 9 | **1.000** | | | | | |
+| `te` | 30 | 4 | 9 | **1.000** | | | | | |
+
+**30 sources · 146 cases · 333 credits · every one at recall@10 = 1.000.**
+⁽¹⁾ `zh-tw`'s 0.813 is measured over **8** cases — its own 5 plus 3 pre-existing
+`zh` cases that credit it. It entered the batch as the weakest source in the whole
+corpus (**0.500 on n=3**, carried entirely by borrowed credits); its own suite
+fixed that, which is exactly what the board asked it to do.
+
+ⓘ **`ru-ca` got no suite, by decision.** 5 documents; the 4-case floor would be
+almost one question per document — enumeration, not measurement (§16).
+
+#### Measured, 416 cases (`eval/results-2026-08-06-batch2-keep.md`)
+
+| Metric | 270 cases | 416 cases | Δ |
+|---|---:|---:|---:|
+| recall@10 | 1.000 | **1.000** | held |
+| coverage | 0.841 | **0.888** | **+5.6%** |
+| recall@3 | 0.956 | **0.966** | +1.0% |
+| MRR | 0.857 | **0.872** | +1.8% |
+| precision@1 | 0.759 | **0.781** | +2.9% |
+| `llm-translated` | n=140 · 0.953 | **n=286 · 0.964** | +1.2% |
+| `(untagged)` **CONTROL** | n=130 · 0.720 | **n=130 · 0.722** | **+0.002 — unmoved** |
+
+🟢 **The control is again the number that matters.** 146 new cases and 333 new
+credits moved the 130 pre-campaign cases by 0.002. A bad batch shows up here.
+
+🟢 **THE CAMPAIGN'S OWN REGRESSION IS REPAIRED, exactly as §0.6 predicted.** §0.6
+argued the `es`/`zh` dip was a **stale-answer-key artefact** — new, legitimately
+relevant documents competing for top-10 slots while credited nowhere — and not a
+retrieval regression. Both recovered once their own suites landed:
+
+| Bucket | Pre-campaign | Post-ingest dip | Now |
+|---|---:|---:|---:|
+| `es` | 0.938 | 0.896 | **0.938** — fully recovered |
+| `zh` | ~0.845 | 0.733 | **0.843** — 97% recovered |
+
+#### ✅ THE CLOSING PART A SWEEP — ran, and it is a NO-OP
+
+The one thing bulk made worse (§0.12). `.tmp-diag/phase5-parta-sweep.ts` swept
+**all 270 pre-batch cases** at topK 15 with a 0.45 floor and a 600-char slice.
+
+🔑 **It was front-loaded, not run last, because it does not depend on batch 2.**
+The corpus has not changed since the bulk index on 2026-07-30; batch 2 only added
+answer keys. Realising that moved a "required closing step" off the critical path.
+
+**Result: 10 pre-campaign cases flagged uncredited campaign hits, and every one
+was already ruled on in §0.9.** Nothing to write. Phase 5's last mandatory step is
+closed.
+
+⚠️ **The original `phase5-parta.ts` silently skipped 77 of 270 cases** — it derived
+each case's language from two hard-coded id prefixes (`tlzh-`, `cru-es-`). The
+sweep now calls **eval's own `caseLanguage()` helper**, so a skip is *proven*
+rather than assumed and the sweep can never disagree with the eval it protects.
+Languages with no campaign documents are skipped without a query, which is what
+makes 416 cases affordable: `corpus-search-store.ts` applies a strict
+`eq(documents.language, …)`, so those are provable no-ops.
+
+#### 🔴 SIX CORRECTIONS BATCH 2 FORCES ON §0.12 — read these before drafting anything
+
+**1. Smell risk RISES as the corpus SHRINKS. I briefed the opposite, and it was
+wrong in both directions I tried.**
+
+| Tier | Docs | Max top score | Sources that smelled |
+|---|---:|---:|---|
+| B — mid | 41–67 | 0.748 | **none of 14** |
+| C/D — small | 13–38 | **0.814** | `sw` 0.814 · `ka` 0.799 · `kk` 0.796 · `sl` 0.783 · `ur` 0.764 |
+
+I first told the operator "the 0.75 line was never reached by any batch-2 source"
+(true for all 14 tier-B sources) and briefed `ur` explicitly to treat 0.75 as
+unreachable. `ur` then smelled at 0.751 and 0.764. **Mechanism, from `sw` (13
+documents):** at that size each topic has exactly one article and **no
+near-duplicates to split the similarity**, so a well-aimed question lands almost
+on the document itself. `sw`'s in-language check ran **+0.20 over its English
+discovery score**; `uk`'s ran +0.08. `kk` shows it from the other side — topK 10
+over 17 documents is **59% of the entire corpus**.
+
+**So small corpora WEAKEN the boilerplate tail and STRENGTHEN paraphrase smell.**
+`sw` saw no tail at rank 1 in any case and needed smell work on 2 of 4 questions.
+🔑 **Never reason about smell headroom from the §0.6 floor probe or from English
+discovery — they measure the CORPUS, not the QUESTION.** No output was damaged
+(`phase5-check.ts` measures smell objectively every round) but it cost rounds.
+ⓘ The fix that works at this size is **dilution** — add concrete scene detail
+rather than paraphrase. `sl` went 0.783 → 0.739 that way.
+
+**2. The atonement gap is half the estate, not three sources.** Batch 2's first 13
+sources: 4 have a dedicated "why did Jesus die?" article (`bn` `ms` `mk` `de`), 9
+do not (`uk` `hr` `et` `vi` `ro` `lt` `id` `th` `zh-tw`). **Running total: 12 of 24
+measured sources have no article whose subject is what Jesus' death accomplished.**
+It does not track document count — `vi` (67) and `ro` (64) are the largest in the
+group and both lack it. `esru-newcomer-krest`'s miss is settled. Do not re-open it.
+
+**3. The raw-scripture audit in §0.12 was wrong: there are 13, not 1.** All the
+same estate article — the **"Who was Jesus?"** page, curated highlights from John
+with the stated formula *"no commentary added"*:
+
+| Source | Path | Chars | | Source | Path | Chars |
+|---|---|---:|---|---|---|---:|
+| `everystudent` (en) | `/wires/who-was-jesus.html` | 22,465 | | `sq` | `/a/ishte.html` | 22,089 |
+| `everystudent-ar` ⚠️ | `/a/whowas.html` | 23,624 | | `hu` | `/a/jezus.html` | 21,859 |
+| `my` | `/a/whowas.html` | **33,557** | | `hi` | `/a/whowas.html` | 21,724 |
+| `de` | `/artikel/werwar.html` | 26,343 | | `hy` | `/a/whowas.html` | 20,922 |
+| `ta` | `/a/whowas.html` | 25,957 | | `ja` | `/a/whowas.html` | 12,243 |
+| `ro` | `/a/cineafostiisus.html` | 22,539 | | `zh-cn` | `/a/whowas.html` | 6,438 ⁽²⁾ |
+| `es` | `/articulos/jesus.html` | 22,924 | | | | |
+
+⁽²⁾ CJK density — equivalent band, not a truncated document.
+
+🔴 **They are NOT inert.** §0.12 argued the Albanian one "cannot corrupt a score"
+because nothing credits it. But `hy /a/whowas.html` takes **rank 7 (0.603)** and
+`de /artikel/werwar.html` **rank 8** on the cross question — top-10 slots a real
+answer would otherwise hold. ⚠️ **`everystudent-ar` carries one and `ar` already
+has 12 golden cases in production** — the only instance touching a live language.
+**This is a different class from the three already excluded** (`sq /a/gjoni.html`
+98.9k, `es /articulos/biblia_juan.html` 100.4k, the Arabic Gospel of John #131),
+which are the ~100k *full* Gospel; this is the ~20–26k curated version.
+✅ **Jaco approved excluding all 13 (2026-08-06).** Step 2 of START HERE.
+
+⚠️ **Audit method matters.** A verse-number-density regex found `hu` `th` `ko`
+`hy` and **missed `de`, `ro` and `sq` entirely**, because every language formats
+verse numbers differently. **Slug family + size band found all 13.** Do not audit
+raw scripture numerically.
+
+**4. The DNA/Antony Flew article is NOT a retrieval defect — I nearly filed one.**
+It was a deliberate kept miss in 7 sources (`hu` `hr` `mk` `id` `ro` `vi` `de`),
+each drafter reaching it independently, and both `ro` and `hr` confirmed that a
+**generic** appeal to science pulled two or three *other* science documents in
+while this one still missed. 🟢 **Then `ko` reached its twin `/a/Godreal.html` at
+rank 2** — by naming *the genetic information in a cell* rather than "science" in
+the abstract. **Correct statement: the article answers to its own specific subject
+matter, not to the category it belongs to.** That is a drafting lesson, and it
+retires the ticket. Retrying `hu`/`ro` with DNA-specific wording is optional
+polish; a kept miss is a legitimate recorded gap either way.
+
+**5. Testimony share is not countable from URL paths, and §0.12's severity rule
+was wrong.** All 13 tier-B sources read 0% testimony *by path*; by content the
+real figures are `uk` 23% · `zh-tw` 20% · `de` 18% · `bn` 15% · `th` 14% ·
+`vi` 10% · `lt` 2%. `mk` is the campaign's first source with genuinely no story
+tree at all. **Revised rule: tail severity tracks how many documents carry the
+invitation-prayer chunk, wherever filed. At 0% testimony ONE magnet document
+absorbs the whole load** — `et /a/elumuutuste.html` (4 of 5 cases), `mk
+/a/molitvi306.html` (5 of 6, rank 1 for anxiety), `th /a/coronavirus.html` (5 of
+10 discovery topics, rank 1 on god-exists across three rewordings).
+
+**6. The "systematic" title traps are per-site publishing choices, not estate
+constants — and assuming one COSTS a credit.**
+
+| Trap | Fires | Does NOT fire |
+|---|---|---|
+| "Why rely on the God of the Bible" = six-attributes article | `bg tr fa pt cs bn ms mk ro id` (10) | `de` `th` `et` — honest titles |
+| Coronavirus = general anxiety article | `hu pl sq tr pt es hr vi id lt` (10) | `de` `bn` `ms` `uk` — no such article |
+| Nothing→Something→Who→Who 2 | 9 incl. `vi lt mk zh-tw` | `et` never localised · `de` part 1 only · `th` 2 of 4 |
+
+🔴 **`ro` proves the cost.** It credited the "occult practices" document on
+§0.12's precedent; in Romanian that article is about happiness-seeking and names
+*"loneliness, depression and alternating moods"* — never anxiety. Dropped after
+reading. 🆕 **New trap class — the TRANSLATION manufactures traps the estate never
+had.** `mk /a/sindrom508.html` is that source's largest document and the only one
+whose title carries the Macedonian word for anxiety, because the translator
+rendered "eating disorder" as *"анксиозен синдром"*. Invisible from English.
+`vi /a/107Taisao.html` inverts the usual direction — honest `<title>`, misleading
+H1 and slug, so a **slug**-based reviewer is fooled where a title-based one is not;
+`et /a/kuidas.html` does the same.
+
+#### 🆕 A reusable reach technique — `sw`'s unique-word method
+
+The best new technique in the batch. When a credit is stuck behind a
+near-neighbour, **ask the database which words appear in the credited document and
+nowhere else in the source**, then build the question around one of them.
+
+`sw` case 3's credit sat at rank 2 behind the deity article. Counting across all
+13 documents returned exactly one useful word — `kustahili` ("to deserve"),
+present in 1 chunk of the target and 0 of the other twelve. Rebuilding the
+objection around *not deserving it* flipped **rank 2 → rank 1** while the
+competitor fell 0.707 → 0.655. **One word, measured rather than guessed.** This is
+the reach-side counterpart to the smell-side rule about never restating a title.
+
+#### Three estate-wide decisions Jaco made in the approval turn (2026-08-06)
+
+| Decision | Ruling |
+|---|---|
+| Write all 30 suites in one turn? | ✅ **Yes — write all 30.** |
+| The 13 raw-scripture "Who was Jesus?" pages? | ✅ **Exclude all 13.** |
+| Video twins — abridged video transcripts published beside the full article (`th` has 8, plus `ro` `ms` `de` `id`; `th`'s twin OUTRANKS its parent) | ✅ **Never credit a video twin.** Applied immediately: `/a/collins.html` was dropped from `hi` and `ur`, with the reason recorded in both candidates files. |
+
+#### 🔴 A bug caught before any write — and why `zh-tw` would have scored 0.000
+
+`assemble-batch.ts` emitted `language: "<key>"`. For `everystudent-zh-tw` that
+writes `language: "zh-tw"`, but the registry declares `languages: ["zh"]` (regional
+variants collapse to the base ISO 639-1 code, §0.4) and `corpus-search-store.ts`
+applies a strict `eq(documents.language, …)`. **That matches zero documents and
+would have silently scored the entire `zh-tw` suite 0.000** — no error, no warning.
+Batch 1 never hit it because all eleven of its keys were base codes; `zh-tw` is the
+campaign's first regional variant to reach assembly. Now derived from the registry,
+with a `--show` flag to preview the exact block before writing.
+
+#### One claim from a drafting agent that I checked and REJECTED
+
+The `zh-tw` agent reported *"50% of this source is truncated — an ingest defect"*.
+**Not supported.** Both short documents I read (`worldview218` 646 chars,
+`Tragic601` 899) are complete articles ending on proper full stops. Chinese runs
+3–5× denser per character than Latin script; the agent had compared against
+Hungarian character counts and measured **script density, not truncation**. Do not
+file it. `zh-tw`'s scores are explained by the three-source `zh` bucket, which is
+independently measured. ⓘ Consequence for tooling: **the openings script's
+"under 1,200 chars" pure-tail flag is calibrated for Latin script and over-flags
+CJK.** Verified harmless for the rest of the batch — every remaining source has
+zero documents under 1,200 chars except `ja` (3) and `am` `ko` `ti` (1 each).
+
+#### Other cross-source repeats worth one line each
+
+- **The emptiness/purpose question pulls a despair testimony in 5 languages** —
+  `es /articulos/blues.html`, `ru /a/sigaretoy.html`, `hu /a/blues.html`,
+  `bn /a/blues.html`, `ro /a/depresie.html`. A property of the article family.
+- **The prayer question pulls MARRIAGE and DATING advice** in seven sources —
+  `hu` (r7), `de` (r8/r9), `lt` (r3), `ms` (r9), `uk` (r9), `bn`, `ro` (r9).
+- **`id` fragmentation (new):** its 6 Islam documents each repeat the same ~700-char
+  preamble, and four of them flood the *Trinity* top 10 on that preamble alone.
+  Not the gospel tail — **navigation furniture**. Watch for split article series.
+- **The *tahrif* / `bible-trust` routing question is SETTLED.** §0.12 said the
+  Islam-article route is about publishing, not audience. Batch 2 tested the hardest
+  cases and it held: `id` (largest Muslim-majority country, 6 Islam documents) uses
+  a dedicated 30.5k Bible article at rank 1; `ms` (Muslim-majority, **no Islam
+  article at all**) uses a standalone 24.4k manuscript piece; `ro` (~0.3% Muslim)
+  has a transmission article that beats its own Islam article.
+
+#### Process notes for the next campaign
+
+- **Give each parallel agent a uniquely named scratchpad file.** Two batch-1 agents
+  overwrote each other's output. Batch 2 prefixed every file with the source key —
+  zero collisions across 30 agents.
+- **Guardrail #4 held at batch granularity.** 30 drafts, one consolidated report,
+  one explicit approval turn, one `--write`, one commit. A bad batch reverts cleanly.
+- **Superseded claims were kept, not deleted, in the working tally.** Three findings
+  in this section reverse an earlier one of mine. Keeping the superseded version
+  beside the correction is what let the reasoning be audited rather than re-argued.
+
+### 0.14 ✅ THE RAW-SCRIPTURE EXCLUSION — executed 2026-08-06
+
+Operator-approved in the batch-2 turn; deliberately kept out of `457ee51`
+because it changes the **corpus**, and a corpus change must not ride in a commit
+labelled "golden cases".
+
+#### What was verified BEFORE anything was touched
+
+1. **All 13 openings read from the database.** Every one carries the estate's
+   formula in its own first paragraph and then runs into John 3. The English
+   parent is the clearest: *"These are excerpts straight from the Gospel of John,
+   in the Bible. **No comments added.**"*
+2. 🔴 **The slug net caught 15, not 13 — and 2 of them had to survive.** A regex
+   over the `whowas|werwar|jezus|…` slug family also matched
+   `lt /a/jezus.html` (4,520 ch) and `pl /a/ktoryjezus.html` (5,502 ch). Both
+   were read: Lithuanian is *"Did Jesus ever say he was God?"*, an argument with
+   citations; Polish is *"Which Jesus is real?"* on media portrayals. **Neither
+   is Scripture.** The **size band** is what separated them — the real page runs
+   20–33k. A slug-only audit would have deleted two good articles.
+   Both are now asserted as KEPT in the test, so this cannot regress.
+3. **Nothing credits any of the 13.** Checked programmatically against all 416
+   golden cases: **zero** credits point at them, so no answer key changed and no
+   case became unanswerable.
+4. **The rows were backed up before deletion** — full `raw_documents` CSV,
+   verified to hold 13 rows whose character counts match the measured ones.
+
+#### Two mechanisms, because two shapes of source carry it
+
+🔑 **A `block` rule is DEAD CONFIG on a seed-only source.** `block` filters
+*discovered* URLs, and a seed-only source discovers none — the seed list IS the
+filter. Getting this backwards would have silently left three copies in place.
+
+| Mechanism | Sources | How |
+|---|---|---|
+| `crawl.block` regex | `de` `es` `hi` `hu` `ja` `my` `ro` `sq` `ta` `zh-cn` (10) | anchored full-URL pattern, with the reasoning in a comment beside it |
+| seed removal | `everystudent` (en) `ar` `hy` (3) | line deleted from `seedPaths`, replaced by a comment saying what left and why |
+
+#### Corpus effect, measured
+
+| | Before | After | Δ |
+|---|---:|---:|---:|
+| `documents` | 13,969 | 13,956 | **−13** |
+| `chunks` | 47,618 | 47,426 | **−192** |
+| `chunk_embeddings` | 47,618 | 47,426 | **−192** |
+| `raw_documents` | 13,969 | 13,956 | **−13** |
+
+`chunks` and `chunk_embeddings` came out by `ON DELETE CASCADE` — deleting the
+`documents` rows is sufficient; `raw_documents` needed its own delete because it
+keys on `source_key`/`url`, not on `document_id`.
+
+#### 🔴 A registry docstring that was WRONG, and is now corrected
+
+`everystudent-hy`'s entry claimed: *"**No Scripture pages.** Every one of the 34
+seeds is ministry writing."* **One of them was not** — `/a/whowas.html`, 20,922
+chars. **Why the original audit missed it:** it measured scripture-citation
+**density**, and this page's citations are continuous Gospel narrative rather
+than the dense chapter-and-verse apparatus a density test looks for. The same
+blind spot produced §0.12's "there is only one" claim. **Density under-detects.
+The reliable test is the article's own stated formula.**
+
+#### Re-eval: no measurable effect (`eval/results-2026-08-06-post-scripture-exclusion-keep.md`)
+
+| Metric | Before exclusion | After | Δ |
+|---|---:|---:|---:|
+| recall@10 | 1.000 | **1.000** | held |
+| coverage | 0.888 | **0.887** | −0.001 |
+| recall@3 | 0.966 | 0.966 | — |
+| MRR | 0.872 | 0.872 | — |
+| precision@1 | 0.781 | 0.781 | — |
+| `llm-translated` | n=286 · 0.964 | n=286 · **0.964** | — |
+| `(untagged)` CONTROL | n=130 · 0.722 | n=130 · **0.718** | −0.004 |
+
+**Reading: the exclusion changed nothing measurable.** Both deltas sit inside the
+run-to-run noise floor quantified below. That is the expected result — none of
+the 13 was credited, so the only possible effect was freeing top-10 slots.
+
+#### 🔴 THE MOST IMPORTANT THING THIS RE-RUN FOUND — `pnpm eval` HAS A NOISE FLOOR OF ±0.004
+
+Two identical-corpus-shaped runs an hour apart do **not** reproduce. Measured
+across all 416 cases by diffing the two results files:
+
+| | |
+|---|---:|
+| Cases whose top-1 score was **bit-identical** | **176** |
+| Cases whose top-1 score **drifted** | **240 (58%)** |
+| Largest drift on any single case | **0.0040** |
+| Cases whose coverage changed | 2 |
+| Cases whose rank-1 document changed | 2 |
+
+**The embedding gateway is not bit-deterministic** — the same question embedded
+twice returns slightly different vectors. Nothing in the corpus explains a drift
+on `sl-skeptic-morality` (0.754 → 0.755) or `jf-believer-parable-sower`
+(0.771 → 0.772); neither case touches an EveryStudent document at all.
+
+**Both coverage changes were proven to be rank-boundary flips**, by re-querying
+each case's every credit three times:
+
+| Case | Credit | Ranks over 3 runs | Verdict |
+|---|---|---|---|
+| `cru-es-seeker-vacio` | `/articulos/lafuente.html` | **10 · 10 · —** | sits exactly ON the topK-10 boundary |
+| `jf-skeptic-bible-contradictions` | `/forum/contradictions.html` | 10 · 11 · 11 (at topK 14) | straddles it from just outside |
+
+🔑 **And the exclusion cannot be the cause even in principle: removing a document
+can only FREE a top-10 slot, never take one.** Every other credit in both cases
+was rock-stable across all three runs.
+
+⚠️ **Consequences — apply these to every number in this campaign file:**
+
+1. **Do not act on a whole-corpus coverage move smaller than ~0.005.** The
+   0.888 → 0.887 here is not a regression; it is the same measurement twice.
+2. **A single case gaining or losing one credit is not a finding.** At n=4 —
+   which is most of batch 2 — one credit is 0.25 of that source's coverage.
+   §0.11's "n=10 is noisy" rule was right and understated.
+3. **The `(untagged)` control still works as a control**, but read it with a
+   ±0.005 band: 0.720 → 0.722 → 0.718 across three runs is one flat line.
+4. **Before filing any retrieval defect, re-run the query 3×.** The
+   `phase5-check.ts` numbers recorded per source are single measurements.
+
+#### Gate
+
+`765 tests green` (was 764 — the new `src/registry/scripture-policy.test.ts`
+adds one). Also green: `typecheck` · `lint` (0 errors) · `depcruise` (no
+violations) · `db:check` (schema in sync) · `status:check`.
+
+ⓘ **The policy is guarded in ONE test file, not thirteen.** It is a cross-source
+decision, and thirteen scattered assertions in thirteen entry tests is exactly
+how a policy silently loses a member. `registry.test.ts` hit its 300-line
+`max-lines` cap when the test first went there, which forced the better layout.
 
 ### 0.1 How to regenerate this board
 
@@ -1688,15 +2121,20 @@ commands.** Not 48 rounds of anything.
 ## 3. The full plan, end to end
 
 ```
-PHASE 1  triage + registry entries    ← fan out, batches of 8–12 agents
-PHASE 2  acquire locally               ← one loop over the batch's keys
+✅ PHASE 1  triage + registry entries    ← fan out, batches of 8–12 agents
+✅ PHASE 2  acquire locally               ← one loop over the batch's keys
    … repeat 1–2 until all 48 are acquired locally …
-PHASE 3  index locally                 ← ONE run, all 48 at once
-PHASE 4  retrieve spot-check           ← per-language smoke, scripted
-PHASE 5  eval locally                  ← batched by language group (see §7)
-PHASE 6  ONE pull request for all 48   ← then merge to main
-PHASE 7  prod, on Jaco's VM            ← acquire → index → retrieve → eval
+✅ PHASE 3  index locally                 ← ONE run, all 48 at once
+✅ PHASE 4  retrieve spot-check           ← per-language smoke, scripted   47/47
+✅ PHASE 5  eval locally                  ← ended up as TWO batches, not per-language
+⬜ PHASE 6  ONE pull request for all 48   ← then merge to main    ⬅ NEXT
+⬜ PHASE 7  prod, on Jaco's VM            ← acquire → index → retrieve → eval
 ```
+
+ⓘ One corpus change is queued ahead of Phase 6 and is **not** a new phase: the
+operator-approved exclusion of the 13 raw-scripture "Who was Jesus?" documents,
+which needs a re-index of the affected sources and one more `pnpm eval`
+(§0 START HERE step 2, §0.13 finding 3).
 
 **Operator's stated intent for the endgame (2026-07-28), do not deviate without
 asking:** all 48 acquired locally first → then a single full index/retrieve/eval
@@ -1722,15 +2160,12 @@ locally acquired.
 
 **Phase 3 (index) is CLOSED. The language sweep is CLOSED (§0.4).
 Phase 4 (retrieve smoke) is CLOSED — 47/47, see §0.5.
-PHASE 5 IS OPEN AND UNDER WAY — §0.6 · §0.7 · §0.8 · §0.9 supersede this box.**
+✅ PHASE 5 IS CLOSED as of 2026-08-06 — §0.13 supersedes this whole box.**
 
-**➡️ NEXT SESSION RESUMES AT BATCH B — the 14 mid-tier sources (41–67 docs,
-≈82 cases), drafted in PARALLEL, approved in ONE turn.** Batch 1 (tier A) closed 2026-08-04:
-11 suites, 110 cases, 315 credits, all at recall@10 1.000 — see §0.12 for the
-record, the six failure modes and the reusable agent brief. **Do not go back to
-one-source-at-a-time; the operator ruled against it on 2026-08-04.**
+**➡️ NEXT SESSION RESUMES AT THE RAW-SCRIPTURE EXCLUSION (step 2 of §0 START
+HERE), THEN PHASE 6 — one PR for all 48 sources.** There is no drafting left.
 
-Settled 2026-08-03/04, do not re-litigate:
+Settled 2026-08-03/06, do not re-litigate:
 - **Scope:** all 45 languages get golden treatment (§7).
 - **Evidence:** `evidence_tier` — built, tested, live in a real run (§0.6).
 - **Topic set:** ten topics approved and engine-checked (§0.7).
@@ -1739,10 +2174,15 @@ Settled 2026-08-03/04, do not re-litigate:
 - **Second suite:** `everystudent-ru`, 10 cases, coverage 0.950 (§0.10).
 - **Third suite:** `everystudent-bg`, 10 cases, coverage 0.975 (§0.11).
 - **Batch 1:** ✅ all 11 tier-A sources — 110 cases, coverage 0.762 → **0.841** (§0.12).
+- **Batch 2:** ✅ **all 30 remaining sources** — 146 cases, coverage 0.841 →
+  **0.888**, `(untagged)` control unmoved at 0.722 (§0.13).
+- **Closing Part A sweep:** ✅ ran over all 270 pre-batch cases — **a NO-OP** (§0.13).
+- **Stage flips:** ✅ `evaluate: green` for all 44 sources with suites (§0 board).
 
-What is left is curation: **31 more golden suites ≈ 150 cases** — batch B (14),
-C (9), D (8) — **then the mandatory closing Part A sweep** (§0.12). Source lists
-and per-source case counts are in the START HERE block, derived from the database.
+**Curation is finished: 44 of 45 acquired sources have a golden suite; 416 cases
+in `eval/qa-golden.yaml`.** `ru-ca` was deliberately skipped (5 documents, §16).
+**Do not go back to one-source-at-a-time; the operator ruled against it twice —
+2026-08-04 and again 2026-08-06.**
 
 ⚠️ **A claim that stood here until 2026-08-03 was WRONG, and it is worth naming
 so nobody re-derives it.** This box previously said §7's eval shortlist "was
@@ -3383,8 +3823,29 @@ is what let 5 broken entries through the pilot.
 | **2026-08-03** | **`everystudent-zh-cn`'s 10 cases approved and written — the first campaign golden suite** | Guardrail-#4 approval turn honoured: drafted → presented → stopped → written on an explicit "approve". 34 credits over 31 documents, every one judged on chunk text, every path verified to resolve 1:1. Result: recall 1.000, coverage **0.897** — second-highest per-source in the suite. Cross-source credits (`thelife-zh`, `zh-tw`) deliberately deferred to Part A rather than crediting documents nobody had read. |
 | **2026-08-03** | **Part A promoted AHEAD of the remaining 13 tier-A sources** | Reversal of the same session's earlier ordering, on evidence. Part A is 18 cases with the exact documents already identified, it recovers a measured coverage shortfall, and it unblocks the cross-source credits `zh-cn` had to leave out — hours of work against ~135 cases for the rest of tier A. Do the cheap thing that fixes a known regression first. |
 | **2026-07-29** | **`sr` deferred, and the `/etc/hosts` workaround explicitly rejected** | Jaco's call, reversing the earlier "add a hosts entry" decision. A host our own network filters cannot be listed as a publicly available retrieval source on the strength of a machine-local override — the workaround would hide the question rather than answer it. Tracked in [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129). Note the domain IS publicly resolvable (both DoH providers return the real IP); what needs deciding is why our gateway blackholes it. |
+| **2026-08-04** | **Bulk batches replace one-source-at-a-time, and guardrail #4 moves to batch granularity** | Jaco's call — *"why not just do that in bulk parallel per remaining source so we can get this done?"* Three suites had run per-source and **the operator approved every one, every time**: the exact signature the golden skill's guardrail #7 names — *"a gate that always returns the same answer is not oversight, it is latency."* The gate is not removed, only re-grained: draft everything, present ONE consolidated report, write on ONE explicit approval, one commit per batch so a bad batch reverts cleanly. Result: 42 approval turns became 2. |
+| **2026-08-06** | **Batches B, C and D collapsed into ONE 30-source batch** | Jaco, on re-entry: *"we can't continue one source at a time. We need to knock out the remaining work fast."* The real cost of batch 1 was not concurrency — it already ran 11 agents — but that **every agent hand-wrote its own check script**. Two generic tools (`phase5-openings.ts`, `phase5-check.ts`) removed that, validated by reproducing `hu`'s recorded batch-1 numbers exactly before any new agent launched. 30 suites in one turn; the `(untagged)` control moved 0.002. |
+| **2026-08-06** | **The estate's 13 raw-scripture "Who was Jesus?" pages excluded** | Extends the 2026-07-29 estate-wide scripture policy. §0.12 had claimed one such document survived, "audited across all 45 sources" — the real count is **13**, all the same curated-highlights page carrying the stated formula *"no commentary added"*. They are **not** inert: two of them take ranks 7 and 8 on a cross question, consuming top-10 slots. ⚠️ Method note: a verse-density regex under-detects (it missed `de`, `ro`, `sq`); **slug family + size band** found all 13. |
+| **2026-08-06** | **Video twins are NEVER credited, estate-wide** | Several sources publish an abridged video transcript beside the full article (`th` has 8, plus `ro` `ms` `de` `id`), and `th`'s twin **outranks its own parent**. Crediting per-case would have made 5 sources inconsistent with each other for no measurement gain. Applied immediately: `/a/collins.html` dropped from the `hi` and `ur` suites with the reason recorded in both candidates files. |
+| **2026-08-06** | **`ru-ca` gets NO golden suite** | 5 documents; the 4-case floor is almost one question per document, which enumerates the corpus rather than measuring retrieval over it. It is a mirror of `everystudent-ru` (§16). Recorded as a `note` in `docs/source-status.yaml` so the lone `evaluate: pending` row explains itself. Revisit only if it grows past ~20 documents. |
+| **2026-08-06** | **`evaluate` flipped green for all 44 sources in one pass, through the writer** | §7 holds stage verdicts while Phase 5 is mid-flight; Phase 5 closed, so the flip was owed. Done via `pnpm status:set` — `docs/source-status.yaml` says in its own header never to hand-edit it, because the top-level `status` is *derived* and a hand edit can make it disagree with the per-language state. `pnpm status:check` passes; rollup is 47 `done` · 2 `deferred` · 1 `in-progress`. |
 
 ## 13. Open questions for the operator
+
+> ✅ **EVERY QUESTION IN THIS SECTION IS NOW ANSWERED.** It is kept as the record
+> of how each was decided. Current open items are in §0 START HERE — and there
+> are only four: the raw-scripture exclusion (approved, not yet executed), the PR,
+> prod, and the `lv` rights question.
+>
+> | Q | Answer | Where |
+> |---|---|---|
+> | 1. Eval shortlist | **ALL 45 languages get real golden cases**, with `evidence_tier` marking machine-translated answer keys so they are reported apart from human-verified ones. Delivered: 44 suites, 416 cases. | §7 · §0.13 |
+> | Scripture policy | Full Gospel of John excluded (3 documents). **Extended 2026-08-06** to the 13 "Who was Jesus?" curated-highlights pages. | §12 · §0.13 finding 3 |
+> | `sr` network route | **Deferred, no `/etc/hosts` workaround** → [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129) | §4 |
+> | `he` | **Deferred** — not a Cru property, CDATA sitemap, 200× the recon count → [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132) | §16 |
+> | `lv` | **Rights question, not engineering.** Ask Agape Students Latvia → [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133) | §15 |
+> | `ru-ca` | **Mirror of `ru`.** Registered with 5 seeds, no golden suite. | §16 |
+> | Video twins | **Never credit one.** Estate-wide, 2026-08-06. | §0.13 |
 
 **Answered 2026-07-29:** scripture policy (now §12), `bg` (ingested, §12),
 `sr` network route (hosts entry, §4).
@@ -3577,6 +4038,11 @@ date — `9a0fec3`/`9c60b40` are batch 2, `0e8b1e9` is batch 3). Cross-check
 against `git log` and they will agree.
 
 ### Where the work stands
+
+> ⚠️ **This paragraph is the PHASE-2 record and is preserved as history. It is
+> not current state — §0 is.** Phases 1–5 are all closed; the campaign is at
+> Phase 6 (one PR), with one operator-approved corpus change queued ahead of it.
+
 **All five batches are through Phase 2. Phase 1-2 are functionally COMPLETE.**
 44 sources acquired locally, **2,276 documents**, **zero duplicate-content
 groups across all 46 everystudent keys**, `acquire: green` recorded for each.

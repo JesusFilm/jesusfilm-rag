@@ -75,7 +75,7 @@ A second, **independent** finding from the review: the committed sample page's f
 > **NOT the shipped approach** and several **contradict the current runtime
 > contract**: `dashboard:data` now **fails closed** and reads **only**
 > `JFRAG_POSTGRESQL_DB_URL` via `doppler run` (see `scripts/lib/dashboard/credentials.ts`,
-> `scripts/dashboard-data.ts`, `.claude/skills/status-dashboard/SKILL.md`). In
+> `scripts/dashboard-data.ts`, `skills/status-dashboard/SKILL.md`). In
 > particular, the local-`.env` (Option 1) and out-of-band / `op run` / pasted-string
 > (Option 3) paths are **retired and forbidden**. For what to actually do, follow
 > **"Decision taken (interim)"** at the top of this doc and the SKILL — not the text below.
@@ -148,7 +148,7 @@ Graduate to **1Password** if a vault item holds the URL: set `DATABASE_URL` to a
 > analysis below (Options 1–3 and this recommendation) is retained as the
 > reasoning trail. It is **NOT** the shipped approach: the "Do this" steps below
 > describe out-of-band / `op run` / "any local injection" — which the shipped
-> `.claude/skills/status-dashboard/SKILL.md` contract deliberately **forbids**
+> `skills/status-dashboard/SKILL.md` contract deliberately **forbids**
 > (doppler-only; never a pasted connection string). For what to actually run, follow
 > the **Decision taken** section above and the SKILL, not the steps below.
 

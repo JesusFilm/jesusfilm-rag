@@ -65,12 +65,12 @@ main event (needs the serving call: on-prem vLLM vs hosted).
 ## Research map (Step 1) — what each source offers + which #39 claims still hold
 
 **Skills**
-- **`/slice`** (`.claude/skills/slice/SKILL.md`) — drives ONE source through
+- **`/slice`** (`skills/slice/SKILL.md`) — drives ONE source through
   acquire→ingest→retrieve→spot-check, resumably, committing per verified step. This
   is the engine for the per-source×language re-ingest streams (ORCH 3). Key reusable
   gate: `pnpm depcruise && lint && typecheck && db:check && test`. Warns that a data
   stage alone can turn integration tests red (must re-run the gate after ingest).
-- **`/golden`** (`.claude/skills/golden/SKILL.md`) — drafts grounded eval cases for a
+- **`/golden`** (`skills/golden/SKILL.md`) — drafts grounded eval cases for a
   source from what actually landed in the corpus, for you to curate (not hand-write).
   This is how we author the **French + Chinese suites**. It presents each candidate
   **with the real chunk snippet** — I'll add **English translations** alongside the

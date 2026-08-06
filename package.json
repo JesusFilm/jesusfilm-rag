@@ -30,6 +30,7 @@
     "lang:sweep": "tsx scripts/language-sweep.ts",
     "lang:sweep:production": "tsx scripts/language-sweep-production.ts",
     "dashboard:data": "tsx scripts/dashboard-data.ts",
+    "dashboard:validate-snapshot": "tsx scripts/dashboard-validate-snapshot.ts",
     "dashboard:build": "tsx scripts/dashboard-compile.ts",
     "dashboard:verify": "tsx scripts/dashboard-verify.ts",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs",

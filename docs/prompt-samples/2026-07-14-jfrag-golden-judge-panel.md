@@ -8,7 +8,7 @@ Context (why this exists):
 Slice #7 (Cru) Stage 4 produced 151 proposed credits to `eval/qa-golden.yaml` across
 24 cases. Surfacing all 151 to the operator as a uniform HTML list failed as a review
 surface — "it's too much and looks the same after a while". The fix is not a prettier
-list; it is a gate. Candidate for promotion into `.claude/skills/golden` (or a new
+list; it is a gate. Candidate for promotion into `skills/golden` (or a new
 sibling skill) so every future slice's Stage 4 runs this way by default.
 
 THE BAR (human-owned — an agent does not renegotiate it):

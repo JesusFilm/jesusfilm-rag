@@ -56,21 +56,22 @@ Adapters may import **`src/db/schema.ts`** — the one relaxation of the law (AD
 
   On **"draft now"**, run `/adr`. The bar + template live in [`docs/decisions/README.md`](./docs/decisions/README.md) → *When to raise an ADR checkpoint*. Err toward raising it — a 15-second checkpoint is cheaper than an un-recorded invariant a future contributor "simplifies" away. Do **NOT** raise it for routine implementation, bug fixes, or behavior-preserving refactors.
 - **Commits follow Conventional Commits** (`feat: …`, `fix(retrieve): …`, `docs: …`; scope optional), enforced by a commitlint `commit-msg` hook (husky) — see `commitlint.config.mjs`. Squash-merge note: the commit that lands on `main` takes its subject from the **PR title**, which the hook can't see — so the PR title is linted separately by a CI check (`.github/workflows/pr-title.yml`).
-- **Golden eval cases are authored with `/golden <source-key>`, not by hand.** After a source is ingested, the skill surveys the *real* corpus and drafts persona-diverse candidate questions — **seeker · skeptic · believer · newcomer**, each tied to a real document — plus off-topic negatives for cutoff calibration, for you to curate into `eval/qa-golden.yaml`. `pnpm eval` then scores recall@k / MRR. Retrieval-only — no intent/tone/answer judgment (that's a consumer concern). See [`.claude/skills/golden/SKILL.md`](./.claude/skills/golden/SKILL.md). **Non-English eval cases MUST carry an English translation of the question as a YAML comment (`# EN: …`) AND their retrieved results translated to English (a `# RETRIEVED` comment block, path + translated title per doc) — a non-English case without both is incomplete** (see docs/eval-approach.md → "Multilingual eval").
+- **Golden eval cases are authored with `/golden <source-key>` (Claude) or `$golden <source-key>` (Codex), not by hand.** After a source is ingested, the skill surveys the *real* corpus and drafts persona-diverse candidate questions — **seeker · skeptic · believer · newcomer**, each tied to a real document — plus off-topic negatives for cutoff calibration, for you to curate into `eval/qa-golden.yaml`. `pnpm eval` then scores recall@k / MRR. Retrieval-only — no intent/tone/answer judgment (that's a consumer concern). See [`skills/golden/SKILL.md`](./skills/golden/SKILL.md). **Non-English eval cases MUST carry an English translation of the question as a YAML comment (`# EN: …`) AND their retrieved results translated to English (a `# RETRIEVED` comment block, path + translated title per doc) — a non-English case without both is incomplete** (see docs/eval-approach.md → "Multilingual eval").
 - Defer to `~/Jaxs/CLAUDE.md` for workspace-wide conventions (gh account, tone, decision hierarchy).
 
 ---
 
 # Agent workflows
 
-Agent-facing index of the repeatable workflows in this repo. Each is a `/skill`
-(under `.claude/skills/`) backed by deterministic `pnpm` scripts, so an agent
+Agent-facing index of the repeatable workflows in this repo. Canonical skill
+definitions live under `skills/`; `.claude/skills/` contains Claude launchers and
+`.agents/skills/` contains Codex symlinks. They are backed by deterministic `pnpm` scripts, so an agent
 orchestrates and verifies rather than free-hands the work.
 
 | Skill | Does | Key scripts |
 |-------|------|-------------|
 | `/slice` | Drives one source through acquire → ingest → retrieve → spot-check, resumably | `pnpm acquire`/`index`/`query`, `status:*` |
-| `/walkthrough` | Read-only code-flow explainer with diagrams | — |
+| `/golden` | Authors and re-reviews grounded retrieval eval cases from the ingested corpus | `pnpm eval`/`query` |
 | `/adr` | Records an architecture decision from the current change (template, index, citation, commit) | — |
 | `/status-dashboard` | Refreshes the public status dashboard from prod and opens a PR | `pnpm dashboard:data`/`build`/`verify` |
 
@@ -81,7 +82,7 @@ sources × languages exist in the RAG index and where each sits on the
 **acquire → ingest → evaluate** journey — then opens a PR for an engineer to
 merge. A secondary **"Unclassified documents"** table tallies any embedded docs
 with no detected language per source, so the index total is never silently
-under-reported (#86). Full runbook: `docs/ops/dashboard.md`. Skill: `.claude/skills/status-dashboard/SKILL.md`.
+under-reported (#86). Full runbook: `docs/ops/dashboard.md`. Skill: `skills/status-dashboard/SKILL.md`.
 
 **That unclassified table is the null-language policy's safety net, and the
 policy is settled — do not re-open it per source.** Every source produces some
@@ -93,7 +94,7 @@ crediting it would measure the confidence gate rather than retrieval. They are
 corrective tool only**: never a step in a slice, never a route for a null doc
 back into `eval/qa-golden.yaml`, and never something to ask the operator about.
 See `docs/eval-approach.md` → Multilingual eval, correction 3;
-`.claude/skills/slice` v12; `.claude/skills/golden` v7 Guardrail #3a.
+`skills/slice` v14; `skills/golden` v9 Guardrail #3a.
 
 End-to-end flow the skill performs:
 

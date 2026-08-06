@@ -88,7 +88,7 @@ non-`ar` language (en 78 · fr 10 · zh 10 · es 8, 0 unscoped) and
 docs are **ineligible by construction**; confirmed empirically — zero Arabic docs
 appear anywhere in the 106-case results, and the metrics reproduced slice #8
 exactly across two runs. The cheap structural check (offline, seconds) now
-precedes the expensive re-review in `.claude/skills/slice` v12.
+precedes the expensive re-review in `skills/slice` v12.
 
 ⚠️ **`everystudent` 0.818 ↔ 0.773 is BOUNDARY JITTER, not a regression.** It
 traced to one credited doc — `everystudent/forum/contradictions.html` at **rank
@@ -194,8 +194,8 @@ produces some nulls (honest ADR-0007 blanks); we cannot know their language, so 
 `language:`-scoped expectation on one is unreturnable by construction. They are
 never credited, never swept during a slice (**`pnpm lang:sweep` is a production
 corrective tool only**), and not lost — the dashboard carries a per-source null
-count, and that count is the record. Written into `.claude/skills/slice` **v11**,
-`.claude/skills/golden` **v6** (Guardrail #3a, with `d.language IS NOT NULL` in
+count, and that count is the record. Written into `skills/slice` **v11**,
+`skills/golden` **v6** (Guardrail #3a, with `d.language IS NOT NULL` in
 the survey query so a null can't reach a draft), and `docs/eval-approach.md`
 (Multilingual eval, correction 3) — because it had been re-asked at every new
 source. The accepted cost is named there: slice #8's null
@@ -291,7 +291,7 @@ rubric would have auto-accepted every one into the answer keys and quietly
 corrupted the eval. 73 credits approved; suite **82 → 96 cases** (+6 en cru-native,
 **+8 es — the first Spanish cases in the suite**). Prompt preserved at
 `docs/prompt-samples/2026-07-14-jfrag-golden-judge-panel.md` — **promoted into
-`.claude/skills/golden` v3 as Guardrail #6** (two-axis relevance ⊥ soundness;
+`skills/golden` v3 as Guardrail #6** (two-axis relevance ⊥ soundness;
 shipped with PR #80).
 
 **Final eval @ 96 cases / 9 sources:** recall@3 **0.938** · recall@10 **1.000** ·
@@ -869,7 +869,7 @@ axis closes the corpus gap that started slice #6.
 - **Eval** (spot-checks first, then recall@k / MRR) gets built once slice #1 has
   real data to evaluate against.
 - **`/slice` drives the work.** A lightweight, resumable slice-driver
-  (`.claude/skills/slice/`): reads this file, unpacks the next slice (or resumes
+  (`skills/slice/`): reads this file, unpacks the next slice (or resumes
   an in-progress one), runs the verify gate, and checkpoints each step to a slice
   file + commit. Pauses at stage boundaries and real decisions, in plain language.
 

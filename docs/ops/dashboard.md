@@ -97,7 +97,7 @@ prod URL — living under a different name — cannot bleed into a source run, e
 accidentally wrapped in `doppler run`. Home: the dedicated **`forge-rag`** Doppler
 project, env `prd` (pinned by the repo's `doppler.yaml`; migrated from the interim
 `resources` home 2026-07-06). Rationale + history: `docs/ops/dashboard-secret-access.md`.
-See also the secret-safety contract in `.claude/skills/status-dashboard/SKILL.md`.
+See also the secret-safety contract in `skills/status-dashboard/SKILL.md`.
 
 ## Design
 

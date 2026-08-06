@@ -1,0 +1,6 @@
+interface:
+  display_name: "Status Dashboard"
+  short_description: "Refresh the production status dashboard"
+  default_prompt: "Use $status-dashboard to refresh the public status dashboard and open a PR."
+policy:
+  allow_implicit_invocation: false

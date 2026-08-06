@@ -1,0 +1,6 @@
+interface:
+  display_name: "Architecture Decision Record"
+  short_description: "Draft and integrate an accepted ADR"
+  default_prompt: "Use $adr to record the architecture decision from the current change."
+policy:
+  allow_implicit_invocation: false

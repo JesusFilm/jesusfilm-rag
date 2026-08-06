@@ -3,7 +3,7 @@ name: status-dashboard
 description: "Refresh the public JesusFilm RAG status dashboard (sources × languages, acquire/ingest/evaluate, embedded doc counts) from the production database and open a PR. Reads prod via doppler-injected credentials that never leave the machine, regenerates dashboard/compiled-data.json + dashboard/index.html, asserts the page shows the data in a real browser, opens a PR, and stops without merging. Invoke /status-dashboard."
 ---
 
-<!-- version: 2 -->
+<!-- version: 3 -->
 
 # status-dashboard — refresh the public RAG status page, open a PR
 
@@ -91,7 +91,7 @@ If you cannot satisfy the above, do not proceed — surface the blocker instead.
 
 The data pipeline (already built; you orchestrate it, you don't reinvent it):
 
-```
+```text
 prod DB --(doppler run -- pnpm dashboard:data)--> dashboard/prod-status-data.json
 prod-status-data.json + docs/source-status.yaml + registry
         --(pnpm dashboard:build)--> dashboard/compiled-data.json + dashboard/index.html
@@ -148,6 +148,9 @@ the browser-verify step checks it (above) and you can explain it:
    re-run; do **not** reach for `--allow-dev` (that flag is for a deliberate local
    dev preview only, never a publish). If doppler itself errors, STOP (see the
    contract) — don't paste a connection string or any error text containing a URL.
+   Immediately run `pnpm dashboard:validate-snapshot`. This parses the ignored
+   snapshot against its strict schema and performs a non-printing credential scan;
+   it must pass before compilation. Never inspect or print the snapshot contents.
 
 3. **Compile the page (no secrets, no DB).**
    ```bash
@@ -158,7 +161,8 @@ the browser-verify step checks it (above) and you can explain it:
 4. **Browser-verify the rendered page.** Serve it in the **background** (so the
    skill doesn't block), load it in Playwright, assert, then stop the server:
    ```bash
-   python3 -m http.server 8137 --directory dashboard & SERVER_PID=$!   # capture the PID
+   python3 -m http.server --bind 127.0.0.1 8137 --directory dashboard & SERVER_PID=$!
+   trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
    ```
    Navigate to `http://localhost:8137/index.html` with the Playwright browser
    tools and assert via `browser_evaluate`: the `<h1>` reads "JesusFilm RAG";
@@ -174,14 +178,16 @@ the browser-verify step checks it (above) and you can explain it:
    the `.unclassified-table` is absent); and a
    spot-check of a couple of source names + a doc count from the JSON appear in
    `document.body.innerText`. Then `browser_close` and stop the server with
-   `kill "$SERVER_PID"`. Also run the headless gate as belt-and-suspenders:
+   `kill "$SERVER_PID"` and clear the trap with `trap - EXIT`. Also run the
+   headless gate as belt-and-suspenders:
    ```bash
    pnpm dashboard:verify   # must print "contains all N source row(s), M documented row(s), K unclassified row(s)"
    ```
 
-5. **Confirm no secret leaked before committing.** `git diff` (the build just wrote
+5. **Confirm no secret leaked before committing.** Re-run
+   `pnpm dashboard:validate-snapshot`, then inspect `git diff` (the build just wrote
    the files **unstaged**, so use unstaged `git diff`, not `--staged`) and the
-   issue/PR text must contain **no** connection string or password. The only data
+   issue/PR text; they must contain **no** connection string or password. The only data
    files changed are `dashboard/compiled-data.json` and `dashboard/index.html`
    (`prod-status-data.json` is git-ignored).
 

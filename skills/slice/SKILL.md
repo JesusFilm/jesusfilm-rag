@@ -3,7 +3,7 @@ name: slice
 description: "Drive one vertical slice of jesusfilm-rag end-to-end through acquire, ingest, retrieve, and spot-check for a single source, with resumable checkpoint state for cold starts. Read STATUS.md, resume in-progress work or unpack the requested slice, commit each verified checkpoint, and narrate in plain language. Invoke explicitly as $slice, optionally with a source key."
 ---
 
-<!-- version: 13 -->
+<!-- version: 14 -->
 
 # slice — drive one vertical slice, resumably
 
@@ -95,7 +95,7 @@ broken foundation.
 3. **Produce the source's language plan (mandatory — do this during unpack, BEFORE
    writing crawl policy or registering the source).** Language is **not** an ad-hoc
    per-source question anymore; it follows a deterministic recipe (architecture
-   invariant 6, [ADR-0006](../../../docs/decisions/0006-per-document-language-detection.md)):
+   invariant 6, [ADR-0006](../../docs/decisions/0006-per-document-language-detection.md)):
    1. **Enumerate domains → one source per domain (hard rule).** The same ministry/
       banner on multiple domains → multiple source keys (the `thelife` /
       `thelife-fr` / `thelife-zh` pattern). This is not a judgment call and needs no
@@ -142,7 +142,7 @@ broken foundation.
    of a `challenge-platform` script reference — successfully-served Cloudflare
    pages carry it too, so it false-positives on CF-fronted-but-served sources
    (thelife, cru). On detecting a wall, record `fetchStrategy: "firecrawl"` in the
-   new registry entry ([ADR-0012](../../../docs/decisions/0012-firecrawl-fetch-strategy-walled-sources.md))
+   new registry entry ([ADR-0012](../../docs/decisions/0012-firecrawl-fetch-strategy-walled-sources.md))
    — a deliberate, static, per-source choice; there is no runtime fallback, and the
    strategy covers ALL the source's requests (sitemap discovery included). If a
    walled source's sitemap can't be fetched cleanly through Firecrawl either, the
@@ -154,9 +154,11 @@ broken foundation.
 6. Write `docs/slices/<source-key>.md` from the template. Point STATUS.md's
    "Next action" at it and set the source's row in `sources.md` to `Acquiring`.
    Register the source in `docs/source-status.yaml` via the tool:
-   `pnpm status:add-source --key <source-key> --name "<name>" --lang <code> --slice-file docs/slices/<source-key>.md`
-   (creates the row with one language at all four `stages: pending`; the tool
-   derives `status` and stamps `last_updated`). Never hand-edit the YAML — the
+   `pnpm status:add-source --key <source-key> --name "<name>" --lang <first-language-code> --slice-file docs/slices/<source-key>.md`
+   Then register every remaining language declared in step 3 with
+   `pnpm status:add-lang --source <source-key> --lang <language-code>`. Confirm
+   that every declared language has its own pending row with `pnpm status:check`.
+   The tools derive `status` and stamp `last_updated`. Never hand-edit the YAML — the
    `*:production` scripts read it, and a stray edit makes engineers pick wrong
    keys (see `docs/ops/prod-ingest.md`).
 7. **Present the plan in plain language and get a go-ahead** (this is the first
@@ -369,36 +371,32 @@ When all four stages are green and the spot-check looks good:
    results, anything learned.
 2. Update `sources.md` → `Evaluated` with concrete `Results`; update `STATUS.md`
    (move source to Done; set the next slice as "Next action").
-3. Set the slice file status to `done`. In `docs/source-status.yaml`, mark the
-   language done via the tool:
-   `pnpm status:set --source <key> --lang <code> --stage evaluate=green --status done`
-   (the tool refuses `done` unless all four `stages` are `green`, then derives
-   the row `status` — which reads `done` only once every language is done).
-   Confirm with `pnpm status:check`. This rollup is the signal the `*:production`
+3. Set the slice file status to `done`. In `docs/source-status.yaml`, finish
+   **every declared language row** via the tool:
+   `pnpm status:set --source <key> --lang <language-code> --stage evaluate=green --status done`.
+   Repeat for each language from the Step-2 plan. The tool refuses `done` unless
+   that row's four `stages` are green; do not mark the source complete until
+   `pnpm status:check` confirms every declared language row is `done` with all
+   stages green. This rollup is the signal the `*:production`
    scripts watch for — without it, the engineer can't tell at a glance that the
    source is ready to promote to prod.
 4. **Check unblocked follow-ups.** If this completion means **≥2 sources are now
    done end-to-end**, surface that **FOLLOW-UP E** (consumer source-exclude filter,
    `excludedSourceKeys`) is unblocked — it was deferred precisely until a second
    source exists to test exclusion against. See `docs/architecture.md` §11.
-5. **Capture process learnings.** Before offering merge/next-slice, ask: "Anything
-   from this slice worth carrying forward?" Lessons land in their natural home —
-   no graveyard doc; embed them where they'll be READ on the next invocation:
-   - **Procedural lessons that change how the next slice runs** → edit this skill
-     (`skills/slice/SKILL.md`) and bump the `<!-- version: N -->` marker.
-     Cite the slice that taught it (`slice #N: <what we hit>`) — the citation
-     pattern is the provenance trail; future readers can trace a rule back to the
-     moment it bit someone.
-   - **`/golden`-handoff-surface lessons** → edit `skills/golden/SKILL.md`
-     (bump its version) AND drop a one-line pointer in this skill's Step-4
-     living-relevant-set bullet so the `/slice` driver knows about the
-     `/golden` shape it'll hand off to.
+5. **Capture process learnings for review.** Before offering merge/next-slice,
+   ask: "Anything from this slice worth carrying forward?" Never edit executable
+   skill instructions during a data-driven run. Record proposed procedural or
+   `/golden` handoff changes in the slice's review artifact or a GitHub issue,
+   citing the slice that taught the lesson (`slice #N: <what we hit>`). A
+   maintainer must review and approve a separate change before any `SKILL.md` is
+   modified.
    - **Engine / architecture lessons** → `docs/architecture.md` §11 FOLLOW-UPS
      (the running list that captures "things a slice discovered we need to do
      later"; this slice may sharpen an existing FOLLOW-UP rather than add one).
    - **Eval-methodology lessons** → `docs/eval-approach.md`.
-   Commit as `docs(skill): capture slice-N learnings — <one-line summary>` on
-   the slice branch so lessons land alongside the work that produced them.
+   Commit documentation learnings on the slice branch so they land alongside the
+   work that produced them; leave proposed executable-skill changes review-only.
    Skip silently if there's genuinely nothing — don't manufacture lessons.
 6. Offer next steps — merge `slice/<source-key>` into `main`, then **promote to
    prod (Step 6)**, and/or `/slice <next-source>`. Do not merge or push without

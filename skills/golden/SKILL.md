@@ -3,7 +3,7 @@ name: golden
 description: "Author grounded golden eval cases for one ingested source. Survey what landed in the corpus, draft persona-diverse candidate questions tied to real documents plus off-topic negatives, and write approved cases only after operator curation. Use when asked to create or curate retrieval eval cases, or when the slice workflow reaches its Stage 4 golden-evaluation handoff."
 ---
 
-<!-- version: 8 -->
+<!-- version: 9 -->
 
 # golden — draft grounded eval cases for a source, fast
 
@@ -219,7 +219,8 @@ mode at Step 0:
 - **Re-review mode** — when the corpus already has prior slices' eval cases:
   the `relevant` maps are LIVING, and adding this source likely shifts which
   docs the engine returns for existing questions. Two parts:
-  - **Part A — re-review existing cases.** Run `pnpm eval` FIRST. Cases that
+  - **Part A — re-review existing cases.** Run the offline batch eval command
+    defined below FIRST. Cases that
     regressed (recall@10 = 0, or recall@3 = 0 with rank > 3) are the
     curation surface — usually a small fraction of all cases. For each
     regressed case, fetch the engine's actual top-10 with chunk snippets,
@@ -240,14 +241,29 @@ known-good baseline.
 
 ## Procedure
 
+For every batch eval in this workflow—including bootstrap, initial re-review,
+and the post-curation rerun—use the offline retry posture:
+
+```bash
+QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000 pnpm eval
+```
+
+Do not use bare `pnpm eval` here. The serving/query defaults are intentionally
+fast-fail, while a large offline batch has no latency SLA or resume support.
+
 ### 0. Resolve the source (the operator need not know the key)
 The canonical id is the registry **key** — a stable slug like `starting-with-god`,
 never a number (numbers drift as sources are added). But don't make the operator
 memorize it:
 - **`/golden`** (no argument) → list the ingested sources and let them pick by
   number from that *live* menu:
-  ```sh
-  psql "$(grep -E '^DATABASE_URL=' .env | cut -d= -f2-)" -c \
+  ```bash
+  if [ ! -f .env ]; then echo "Missing .env; configure the local project database first." >&2; exit 1; fi
+  set -a
+  . ./.env
+  set +a
+  if [ -z "${DATABASE_URL:-}" ]; then echo "DATABASE_URL is missing or empty in .env." >&2; exit 1; fi
+  psql --no-password "$DATABASE_URL" -c \
     "SELECT row_number() OVER (ORDER BY name) AS n, key, name FROM sources ORDER BY name;"
   ```
   The number is a transient picker for *this* list only — resolve it back to the
@@ -265,8 +281,13 @@ key.)
 Read what actually landed for the source — **do not re-scrape**. Via psql against
 the project DB (`DATABASE_URL` from `.env`), list each document. Example:
 
-```sh
-psql "$(grep -E '^DATABASE_URL=' .env | cut -d= -f2-)" -c "
+```bash
+if [ ! -f .env ]; then echo "Missing .env; configure the local project database first." >&2; exit 1; fi
+set -a
+. ./.env
+set +a
+if [ -z "${DATABASE_URL:-}" ]; then echo "DATABASE_URL is missing or empty in .env." >&2; exit 1; fi
+psql --no-password "$DATABASE_URL" -c "
   SELECT d.title, d.canonical_url, d.category, d.language,
          count(c.id) AS chunks,
          left(regexp_replace(string_agg(c.text, ' ' ORDER BY c.ord), '\s+', ' ', 'g'), 240) AS snippet
@@ -340,7 +361,7 @@ a useful signal about phrasing or about gaps in the source's coverage.
   **not** put them in `qa-golden.yaml` (`eval.ts` would miscount them as misses).
 
 ### 6. Baseline + cutoff
-- Run `pnpm eval` → report recall@3/@8, MRR, precision@1 and the per-case table.
+- Run the offline batch eval command above → report recall@3/@8, MRR, precision@1 and the per-case table.
 - Run the negatives through `pnpm query --source <key> "<q>"` and eyeball the top
   scores: they should sit *below* where the positives cluster. Use that gap to
   re-derive `minScore` (architecture FOLLOW-UP A).
@@ -356,7 +377,7 @@ are LIVING and a new source likely makes some old cases miss not because
 retrieval got worse but because the new source's docs displaced the old
 expected docs on shared questions (slice #3/#4 lesson). Two passes:
 
-### R1. Run `pnpm eval` FIRST to identify the curation surface
+### R1. Run the offline batch eval command FIRST to identify the curation surface
 - Report headline metrics + per-case table. Compare against prior slice's
   baseline if you have it.
 - The curation surface = regressed cases:
@@ -379,7 +400,7 @@ and present the operator with:
 
 The operator decides per hit whether to credit. Write approved additions to
 `qa-golden.yaml` (additive: never remove a credited path; just extend the
-arrays). Re-run `pnpm eval` to confirm the regression closed.
+arrays). Re-run the offline batch eval command to confirm the regression closed.
 
 ### R3. Watch for prior-slice curation gaps surfacing
 The re-review often surfaces top-10 hits from PRIOR sources that were already

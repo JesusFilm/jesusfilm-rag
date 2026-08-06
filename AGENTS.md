@@ -71,6 +71,7 @@ orchestrates and verifies rather than free-hands the work.
 | Skill | Does | Key scripts |
 |-------|------|-------------|
 | `/slice` | Drives one source through acquire → ingest → retrieve → spot-check, resumably | `pnpm acquire`/`index`/`query`, `status:*` |
+| `/golden` | Authors and re-reviews grounded retrieval eval cases from the ingested corpus | `pnpm eval`/`query` |
 | `/adr` | Records an architecture decision from the current change (template, index, citation, commit) | — |
 | `/status-dashboard` | Refreshes the public status dashboard from prod and opens a PR | `pnpm dashboard:data`/`build`/`verify` |
 
@@ -93,7 +94,7 @@ crediting it would measure the confidence gate rather than retrieval. They are
 corrective tool only**: never a step in a slice, never a route for a null doc
 back into `eval/qa-golden.yaml`, and never something to ask the operator about.
 See `docs/eval-approach.md` → Multilingual eval, correction 3;
-`skills/slice` v13; `skills/golden` v8 Guardrail #3a.
+`skills/slice` v14; `skills/golden` v9 Guardrail #3a.
 
 End-to-end flow the skill performs:
 

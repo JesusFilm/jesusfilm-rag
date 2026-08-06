@@ -50,7 +50,7 @@ Do not invoke for routine work — the checkpoint bar in
    doesn't "simplify" it away.
 7. **Commit** (only the ADR + index + citation; keep it separate from unrelated
    code unless the decision *is* this PR's change):
-   ```
+   ```text
    docs(adr): add ADR-NNNN <slug> (#issue)
    ```
    ⚠️ **commitlint gotcha:** the subject must NOT start with an uppercase token — a

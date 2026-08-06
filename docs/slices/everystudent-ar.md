@@ -360,7 +360,7 @@ the eval scripts, not a change to the serving path.
   construction. They are never credited, they are never swept during a slice
   (`pnpm lang:sweep` is a **prod** corrective tool), and they are not lost — the
   dashboard carries a per-source null count. Recorded as a standing rule
-  2026-07-25 in `.claude/skills/slice` v11, `.claude/skills/golden` v6
+  2026-07-25 in `skills/slice` v11, `skills/golden` v6
   (Guardrail #3a) and `docs/eval-approach.md`, because it had been re-asked at
   every new source. For context, the risk here is small anyway: tinyld reads
   Arabic prose at confidence **1.0 with no runner-up**, versus the 0.605–0.771

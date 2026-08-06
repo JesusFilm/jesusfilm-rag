@@ -1,0 +1,6 @@
+interface:
+  display_name: "Golden Eval Cases"
+  short_description: "Draft grounded retrieval evaluation cases"
+  default_prompt: "Use $golden to draft grounded eval cases for an ingested source."
+policy:
+  allow_implicit_invocation: true

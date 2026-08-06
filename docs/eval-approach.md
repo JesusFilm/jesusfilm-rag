@@ -376,7 +376,7 @@ re-scores already-curated cases, it does not author new ones.
 
 ### Non-English — **human-in-the-loop**, one suite per language
 For each non-English source, author a suite with `/golden`
-(`.claude/skills/golden/SKILL.md`) against the **qwen-embedded** corpus:
+(`skills/golden/SKILL.md`) against the **qwen-embedded** corpus:
 
 1. Survey what landed for the source; draft persona-diverse questions grounded
    in real docs. For a single-language source key, scope `relevant` to that key. For a

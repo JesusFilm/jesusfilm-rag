@@ -2791,7 +2791,7 @@ evidence behind it is not equally reviewable.
   change, only the claim about who checked them.
 
 Full rationale: `docs/eval-approach.md` → "Evidence tiers". Authoring rule:
-`.claude/skills/golden/SKILL.md` step 5.
+`skills/golden/SKILL.md` step 5.
 
 ### 🔴 The direction that produced it, 2026-08-03 — kept for the reasoning
 
@@ -2808,7 +2808,7 @@ have been conflated (including by an earlier version of §4's next-action box):
 
 | Blocker | What it stopped | Applies to | Status |
 |---|---|---|---|
-| **Guardrail 3a** — `/golden` may never credit a null-language document (`.claude/skills/golden/SKILL.md:76`) | Candidate *generation* — the SQL returns nothing | `ka` `sw` `om` `ti` `ne` (100% null/mislabelled) + `sq` `fa` partially | ✅ **GONE** — the §0.4 sweep cleared it |
+| **Guardrail 3a** — `/golden` may never credit a null-language document (`skills/golden/SKILL.md:76`) | Candidate *generation* — the SQL returns nothing | `ka` `sw` `om` `ti` `ne` (100% null/mislabelled) + `sq` `fa` partially | ✅ **GONE** — the §0.4 sweep cleared it |
 | **Nobody here reads the language** | Candidate *verification* — you cannot approve an answer key you cannot read | `om` `ti` `ka` `am` `bn` `ur` `th` `mk` `lt` `my` `te` `ta` `ne` … | ⛔ **UNCHANGED** |
 
 **Only the first one lifted.** The sweep made those languages *mechanically*

@@ -41,7 +41,7 @@ source because it reads the ingested corpus rather than assuming a topic.
 The eval is **retrieval-only** — did the right chunk come back, and does
 off-topic content stay out. No intent/tone/answer judgment lives here; that's a
 consumer concern (see [`docs/architecture.md`](./docs/architecture.md) §1,
-"mechanism, not policy"). See [`.claude/skills/golden/SKILL.md`](./.claude/skills/golden/SKILL.md).
+"mechanism, not policy"). See [`skills/golden/SKILL.md`](./skills/golden/SKILL.md).
 
 ## Access & filtering (two layers)
 

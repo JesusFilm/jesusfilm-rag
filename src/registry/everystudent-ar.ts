@@ -148,8 +148,10 @@ export const everystudentAr: SourceEntry = {
       // "/a/whowas.html" — REMOVED 2026-08-06. 23,624 chars of curated
       // highlights from the Gospel of John, carrying the estate's own formula:
       // excerpts taken straight from the Bible "دون إضافة لأي تعليق" (without
-      // adding any commentary). Verbatim Scripture, not ministry writing — the
-      // same policy this entry already applies to its own /bible/**.pdf files.
+      // adding any commentary). Because it is predominantly Bible-translation
+      // text, it stays quarantined until its translation, rights holder, reuse
+      // terms, and required attribution are known and representable. The same
+      // temporary rule covers this entry's own /bible/**.pdf files.
       // All 13 copies across the estate went together (campaign #111 §0.13).
       // ⚠️ This source is LIVE IN PRODUCTION with 12 golden cases; none of them
       // credits this document, so no answer key changes. A `block` rule would

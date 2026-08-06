@@ -278,12 +278,12 @@ export const everystudentHu: SourceEntry = {
     block: [
       // The estate's "Who was Jesus?" page (21,859 chars) — curated highlights
       // from the Gospel of John carrying the family's own formula: excerpts
-      // taken straight from the Bible with NO COMMENTARY ADDED. Verbatim
-      // Scripture, not ministry writing, so it is excluded 2026-08-06 under the
-      // same estate-wide policy that blocked the FULL Gospel of John
-      // (`sq /a/gjoni.html` 98.9k, `es /articulos/biblia_juan.html` 100.4k) and
-      // `everystudent-ar`'s /bible/**.pdf: "outside what this corpus answers
-      // from". This is the ~20-26k curated version of the same thing; all 13
+      // taken straight from the Bible with NO COMMENTARY ADDED. Because it is
+      // predominantly Bible-translation text, it stays quarantined until its
+      // translation, rights holder, reuse terms, and required attribution are
+      // known and representable. The same temporary rule covers the full
+      // Gospel-of-John pages and `everystudent-ar` Bible-PDF pages. This is the
+      // ~20-26k curated version of the same thing; all 13
       // instances across the estate go together (campaign #111 §0.13).
       // NOT inert — sibling copies took ranks 7 and 8 on a cross question,
       // consuming top-10 slots a real answer would hold.

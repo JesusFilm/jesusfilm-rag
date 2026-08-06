@@ -317,9 +317,11 @@ export const everystudentHy: SourceEntry = {
       "/a/whois.html",
       // "/a/whowas.html" — REMOVED 2026-08-06. 20,922 chars of curated
       // highlights from the Gospel of John: "Ոչ մի մեկնաբանություն ավելացված
-      // չէ" — no commentary added. Verbatim Scripture, not ministry writing,
-      // excluded under the estate-wide policy with all 13 sibling copies
-      // (campaign #111 §0.13). ⚠️ This one was NOT inert: it took rank 7
+      // չէ" — no commentary added. Because it is predominantly
+      // Bible-translation text, it stays quarantined until its translation,
+      // rights holder, reuse terms, and required attribution are known and
+      // representable. All 13 sibling copies went together (campaign #111
+      // §0.13). ⚠️ This one was NOT inert: it took rank 7
       // (0.603) on a cross question during drafting, consuming a top-10 slot a
       // real answer would hold. A `block` rule would be dead config here —
       // this is a seed-only source, so the seed list IS the filter.

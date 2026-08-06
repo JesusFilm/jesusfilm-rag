@@ -1,14 +1,17 @@
 /**
- * The estate-wide scripture policy, guarded in ONE place because it is ONE
- * decision, not thirteen.
+ * Temporary rights quarantine for predominantly Bible-translation pages,
+ * guarded in ONE place because it is ONE rule, not thirteen.
  *
- * This corpus answers from ministry writing, not from Scripture itself.
- * `everystudent-ar` set the rule for its own /bible/**.pdf files — "public-domain
- * Scripture text rather than ministry writing, outside what this corpus answers
- * from" — and it was applied estate-wide on 2026-07-29 to the FULL Gospel of John
- * (~100k chars) on `sq` and `es`.
+ * A public source-page citation preserves provenance, but it does not identify
+ * the Bible translation, rights holder, reuse terms, or attribution notice a
+ * consumer may be required to display. The registry's source-level `rights`
+ * field can also misattribute third-party translation text to the ministry that
+ * hosts it. Until the corpus can represent those facts and return required
+ * attribution, pages made predominantly of Bible-translation text stay out of
+ * acquisition. Ordinary Scripture quotations inside ministry articles are
+ * unaffected.
  *
- * What this file guards is the SECOND, smaller instance found on 2026-08-06: the
+ * This file guards the smaller instance found on 2026-08-06: the
  * "Who was Jesus?" page, ~20-26k chars of curated highlights from John that state
  * the formula in their own first paragraph — excerpts taken straight from the
  * Bible with **no commentary added**. Thirteen banners publish it.
@@ -20,7 +23,7 @@
 import { describe, expect, it } from "vitest";
 import { getSource, seedUrls } from "./index.js";
 
-describe("estate-wide scripture policy", () => {
+describe("standalone Scripture rights quarantine", () => {
   /**
    * Excluded 2026-08-06 on an operator decision (campaign #111 §0.13). The page
    * is NOT inert: sibling copies took ranks 7 and 8 on a cross question,
@@ -30,7 +33,7 @@ describe("estate-wide scripture policy", () => {
    * DEAD CONFIG on a seed-only source — `block` filters DISCOVERED urls and a
    * seed-only source discovers none — so those three drop the seed instead.
    */
-  it("excludes the estate-wide 'Who was Jesus?' raw-scripture page from all 13 banners that carry it", () => {
+  it("quarantines the predominantly Scripture 'Who was Jesus?' page on all 13 banners that carry it", () => {
     const blocked = (key: string, path: string): boolean => {
       const entry = getSource(key);
       expect(entry, `${key} is not registered`).toBeDefined();

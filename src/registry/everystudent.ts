@@ -201,10 +201,11 @@ export const everystudent: SourceEntry = {
       // "/wires/who-was-jesus.html" — REMOVED 2026-08-06. 22,465 chars of
       // curated highlights from the Gospel of John, carrying this estate's own
       // formula: "excerpts straight from the Gospel of John … no commentary
-      // added". Verbatim Scripture, not ministry writing, so it falls under the
-      // estate-wide scripture policy that already blocks the FULL Gospel of John
-      // (`sq /a/gjoni.html`, `es /articulos/biblia_juan.html`) and this source's
-      // Arabic sibling's /bible/**.pdf. All 13 copies across the estate went
+      // added". Because it is predominantly Bible-translation text, it stays
+      // quarantined until its translation, rights holder, reuse terms, and
+      // required attribution are known and representable. The same temporary
+      // rule covers the full Gospel-of-John pages and the Arabic sibling's
+      // /bible/**.pdf files. All 13 copies across the estate went
       // together (campaign #111 §0.13). A `block` rule would be dead config
       // here — `block` filters DISCOVERED urls and this is a seed-only source,
       // so removing the seed is the only thing that works.

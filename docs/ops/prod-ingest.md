@@ -206,8 +206,9 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
 - **Transient OpenRouter blips during a long index.** Each embed batch is retried
   on transient failures (request timeout / `AbortError`, network drop, HTTP 429/5xx)
   with incremental backoff — `500ms → 1s → 2s → 4s → 8s → 8s …` (capped at 8s) — up
-  to `EMBED_MAX_ATTEMPTS` attempts (**default 10** = 1 try + 9 retries, ~47s per
-  batch). This default was raised from 4 after three large-source prod ingests
+  to `EMBED_MAX_ATTEMPTS` attempts (**default 10** = 1 try + 9 retries, ~47.5s
+  of backoff; with the default 120s timeout, ~20.8 minutes worst case per
+  single-provider batch). This default was raised from 4 after three large-source prod ingests
   (`thelife`, `sightline-ministry`, `familylife`) aborted mid-run on ~10h of wasted
   compute when a brief provider blip hit one batch 4 times in a row; each recovered
   on a plain manual re-run, confirming the failures were transient

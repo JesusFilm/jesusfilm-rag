@@ -52,7 +52,7 @@ runs against the JFP AI gateway FIRST (`EMBED_API_KEY`, wire alias
 `EMBED_WIRE_MODEL_ID`), and only after the gateway exhausts that posture's
 retry budget does the whole call re-run on hosted OpenRouter
 (`OPENROUTER_API_KEY`) under the same posture. Worst case doubles accordingly
-(query ≈ 16.5s, corpus ≈ 11.6 min per batch, both providers down). Retry lines
+(query ≈ 16.5s, corpus ≈ 41.6 min per batch, both providers down). Retry lines
 gain a provider tag (`[gateway]` / `provider=gateway`); every fallback logs
 `↯ corpus embed: gateway failed (…); falling back to hosted OpenRouter` or
 `[retrieval] event=query_embed_fallback provider=openrouter reason=…`. A

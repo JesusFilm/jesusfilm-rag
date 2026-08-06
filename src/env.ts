@@ -113,7 +113,7 @@ const envSchema = z.object({
   QUERY_EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(2),
   // QUERY embedding only: per-attempt timeout on the OpenRouter embeddings
   // call, in ms. Default 4000 — generous against a normal sub-second query
-  // embed, but an order of magnitude tighter than the document path's 30s.
+  // embed, but far tighter than the document path's 120s batch budget.
   QUERY_EMBED_TIMEOUT_MS: z.coerce.number().int().positive().default(4000),
   // Embeddings endpoint base URL. Unset ⇒ hosted OpenRouter alone (pre-gateway
   // behavior). Set (the JFP AI gateway, or any self-hosted `/v1`) ⇒ that

@@ -170,6 +170,7 @@ describe("wire() — gateway-primary embedding with OpenRouter fallback", () => 
     const outcome = Promise.all(
       ["one", "two", "three", "four"].map((text) => embedder.embed([text])),
     );
+    expect(seen).toHaveLength(4); // concurrent dispatch, not four serialized calls
     await vi.advanceTimersByTimeAsync(100_001);
     const vectors = await outcome;
 

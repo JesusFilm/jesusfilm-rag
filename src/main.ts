@@ -208,7 +208,10 @@ function buildEmbedders(env: Env): { embedder: Embedder; queryEmbedder: Embedder
   // Corpus/document embedder — PATIENT: a transient blip aborting a long index
   // run throws away hours (#64), so it rides out ~47s of backoff per batch.
   const embedder = buildEmbedderPair(
-    { maxAttempts: env.EMBED_MAX_ATTEMPTS },
+    {
+      maxAttempts: env.EMBED_MAX_ATTEMPTS,
+      timeoutMs: env.EMBED_TIMEOUT_MS,
+    },
     corpusRetryLog,
     ({ operation, error }) => {
       const what = operation === "query" ? "query embed" : "corpus embed";

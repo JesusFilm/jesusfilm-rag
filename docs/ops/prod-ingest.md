@@ -206,8 +206,9 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
 - **Transient OpenRouter blips during a long index.** Each embed batch is retried
   on transient failures (request timeout / `AbortError`, network drop, HTTP 429/5xx)
   with incremental backoff — `500ms → 1s → 2s → 4s → 8s → 8s …` (capped at 8s) — up
-  to `EMBED_MAX_ATTEMPTS` attempts (**default 10** = 1 try + 9 retries, ~47s per
-  batch). This default was raised from 4 after three large-source prod ingests
+  to `EMBED_MAX_ATTEMPTS` attempts (**default 10** = 1 try + 9 retries, ~47.5s
+  of backoff; with the default 120s timeout, ~20.8 minutes worst case per
+  single-provider batch). This default was raised from 4 after three large-source prod ingests
   (`thelife`, `sightline-ministry`, `familylife`) aborted mid-run on ~10h of wasted
   compute when a brief provider blip hit one batch 4 times in a row; each recovered
   on a plain manual re-run, confirming the failures were transient
@@ -220,6 +221,10 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
   request-time query embedding (every `/v1/search`) runs a separate fast-fail
   policy (`QUERY_EMBED_MAX_ATTEMPTS`, default 2) — both policies side by side in
   [embed-retry-policy.md](./embed-retry-policy.md).
+  Corpus attempts use `EMBED_TIMEOUT_MS` (default 120 seconds). This is longer
+  than the adapter's general default because document concurrency can queue a
+  healthy request behind other batches; the timeout remains finite to recover
+  from a genuinely stuck connection.
 - **Wrong environment.** The script's redacted-host preview is your last line
   of defence. If the host looks wrong, answer `N`. Never put prod values into
   `.env`/`.env.local` — the unsuffixed scripts will use them silently.

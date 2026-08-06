@@ -23,6 +23,7 @@ process.env.EMBED_API_KEY = "gw-key-test";
 process.env.EMBED_WIRE_MODEL_ID = "embeddings";
 process.env.EMBED_MODEL_ID = "qwen/qwen3-embedding-8b";
 delete process.env.EMBED_MAX_ATTEMPTS;
+delete process.env.EMBED_TIMEOUT_MS;
 delete process.env.QUERY_EMBED_MAX_ATTEMPTS;
 delete process.env.QUERY_EMBED_TIMEOUT_MS;
 
@@ -135,5 +136,48 @@ describe("wire() — gateway-primary embedding with OpenRouter fallback", () => 
     expect(warns).toContain(
       "  ↯ corpus embed: gateway failed (http_503); falling back to hosted OpenRouter",
     );
+  });
+
+  it("lets four corpus batches queue within the batch timeout without retrying", async () => {
+    const serviceMs = 25_000;
+    let availableAt = Date.now();
+    const seen: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string, init?: RequestInit) => {
+        const body = JSON.parse(init!.body as string) as { input: string[] };
+        seen.push(String(url));
+        const startedAt = Date.now();
+        availableAt = Math.max(availableAt, startedAt) + serviceMs;
+        const waitMs = availableAt - startedAt;
+        return new Promise<Response>((resolve, reject) => {
+          const timer = setTimeout(() => {
+            const data = body.input.map((_text, index) => ({
+              embedding: new Array(1536).fill(0.5),
+              index,
+            }));
+            resolve(new Response(JSON.stringify({ data }), { status: 200 }));
+          }, waitMs);
+          init!.signal?.addEventListener("abort", () => {
+            clearTimeout(timer);
+            reject(new DOMException("This operation was aborted", "AbortError"));
+          });
+        });
+      }),
+    );
+    const { embedder } = wire();
+
+    const outcome = Promise.all(
+      ["one", "two", "three", "four"].map((text) => embedder.embed([text])),
+    );
+    expect(seen).toHaveLength(4); // concurrent dispatch, not four serialized calls
+    await vi.advanceTimersByTimeAsync(100_001);
+    const vectors = await outcome;
+
+    expect(vectors).toHaveLength(4);
+    expect(vectors.every(([vector]) => vector?.length === 1536)).toBe(true);
+    expect(seen).toHaveLength(4);
+    expect(seen.every((url) => url.startsWith("https://gateway.test"))).toBe(true);
+    expect(warns).toEqual([]);
   });
 });

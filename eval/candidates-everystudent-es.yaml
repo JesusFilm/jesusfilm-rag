@@ -1,0 +1,543 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-es` (76 documents).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 76 ÷ 8 = 9.5, cap 10 → 10 cases (§0.7 rule).
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu. TWO were RE-ANGLED, not dropped — see
+#   "COLLISION WITH THE EXISTING cru-es-* CASES" below. Nothing was dropped.
+# Questions authored IN SPANISH, not translated from the English menu (§0.6).
+#
+# ⚠️⚠️ THIS SOURCE IS ALREADY CREDITED IN eval/qa-golden.yaml. Part A (2026-08-04,
+#   §0.9) added 9 `everystudent-es` documents to three existing `cru-es-*` cases. That
+#   makes this the only Part B suite so far that has to avoid duplicating live cases.
+#   See the collision analysis below before reading any case.
+#
+# ⚠️⚠️ SPANISH IS A MULTI-SOURCE LANGUAGE BUCKET (`cru` + `familylife` +
+#   `everystudent-es`). Every case competes against ~1,500 `cru` documents.
+#   MEASURED: 45 of the 100 top-10 slots across the ten cases came from `cru`, not from
+#   `everystudent-es`. That is correct and expected (§0.8: competition costs RANK), and
+#   it is why top scores here sit lower and rank-1 is rarer than in `ru`/`bg`/`hu`.
+#   Per case, non-`everystudent-es` share of the top 10:
+#     ilusion 1 · comodios 2 · accidente 3 · rutina 3 · ansiedad 7 · cruz 5 ·
+#     copias 4 · merezco 9 · mismolugar 4 · tresdioses 7
+#
+# CORPUS SHAPE — read this before judging any hit
+#   76 documents, all `/articulos/*.html`. There is NO `/story/` testimony shelf here
+#   (unlike `hu`, where 24% of the source was testimony) — the testimonies are mixed in
+#   among the articles (`atea`, `marcia`, `guru`, `sawyer`, `laura`, `blues`, `luchando`).
+#   Null-language documents: 0 of 76 (guardrail #3a — nothing excluded).
+#   Duplicate titles: 0 (the hazard that bit `bg` does not exist here).
+#   Length range: 1,406 ch (`/articulos/platos.html`) to 28,030 ch (`/articulos/blues.html`).
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-es es
+#   → 48 distinct candidate documents of 76, all ten topics covered.
+# All 76 documents were then read from the database (path + title + character length +
+# opening ~700 chars) before anything was credited — guardrail #5, and specifically
+# because of the boilerplate-tail trap recorded in §0.9. Judging by title would have been
+# wrong in BOTH directions on this source; see the trap section below.
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-es-check.ts
+#   Round 1: 1 paraphrase smell (0.762) · 9 credits not returned · 34 credits · 46% foreign
+#   Round 2: 0 paraphrase smells (max 0.747) · 5 credits not returned · 35 credits · 46% foreign
+#   Round 3: 0 paraphrase smells (max 0.747) · 2 credits not returned · 33 credits · 45% foreign
+#            — and BOTH remaining misses are DELIBERATE keeps, recorded on their cases.
+#   Two questions were reworded (trinity for smell, god-exists for reach); one reworded
+#   question was chosen over a higher-reach variant, see `eses-newcomer-comodios`.
+#   Plus a separate reword A/B: .tmp-diag/phase5-es-probe.ts (6 variants) and a
+#   reachability probe .tmp-diag/phase5-es-probe2.ts.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 33 credited paths resolve to EXACTLY ONE document — 33/33.
+#   Guardrail #3a:   no credited document has a null language — 33/33.
+#
+# Credits are declared by PATH and titles are resolved FROM the database (the `hu`
+# pattern, not the `bg` one): everystudent-es paths are short plain ASCII while its
+# TITLES are long multi-clause SEO strings ("Libros de la Biblia- Historia de la Biblia-
+# Quién escribió la Biblia"). Here the title is the transcription risk.
+#
+# evidence_tier: proposed `human-verified`. Spanish is NOT in the same position as
+#   Hungarian or Bulgarian — the estate already ships eight `cru-es-*` cases and Jaco can
+#   read the questions. If nobody on the team will actually read them, downgrade to
+#   `llm-translated`. OPERATOR TO CONFIRM.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# COLLISION WITH THE EXISTING `cru-es-*` CASES — what changed and why
+# ─────────────────────────────────────────────────────────────────────────────
+# Part A credited 9 everystudent-es documents into three live cases:
+#   cru-es-believer-dios-callado   → /articulos/oraciones.html
+#   cru-es-seeker-vacio            → /articulos/verdadera.html /articulos/proposito.html
+#                                     /articulos/lafuente.html
+#   cru-es-skeptic-jesus-hombre    → /articulos/quienjesus.html /articulos/verdadero.html
+#                                     /articulos/fe.html /articulos/jesusdios.html
+#                                     /articulos/alguna.html
+#
+# Topic-by-topic ruling (10 kept, 0 dropped, 2 RE-ANGLED):
+#
+#  #8 prayer      🔁 RE-ANGLED. `cru-es-believer-dios-callado` is "Le pido a Dios lo mismo
+#     una y otra vez y no obtengo respuesta. ¿Por qué se queda callado conmigo?" — that is
+#     the §0.7 prayer question almost word for word. Writing it again would have been a
+#     clone. The re-angle takes the OTHER half of /articulos/oraciones.html: not "why is
+#     God silent" but the article's own "Obstáculo en el camino" section — a believer who
+#     feels DISQUALIFIED from asking. Same document credited (permitted), genuinely
+#     different question. See `eses-believer-merezco`.
+#
+#  #4 purpose     🔁 RE-ANGLED. `cru-es-seeker-vacio` is "Tengo trabajo, pareja, todo lo
+#     que supuestamente debería hacerme feliz, y por dentro me siento vacío" and it
+#     already credits the source's whole purpose shelf (verdadera + proposito + lafuente).
+#     The re-angle moves off "I have everything and feel empty" onto the LIFE-ARC
+#     treadmill — study, job, mortgage, retire — which is verbatim how
+#     /articulos/ahoraque.html opens, a document `vacio` does NOT credit. Result: the new
+#     case leads on /articulos/ahoraque.html at rank 1 and shares only
+#     /articulos/proposito.html with the live case. `verdadera` (rank 3) and `lafuente`
+#     (rank 7) came back and were deliberately NOT credited here, so the two answer keys
+#     stay distinct. See `eses-seeker-rutina`.
+#
+#  #1 god-exists  ✅ KEPT AS IS. `cru-es-skeptic-jesus-hombre` is about JESUS' DEITY and
+#     credits quienjesus/verdadero/fe/jesusdios/alguna. This case is about whether belief
+#     in God is wish-fulfilment and credits atea/probar/guia/hayundios/universo/Diosreal —
+#     six documents, zero overlap. Part A explicitly rejected /articulos/hayundios.html
+#     from `jesus-hombre` on exactly this distinction ("God's existence, not Jesus' deity"),
+#     which confirms the two shelves are separate. Not a duplicate.
+#
+#  #6 jesus-death ✅ KEPT AS IS. `jesus-hombre` asks for PROOF OF DEITY; this case asks
+#     what the crucifixion ACHIEVED, and credits murio/conociendo/conociendo-video — again
+#     zero overlap with the live key.
+#
+#  #2 #3 #5 #7 #9 #10 ✅ KEPT AS IS — no live `cru-es-*` case touches know-god, suffering,
+#     anxiety, bible-trust, world religions or the Trinity. (`cru-es-seeker-desanimo` is
+#     DEPRESSION, not anxiety, and credits no everystudent-es document at all;
+#     `cru-es-skeptic-infierno` is hell, which this source does not carry — see the
+#     content gap at the foot of this file.)
+#
+# Net: 33 credits over 10 cases, of which exactly 2 documents (/articulos/oraciones.html,
+# /articulos/proposito.html) are also credited by a live `cru-es-*` case. Both are
+# deliberate and defensible: a document may serve more than one question.
+
+cases:
+
+  # ── 1 ───────────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS
+  - id: "eses-skeptic-ilusion"                # topic: god-exists
+    persona: skeptic
+    q: "Mis amigos dicen que creer en Dios es una ilusión que uno se inventa para sentirse mejor. ¿Hay algún dato comprobable a favor, o al final es solo lo que cada quien quiera creer?"
+    en: "My friends say believing in God is an illusion you invent to feel better. Is there any verifiable evidence for it, or in the end is it just whatever each person wants to believe?"
+    top_score: 0.647                          # clear of 0.75
+    foreign_in_top10: 1                       # the least cru-contested case in the suite
+    credits:
+      - {path: "/articulos/atea.html",      rank: 1,  score: 0.647, en: "How an atheist found God (Marilyn Adamson, 18.1k) — 'My question seemed to bother religious people. How can you KNOW God exists? Most answers were: well, you just know.' Answers the wish-fulfilment charge in the asker's own terms."}
+      - {path: "/articulos/probar.html",    rank: 2,  score: 0.613, en: "Can you prove God exists? (Gregory Ganssle, PhD) — 'since Kant, thinking people insist it is impossible to prove God exists; this claim has been raised to the level of dogma'"}
+      - {path: "/articulos/guia.html",      rank: 3,  score: 0.601, en: "A guide to finding faith — how does anyone arrive at faith in God; written for the person who suspects it is all self-persuasion"}
+      - {path: "/articulos/hayundios.html", rank: 5,  score: 0.587, en: "Is there a God? Six solid reasons God is real (Marilyn Adamson, 22.7k) — the source's flagship apologetics article: 'honest, direct reasons, with no you-just-have-to-believe'"}
+      - {path: "/articulos/universo.html",  rank: 10, score: 0.553, en: "Did God create the universe? See the scientific evidence — the Big Bang as a singular beginning. ⚠ FRAGILE, rank 10."}
+      - {path: "/articulos/Diosreal.html",  rank: "NOT IN TOP 10", en: "DNA says God is real — Antony Flew, 'a leading spokesman for atheism', concluding after the DNA discoveries that 'super-intelligence is the only good explanation for the origin of life'. 🔴 KEPT DELIBERATELY, see below."}
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      The question asks in so many words whether there is any VERIFIABLE DATA.
+      /articulos/Diosreal.html is the source's verifiable-data article — it is the exact
+      Spanish twin of the Hungarian /a/dns.html which `eshu-skeptic-vagyalom` kept for the
+      identical reason, and of the Persian /a/Godreal.html. Dropping it would be
+      dishonest, so I KEPT it.
+
+      What it measures: for a question that explicitly asks for data, the engine returns
+      /articulos/coronavirus.html (the anxiety article) at rank 4 (0.592),
+      /articulos/conectando.html (world religions) at rank 7 (0.566) and
+      /articulos/oraciones.html (prayer) at rank 8 (0.561) AHEAD of the DNA article. This
+      case will score coverage 5/6, on purpose. Two languages, one defect — see the
+      SUMMARY.
+
+      ⚠️ /articulos/universo.html is a BOUNDARY credit at rank 10 and will flap. Do not
+      read a future 4/6 as a regression; §0.10 recorded the same tie-reorder flapping on
+      `esru-newcomer-krest`.
+    reworded: |
+      ⚠️ REWORDED ONCE, for REACH not for smell — and the A/B is worth keeping.
+      v1: "…¿Hay algo concreto detrás, o al final se reduce a lo que cada quien quiera creer?"
+          → top 0.622, no smell, but only 4 of 7 credits returned and the ENTIRE science
+          shelf (Diosreal, universo, leyes) was outside the top 10. "Algo concreto" is too
+          abstract — it reads as 'anything solid', which lands on testimony and guidance.
+      v2 (kept): "¿Hay algún dato comprobable a favor…?" — 'any verifiable data'.
+          → top 0.647, 5 of 6 credits, `probar` moved rank 8 → 2, `universo` entered at
+          rank 10, and the cru competition fell from 2/10 to 1/10.
+      v3 (tried, rejected): "¿Existe evidencia que se pueda examinar de verdad, no solo
+          algo que se siente?" → top 0.598 but competition rose to 6/10 and the science
+          shelf still did not return. Worse on both axes.
+    dropped_after_engine_check:
+      - {path: "/articulos/leyes.html", why: "Why scientists are baffled by the laws of nature (10.1k). Outside the top 10 in all three variants. Its subject is fine-tuning — a DIFFERENT objection from 'is belief wish-fulfilment'. One kept miss records the science-shelf gap; a second would only duplicate the same finding. Dropped, not hidden."}
+    rejected:
+      - {path: "/articulos/coronavirus.html", rank: 4,  why: "the ANXIETY article (its H1 is 'Ansiedad por el coronavirus'), at rank 4 for an evidence question. A tail/general-comfort match, not evidence. Credited to case 5."}
+      - {path: "/articulos/conectando.html",  rank: 7,  why: "world religions — credited to case 9"}
+      - {path: "/articulos/oraciones.html",   rank: 8,  why: "prayer — credited to case 8"}
+      - {path: "/articulos/tragedia.html",    rank: 9,  why: "where is God in tragedy — credited to case 3"}
+
+  # ── 2 ──────────────────────────────────────── newcomer ⚠ SEE THE KEPT MISS
+  - id: "eses-newcomer-comodios"              # topic: know-god
+    persona: newcomer
+    q: "Cuando alguien me habla de Dios, en mi cabeza aparece una especie de energía enorme y lejana. ¿Es alguien con quien de verdad se pueda tener trato?"
+    en: "When someone talks to me about God, what appears in my head is a kind of huge distant energy. Is he someone you can actually have dealings with?"
+    top_score: 0.595                          # clear of 0.75
+    foreign_in_top10: 2
+    credits:
+      - {path: "/articulos/Dios.html",     rank: 1, score: 0.595, en: "Who is God? Six personality traits of God from the Bible — opens 'Who God is… He is KNOWABLE. God, who created the universe in all its magnitude, can be known. He welcomes us into a relationship.' The direct answer to 'can you have dealings with him'."}
+      - {path: "/articulos/escoger.html",  rank: 2, score: 0.590, en: "Why choose the God of the Bible? (19.4k) — 'Is there an ideal God? One who meets the criteria many of us would think important for a God?' Then six numbered traits: bigger than us, personal, just, loving."}
+      - {path: "/articulos/donde.html",    rank: 3, score: 0.559, en: "Where is God? — the two-dimensional-people-on-a-sheet-of-paper analogy for how a God outside our dimensions can enter them. Aimed exactly at 'a vague force somewhere'."}
+      - {path: "/articulos/quien2.html",   rank: 4, score: 0.555, en: "'Who 2' — 🔴 TITLE TRAP, see below. Part 4 of the source's cosmological series; this instalment is where the argument concludes that the Eternal Something is PERSONAL and present ('Where could I flee from your presence?' Ps 139). Its title names nothing at all."}
+      - {path: "/articulos/conocer.html",  rank: "NOT IN TOP 10", en: "What is it like to know God? (Marilyn Adamson, 11.3k) — 'We are not meant to live alone. Here is what God offers and what that relationship is like.' 🔴 KEPT DELIBERATELY, see below."}
+    kept_miss: |
+      🔴 THE SECOND KEPT MISS, AND IT IS A MEASURED RETRIEVAL GAP, NOT A BAD QUESTION.
+      /articulos/conocer.html is an 11.3k-char Marilyn Adamson article whose entire
+      subject is what a relationship with God is actually like. The question asks whether
+      God is someone you can have dealings with. It is the answer, and it does not come
+      back.
+
+      I probed whether ANY phrasing reaches it (.tmp-diag/phase5-es-probe2.ts):
+        "¿Qué significa en la práctica tener una relación con Dios?"  → not in top 10
+        "¿Cómo sería tener una relación con alguien así, si es que se puede?" → not in top 10
+        "¿Cómo es conocer a Dios de verdad?" (a near-verbatim restatement of its own
+             title, which guardrail #1 forbids using) → rank 9, 0.592
+      A document that only surfaces at rank 9 for a restatement of its own title is
+      effectively unreachable. KEPT so the eval records it. Coverage 4/5, on purpose.
+
+      The likely cause is visible in the same probe: /articulos/conociendo.html and
+      /articulos/conociendo-video.html — the Four-Spiritual-Laws article and its video
+      transcript — take ranks 1 and 2 for every "know God personally" phrasing (0.759 and
+      0.726). The near-duplicate pair crowds out the article that actually describes the
+      relationship. Same shape as §0.9's `/a/personally.html` finding, inverted.
+    reworded: |
+      ⚠️ NOT REWORDED — and the HIGHER-REACH VARIANT WAS DELIBERATELY REJECTED.
+      v3 tried: "No tengo ninguna imagen de Dios más allá de una fuerza vaga en alguna
+          parte. ¿Cómo es él en realidad y qué clase de trato tiene con la gente?"
+          → 5 of 6 credits instead of 4 of 6 (it recovers /articulos/comun.html at rank 5).
+          REJECTED because it pushes `donde` to rank 9 and `quien2` to rank 10 — trading
+          two robust credits for one fragile one — and because it is close to a literal
+          translation of the §0.7 English menu line, which §0.6 says not to do.
+      v2 tried: "…¿Cómo sería tener una relación con alguien así, si es que se puede?"
+          → CATASTROPHIC: 1 of 6 credits. The word "relación" moves the engine onto the
+          human-relationships shelf — /articulos/soledad.html (loneliness) and
+          /articulos/sacia.html (drinking) enter the top 10. This is failure mode C in
+          reverse and it is exactly the Slovak "scored fine, lost its credits" defect:
+          top score stayed a healthy 0.627 while the answer key collapsed.
+      v1 (kept): 4 credits at ranks 1, 2, 3, 4 — the most robust block in the suite.
+    dropped_after_engine_check:
+      - {path: "/articulos/comun.html", why: "What do you have in common with God? (4.1k). Outside the top 10 on the kept phrasing. On reading, its subject is the imago Dei — what humans SHARE with God — not what God is like. A defensible drop on content, not only on rank."}
+    rejected:
+      - {path: "/articulos/conociendo-video.html", rank: 5, why: "the Four-Spiritual-Laws video transcript — how to BEGIN with God, not what God is like. Credited to case 6."}
+      - {path: "/articulos/marcia.html",  rank: 6, why: "occult/astrology conversion testimony (18.9k). A matched-on-the-tail hit; its subject is one woman's route out of the New Age."}
+      - {path: "/articulos/oraciones.html", rank: 7, why: "prayer — credited to case 8"}
+      - {path: "/articulos/conectando.html", rank: 8, why: "world religions — credited to case 9"}
+
+  # ── 3 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eses-skeptic-accidente"              # topic: suffering
+    persona: skeptic
+    q: "El año pasado murió un amigo mío en un accidente y nadie ha sabido explicarme cómo encaja eso con un Dios bueno."
+    en: "A friend of mine died in an accident last year and nobody has been able to explain to me how that squares with a good God."
+    top_score: 0.675                          # clear of 0.75
+    foreign_in_top10: 3
+    credits:
+      - {path: "/articulos/malas.html",         rank: 1, score: 0.675, en: "Why do bad things happen? (Stacy James) — opens on the exact objection: 'the biggest question about evil is why does God not prevent it? If God is all-good and all-powerful, why does he not do something?'"}
+      - {path: "/articulos/porque.html",        rank: 2, score: 0.673, en: "Why is life so hard? Why is there pain and suffering? — 'Our parents divorce. The girl who lives near me is kidnapped. A relative gets cancer. That wakes us up.' The accident-shaped case, stated by the article itself."}
+      - {path: "/articulos/tragedia.html",      rank: 3, score: 0.647, en: "Where is God in the middle of tragedy? (Marilyn Adamson, 14.8k) — 'Where do we find the inner strength to bear fears, tragedies, disasters?'"}
+      - {path: "/articulos/bueno.html",         rank: 4, score: 0.647, en: "Is God good? — a 1.6k video transcript: 'Is God good? If he is, why is there suffering and evil?' Short but exactly on the question. ⚠ It is the SECOND-SHORTEST document in the source; length was checked before crediting (see the pure-tail warning in the SUMMARY) and it is genuine argument, not a promo."}
+      - {path: "/articulos/ayuda-de-Dios.html", rank: 7, score: 0.622, en: "God's help in hard times — a 6.7k video transcript opening 'When a tragedy happens we often ask God: where are you?' A sibling of /articulos/tragedia.html in video form; both genuinely answer, so both are credited (the same call Part A made on the two `dios-parece-silencioso` URLs)."}
+    note: |
+      ⓘ 5 of 5 credits returned, four of them in the top four. This is the strongest case
+      in the suite and it needed no reword. Suffering is the topic `everystudent-es` is
+      deepest on: five distinct documents, plus /articulos/horribles.html which was
+      dropped on content (below).
+    dropped_after_engine_check:
+      - {path: "/articulos/horribles.html", why: "Why worship a God who allows suffering? — its worked example is the rape of a child, i.e. MORAL evil done by people. The question is about an accident. Different facet, and it did not return in the top 10 in round 1. Dropped on content as well as on rank."}
+    rejected:
+      - {path: "/articulos/escoger.html",    rank: 9,  why: "why choose the God of the Bible — credited to case 2"}
+      - {path: "/articulos/coronavirus.html", rank: 10, why: "the anxiety article — credited to case 5"}
+
+  # ── 4 ─────────────────────────────── seeker ⚠ RE-ANGLED AWAY FROM A LIVE CASE
+  - id: "eses-seeker-rutina"                  # topic: purpose (RE-ANGLED, see the header)
+    persona: seeker
+    q: "Estudias, consigues trabajo, te casas, pagas la casa, te jubilas y se acabó. Cuando lo veo así de seguido me pregunto para qué es todo esto."
+    en: "You study, get a job, get married, pay off the house, retire and that's it. When I see it laid out like that I wonder what all of it is even for."
+    top_score: 0.581                          # clear of 0.75
+    foreign_in_top10: 3
+    credits:
+      - {path: "/articulos/ahoraque.html", rank: 1, score: 0.581, en: "What happens when you die? — 🔴 TITLE TRAP in the useful direction. The title says death; the article OPENS with this exact treadmill: 'Today you are at university, 18 to 24. And tomorrow? You graduate. You get a job. You marry. You have kids. You buy a house. Great — now what?' It is the life-arc purpose article. NOT credited by `cru-es-seeker-vacio`, which is the point of the re-angle."}
+      - {path: "/articulos/proposito.html", rank: 5, score: 0.536, en: "What is my purpose in life? — the hammer parable (a hammer with a soul, left in the toolbox, sensing something is missing). ⚠ ALSO credited by the live `cru-es-seeker-vacio`; a document may answer two questions."}
+      - {path: "/articulos/filosofia.html", rank: 8, score: 0.487, en: "The value of philosophy — 'Why are we here? What is our purpose? What gives life meaning?' The philosophers ask the right questions; here are the answers. ⚠ FRAGILE, rank 8, and the lowest-scoring credit in the suite at 0.487."}
+    note: |
+      🔁 THIS CASE EXISTS ONLY IN RE-ANGLED FORM. The §0.7 purpose question ("I finish
+      every day feeling like none of it added up") collides with the live
+      `cru-es-seeker-vacio`, which already credits verdadera + proposito + lafuente.
+      Re-angling onto the LIFE-ARC treadmill moved the case's lead document to
+      /articulos/ahoraque.html — which `vacio` does not credit — and left only
+      /articulos/proposito.html shared.
+
+      🟢 THE RE-ANGLE IS PROVEN, NOT ASSERTED. `vacio`'s two other credits both came back
+      here and were deliberately NOT credited: /articulos/verdadera.html at rank 3 (0.543)
+      and /articulos/lafuente.html at rank 7 (0.511). Crediting them would have made this
+      a duplicate answer key. Leaving them uncredited is what keeps the two cases distinct
+      — and it is also why this case's coverage denominator is small.
+    rejected:
+      - {path: "/articulos/verdadera.html", rank: 3, why: "'Real life' — three people who reached the top and still felt empty. Deliberately left to `cru-es-seeker-vacio`, whose question it answers better."}
+      - {path: "/articulos/laura.html",     rank: 6, why: "a Christian Dior model on vanity and self-worth. Adjacent, but its subject is beauty and body image."}
+      - {path: "/articulos/lafuente.html",  rank: 7, why: "Josh McDowell, 'The source of a changed life'. Deliberately left to `cru-es-seeker-vacio`."}
+      - {path: "/articulos/sacia.html",     rank: 9, why: "🔴 'Healthy life things, getting drunk and God' — an ALCOHOL article at rank 9 for a life-purpose question. This is failure mode C (lexical artifact) firing on its own, with no drinking word anywhere in my question. Worth recording: the artifact is in the corpus, not only in careless question-writing."}
+
+  # ── 5 ─────────────────────────────────────────────────────────────── seeker
+  - id: "eses-seeker-ansiedad"                # topic: anxiety
+    persona: seeker
+    q: "Llevo años intentando calmar la ansiedad con meditación, ejercicios de respiración y libros de autoayuda, y siempre vuelve. ¿Dios ofrece algo distinto de todo eso?"
+    en: "For years I have been trying to calm my anxiety with meditation, breathing exercises and self-help books, and it always comes back. Does God offer anything different from all that?"
+    top_score: 0.668                          # clear of 0.75
+    foreign_in_top10: 7                       # the second-most cru-contested case
+    credits:
+      - {path: "/articulos/coronavirus.html", rank: 1,  score: 0.668, en: "🔴 TITLE TRAP — the title is 'Coronavirus (COVID-19)' but the H1 is 'Ansiedad por el coronavirus' and the standfirst is 'a reliable way to deal with anxiety, coronavirus stress OR ANY WORRY'. It then lists terrorism, climate, racism, war, poverty, illness, job security, finances. This is the source's GENERAL ANXIETY article. Exactly the `hu` /a/koronavirus.html finding, in Spanish."}
+      - {path: "/articulos/chacras.html",     rank: 2,  score: 0.629, en: "🔴 TITLE TRAP in the other direction — 'Anxiety and chakra healing' sounds like New Age content. It is Rachel Fatyanov's account of loneliness, depression and anxiety through and after university, then self-help books, Buddhism/Zen, yoga, New Age and occult practice, horoscopes, psychics, palm readers, crystal/energy healing — and what she found instead. The Spanish twin of the Russian /a/chakr.html that §0.10 credited at rank 2."}
+      - {path: "/articulos/paz-mental.html",  rank: 10, score: 0.555, en: "Peace of mind in an unstable world (18.1k) — 'Is there anywhere we can go for stability, no matter what happens in the world or in our own lives?' ⚠ FRAGILE, rank 10."}
+    note: |
+      ⚠️ 7 of this case's 10 slots are `cru`, and the three that are not are all credited.
+      `cru` carries a dedicated emotions shelf (`anxiety-help`, `jesus-and-worry`,
+      `el-pecado-de-la-preocupacion`, `depression-anxiety-all-in-your-head`) that
+      out-competes everystudent-es on anxiety. This case therefore measures `es`-bucket
+      retrieval more than it measures this source. Recorded, not hidden.
+    reworded: |
+      ⚠️ REWORDED ONCE, for REACH.
+      v1: "Vivo con un nudo en el estómago casi todo el tiempo, aunque no esté pasando
+           nada malo. ¿La fe ofrece algo para eso?"
+           → top 0.570, only 1 of 3 credits (paz-mental and chacras both outside the top
+           10), and cru took ranks 1, 2, 4, 5, 6, 7, 9. A pure feelings-description
+           question loses to cru's feelings shelf.
+      v2 (kept): names what the asker has already TRIED — meditation, breathing, self-help.
+           → top 0.668, 3 of 3 credits, chacras jumped from outside the top 10 to rank 2.
+           ⓘ "meditación / autoayuda" are NOT incidental colour here (failure mode C):
+           they are the literal subject of /articulos/chacras.html. Naming them is the
+           question's substance, not scene-setting.
+
+  # ── 6 ────────────────────────────────────────────────────────────── newcomer
+  - id: "eses-newcomer-cruz"                  # topic: jesus-death
+    persona: newcomer
+    q: "Los cristianos que conozco hablan de la cruz como si hubiera cambiado todo. Para mí fue una ejecución más de hace dos mil años. ¿Qué se supone que consiguió?"
+    en: "The Christians I know talk about the cross as if it changed everything. To me it was just one more execution two thousand years ago. What is it supposed to have achieved?"
+    top_score: 0.596                          # clear of 0.75
+    foreign_in_top10: 5
+    credits:
+      - {path: "/articulos/murio.html",            rank: 1, score: 0.596, en: "Why did Jesus die? (15.6k) — 'This is what the death and resurrection of Jesus meant; the crucifixion of Jesus Christ.' A dedicated atonement article: crucifixion reserved for the worst criminals, then what it accomplished."}
+      - {path: "/articulos/conociendo.html",       rank: 4, score: 0.565, en: "Would you like to know God personally? — the Four Spiritual Laws. Principle 3 is the answer to this question: 'Jesus Christ paid…' — the only way across the gap human effort cannot cross."}
+      - {path: "/articulos/conociendo-video.html", rank: 8, score: 0.546, en: "Short video: how to begin a personal relationship with God — the video transcript sibling of the document above. 'None of these good efforts covers sin or removes it… the Bible says the wages of sin…' ⚠ FRAGILE, rank 8, and see the near-duplicate warning in the SUMMARY."}
+    note: |
+      🟢 SPANISH IS THE THIRD CONTROL FOR THE RUSSIAN ATONEMENT GAP, AND IT AGREES WITH
+      BULGARIAN AND HUNGARIAN. §0.10 recorded that `esru-newcomer-krest` cannot retrieve
+      its credits because `everystudent-ru` has NO article whose subject is the atonement.
+      `everystudent-es` has one — /articulos/murio.html, 15.6k chars — and it comes back
+      at RANK 1. Four sources, same estate, same embedder, same topic menu: the Russian
+      result is corpus composition, not a systemic retrieval defect.
+    rejected:
+      - {path: "/articulos/jesus-y-islam.html", rank: 7, why: "its Q4 is 'Did Jesus die on a cross?' and Q5 'was God dead for three days?' — genuinely adjacent, but framed as answers to Muslim objections rather than as what the cross achieved. Credited to case 7; keeping the keys distinct is worth more than the extra credit."}
+      - {path: "/articulos/lafuente.html",      rank: 9, why: "Josh McDowell testimony. A boilerplate/gospel-summary match, not an atonement document."}
+
+  # ── 7 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eses-skeptic-copias"                 # topic: bible-trust
+    persona: skeptic
+    q: "A mí me dijeron que la Biblia es palabra de Dios, pero para mí sigue siendo un libro que escribieron y copiaron personas durante siglos. ¿Qué la hace distinta de cualquier otro texto antiguo?"
+    en: "I was told the Bible is God's word, but to me it is still a book people wrote and copied over centuries. What makes it different from any other ancient text?"
+    top_score: 0.717                          # clear of 0.75, and the second-highest in the suite
+    foreign_in_top10: 4
+    credits:
+      - {path: "/articulos/biblia.html",        rank: 1, score: 0.717, en: "Is the Bible reliable? Who wrote the Bible? (12.6k) — 🔴 TITLE TRAP: the stored title is the SEO string 'Libros de la Biblia- Historia de la Biblia- Quién escribió la Biblia', but the article OPENS as a dialogue — a young man interrupting a Four-Spiritual-Laws presentation with 'you quote the Bible and act as if that settles it… I can't just switch my brain off and have blind faith like you.' That is this question, dramatised."}
+      - {path: "/articulos/jesus-y-islam.html", rank: 2, score: 0.652, en: "Jesus and Islam (25.5k) — its FIRST of six questions is 'Has the Bible been modified from the original?' and it answers the corruption charge directly: 'Do we accuse God of being unable to protect his word? Nothing has been modified, that is only a rumour.' ⓘ This is the §0.7 pattern where the scripture-corruption question (tahrif) is where the estate treats Bible reliability."}
+    note: |
+      ⓘ TWO CREDITS IS THE HONEST NUMBER. `everystudent-es` carries exactly two documents
+      on Bible reliability, and discovery found exactly two (0.752 and 0.701 on the
+      English probe). Ranks 3–10 are cru's Muslim-outreach page, a Hugh Ross testimony,
+      and everystudent-es articles about Jesus' identity — nothing else on this source
+      addresses transmission or reliability.
+    rejected:
+      - {path: "/articulos/quienjesus.html", rank: 5,  why: "Who is Jesus? — the Lewis trilemma. About Jesus' identity, not the text's reliability. Already credited to the live `cru-es-skeptic-jesus-hombre`."}
+      - {path: "/articulos/conectando.html", rank: 7,  why: "world religions — credited to case 9"}
+      - {path: "/articulos/jesusdios.html",  rank: 9,  why: "Is Jesus Christ God? Already credited to the live `cru-es-skeptic-jesus-hombre`."}
+      - {path: "/articulos/atea.html",       rank: 10, why: "credited to case 1"}
+
+  # ── 8 ─────────────────────────────── believer ⚠ RE-ANGLED AWAY FROM A LIVE CASE
+  - id: "eses-believer-merezco"               # topic: prayer (RE-ANGLED, see the header)
+    persona: believer
+    q: "Cada vez que me pongo a orar me acuerdo de todo lo que hice mal esa semana y siento que no tengo cara para pedirle nada a Dios. ¿A alguien así lo escucha igual?"
+    en: "Every time I sit down to pray I remember everything I did wrong that week and feel I have no right to ask God for anything. Does he listen to someone like that anyway?"
+    top_score: 0.674                          # clear of 0.75
+    foreign_in_top10: 9                       # 🔴 the most cru-contested case in the suite
+    credits:
+      - {path: "/articulos/oraciones.html", rank: 3, score: 0.670, en: "Does God answer our prayers? Which prayers does God answer? Will he answer yours? (Marilyn Adamson, 13.5k) — the section headed 'Obstáculo en el camino' ('An obstacle in the way') is precisely this question: what stands between a person and answered prayer, and whether it disqualifies them. ⚠ ALSO credited by the live `cru-es-believer-dios-callado`, deliberately — see the collision analysis in the header."}
+    note: |
+      🔁 RE-ANGLED, AND THE RE-ANGLE IS THE ONLY REASON THIS CASE EXISTS. The §0.7 prayer
+      question is a near-clone of the live `cru-es-believer-dios-callado` ("Le pido a Dios
+      lo mismo una y otra vez y no obtengo respuesta"). This version asks a different
+      thing — not "why is God silent" but "am I disqualified from asking" — and lands on
+      the OTHER half of the same article. Same document, different question. That is
+      permitted; a duplicate question would not have been.
+
+      🔴 9 OF 10 SLOTS ARE `cru`, AND IT IS THE WHOLE PRAYER SHELF: `razones-por-las-cuales-oramos`
+      at rank 1, then FIVE variants of `21/22/23/24-cosas-por-las-cuales-orar` at ranks
+      2, 4, 5, 6, 7, then `oracion.html`, `orando-en-comunidad`, and
+      `cual-es-la-diferencia-entre-un-deseo-y-una-oracion`. ⚠️ THOSE FIVE NUMBERED URLS
+      ARE THE SAME cru ARTICLE UNDER FIVE PATHS — a `cru` corpus-hygiene problem, not an
+      everystudent-es one, but it is what buries this source's single prayer article to
+      rank 3. Worth a separate ticket; it is out of scope for this suite.
+
+      ⓘ ONE CREDIT IS THE HONEST ANSWER. `everystudent-es` carries exactly one prayer
+      article. Same shape as `hu`, `bg` and `ru`, all of which also credit exactly one
+      document for this topic. This is §0.7's believer-thinness finding showing up in the
+      corpus rather than in the persona split.
+    dropped_after_engine_check:
+      - {path: "/articulos/conociendo.html", why: "The Four Spiritual Laws. It answers 'how do I get right with God at all' — a NEWCOMER question — not 'does God hear a believer who keeps failing'. Outside the top 10 in round 1 and dropped on content too. It is credited to case 6, where it belongs."}
+
+  # ── 9 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eses-skeptic-mismolugar"             # topic: religions
+    persona: skeptic
+    q: "Tengo compañeros musulmanes, budistas e hindúes y todos hablan de su fe con la misma convicción. ¿Por qué el cristianismo sería algo distinto y no una versión más de lo mismo?"
+    en: "I have Muslim, Buddhist and Hindu colleagues and they all speak about their faith with the same conviction. Why would Christianity be something different rather than one more version of the same thing?"
+    top_score: 0.694                          # clear of 0.75
+    foreign_in_top10: 4
+    credits:
+      - {path: "/articulos/conectando.html", rank: 2, score: 0.664, en: "Connecting with the Divine (Marilyn Adamson, 10.9k) — 'What about the best-known religions? Is there any difference?' then Hinduism, New Age, Buddhism, Islam, Christianity in turn. This is the estate's /a/205 world-religions piece under a localised slug — the same article as the German /artikel/hochsten.html, the Swahili /a/kuunganishwa.html, the Hungarian /a/istenkereses.html and the French /a/205divin.html (§0.7)."}
+      - {path: "/articulos/religiones.html", rank: 4, score: 0.612, en: "What is the difference between Jesus and the world's religions? (3.6k) — a point-by-point contrast, starting from 'Jesus Christ seeks a personal relationship with each of us'."}
+      - {path: "/articulos/guru.html",       rank: 7, score: 0.564, en: "My experience as a Hindu guru (Rabi Maharaj, 13.1k) — a first-person account from inside Hinduism, including the vows that meant his father never spoke to him. The question names Hindu colleagues; this is the source's Hinduism-from-the-inside document."}
+    note: |
+      ⓘ The best answer to this question in the whole `es` bucket is cru's
+      `core-christian-beliefs/what-makes-christianity-different.html` at rank 1 (0.694).
+      That is correct behaviour, not a defect — it is `cru`'s article and it is on-topic.
+    rejected:
+      - {path: "/articulos/lafuente.html",  rank: 3,  why: "🔴 THE CLEAREST LEXICAL ARTIFACT IN THE SUITE. Josh McDowell's testimony ranks 3 for a world-religions question because its matched chunk is a dialogue containing the words 'I'm fed up with church, I'm fed up with the Bible, don't give me that religion rubbish'. The document is about one man's change of life, not about comparing religions. A reviewer working from the score alone would credit it."}
+      - {path: "/articulos/sawyer.html",    rank: 9,  why: "Steve Sawyer, a student living with HIV and haemophilia. A hope testimony matched on its gospel tail."}
+      - {path: "/articulos/verdadero.html", rank: 10, why: "Which is the real Jesus? Already credited to the live `cru-es-skeptic-jesus-hombre`."}
+
+  # ── 10 ───────────────────────────────────────────────────────────── newcomer
+  - id: "eses-newcomer-tresdioses"            # topic: trinity
+    persona: newcomer
+    q: "Fui al bautizo de mi sobrina y dijeron «en el nombre del Padre, del Hijo y del Espíritu Santo». Yo tenía entendido que los cristianos creen en un solo Dios y me quedé sin entender nada."
+    en: "I went to my niece's baptism and they said 'in the name of the Father, the Son and the Holy Spirit'. I was under the impression Christians believe in only one God and I was left not understanding a thing."
+    top_score: 0.747                          # 🔴 the highest in the suite — 0.003 under the line
+    foreign_in_top10: 7
+    credits:
+      - {path: "/articulos/trinidad.html",      rank: 2, score: 0.688, en: "Can you explain the Trinity? — the three-dimensions analogy: 'God lives without the limits of a three-dimensional world… that is why Jesus the Son can be different from the Father and at the same time the same.' Explicitly framed as 'Three gods or one?'"}
+      - {path: "/articulos/espiritu-santo.html", rank: 3, score: 0.665, en: "Who is the Holy Spirit? — 'There is only one God, yet God describes himself as a trinity… The Holy Spirit is not a vague ethereal shadow nor an impersonal force. He is a person.' It then quotes Matthew 28:19, the baptismal formula the question heard."}
+    reworded: |
+      ⚠️ REWORDED ONCE — the only paraphrase smell in the draft, and it was the same one
+      `ru` (0.807) and `bg` (0.756) hit on this topic.
+      v1: "En la iglesia le rezan al Padre, hablan de Jesús y después mencionan al
+           Espíritu Santo. Si dicen que hay un solo Dios, ¿eso no son tres?"
+           → top 0.762 🔴 PARAPHRASE SMELL. "¿eso no son tres?" restates
+           /articulos/trinidad.html's own standfirst, "¿Tres dioses o uno?".
+      v2 (kept): moves the observation from a doctrinal formula to a CONCRETE SCENE — a
+           baptism the asker attended. → 0.762 → 0.747 against the everystudent-es
+           document (0.688 at rank 2), both credits kept.
+      ⚠️ 0.747 is 0.003 under the 0.75 line, but it is cru's
+      `understanding-the-trinity.html` that scores it, not an everystudent-es document.
+      The suite's highest everystudent-es score is 0.717 (`copias`). If a reviewer wants
+      more headroom, drop the quoted baptismal formula from the question — at the cost of
+      /articulos/espiritu-santo.html, which is retrieved BECAUSE it quotes Matthew 28:19.
+    rejected:
+      - {path: "/articulos/jesus-y-islam.html", rank: 4, why: "its Q3 is 'is it not blasphemy to suppose God has a Son?' — the Islamic objection to the incarnation, not the one-versus-three question. Credited to case 7. Same call `hu` made on /a/iszlam.html."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 33 credits · 33 distinct documents (no document credited twice WITHIN this
+#   suite; 2 of them — /articulos/oraciones.html and /articulos/proposito.html — are also
+#   credited by a live `cru-es-*` case, deliberately, see the header)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# §0.7 topics: 10 of 10 covered. 0 dropped. 2 RE-ANGLED (purpose, prayer) because a live
+#   `cru-es-*` case already asks that question for Spanish.
+# Paraphrase smells: 0 (max top score 0.747, and that score belongs to a `cru` document;
+#   the highest everystudent-es score in the suite is 0.717). Round 1 had 1.
+# Credits that do not retrieve: 2, both kept deliberately —
+#   /articulos/Diosreal.html on `ilusion` and /articulos/conocer.html on `comodios`.
+# Questions reworded: 3 (ilusion for reach, ansiedad for reach, tresdioses for smell).
+#   One case (`comodios`) REJECTED a higher-reach variant on purpose.
+# Competition: 45 of 100 top-10 slots came from `cru`, none from `familylife`.
+# evidence_tier: proposed `human-verified` — OPERATOR TO CONFIRM (see the header).
+#
+# 🔴 TITLE TRAPS — SEVEN, the most of any campaign source so far, and FOUR of them are
+#   documents whose titles name NOTHING AT ALL.
+#   1. /articulos/nada.html → 2. /articulos/algo.html ("Algo" = "Something") →
+#      3. /articulos/quien.html ("Quién" = "Who") → 4. /articulos/quien2.html ("Quién2")
+#      are a FOUR-PART COSMOLOGICAL ARGUMENT published as four documents with sequential
+#      one-word titles. `quien2` — the instalment that concludes the Eternal Something is
+#      personal — is CREDITED at rank 4 in case 2. Identical to the Hungarian
+#      semmi→valami→kicsoda→kicsoda2 chain (§0.11 note). By construction these cannot be
+#      judged by title.
+#   5. /articulos/siono.html ("Sí o no") — 9.1k chars, actually about free will and the
+#      most important decision a person makes. Names nothing.
+#   6. /articulos/coronavirus.html — titled for a pandemic, IS the general anxiety
+#      article. CREDITED at rank 1 in case 5.
+#   7. /articulos/chacras.html — titled "Anxiety and chakra healing", reads as New Age
+#      content, IS the best anxiety testimony in the source. CREDITED at rank 2 in case 5.
+#   Plus two SEO-title mismatches where the stored title names a different thing from the
+#   article's own H1: /articulos/biblia.html (stored: "Books of the Bible…"; H1: "Is the
+#   Bible reliable?") and /articulos/fe.html (stored: "The life of Jesus Christ…"; H1:
+#   "Beyond blind faith", Paul Little). Titles remain unusable as evidence on this estate.
+#
+# 🔴 THE BOILERPLATE TAIL EXISTS HERE AND WAS VERIFIED, NOT ASSUMED. Read from the
+#   database, these three unrelated articles all close on the same gospel-summary +
+#   invitation move:
+#     /articulos/homosexual-lesbiana.html (LGBTQ) → "…quiero conocerte, experimentar tu
+#        amor, y ahora mismo te pido que guíes mi vida"
+#     /articulos/toxico.html (pornography addiction) → "…te doy gracias por tomar el
+#        control de mi vida y llenarme del Espíritu Santo"
+#     /articulos/matrimonio.html (divorce statistics) → footnotes John 14:6, Rev 3:20,
+#        John 1:12 — the Four Spiritual Laws proof texts
+#   🟢 BUT IT DID LESS DAMAGE HERE THAN ON ANY OTHER SOURCE SO FAR, and the reason is
+#   measurable: this source has no `/story/` testimony shelf (Hungarian's was 24% of the
+#   corpus and produced tails at ranks 1/2/3), and 45% of every top 10 is taken by `cru`
+#   documents that carry no such tail. Only one clear tail/lexical artifact reached a
+#   high rank: /articulos/lafuente.html at rank 3 for the world-religions question,
+#   matched on "don't give me that religion rubbish". A second, /articulos/sacia.html
+#   (alcohol) at rank 9 for the purpose question, is failure mode C occurring with no
+#   provocation from the question.
+#
+# 🔴 PURE-TAIL DOCUMENT — ONE, and it is a title trap as well. /articulos/platos.html,
+#   1,406 chars, titled "Platos Cayendo" ("Falling Plates"). It is nothing but a video
+#   transcript of the gospel narrated in God's voice, ending "Te amo. E hice todo esto
+#   para tener una relación contigo. ¿Me seguirás?" This is the Slovak pure-tail shape.
+#   ⓘ It did NOT enter any of the ten top-10s, so it cost nothing here — but any future
+#   Spanish question about how to begin with God will meet it, and its title gives a
+#   reviewer no warning at all. Two other short video transcripts were length-checked
+#   before crediting: /articulos/bueno.html (1.6k, CREDITED — it is genuine argument) and
+#   /articulos/ayuda-de-Dios.html (6.7k, CREDITED — it is the tragedy article in video form).
+#
+# 🔴 NEAR-DUPLICATE PAIR — /articulos/conociendo.html (6,737 ch, the Four Spiritual Laws
+#   article) and /articulos/conociendo-video.html (6,841 ch, the same content as a video
+#   transcript). They take ranks 1 and 2 together for every "know God personally"
+#   phrasing (0.759 / 0.726 in the probe). BOTH are credited on case 6, following the
+#   precedent Part A set on `cru-es-believer-dios-callado`'s two `dios-parece-silencioso`
+#   URLs. This pair is the most likely cause of case 2's kept miss.
+#
+# 🔴 A `cru` CORPUS-HYGIENE PROBLEM SURFACED BY THIS SUITE, out of scope but reportable.
+#   `21-cosas-por-las-cuales-orar-tips-para-una-mejor-vida-de-oracion.html`,
+#   `…-oracion1.html`, `22-…`, `23-…-oracion11.html` and `24-…` are FIVE PATHS carrying
+#   the same cru prayer article. They occupy ranks 2, 4, 5, 6 and 7 of
+#   `eses-believer-merezco` — five of its ten slots — and are the direct cause of
+#   everystudent-es's only prayer article sitting at rank 3 instead of rank 1.
+#
+# ⓘ CONTENT GAP — ONE, already measured in Part A and NOT re-derived: `everystudent-es`
+#   has NO article about hell or eternal punishment. Its whole afterlife shelf is
+#   /articulos/cielo.html (what heaven is like), /articulos/inevitable.html (facing
+#   death), /articulos/reencarnacion.html (reincarnation) and /articulos/ahoraque.html
+#   (what happens when you die). No hell case was manufactured. The live
+#   `cru-es-skeptic-infierno` correctly credits zero everystudent-es documents.
+#   Otherwise all ten §0.7 topics are genuinely answerable from this source.
+#
+# ⚠️ FOR THE REVIEWER — five things to decide
+#   1. `evidence_tier`: `human-verified` (proposed — Spanish is readable in-house and the
+#      estate already ships eight `cru-es-*` cases) or `llm-translated`.
+#   2. THE TWO RE-ANGLES (`eses-seeker-rutina`, `eses-believer-merezco`) are the judgement
+#      call this suite most needs confirmed. Both avoid cloning a live `cru-es-*` question
+#      while crediting one document that live case also credits. If you would rather have
+#      NO overlap at all, drop /articulos/proposito.html from `rutina` (leaving it 2/2 at
+#      ranks 1 and 5) — `merezco` cannot be de-overlapped, because /articulos/oraciones.html
+#      is the source's only prayer article and dropping it deletes the case.
+#   3. /articulos/Diosreal.html on case 1 — KEEP (recommended: it records testimony,
+#      world-religions and anxiety articles outranking the DNA article for a question that
+#      asks for verifiable data, matching the Hungarian /a/dns.html result exactly) or DROP.
+#   4. /articulos/conocer.html on case 2 — KEEP (recommended: an 11.3k article that only
+#      reaches rank 9 for a restatement of its own title is a real retrieval gap) or DROP.
+#   5. THREE FRAGILE CREDITS at ranks 8–10 will flap between runs and must not be read as
+#      regressions: /articulos/universo.html (case 1, rank 10),
+#      /articulos/filosofia.html (case 4, rank 8), /articulos/paz-mental.html (case 5,
+#      rank 10), /articulos/conociendo-video.html (case 6, rank 8).
+#      ⓘ §0.11 already measured this: a per-source coverage number built on ~10 cases
+#      swung 11.9% with zero change to any key. Read recall@10 and whole-corpus coverage
+#      instead of this source's first coverage number.

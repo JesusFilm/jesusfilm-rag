@@ -101,6 +101,7 @@ async function main(): Promise<void> {
     caseLanguage,
     computeMetrics,
     coverageByLanguage,
+    coverageByTier,
     coverageBySource,
     firstMatchingRank,
     renderMarkdown,
@@ -204,6 +205,13 @@ async function main(): Promise<void> {
       );
     }
 
+    console.log("\nper-evidence-tier coverage:");
+    for (const t of coverageByTier(results)) {
+      console.log(
+        `  ${t.tier.padEnd(20)} n=${t.cases}  recall@10=${t.recall_at_10.toFixed(3)}  coverage=${t.coverage.toFixed(3)}`,
+      );
+    }
+
     const date = new Date().toISOString().slice(0, 10);
     const suffix = args.source ? `-${args.source}` : "";
     const outPath = path.resolve(
@@ -221,6 +229,7 @@ async function main(): Promise<void> {
         metrics,
         perSource: coverageBySource(results),
         perLanguage: coverageByLanguage(results),
+        perTier: coverageByTier(results),
       }),
     );
     console.log(`\nwrote ${path.relative(process.cwd(), outPath)}`);

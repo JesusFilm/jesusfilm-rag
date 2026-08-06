@@ -32,6 +32,7 @@ as sources are registered:
 | `thelife` | thelife (Cru Canada — successor to Power to Change) |
 | `thelife-fr` | thelife — French (laviejenparle.com) — language variant |
 | `thelife-zh` | thelife — Chinese (uwota.com) — language variant |
+| `everystudent-<lang>` | **47 non-walled EveryStudent sibling domains** (#111) — one domain = one key (ADR-0006), each plain HTTP with no Firecrawl. Not listed individually here; see the campaign section below and **[the state file](./slices/everystudent-siblings.md)** §0 for the full board. Includes two regional variants that share a base language code — `everystudent-zh-cn` / `everystudent-zh-tw` (both `zh`) and `everystudent-ru` / `everystudent-ru-ca` (both `ru`) |
 
 (Only registered sources appear; the rest get a key when their slice begins.
 `familylife` is also registered — see the backlog table — and is now bilingual
@@ -107,6 +108,99 @@ source we currently know of.)
 | NextStep Football 2026 | https://nextstep.is (seasonal campaign) | HTML | Not started | — | — |
 | NextSteps Toolkit | internal / owned | Manual | Not started | — | — |
 | Curated References | manual reference set | Manual | Not started | — | — |
+
+---
+
+## Known corpus defects (open)
+
+Defects in content **already ingested**. Each has an issue; fix on its own
+schedule, not folded into unrelated source work.
+
+| Issue | Sources | Impact | Fix |
+|---|---|---|---|
+| **[#128](https://github.com/JesusFilm/jesusfilm-rag/issues/128)** — share-widget chrome embedded as body text, **live in prod** | `everystudent` 97/117 docs · `everystudent-ar` **67/67** · `everystudent-fr` **67/67** (232 chunks) | UI text ("Share this article" / "شارك مع أخرين" / "PARTAGER CETTE PAGE:") sits inside the embedding vector and can surface in a citation | Add `.shareiconsmenupg` to `stripSelectors` on the three entries, then re-extract. **No re-fetch, no Firecrawl credits** — the `raw_documents` rows are already stored. |
+| **[#123](https://github.com/JesusFilm/jesusfilm-rag/issues/123)** — content soundness, estate-wide | found in `everystudent-ar`, confirmed in `everystudent-fr` | false factual claims, modalism, suicide content with no help signposted | content decision, not an engine fix |
+| **[#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131)** — a **full Gospel of John** seeded as an article, **live in prod** | `everystudent-ar` — exactly **1** document, `/a/whowas.html`, 23,624 chars | Predominantly Bible-translation text whose translation, rights holder, reuse terms, and required attribution are unresolved. A source-page citation alone does not preserve those facts, and the source-level `rights` field can misattribute third-party translation text. | Remove `/a/whowas.html` from `seedPaths`, delete the row, and re-index under the temporary standalone-Scripture rights quarantine. **A deletion — no re-fetch, no Firecrawl credits.** Ordinary Scripture quotations inside ministry articles are unaffected. |
+
+**Why #128 was missed for three slices:** all three entries strip
+`sitelevel_noindex`, which *should* wrap the share block — but it is a custom
+**element** whose markup is malformed (opens inside `.contentpadding`, closes
+after `.content4`), so any conforming parser pops it early and the share block
+survives. `everystudent-fr.ts` records the residue as "chrome that no selector
+can reach"; that is **wrong** — `.shareiconsmenupg` reaches it. Found
+independently by all eight agents authoring the [#111](https://github.com/JesusFilm/jesusfilm-rag/issues/111)
+sibling entries, which already carry the fix.
+
+**Why #131 was missed:** `everystudent-ar`'s docstring reasons carefully about
+Scripture for its four `/bible/**.pdf` files and never applies that reasoning to
+its own `/a/whowas.html`, which is an *article* URL. Length was not the signal —
+at 23,624 chars it sits in the same band as the apologetics essays that were
+correctly kept. What identifies it is **structure**: continuous chapter-and-verse
+text with commentary explicitly removed, versus argument in an author's voice
+closing on a secondary-source bibliography. The other two prod EveryStudent
+sources were checked against that test on 2026-07-30 and are **clean** —
+`everystudent-fr` `/a/215bible.html` (31,558 ch) and `everystudent`
+`/features/bible.html` (22,711 ch) are both essays *about* the Bible.
+
+---
+
+## EveryStudent sibling-language estate (#111) — campaign in progress
+
+48 non-walled sibling domains are being acquired as a **batched campaign, not 48
+`/slice` runs**. Full plan, per-source findings, rules learned and the reusable
+agent prompt live in **[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md)**
+— point a fresh agent at that file and it can resume unaided.
+
+**Position at 2026-07-31 (branch `feat/everystudent-siblings`, unpushed, no PR):**
+**NEXT: Phase 4 (retrieve smoke) + Phase 5 (eval).**
+**Phases 1–2 CLOSED — nothing left to crawl.** 47 of 48 registered, **45
+acquired locally = 2,281 documents**, zero duplicate-content groups, zero
+doctype leaks, gate green at 744 tests.
+
+**Phase 3 (`pnpm index`) is COMPLETE — ran 2026-07-30 through the new ADR-0015
+embedding gateway.** All **2,281 documents ingested, 0 pending**: 2,219 in the
+bulk run (0 skipped, 12,974 chunks) plus the 41-doc `am` canary, the 13-doc `sw`
+gateway canary and 8 `zh-cn` rows from an earlier stopped run. Corpus-wide,
+declared chunks = actual chunks = embeddings = **47,618**, all under a single
+`embedding_model` (`qwen/qwen3-embedding-8b`). **Zero embed retries and zero
+provider fallbacks** across the whole run; a re-run drains 0. Gate green at 761
+tests. 45 sources now sit at `acquire: green` + `ingest: green`.
+
+**The language sweep is COMPLETE (2026-07-31)** — commit `13be622`, run record
+in §0.4 of the state file. Ingest labelled **225 documents `null` and 182 with
+the WRONG language**, because `tinyld` does not model 9 of the campaign's
+languages and sits under its confidence gate on Persian and Slovak. Malay was
+filed as `id`, Nepali as `hi`, Tigrinya as `am`, Croatian/Slovenian as `sr`,
+Albanian as `nl`, **Persian as `ar`**. `pnpm lang:sweep` (LLM detector,
+`gemini-2.5-flash-lite`, label-only — no re-embed) fixed all 407 rows for ~15
+cents.
+
+**Verified in the database 2026-07-31: 13,969 documents, `0` null, and every one
+of the 14 affected language buckets now resolves to exactly one source.** The
+`sr` and `nl` buckets — which were 100% fabricated — are gone entirely.
+
+⚠️ **`fa` was the worst of them and was nearly missed.** 26 Persian pages sat in
+the `ar` bucket that `everystudent-ar` (already evaluated, already in prod)
+draws from, so **any `language:ar` eval number taken before 2026-07-31 measured a
+polluted corpus.** Derive a fix list from a SQL diff of declared-vs-actual, never
+a hand-kept table.
+
+⚠️ **These labels are LOCAL only and do NOT carry to production.** Phase 7's
+`index:production` re-detects with `tinyld`, so prod will reproduce all 225 nulls
+and all 182 mislabels from scratch. The sweep must be re-run against prod after
+`index:production` — see §0.4 "This does NOT carry to production".
+
+Three domains are unacquired **by decision**, none blocking Phase 3:
+`everystudent-sr` (network blackhole →
+[#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)),
+`everystudent-he` (not a Cru property, 1,020 articles, CDATA sitemap →
+[#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)) and `lv`
+(robots disallows `ClaudeBot` by name → 
+[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)).
+
+⚠️ `everystudent-ru-ca` carries **5 seeds deliberately** — it is a mirror of
+`everystudent-ru` (42 of 87 articles ≥95% overlap). Do not complete its seed
+list from the site's own map.
 
 ---
 

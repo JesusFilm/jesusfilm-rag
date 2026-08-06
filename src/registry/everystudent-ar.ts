@@ -25,7 +25,7 @@
  * issue). Re-discovering would re-pay for knowledge we already hold, so the
  * mapped inventory is lifted here directly. `sitemaps` is intentionally absent.
  *
- * **68 seeds from the 84 mapped.** Dropped:
+ * **67 seeds from the 84 mapped.** Dropped:
  *   - the **11 `/m/*` pages** — the mobile/menu section indexes (`about`,
  *     `contact`, `sitemap`, `intl`, `forum`, and the six topic hubs). #112's
  *     crawl policy strips `/m/`, `/menu/`, `/menus/` across all three banners;
@@ -145,7 +145,17 @@ export const everystudentAr: SourceEntry = {
       "/a/where.html",
       "/a/whodoyousay.html",
       "/a/whois.html",
-      "/a/whowas.html",
+      // "/a/whowas.html" — REMOVED 2026-08-06. 23,624 chars of curated
+      // highlights from the Gospel of John, carrying the estate's own formula:
+      // excerpts taken straight from the Bible "دون إضافة لأي تعليق" (without
+      // adding any commentary). Because it is predominantly Bible-translation
+      // text, it stays quarantined until its translation, rights holder, reuse
+      // terms, and required attribution are known and representable. The same
+      // temporary rule covers this entry's own /bible/**.pdf files.
+      // All 13 copies across the estate went together (campaign #111 §0.13).
+      // ⚠️ This source is LIVE IN PRODUCTION with 12 golden cases; none of them
+      // credits this document, so no answer key changes. A `block` rule would
+      // be dead config here — this is a seed-only source.
       "/a/why.html",
       "/a/whydid.html",
       "/a/whypick.html",
@@ -185,7 +195,7 @@ export const everystudentAr: SourceEntry = {
     ],
     // Firecrawl fronts every request; a scrape already takes seconds.
     requestDelayMs: 1000,
-    maxPages: 120, // 68 seeds + headroom
+    maxPages: 120, // 67 seeds + headroom
     minContentLength: 250,
   },
 };

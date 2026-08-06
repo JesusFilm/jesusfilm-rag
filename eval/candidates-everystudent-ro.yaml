@@ -1,0 +1,519 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ro` (64 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 64 ÷ 8 = 8 → 8 cases.
+# Personas: skeptic 3 · newcomer 2 · seeker 2 · believer 1 — matches the §0.7 table for n=8.
+# Questions authored IN ROMANIAN, not translated from the English menu (§0.6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CORPUS SHAPE — read this before judging any hit
+# ─────────────────────────────────────────────────────────────────────────────
+#   64 documents = 61 `/a/*.html` articles + 3 `/v/*.html` video transcripts.
+#
+#   🟢 ZERO `/story/` personal testimonies. Testimony share 0% — the same shape as `pt`,
+#      the opposite of `hu` (24%). ro publishes its first-person material INSIDE `/a/`
+#      articles instead (`/a/atee.html` atheist, `/a/sursa.html` McDowell,
+#      `/a/speranta.html` HIV, `/a/depresie.html` depression, `/a/guru.html` Hindu guru,
+#      `/a/jennifer.html` porn, `/a/oculte.html` occult). The boilerplate tail is still
+#      present, but it rides on ~7 documents rather than ~20, and the measured effect is
+#      exactly what §0.12 predicts from a 0% testimony share: **no case in this suite has
+#      a tail match above rank 2.** See the SUMMARY.
+#
+#   Null-language documents: 0 of 64. Duplicate titles: 0. Duplicate paths: 0.
+#   Documents under 1,200 chars: **0** — failure mode #2 (pure-tail pages) does not fire
+#      on this source at all. The smallest document is /v/estedumnezeubun.html at 1,631
+#      chars, and it is a real (if short) free-will theodicy transcript, not a tail page.
+#
+#   🔴 ONE HAZARD THE HAZARD REPORT CANNOT SEE — A RAW-SCRIPTURE DOCUMENT.
+#      `/a/cineafostiisus.html` (22,539 chars, 14 chunks) is titled "Cine a fost Iisus?"
+#      and its own opening says: "fragmente preluate din Biblie, mai exact din Evanghelia
+#      după Ioan, **fără alte comentarii**" — extracts taken straight from John's Gospel
+#      with no commentary added. It then runs into John chapter 3. This is the SAME CLASS
+#      as `sq /a/ishte.html` (24,883 chars), `sq /a/gjoni.html`, `es
+#      /articulos/biblia_juan.html` and the Arabic Gospel of John — the §12 exclusion
+#      class, and §0.12's open decision #1, which states "Audited all 45 sources: it is
+#      the only one left." **That audit missed this one. Romanian has a second.**
+#      It is credited nowhere here, so it cannot corrupt a score. It did not enter any
+#      top 10 during three check rounds either. OPERATOR: same decision as `sq` —
+#      exclude it, or leave it inert.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# DISCOVERY and READING
+# ─────────────────────────────────────────────────────────────────────────────
+#   .tmp-diag/phase5-partb-discover.ts everystudent-ro ro — all ten §0.7 topics probed
+#   at topK 20. Every one of the 64 documents was then read from the database (title +
+#   opening ~900 chars + character length) before anything was credited — guardrail #5.
+#   Three title traps were found; two are the SYSTEMATIC ones §0.12 predicted and one is
+#   a reverse trap that turned out NOT to hold in Romanian. Cases 2 and 5.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ENGINE-CHECK ROUND LOG — .tmp-diag/phase5-check.ts ro ro (guardrail #8 §2)
+# ─────────────────────────────────────────────────────────────────────────────
+#   Round 1: 0 paraphrase smells (max top 0.740) · 3 credits not in top 10 · 22 credits
+#   Round 2: 0 paraphrase smells (max top 0.741) · 2 credits not in top 10 · 21 credits
+#   Round 3: 0 paraphrase smells (max top 0.741) · **1 credit not in top 10** · 21 credits
+#            — and that one is a DELIBERATE keep, see `esro-skeptic-iluzie` below.
+#
+#   Three questions were reworded between rounds 1 and 2 (cases 1, 5, 7); one credit was
+#   dropped in round 2 (case 3) and one in round 3 (case 5); one credit was ADDED in
+#   round 3 (case 1). No round ever produced a smell — unlike `hu`, `tr` and `sq`, the
+#   Romanian corpus never pushed a question over 0.75, and the ceiling across all three
+#   rounds was 0.741. Calibration note per §0.12: judge this source by WHICH documents
+#   return, not by distance from 0.75, which was never in play.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 21 credited paths resolve to EXACTLY ONE document — 21/21.
+#   Guardrail #3a:   no credited document has a null language — 21/21.
+#   No credited document is under 1,200 chars.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# TWO TOPICS DROPPED FROM THE §0.7 MENU OF TEN — and they are not the same kind of drop
+# ─────────────────────────────────────────────────────────────────────────────
+#   1. `jesus-death` (newcomer) — 🔴 A GENUINE CONTENT GAP, evidenced.
+#      everystudent-ro has NO article whose subject is what Jesus' death accomplished.
+#      The discovery probe for that topic returned, in order: the Four Spiritual Laws
+#      video (/v/cum-sa-l-cunosti-pe-Dumnezeu.html 0.568), the Islam article (0.557), the
+#      "real life" article (0.540), the Four Spiritual Laws article (/a/cunoasterea.html
+#      0.539), the **MARRIAGE** article (/a/casnicie.html 0.527) and the HIV-hope article
+#      (0.525). **All six are boilerplate-tail matches.** ro's nearest thing is
+#      /a/incredere.html (3.1k, "What does it mean to 'trust' Jesus?"), which states the
+#      atonement in one sentence but whose subject is what trusting Christ means — the
+#      exact twin of `hu /a/bizni.html` and `ru /a/dovyeryat.html`.
+#      Per §0.12 this is recorded as corpus composition and NOT re-opened: ro joins
+#      `ru`, `zh-cn` and `mn` as a fourth source without a dedicated atonement article.
+#      Manufacturing a case here would have produced a key with no valid answer.
+#
+#   2. `religions` (skeptic) — ⚠️ NOT a content gap. Say so plainly to the reviewer.
+#      ro carries the topic well: /a/divinitatii.html (17.9k) is the estate's /a/205
+#      world-religions article in full (Hinduism, Buddhism, Islam, Christianity, New Age),
+#      /a/elefant.html is the blind-men-and-the-elephant argument, /a/guru.html is a Hindu
+#      guru's first-person account. It scored 0.622 in discovery, the second-highest of
+#      the ten topics.
+#      It was dropped because the 8-case sizing plus the fixed persona split forces
+#      exactly one skeptic topic and one newcomer topic out, `jesus-death` takes the
+#      newcomer slot, and of the four skeptic topics this is the one whose framing is
+#      least native to this audience: Romania is ~85% Orthodox, and the comparative
+#      question everystudent.ro actually publishes for its readers is the INTRA-Christian
+#      one — /a/diferenta.html, "Is there a difference between being Orthodox and being
+#      Christian?" — which is not on the §0.7 menu. The Hinduism/Buddhism/Islam framing
+#      is carried, but it is the generic estate article rather than localised content.
+#      OPERATOR MAY OVERRIDE and swap this back in for any of the three kept skeptic
+#      topics; all four are answerable on this source.
+#
+#   Result: skeptic god-exists + suffering + bible-trust · newcomer know-god + trinity ·
+#           seeker purpose + anxiety · believer prayer = 3·2·2·1 = 8. ✅
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Romanian). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Romanian and
+# can sanity-check the translations, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS
+  - id: "esro-skeptic-iluzie" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Prietenii mei zic că a crede în Dumnezeu e doar ceva ce oamenii îşi doresc să fie adevărat. Există motive serioase pe care s-ar putea sprijini cineva — ceva din ştiinţă sau din istorie — sau chiar nu se poate susţine cu nimic?"
+    en: "My friends say believing in God is just something people wish were true. Are there serious reasons someone could lean on — something from science or from history — or can it really not be backed by anything?"
+    credits:
+      - { path: "/a/dovedi.html", en: "Can you prove God's existence? (Gregory E. Ganssle, PhD, 3.8k) — why 'you can't prove God exists' has itself been raised to a dogma in intellectual culture, and what the claim actually amounts to.", rank: 1, score: 0.716 }
+      - { path: "/a/atee.html", en: "How I, an atheist, found God (Marilyn Adamson, 14.8k) — 'the book gave real data, not comments of the kind you-just-have-to-believe. I saw extremely logical evidence.' Answers the wishing-versus-grounds half of the question head-on, from the sceptic's own side.", rank: 2, score: 0.701 }
+      - { path: "/a/universul.html", en: "Did God create the universe? (9.2k) — the Big Bang and the beginning of space, time and matter: 'what caused the universe to appear was outside time, outside space and outside matter', Hubble's redshift, and the conclusion that science gives reasons to think God exists. This is ro's science-side answer.", rank: 4, score: 0.652 }
+      - { path: "/a/exista.html", en: "Does God exist? Are there evidences for God's existence? (Marilyn Adamson, 20.2k) — the source's flagship apologetics article, six clear reasons, argued as evidence rather than as an appeal to believe.", rank: 6, score: 0.649 }
+      - { path: "/a/real.html", en: "DNA proves God is real (6.1k) — Antony Flew, a leading spokesman for atheism, on television in December 2004: 'the existence of a super-intelligence is the only viable explanation for the origin of life and the complexity of nature'. Then DNA as a sophisticated computer program. 🔴 KEPT DELIBERATELY though it does not return — see below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/a/real.html` is this source's scientific-evidence article. The question explicitly
+      asks whether there is "ceva din ştiinţă" — something from science. This document is
+      the science answer. It does not answer a different question, so dropping it would be
+      dishonest — I KEPT it.
+
+      ⚠️ AND THIS IS A STRONGER VERSION OF THE HUNGARIAN FINDING, NOT A REPEAT OF IT.
+      `eshu-skeptic-vagyalom` kept `/a/dns.html` as the same kind of miss, but its question
+      only asked for "anything factual". Here the question NAMES SCIENCE, and the miss
+      still holds: the reword between rounds 1 and 2 added "ceva din ştiinţă sau din
+      istorie", which pulled `/a/universul.html` from nowhere to rank 4 (0.652),
+      `/a/stiinta.html` to rank 7 and `/a/istoric.html` to rank 9 — three science/history
+      documents entered the top 10 and the DNA article still did not. Two sources, two
+      question shapes, same document class missing. Worth carrying into Phase 7.
+
+      What this case measures: for a question that asks for grounds, ro returns
+      `/a/miracol.html` at rank 3 (0.696 — "why doesn't God perform a miracle to prove he
+      exists") and the PRAYER article at rank 5 (0.651) ahead of the flagship
+      `/a/exista.html` at rank 6. This case will score coverage 4/5, on purpose.
+    reworded: |
+      ⚠️ REWORDED ONCE, and the reason is §0.12 failure mode #5 (emotional framing
+      retrieves emotional documents).
+      v1: "…Există ceva concret în spatele acestei credinţe sau totul ţine de ce simte
+           fiecare?" ("…is there anything concrete behind that belief, or does it all come
+           down to what each person feels?")
+           → top 0.697, no smell, 3 of 4 credits returned — but the "what each person
+           feels" clause dragged emotional documents into the top 10: `/a/rugaciuni.html`
+           (prayer) at rank 3, `/a/scop.html` (life purpose) at rank 9 and
+           `/a/tragedie.html` (suffering) at rank 10, while `/a/exista.html` and
+           `/a/dovedi.html` sat at ranks 7 and 6.
+      v2 (kept): drops the feelings clause, keeps the menu's "wishful thinking", and asks
+           for grounds — naming science and history as the kind of grounds meant.
+           → **0.697 → 0.716. `/a/dovedi.html` 6 → 1, `/a/atee.html` 1 → 2,
+           `/a/exista.html` 7 → 6, and `/a/universul.html` entered at rank 4.** Same
+           direction and roughly the same size as the Turkish 0.583 → 0.704 move.
+    rejected:
+      - { path: "/a/miracol.html", rank: 3, why: "RANK 3 AND REJECTED — 'Why doesn't God perform an extraordinary miracle to prove he exists?' Its subject is God's reticence about self-evidencing, not what the grounds are. Same call as the Hungarian /a/csodat.html at rank 5 of the same question." }
+      - { path: "/a/rugaciuni.html", rank: 5, why: "the prayer article at rank 5 for an evidence question — credited to case 7. It matches on its own opening, which is a former atheist watching a praying friend, i.e. adjacent to /a/atee.html." }
+      - { path: "/a/stiinta.html", rank: 7, why: "'Doesn't modern science invalidate the Bible?' — its subject is the Bible-versus-science conflict (species, micro- vs macro-evolution), not whether there are grounds for God. Boundary call; see the reviewer notes." }
+      - { path: "/a/divinitatii.html", rank: 8, why: "the world-religions comparison — the article that would have carried the DROPPED `religions` topic. Rejected here on subject." }
+      - { path: "/a/istoric.html", rank: 9, why: "'How can we be sure Jesus really lived on earth?' — Tacitus and Josephus. It is a history-of-Jesus document, not a does-God-exist one. The question's word 'istorie' pulled it; on the text it answers a different thing." }
+      - { path: "/a/cineeste.html", rank: 10, why: "the six-character-traits article — credited to case 2" }
+    top_score: 0.716
+
+  # ── 2 ────────────────────────────────── newcomer 🔴 SYSTEMATIC TITLE TRAP ×2
+  - id: "esro-newcomer-energie" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "Când aud cuvântul „Dumnezeu”, îmi vine în minte cel mult o energie difuză undeva deasupra noastră. Are El de fapt o personalitate, ceva ce se poate descrie?"
+    en: "When I hear the word 'God', at most what comes to mind is a diffuse energy somewhere above us. Does he actually have a personality, something that can be described?"
+    credits:
+      - { path: "/a/tocmai.html", en: "Why the God of the Bible in particular? (17.0k). 🔴 SYSTEMATIC TITLE TRAP #1 — the title reads as a why-choose-Christianity piece and a title-only reviewer files it under conversion. The body is the six-attributes WHAT-IS-GOD-LIKE article: 'The following qualities form the picture the Bible gives us of God… 1: God's nature — God is greater than we are… 2: God's nature — God can be known personally.' Sixth source, same trap (bg tr fa pt cs).", rank: 1, score: 0.668 }
+      - { path: "/a/cineeste.html", en: "Why we can rely on God (4.7k). 🔴 SYSTEMATIC TITLE TRAP #1 AGAIN, in its short form — the subtitle is literally 'Six character traits of God' and the body enumerates who God is: someone you can approach easily, someone who invites a personal relationship. ro is the first source found carrying BOTH the long and the short version of this estate article as separate documents.", rank: 3, score: 0.606 }
+      - { path: "/a/unde.html", en: "Where is God? (3.7k) — the flatland analogy: two people living on a sheet of paper cannot see you, only the fingertip you push through their world. This is ro's answer to God-as-a-vague-something: why an invisible God is not therefore an impersonal force.", rank: 5, score: 0.581 }
+    note: |
+      ⓘ THE TWO CREDITED ATTRIBUTE ARTICLES ARE THE SAME ESTATE ARTICLE AT TWO LENGTHS,
+      and that is why both are credited rather than one. `/a/tocmai.html` (17.0k) runs the
+      six attributes with full argument and statistics; `/a/cineeste.html` (4.7k) is the
+      condensed version under a different localised title. They are NOT a duplicate-content
+      defect of the `cru` kind (§0.12 open decision #2) — different text, different length,
+      different slugs — but the reviewer should know they overlap in subject, and that
+      crediting both means this case's denominator counts the estate's attributes content
+      twice. Dropping one is defensible; I judged that a reader landing on either would be
+      answered, which is the coverage question the metric asks.
+    rejected:
+      - { path: "/a/tragedie.html", rank: 2, why: "RANK 2 AND REJECTED — 'Where is God when you face suffering?' Its opening paragraph does list God's attributes ('power, love, justice, holiness and mercy'), which is why it matches, but its subject is suffering. Credited to case 3." }
+      - { path: "/a/femeie.html", rank: 4, why: "'Could God be a woman?' — its subject is God's GENDER and how he chose to reveal himself, not whether he is personal at all. Same call the Hungarian suite made on /a/no.html at rank 3 of the same question." }
+      - { path: "/a/sfant.html", rank: 6, why: "'Who is the Holy Spirit?' — it does say 'not something vague, a diaphanous shadow, nor an impersonal force', which is almost the question verbatim, but its subject is the third person of the Trinity. Credited to case 8." }
+      - { path: "/a/viatareala.html", rank: 7, why: "credited to case 4" }
+      - { path: "/a/vointa.html", rank: 8, why: "'God and your power of choice' — its subject is the human will and self, not God's character" }
+      - { path: "/a/divinitatii.html", rank: 9, why: "the world-religions comparison — the DROPPED `religions` topic's article" }
+      - { path: "/a/pace.html", rank: 10, why: "credited to case 5" }
+    top_score: 0.668
+
+  # ── 3 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esro-skeptic-accident" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "Anul trecut a murit un prieten de-al meu într-un accident şi de atunci nimeni nu a reuşit să-mi explice cum se împacă asta cu un Dumnezeu despre care se spune că e bun."
+    en: "Last year a friend of mine died in an accident, and since then nobody has managed to explain to me how that squares with a God who is said to be good."
+    credits:
+      - { path: "/a/dece.html", en: "Why is life so hard? (9.3k) — 'Terrorist attacks, sexual slavery, racism, world hunger…' then the scene closest to the asker's own: 'Our parents divorce. A girl from our street is abducted. A relative of ours gets cancer.' ro twin of the Hungarian /a/miert.html, rank 1 there too.", rank: 1, score: 0.695 }
+      - { path: "/a/tragedie.html", en: "Where is God when you face suffering? (Marilyn Adamson, 12.8k) — 'Where can we find the inner strength to face fears, tragedies, disasters and terrorist attacks? What exactly can we rely on God for?'", rank: 5, score: 0.658 }
+      - { path: "/v/estedumnezeubun.html", en: "Is God good? (1.6k video transcript) — 'If he is, then why is there suffering and evil in the world?' The free-will theodicy with the square circle and the unliftable rock. ro twin of the Hungarian /a/jo.html and the Chinese /a/isgodgood.html, which was rank 1 for the Chinese version of this question in Part A.", rank: 8, score: 0.649 }
+    dropped_after_engine_check:
+      - path: "/a/venera.html"
+        why: |
+          "Why would we worship a God who allows terrible things?" (4.3k) — credited in
+          round 1, dropped in round 2. It missed the top 10, and on re-reading the engine
+          is right: the article is framed entirely around terrible things PEOPLE DO TO
+          EACH OTHER — its question is "why would we worship a God who allows a child to
+          be raped", and its answer is that God is not to blame for people choosing to
+          wreck what he made good. The asker's friend died in an ACCIDENT, where no human
+          agent chose anything, so the free-will answer this article gives does not
+          address the case put. (Confirmation that the drop is about question fit and not
+          about the document: /a/venera.html DOES return, at rank 10, for the ANXIETY
+          question in case 5.) DROPPED.
+      - path: "/v/ajutorul-lui-Dumnezeu.html"
+        why: |
+          "God's help in hard times" (5.8k) — RANK 2, 0.685, and rejected without ever
+          being credited. It is the abridged VIDEO TRANSCRIPT of /a/tragedie.html (12.8k),
+          which is already credited: the two openings are near-identical ("When tragedy
+          strikes we often ask: God, where are you? To what extent can we rely on God to
+          help us?" against "Where is God when you face suffering?… How much can we rely
+          on God to be with us?"). Crediting a document and its own video twin measures
+          the same text twice and inflates the denominator. Exactly the call `hu` made on
+          /a/isten-segitsege.html versus /a/faj.html — second source, same duplicate pair,
+          same decision.
+    rejected:
+      - { path: "/v/ajutorul-lui-Dumnezeu.html", rank: 2, why: "RANK 2 AND REJECTED — video twin of the credited /a/tragedie.html; see dropped_after_engine_check" }
+      - { path: "/a/speranta.html", rank: 3, why: "Steve Sawyer's HIV-and-haemophilia article — its subject is how he personally kept hope under a terminal diagnosis, not why a good God allows it. Same call as the Russian /a/steysi1.html and the Hungarian /a/sawyer.html." }
+      - { path: "/a/depresie.html", rank: 4, why: "the anonymous depression-and-suicidal-thoughts account — an emotional-state document, not a theodicy" }
+      - { path: "/a/islamul.html", rank: 6, why: "credited to case 6" }
+      - { path: "/a/atee.html", rank: 7, why: "credited to case 1" }
+      - { path: "/a/atunci.html", rank: 9, why: "'What happens to us after we die / how good must we be to get to heaven?' — judgment and the afterlife, a different question" }
+      - { path: "/a/inevitabil.html", rank: 10, why: "'Facing death and dark thoughts' — about preparing for YOUR OWN death, not about why a good God permits someone else's" }
+    top_score: 0.695
+
+  # ── 4 ───────────────────────────────────────────────────────────────── seeker
+  - id: "esro-seeker-zilele" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "Zilele mele trec toate la fel şi seara mă culc cu senzaţia că nu a rămas nimic din ele. Pentru ce fac de fapt toate astea?"
+    en: "My days all pass the same way and at night I go to bed with the feeling that nothing is left of them. What am I actually doing all this for?"
+    credits:
+      - { path: "/a/scop.html", en: "What is my purpose in life? (3.6k) — the hammer parable told at length: a hammer left in the toolbox, then used for the wrong jobs, still unfulfilled.", rank: 1, score: 0.638 }
+      - { path: "/a/sursa.html", en: "The source of a changed life (Josh McDowell, 14.6k) — 'Have you ever caught yourself saying I hate my life?… I was looking for answers to: Who am I? Why am I here? Where is my life going?' ro twin of the Hungarian /a/forrasa.html, the Russian /a/istochnik.html and the Spanish /articulos/lafuente.html, all credited for this same question shape.", rank: 3, score: 0.609 }
+      - { path: "/a/acum.html", en: "Is there anything else to life? (8.2k) — 'Here you are. Right now. Looking at a computer screen. Another second passes… Yes, but more what? More good grades? More friends? More parties? More money?' The closest match to the asker's day-after-day framing.", rank: 4, score: 0.609 }
+      - { path: "/a/viatareala.html", en: "Real life (15.4k) — three people who reached the summit and were still empty: the mountaineer with nowhere left to climb, the footballer who went into depression after winning the league, the graduate who had achieved everything he was told would fulfil him.", rank: 6, score: 0.564 }
+    note: |
+      🟢 THIS IS THE ONLY CASE IN THE SUITE WHERE ALL CREDITS RETURNED ON ROUND 1 AND
+      NOTHING NEEDED TOUCHING — ranks 1, 3, 4 and 6, top 0.638, unchanged across all three
+      rounds. Recording it because it is also the case with the LOWEST top score in the
+      suite, which is the §0.12 mode-6 point in reverse: a low top score is not evidence
+      of a bad question either. Judge by which documents come back.
+
+      ⚠️ FOURTH LANGUAGE, SAME MISFIRE. `/a/depresie.html` — the depression-and-suicide
+      account — is at RANK 2 (0.610) for an emptiness question. The Spanish
+      /articulos/blues.html, the Russian /a/sigaretoy.html and the Hungarian /a/blues.html
+      all did exactly this. Four sources, one quirk: the estate's depression article
+      retrieves for "my days add up to nothing" ahead of two of the four purpose articles.
+    rejected:
+      - { path: "/a/depresie.html", rank: 2, why: "RANK 2 AND REJECTED — the depression and suicidal-thoughts account. Its subject is clinical despair with a named cause (alcohol, chaotic relationships), not the sense that ordinary days add up to nothing. See the note: fourth language in which this same article misfires here." }
+      - { path: "/a/lupi.html", rank: 5, why: "'Why I changed my mind about dating' — sex and relationship advice at rank 5 for a meaning question. A boilerplate-tail match, and the clearest tail specimen in this suite." }
+      - { path: "/a/atunci.html", rank: 7, why: "life after death and how good we must be — a different question" }
+      - { path: "/a/pace.html", rank: 8, why: "credited to case 5" }
+      - { path: "/a/oculte.html", rank: 9, why: "the occult-practices account — see case 5, where it was dropped. Note it reaches the top 10 HERE, for a purpose question, and not for the anxiety question: its own text says 'all I wanted to know was: what should I do with my life?'" }
+      - { path: "/a/guru.html", rank: 10, why: "the Hindu guru's account — the DROPPED `religions` topic's material" }
+    top_score: 0.638
+
+  # ── 5 ────────────────────────── seeker 🔴 A REVERSE TITLE TRAP THAT DOES *NOT* HOLD
+  - id: "esro-seeker-incordat" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Trăiesc cu o nelinişte constantă, de ani de zile, chiar şi atunci când nu am niciun motiv anume să-mi fac griji. Am încercat tot felul de metode ca să-mi găsesc liniştea şi niciuna nu a ţinut. Are Dumnezeu ceva de oferit pentru aşa ceva?"
+    en: "I have lived with a constant unease for years, even when I have no particular reason to worry. I have tried all sorts of methods to find calm and none of them lasted. Does God have anything to offer for something like this?"
+    credits:
+      - { path: "/a/pace.html", en: "Peace of mind and changing times (17.8k) — 'In uncertain times, how can you have peace in your soul? How can you avoid being eaten up by worry and unease?' This is the source's general anxiety article. ro has NO coronavirus-framed page and no page whose title names anxiety; this one carries the topic.", rank: 1, score: 0.696 }
+    the_finding: |
+      🔴 THE REVERSE TITLE TRAP §0.12 PREDICTS FOR THIS TOPIC DOES **NOT** HOLD IN ROMANIAN,
+      AND THAT IS THE FINDING. Read this before comparing ro's anxiety numbers to ru/hu/tr/pt.
+
+      §0.12 records "Anxiety and chakra healing is a chronic-anxiety account" as a
+      systematic reverse trap across `ru` `hu` `tr` `pt` `es` — a document a title-only
+      reviewer wrongly discards. ro carries the same estate article at
+      `/a/oculte.html` (3.7k). I credited it in rounds 1 and 2 on that precedent and
+      DROPPED it in round 3, because on this source the precedent is wrong:
+
+        · The ro TITLE is "Poți atinge fericirea prin practici oculte?" — "Can you reach
+          happiness through occult practices?" — not an anxiety title, unlike the Russian
+          and Hungarian twins.
+        · The ro OPENING names the author's condition as "singurătatea, depresia și stări
+          de spirit alternante" — LONELINESS, DEPRESSION and alternating moods. The word
+          anxiety does not appear. Her stated question is "Ce să fac cu viața mea?"
+          ("What should I do with my life?").
+        · It missed the top 10 at BOTH question shapes (round 1 top 0.582, round 2/3 top
+          0.696), while reaching rank 9 for the PURPOSE question in case 4.
+
+      So the ro localisation reframed this article from anxiety toward happiness-seeking
+      and life-direction, and the engine is placing it accordingly. The engine is right;
+      the cross-language generalisation is what is wrong. DROPPED — guardrail #8 §2's
+      "the engine is right" branch, not a papered-over gap.
+
+      ⚠️ FOR THE ESTATE: this is the first counter-example to a "systematic" trap in the
+      campaign. The three traps in §0.12 should now be described as *usually* systematic
+      and verified per source from the OPENING, which is what the §0.12 rule already says
+      and what this case demonstrates costs a credit when ignored.
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER HERE, NOT A THIN ONE. After the drop above, ro has
+      exactly one document whose subject is living with anxiety, and it is credited at rank
+      1. Ranks 2–10 are the suffering article, the prayer article, the why-is-life-hard
+      article, the HIV-hope article, the crisis-help video, the McDowell testimony, the
+      atheist testimony, the attributes article and the terrible-things article — i.e. nine
+      adjacent-and-tail matches, none of which is about anxiety. Same shape as `hu`, which
+      also has no article titled anxiety and carries the topic through a peace article.
+    reworded: |
+      ⚠️ REWORDED ONCE, and this was the weakest case in round 1 — §0.12 failure mode #6
+      (a question can fail without smelling) plus the short-question effect.
+      v1: "Sunt încordat aproape tot timpul, chiar şi atunci când obiectiv nu am niciun
+           motiv. Are credinţa ceva de oferit pentru starea asta?" (22 words)
+           → top 0.582, NO smell, and wrong: rank 1 was the PRAYER article (0.582), rank 2
+           the suffering article, rank 4 why-is-life-hard. The credited /a/pace.html was
+           only rank 3. Clean score, wrong documents — the exact `sk`/`pt` failure.
+      v2 (kept): 42 words. Names the condition concretely (constant unease, for years, no
+           particular reason to worry) and adds what the asker has already tried.
+           → **0.582 → 0.696 and /a/pace.html 3 → 1.** The Polish 13-word finding
+           reproduces here: at natural length the right document takes rank 1.
+    rejected:
+      - { path: "/a/tragedie.html", rank: 2, why: "RANK 2 AND REJECTED — 'Where is God when you face suffering?' Its subject is crisis, tragedy and disaster, not unease with nothing objectively wrong. Credited to case 3. Same call as the Russian /a/gdebog.html and the Hungarian /a/faj.html." }
+      - { path: "/a/rugaciuni.html", rank: 3, why: "prayer — credited to case 7" }
+      - { path: "/a/dece.html", rank: 4, why: "credited to case 3" }
+      - { path: "/a/speranta.html", rank: 5, why: "the HIV-and-hope article — hope under a known, named threat, which is the opposite of the asker's 'no particular reason'" }
+      - { path: "/v/ajutorul-lui-Dumnezeu.html", rank: 6, why: "crisis-help video — the twin of /a/tragedie.html, dropped from case 3 for the same reason" }
+      - { path: "/a/sursa.html", rank: 7, why: "credited to case 4" }
+      - { path: "/a/atee.html", rank: 8, why: "credited to case 1" }
+      - { path: "/a/tocmai.html", rank: 9, why: "credited to case 2" }
+      - { path: "/a/venera.html", rank: 10, why: "'Why worship a God who allows terrible things' at rank 10 for an anxiety question — and the same document that was dropped from case 3. It answers neither; it is here on the tail." }
+    top_score: 0.696
+
+  # ── 6 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esro-skeptic-copisti" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "La şcoală ni s-a spus că Biblia e cuvântul lui Dumnezeu, dar pentru mine rămâne un text vechi, trecut prin mâinile a zeci de generaţii de copişti. Ce o deosebeşte de orice altă scriere rămasă din antichitate?"
+    en: "At school we were told the Bible is God's word, but to me it stays an old text that has passed through the hands of dozens of generations of copyists. What sets it apart from any other writing left to us from antiquity?"
+    credits:
+      - { path: "/a/biblie.html", en: "Why you can trust the Bible (29.8k — the longest document in the source). Opens 'How can we know the Bible we have today is trustworthy?' and answers on transmission specifically: 'Textual criticism attests that, since they were first written down, the books of the Bible have not changed', plus thousands of manuscripts, ancient historiography and archaeology.", rank: 1, score: 0.728 }
+      - { path: "/a/islamul.html", en: "Jesus and Islam (23.4k) — six questions, and question 1 IS this one: 'Was the Bible modified from how it originally was? Was its content altered or distorted over time?' The tahrif overlap already on record for zh, kk, th, bg, ja and hu — not an error.", rank: 2, score: 0.715 }
+    the_finding: |
+      🟢 ROMANIA PATTERNS WITH PORTUGAL, NOT WITH JAPAN — and it did so without a reword.
+      §0.12 records the bible-trust/tahrif split as being about PUBLISHING, not audience:
+      Japan routes the question through its Islam article, Portugal beats the Islam article
+      with a dedicated transmission article, Iran and Czechia have no Islam article at all.
+      ro has BOTH, and the dedicated transmission article wins: `/a/biblie.html` rank 1
+      at 0.728, `/a/islamul.html` rank 2 at 0.715. Romania is ~0.3% Muslim, so if the
+      pattern tracked audience this source would look like Czechia. It looks like Portugal.
+      Third data point, same conclusion.
+
+      ⓘ NO REWORD WAS NEEDED, and that is the `hu` lesson transferring. `eshu-skeptic-masolat`
+      needed THREE attempts here (0.755 → 0.787 → 0.709) because both its Bible article and
+      its Islam article open with the very question being asked, so paraphrasing away from
+      one landed on the other. I started from the shape `hu` arrived at — change the
+      question from "is it unchanged?" to "what makes it different from any other old
+      book?", set in a school scene — and Romanian landed at 0.728 with both credits at
+      ranks 1 and 2 first time. Two rewrites saved.
+    rejected:
+      - { path: "/a/tocmai.html", rank: 3, why: "credited to case 2" }
+      - { path: "/a/stiinta.html", rank: 4, why: "'Doesn't modern science invalidate the Bible?' — a Bible-reliability article, but its subject is the science conflict (species, micro- vs macro-evolution), not textual transmission. Boundary call; see the reviewer notes." }
+      - { path: "/a/atee.html", rank: 5, why: "credited to case 1" }
+      - { path: "/a/divinitatii.html", rank: 6, why: "world religions — the DROPPED topic's article" }
+      - { path: "/a/istoric.html", rank: 7, why: "'How can we be sure Jesus really lived?' — Tacitus and Josephus. Extra-biblical attestation of Jesus, not of the text's transmission. Boundary call; see the reviewer notes." }
+      - { path: "/a/reincarnare2.html", rank: 8, why: "'What does the Bible say about reincarnation?' — matched on 'the Bible says', a different subject. Same call the Hungarian suite made on /a/reinkarnaciorol.html at rank 3 of the same question." }
+      - { path: "/a/depresie.html", rank: 9, why: "the depression account at rank 9 for a manuscript question — a tail match" }
+      - { path: "/a/femeie.html", rank: 10, why: "'Could God be a woman?' at rank 10 — it argues from what the Bible is and how it speaks of God, which is why it matches; not an answer here." }
+      - { path: "/a/davinci.html", rank: "outside", why: "'The historical truth behind The Da Vinci Code' — genuinely about whether the Church suppressed and altered the record of Jesus, i.e. adjacent to this question. It did not enter the top 10 and was never credited. Flagging it so the reviewer knows it exists." }
+    top_score: 0.728
+
+  # ── 7 ──────────────────────────────────────────────────────────────── believer
+  - id: "esro-believer-acelasi" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "De luni de zile mă rog pentru acelaşi lucru şi nu se schimbă absolut nimic, nici măcar nu am senzaţia că mă ascultă cineva. Fac ceva greşit în felul în care mă rog sau pur şi simplu nu primim tot ce cerem?"
+    en: "For months I have been praying about the same thing and absolutely nothing changes; I do not even have the sense that anyone is listening. Am I doing something wrong in the way I pray, or do we simply not get everything we ask for?"
+    credits:
+      - { path: "/a/rugaciuni.html", en: "Does God answer our prayers? (Marilyn Adamson, 11.0k) — 'What can we do so that God listens to our prayers?' Told by a former atheist who watched a praying friend week after week, then: 'How is it that God does not heed everyone's prayers?' ro twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html, the Bulgarian and the Hungarian /a/imadsagra.html, all credited for this exact shape.", rank: 1, score: 0.718 }
+    reworded: |
+      ⚠️ REWORDED ONCE — the same short-question effect as case 5.
+      v1: "De luni de zile mă rog pentru acelaşi lucru şi nu se schimbă nimic. Fac ceva
+           greşit sau pur şi simplu aşa merg lucrurile?" (24 words)
+           → top 0.587, no smell, but the credit was only RANK 3. Ranks 1 and 2 were
+           /a/speranta.html (0.587) and /a/sursa.html (0.578) — two testimony-shaped
+           articles matched on their gospel tails, i.e. the boilerplate-tail trap beating
+           the one document that answers.
+      v2 (kept): 42 words. Adds the silence ("I do not even have the sense anyone is
+           listening") and splits the ask into "am I praying wrongly" versus "do we simply
+           not get everything we ask for", which is the article's own two-part answer shape.
+           → **0.587 → 0.718 and /a/rugaciuni.html 3 → 1**, with a 0.073 gap to rank 2.
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER. everystudent-ro carries exactly one prayer
+      article. Ranks 2–10 are the HIV-hope article, the suffering article, the McDowell
+      testimony, why-is-life-hard, real-life, more-out-of-life, the depression account, the
+      MARRIAGE article (rank 9, 0.554) and the world-religions article — nine tail and
+      adjacent matches, none of which is about unanswered prayer. Same shape as `hu`, `bg`
+      and `ru`, all of which also credit exactly one document here. This is the §0.7
+      believer-thinness finding showing up in the corpus, not in the persona split.
+    rejected:
+      - { path: "/a/speranta.html", rank: 2, why: "RANK 2 AND REJECTED — Steve Sawyer's HIV article. It was rank 1 for v1 of this question. Matched on its closing gospel invitation, which on this source is where the tail lives." }
+      - { path: "/a/tragedie.html", rank: 3, why: "credited to case 3" }
+      - { path: "/a/sursa.html", rank: 4, why: "credited to case 4" }
+      - { path: "/a/dece.html", rank: 5, why: "credited to case 3" }
+      - { path: "/a/viatareala.html", rank: 6, why: "credited to case 4" }
+      - { path: "/a/acum.html", rank: 7, why: "credited to case 4" }
+      - { path: "/a/depresie.html", rank: 8, why: "the depression account — tail match" }
+      - { path: "/a/casnicie.html", rank: 9, why: "'How to build a lasting marriage' at rank 9 for a prayer question — a pure tail match, and the plainest illustration of the defect in this suite. The same document family that produced the Hungarian /a/hazassagra.html result at rank 7 of the same question." }
+      - { path: "/a/divinitatii.html", rank: 10, why: "world religions — the DROPPED topic's article" }
+    top_score: 0.718
+
+  # ── 8 ───────────────────────────────────────────────────────────────── newcomer
+  - id: "esro-newcomer-trei" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "La slujbă se vorbeşte când despre Tatăl, când despre Iisus, când despre Duhul Sfânt. Înseamnă asta că creştinii se închină la trei dumnezei diferiţi?"
+    en: "At the service they speak sometimes of the Father, sometimes of Jesus, sometimes of the Holy Spirit. Does that mean Christians worship three different gods?"
+    credits:
+      - { path: "/a/trinitatea.html", en: "How can the Trinity be explained? (3.7k) — the three-dimensions analogy and the 1×1×1=1 formulation: 'The Bible speaks clearly of God the Son, God the Father and God the Holy Spirit, while stressing that there is only ONE God.'", rank: 1, score: 0.741 }
+      - { path: "/a/sfant.html", en: "Who is the Holy Spirit? (4.3k) — 'The Holy Spirit is not something vague, a diaphanous shadow, nor an impersonal force. He is a Person equal in every respect to God the Father and God the Son. He is considered the third Member…' The half of the question a Trinity article alone does not cover.", rank: 3, score: 0.648 }
+    note: |
+      ⓘ NO REWORD NEEDED, and that is the `ru`/`bg`/`hu` shape transferring for the third
+      time. All three of those suites hit a paraphrase smell on this topic when the
+      question was stated as the doctrinal formula (`ru` 0.807, `bg` 0.756) and all three
+      fixed it by reframing it as something a newcomer NOTICES IN A SERVICE. Starting from
+      the fixed shape, Romanian landed at 0.741 rank 1 first time. 0.741 is the highest
+      top score in this suite and it is still clear of 0.75.
+
+      ⚠️ ROMANIA-SPECIFIC, WORTH KNOWING: rank 5 is `/a/diferenta.html` — "Is there a
+      difference between being Orthodox and being Christian?" Every other source in the
+      campaign carries this document as CATHOLIC-versus-Christian (`ru /a/katolikom.html`,
+      `hu /a/katolikus.html`). ro localised it to the Orthodox majority. It is the reason
+      the `religions` topic was the one dropped; see the header.
+    rejected:
+      - { path: "/a/islamul.html", rank: 2, why: "RANK 2 AND REJECTED — its question 3 is 'Isn't it blasphemy to say God has a Son?', the Islamic objection to the incarnation. That is not the one-versus-three question. Credited to case 6. Same call as the Hungarian /a/iszlam.html at rank 3 of the same question." }
+      - { path: "/a/divinitatii.html", rank: 4, why: "world religions — the DROPPED topic's article" }
+      - { path: "/a/diferenta.html", rank: 5, why: "Orthodox versus Christian — an INTRA-Christian question. See the note above." }
+      - { path: "/v/cum-sa-l-cunosti-pe-Dumnezeu.html", rank: 6, why: "the Four Spiritual Laws video — exactly the /a/personally.html tail shape from Part A" }
+      - { path: "/a/sursa.html", rank: 7, why: "credited to case 4" }
+      - { path: "/a/femeie.html", rank: 8, why: "'Could God be a woman?' — God's gender, not his threeness" }
+      - { path: "/a/davinci.html", rank: 9, why: "the Da Vinci Code article at rank 9 for a Trinity question — it discusses the Council of Nicaea and Jesus' divinity, which is why it matches; not an answer to three-versus-one." }
+      - { path: "/a/dincolo.html", rank: 10, why: "'Beyond blind faith' (Paul E. Little, 23.0k) — Jesus' DEITY: did he claim to be the Son of God. Adjacent, and rejected: it argues that Jesus is God, not how that leaves one God rather than three." }
+    top_score: 0.741
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 8 cases · 21 credits · 21 distinct documents (no document credited twice)
+# Personas: skeptic 3 · newcomer 2 · seeker 2 · believer 1 — matches §0.7 for n=8
+# Topics used:    god-exists, know-god, suffering, purpose, anxiety, bible-trust,
+#                 prayer, trinity
+# Topics dropped: jesus-death (real content gap), religions (forced by sizing, NOT a gap)
+# Paraphrase smells: 0 in every round. Max top score across all three rounds: 0.741.
+# Credits that do not retrieve: 1 (`/a/real.html` on `iluzie`), kept deliberately.
+# evidence_tier: llm-translated
+#
+# 🟢 A 0% TESTIMONY SHARE IS VISIBLE IN THE RESULTS, AND IT CONFIRMS §0.12's SEVERITY RULE.
+#   `hu` is 24% `/story/` and its cross case had boilerplate tails at ranks 1, 2 AND 3.
+#   `pt` has zero testimonies and kept its atonement article at rank 1. everystudent-ro
+#   also has ZERO — 61 articles, 3 videos, no `/story/` directory at all — and across all
+#   eight cases **no tail match ever ranks above 2**. The tail is still there and still
+#   fires (the marriage article at rank 9 of the prayer case; the dating article at rank 5
+#   of the purpose case; the HIV article at rank 2 of the prayer case), but it never
+#   displaces a correct answer from rank 1. Third source, third confirmation that tail
+#   severity tracks testimony share rather than being a fixed property of the estate.
+#
+# 🔴 THREE TITLE TRAPS, AND ONE OF THEM IS THE CAMPAIGN'S FIRST *NEGATIVE* RESULT.
+#   1. `/a/tocmai.html` "Why the God of the Bible in particular?" IS the six-attributes
+#      what-is-God-like article — systematic trap #1, sixth source (bg tr fa pt cs ro).
+#   2. `/a/cineeste.html` "Why we can rely on God" is the SHORT version of the same
+#      article, subtitled "Six character traits of God". ro is the first source found
+#      carrying both lengths as separate documents; both are credited, at ranks 1 and 3.
+#   3. `/a/oculte.html` is NOT the anxiety document the `ru`/`hu`/`tr`/`pt`/`es` pattern
+#      predicts. ro retitled and reframed it to happiness-through-occult-practices and its
+#      stated condition is loneliness and depression, not anxiety. It was credited on the
+#      cross-language precedent and DROPPED after reading it. **The §0.12 traps must be
+#      verified per source from the opening; assuming them costs a credit.**
+#
+# 🔴 A FOURTH SOURCE WITHOUT AN ATONEMENT ARTICLE. ro joins `ru`, `zh-cn` and `mn`. The
+#   `jesus-death` topic was DROPPED rather than manufactured: its discovery probe returned
+#   six documents, all six boilerplate tails, including the MARRIAGE article at 0.527.
+#   Per §0.12 this is recorded as corpus composition and not re-opened.
+#
+# 🔴 A RAW-SCRIPTURE DOCUMENT SURVIVED THE §12 EXCLUSION, AND §0.12 SAID THERE WERE NONE
+#   LEFT. `/a/cineafostiisus.html` (22,539 chars) is extracts from John's Gospel "fără
+#   alte comentarii" — with no commentary added. Same class as `sq /a/ishte.html`, which
+#   is §0.12's open decision #1. It is credited nowhere and never entered a top 10, so it
+#   cannot corrupt a score, but the "audited all 45 sources, it is the only one left"
+#   claim in §0.12 is now false and the audit should be re-run.
+#
+# ⚠️ FOR THE REVIEWER — five things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/real.html` on case 1 — KEEP (recommended) or DROP. It is the DNA/Antony Flew
+#      article and it does not retrieve even for a question that explicitly asks for
+#      something from science. Keeping it records a stronger version of the Hungarian
+#      /a/dns.html finding; dropping it makes the case 4/4.
+#   3. The `religions` drop. It is NOT a content gap — /a/divinitatii.html is the full
+#      estate world-religions article and scored 0.622 in discovery. It was dropped
+#      because 8 cases plus the fixed persona split allow only three skeptic topics. Swap
+#      it back in for any of god-exists / suffering / bible-trust if preferred.
+#   4. `/a/cineafostiisus.html` — exclude as raw scripture, or leave inert? Same decision
+#      as `sq /a/ishte.html`.
+#   5. Two boundary rejections, both on case 6: `/a/stiinta.html` (Bible versus science,
+#      rank 4) and `/a/istoric.html` (Tacitus and Josephus on whether Jesus lived, rank 7)
+#      are Bible-reliability documents that do not answer the TRANSMISSION question. I
+#      rejected both. `/a/davinci.html` is the same class and did not even reach the top
+#      10. Crediting any of them would raise the denominator on a case that is currently
+#      2/2 at ranks 1 and 2.

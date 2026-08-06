@@ -1,0 +1,396 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-sk` (83 documents).
+# Campaign #111, tier A, batch 1. Working record — NOTHING here has been written
+# to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator
+# approval turn that has not happened.
+#
+# Sizing: 83 docs ÷ 8 = 10.4, capped at 10 → 10 cases (§0.7 rule).
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN SLOVAK, not translated from the English menu (§0.6).
+#
+# HOW THE CANDIDATES WERE FOUND
+#   .tmp-diag/phase5-partb-discover.ts everystudent-sk sk
+#   → 49 distinct candidate documents of 83, all ten topics covered.
+# Every credited document was then read from the database (title + opening
+# ~620–900 chars) before being credited — guardrail #5, and specifically because
+# of the boilerplate-tail trap recorded in §0.9. 42 documents were read in full
+# opening form across four batches.
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-sk-check.ts
+#   Round 1: 2 paraphrase smells (0.755, 0.771) · 7 credits not returned in top 10
+#   Round 2: 0 paraphrase smells (max 0.737)    · 2 credits not returned
+#   Round 3: 0 paraphrase smells (max 0.737)    · 1 credit not returned
+#            — that one is a DELIBERATE keep, see `essk-newcomer-traja`.
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 33 credited titles resolve to EXACTLY ONE document — 33/33,
+#                    33 distinct paths, 0 ambiguous, 0 unresolved.
+#   Guardrail #3a:   no credited document has a null language — 33/33.
+#   Source-level:    83 of 83 documents carry `language = sk`; 0 nulls; 0 duplicate
+#                    titles (so the title→path map used by the check is safe here,
+#                    unlike `bg` — see §0.11 hazard 2).
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Slovak). This is
+# a fact about the REVIEWER, not the language — if anyone on the team reads Slovak
+# and can sanity-check the translations, it should be `human-verified`.
+# OPERATOR TO CONFIRM.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ HAZARDS SPECIFIC TO THIS SOURCE — read before editing the keys
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. PLAIN ASCII PATHS, and they are SLUGS, NOT TOPICS. everystudent.sk uses
+#    diacritic-free Slovak slugs (`/preco-som-na-svete`) and — for every personal
+#    testimony — a bare FIRST NAME (`/viktor`, `/peta`, `/miska`, `/eva`, `/biba`,
+#    `/gabi`, `/gabika`, `/regina`, `/milan`, `/tomas`, `/peter`). A path tells you
+#    nothing about those eleven documents. Judge them by the opening only.
+#
+# 2. FOUR TITLE TRAPS, the most of any campaign source so far. See the block at
+#    the bottom of this file. Two of them are CREDITED at rank 1 and rank 2 of the
+#    same case, and a title-only reviewer would have filed both under a different
+#    topic entirely.
+#
+# 3. `/zmena-zivota` ("Drugs, sex, depression… and a changed life", 22.5k chars —
+#    the longest testimony in the source) reaches the top 10 of SIX of the ten
+#    cases and is credited in NONE. It is a general-purpose attractor, not an
+#    answer. Do not let its recurrence talk you into crediting it.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essk-skeptic-podklad"                 # topic: god-exists
+    persona: skeptic
+    q: "Kamaráti berú vieru v Boha ako niečo, čo si človek nahovorí, keď mu je ťažko. Má tá viera vôbec nejaký rozumný podklad?"
+    en: "My friends treat faith in God as something a person talks himself into when times are hard. Does that faith have any rational basis at all?"
+    top_score: 0.729                           # clear of 0.75
+    credits:
+      - {path: "/pribeh-ateistky",                rank: 1, score: 0.729, en: "An atheist who found God — 'As an atheist I kept asking believers: how do you KNOW God is real? Most reacted irritably.' Answers the it-is-just-self-talk charge head-on, because she made exactly that charge herself"}
+      - {path: "/tomas",                          rank: 2, score: 0.700, en: "'There is no God, full stop!' — 🔴 TITLE TRAP: the title is the OBJECTION, not the article's position. Body opens with the objection verbatim ('Christians are odd: they believe old fairy tales') and then works through what changed his mind"}
+      - {path: "/existuje-boh",                   rank: 7, score: 0.684, en: "Does God exist? — the source's flagship apologetics piece, 13.3k chars: complexity of the universe, biology, physics, genetics, astronomy"}
+      - {path: "/preco-boh-nedokaze-ze-existuje",  rank: 8, score: 0.682, en: "Why doesn't God prove he exists with a miracle? — Philip Yancey on faith suffering from a surplus of freedom. Answers 'if it were real you would not have to talk yourself into it'"}
+    dropped_after_engine_check:
+      - path: "/dna-dokaz-existencie-boha"
+        why: >
+          "DNA — evidence for God's existence" (Antony Flew's reversal). It did NOT retrieve in the
+          top 10 and on reflection that is correct rather than broken: this question is about faith
+          being SELF-CONSOLATION, and the four credited documents answer that, while the DNA article
+          answers the different question of what the scientific evidence is. The credited
+          `/existuje-boh` already covers that ground. Dropped rather than credited-and-missed.
+    rejected:
+      - {path: "/homosexuali",  rank: 6,  why: "🔴 BOILERPLATE TAIL. 'Homosexuals and God's love' — its body is about God accepting you as you are. It has nothing to do with evidence for God, and it also reaches rank 5 of the anxiety case and rank 7 of the Bible case"}
+      - {path: "/zmena-zivota", rank: 5,  why: "the 22.5k-char general attractor — see hazard 3"}
+      - {path: "/uzkost-a-strach", rank: 4, why: "credited to case 5; its subject is anxiety"}
+      - {path: "/kde-je-boh-uprostred-tragedii", rank: 3, why: "credited to case 3; its subject is suffering"}
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "essk-newcomer-neosobna-sila"          # topic: know-god
+    persona: newcomer
+    q: "Keď sa povie Boh, predstavím si nejakú neosobnú energiu kdesi vo vesmíre. Dá sa o ňom povedať niečo konkrétnejšie?"
+    en: "When someone says 'God' I picture some impersonal energy somewhere in the universe. Can anything more concrete be said about him?"
+    top_score: 0.659
+    credits:
+      - {path: "/vznik-vesmiru-4", rank: 1, score: 0.659, en: "Who? (Origin of the universe IV) — 🔴 TITLE TRAP. The title reads as a cosmology-series instalment; the body is the personhood argument: 'the Eternal Someone can exist without any environment… if he creates Something Else he must CHOOSE to.' This is the impersonal-force question answered directly"}
+      - {path: "/vznik-vesmiru-3", rank: 2, score: 0.649, en: "Someone (Origin of the universe III) — same trap, same series. Argues there can be only ONE Eternal Something and that it must be a Someone rather than a mechanism"}
+      - {path: "/aky-je-boh",      rank: 3, score: 0.649, en: "What is God like? Discover 6 attributes of God — 'God is knowable, not an anonymous higher power… he wants to be known personally, not through books, theory or religious rules'"}
+      - {path: "/ako-najst-boha",  rank: 5, score: 0.636, en: "How do you find God? And which God is the real one? — five criteria: a God greater than us, a God who understands you and can be personally known"}
+      - {path: "/je-boh-zena",     rank: 7, score: 0.632, en: "Is God a woman? — 'God is a spiritual being and has no physical human attributes.' Narrow, but it is squarely about God's nature and it answers what kind of thing God is"}
+    rejected:
+      - {path: "/vznik-vesmiru-2", rank: 5,  why: "'Something (Origin of the universe II)' — same series, but its subject is QUANTITY ('was there one Something or several?'), not what God is like. The only instalment of the four that does not answer this question"}
+      - {path: "/kto-stvoril-boha", rank: 8, why: "'Who created God?' — a different objection (the causal regress), not a description of God"}
+      - {path: "/spoznaj-boha",    rank: null, why: "the 4-steps gospel page — credited to case 6. Its subject is how to ENTER a relationship, not what God is like. This is the Slovak `/a/personally.html`"}
+
+  # ── 3 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essk-skeptic-nehoda"                  # topic: suffering
+    persona: skeptic
+    q: "Kamarát mi vlani zomrel pri nehode. Odvtedy neviem pochopiť, prečo sa na to Boh len tak prizeral, keď má byť dobrý."
+    en: "A friend of mine died in an accident last year. Since then I cannot understand why God just watched it happen, if he is supposed to be good."
+    top_score: 0.717
+    credits:
+      - {path: "/preco-je-zivot-taky-tazky",                 rank: 1,  score: 0.717, en: "Why is life so hard? — 'why do people get cancer, why are there accidents, floods, wars? Why is there so much evil in the world?'"}
+      - {path: "/ak-je-boh-dobry-preco-existuje-zlo-a-utrpenie", rank: 6, score: 0.689, en: "If God is good, why doesn't he stop suffering and evil? — the Kreeft/Tacelli four-proposition formulation of the problem of evil"}
+      - {path: "/existencia-zla",                            rank: 7,  score: 0.688, en: "The existence of evil: proof that God doesn't care? — 'how can you believe in God when there is so much evil?'"}
+      - {path: "/kde-je-boh-uprostred-tragedii",             rank: 9,  score: 0.679, en: "Where is God in the middle of tragedies? — 13.6k chars, opens 'Have you ever asked in the middle of hardship: God, WHERE ARE YOU?!'"}
+      - {path: "/preco-boh-dopusti-znasilnenie",             rank: 10, score: 0.665, en: "Why does God allow a child to be raped? — framed as 'why should I worship a God who allows terrible things to happen'"}
+    reworded_and_what_it_cost: |
+      ⚠️ REWORDED AFTER ROUND 1 — this was the worst case in the draft and the reword FIXED it.
+      v1: "…Odvtedy sa neviem zbaviť otázky, či sa o nás vôbec niekto zhora stará."
+          ("since then I cannot shake the question of whether anyone up there cares about us")
+          → top 0.671, NO paraphrase smell, but FOUR of five credits fell outside the top 10.
+          Softening the theodicy hook to 'does anyone care' pulled the engine onto the
+          death-and-fear shelf instead: rank 1 was the anxiety article, rank 2 'Is there life
+          after death?', rank 6 'How to overcome the fear of death'. Only `/kde-je-boh…` survived.
+      v2 (kept): restores the explicit "if he is supposed to be good" → top 0.717, still clear of
+          0.75, and ALL FIVE credits return.
+      Cost: nothing. This is the one reword in the suite that was free.
+      🔎 Worth carrying forward: a question can fail the engine check without smelling. A LOW top
+      score is not evidence of a good question — it can just mean the question missed the shelf.
+    rejected:
+      - {path: "/vianoce",                 rank: 4, why: "🔴 BOILERPLATE TAIL. 'Your best Christmas' — 15.5k chars of Christmas reflection carrying a full gospel presentation. It also reaches rank 5 of the jesus-death case"}
+      - {path: "/co-bude-s-nami-ked-zomrieme", rank: 8, why: "'Is there life after death?' — mortality is the question's premise, not its subject. Same call as `cru-es-skeptic-infierno` in §0.9"}
+      - {path: "/zmena-zivota",            rank: 3, why: "the general attractor — see hazard 3"}
+      - {path: "/ako-najst-boha",          rank: 2, why: "rank 2 and rejected — credited to case 2; its subject is what God is like"}
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "essk-seeker-nic-z-toho"               # topic: purpose
+    persona: seeker
+    q: "Každý večer mám pocit, že celý deň zase nikam neviedol. Načo to všetko vlastne je?"
+    en: "Every evening I feel the whole day led nowhere again. What is all of it actually for?"
+    top_score: 0.610                           # the lowest top score in the suite
+    credits:
+      - {path: "/viktor",           rank: 1, score: 0.610, en: "I struggled with aimlessness — 'the biggest thing I fought was aimlessness: I had no meaning. I kept asking: why am I here? Is there more?' Written at exactly this feeling"}
+      - {path: "/preco-som-na-svete", rank: 2, score: 0.601, en: "Why am I in the world? — the HAMMER PARABLE (a hammer with a soul, left in the toolbox). Slovak twin of the Bulgarian 'What is the meaning of my life?' and the Spanish /articulos/lafuente.html"}
+      - {path: "/zmenil-sa-mi-zivot", rank: 4, score: 0.566, en: "A changed life: I wanted to prove God doesn't exist — 🔴 TITLE TRAP. Title reads as an atheism testimony; the body OPENS 'Do you know the feeling when you say I HATE MY LIFE? … I was looking for happiness, freedom and answers: who am I? why am I here? where am I heading?' This is the purpose article, and it is the Slovak twin of the Josh McDowell 'I hate my life' piece that `bg` credits for this same topic"}
+      - {path: "/peta",             rank: 7, score: 0.522, en: "I was always searching for something — sport, then university, then trying to fit in, and the restlessness underneath it"}
+      - {path: "/miska",            rank: 9, score: 0.511, en: "I was lonely and empty — 'by the end of primary school I was a very lonely girl, completely empty inside'; the emptiness stayed through the relationship she thought would fix it"}
+    rejected:
+      - {path: "/eva",                          rank: null, why: "'Finding myself: who am I under my masks?' — its subject is IDENTITY, not purpose. Adjacent, different question"}
+      - {path: "/padajuce-taniere-zmysel-zivota", rank: null, why: "'Falling plates: how to find the meaning of life? (video)' — the title is a direct hit and the document is 476 CHARACTERS: a video promo line plus the invitation prayer. There is no article here to retrieve. See the pure-tail note below"}
+      - {path: "/pocit-stastia",                rank: null, why: "'Can a person be happy without God?' — answers the objection of someone who is ALREADY content, the opposite of this asker"}
+      - {path: "/astrologia-a-hladanie-boha",   rank: 6, why: "credited to case 9; its subject is the spiritual-paths tour"}
+      - {path: "/poruchy-prijmu-potravy",       rank: 10, why: "eating disorders — a boilerplate-tail reach"}
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "essk-seeker-napatie"                  # topic: anxiety
+    persona: seeker
+    q: "Napätie v sebe nosím skoro stále, aj keď sa nič konkrétne nedeje. Vie s tým viera niečo urobiť?"
+    en: "I carry tension inside me almost constantly, even when nothing in particular is happening. Can faith do anything about that?"
+    top_score: 0.681
+    credits:
+      - {path: "/ako-najst-vnutorny-pokoj",       rank: 1, score: 0.681, en: "How to find inner peace amid problems and difficulties — 'many people imagine peace as the ABSENCE of problems… real inner peace persists despite them'. Answers the 'even when nothing is happening' half directly"}
+      - {path: "/vnutorny-pokoj-v-nestalom-svete", rank: 2, score: 0.672, en: "Stressed? Find inner peace — 17.0k chars, the longest treatment: 'how do you avoid anxiety and worry?'"}
+      - {path: "/uzkost-a-strach",                rank: 3, score: 0.652, en: "How to overcome anxiety and fear — 10.5k chars, the source's dedicated anxiety article: money, unstable work, illness, addictions, the news cycle, 'but the biggest source of anxiety is our own problems'"}
+    rejected:
+      - {path: "/preco-je-zivot-taky-tazky", rank: 4,  why: "credited to case 3; its subject is why suffering exists, not what to do with chronic tension"}
+      - {path: "/homosexuali",               rank: 5,  why: "🔴 BOILERPLATE TAIL — second appearance, different question"}
+      - {path: "/pandemicke-zamyslenia",     rank: 8,  why: "'The pandemic and me' — situational, tied to one event"}
+      - {path: "/potrat-pre-a-proti",        rank: null, why: "🔴 BOILERPLATE TAIL. 'Abortion' surfaced for anxiety, prayer AND suffering in discovery, always on the same 'God will provide for your needs' chunk. It reaches rank 5 of the prayer case"}
+
+  # ── 6 ────────────────────────────────────────────────────────── newcomer
+  - id: "essk-newcomer-kriz"                   # topic: jesus-death
+    persona: newcomer
+    q: "Prečo musel niekto zomrieť na to, aby mi Boh mohol odpustiť? Nemohol jednoducho odpustiť?"
+    en: "Why did someone have to die for God to be able to forgive me? Could he not simply have forgiven?"
+    top_score: 0.736
+    credits:
+      - {path: "/preco-a-ako-zomrel-jezis", rank: 1, score: 0.736, en: "Why and how did Jesus die? — a DEDICATED atonement article: 'the real reason for his death is far deeper and more surprising… what it means for us today'"}
+      - {path: "/spoznaj-boha",             rank: 4, score: 0.700, en: "How to know God? 4 steps — the Four Spiritual Laws page. Step 2–3 IS the substitution teaching: 'sin is paid for with death, so that we would not have to die separated from God, Jesus died in our place'. It answers the question even though its overall subject is how to begin"}
+    the_finding: |
+      🟢 SECOND CONTROL FOR THE RUSSIAN GAP, AND IT LANDS THE SAME WAY BULGARIAN DID.
+      `esru-newcomer-krest` cannot retrieve its credits because `everystudent-ru` has NO article
+      whose subject is the atonement — the teaching only lives inside the two "begin a relationship
+      with God" pages that the shared invitation-prayer chunk buries (§0.10). Bulgarian has a
+      dedicated article and returns it at rank 3 (§0.11). SLOVAK HAS ONE TOO, at 4.1k chars, and it
+      returns at RANK 1, 0.736. Three sources, one topic menu, one embedder: Russian is the outlier.
+      **The Russian result is corpus composition. This is now measured twice, not argued once.**
+    rejected:
+      - {path: "/ak-je-boh-dobry-preco-existuje-zlo-a-utrpenie", rank: 2, why: "🔴 RANK 2 AT 0.734 AND REJECTED HERE — boilerplate tail. Its subject is the problem of evil (credited to case 3); the chunk that matches is its closing cross-and-forgiveness paragraph"}
+      - {path: "/kde-je-boh-uprostred-tragedii", rank: 3, why: "🔴 boilerplate tail — same shape, its closing 'our sins separated us from God' paragraph"}
+      - {path: "/vianoce",                       rank: 5, why: "🔴 boilerplate tail — the Christmas article's gospel section"}
+      - {path: "/jezis-v-islame",                rank: 6, why: "its subject is whether the crucifixion HAPPENED (the Qur'anic denial), not what it accomplished"}
+      - {path: "/krestan-a-katolik-je-to-to-iste", rank: 7, why: "🔴 boilerplate tail. 'Christian and Catholic' — its subject is denominations; the matched chunk is the bridge-and-forgiveness tail"}
+      - {path: "/stastne-manzelstvo",            rank: 8, why: "🔴 boilerplate tail — a marriage article"}
+      - {path: "/toxicke-porno-toxicky-sex",     rank: 9, why: "🔴 boilerplate tail — THE §0.9 SPECIMEN, exactly: a pornography article reached by an atonement question. It also reaches rank 3 of the prayer case"}
+
+  # ── 7 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essk-skeptic-prepisovanie"            # topic: bible-trust
+    persona: skeptic
+    q: "Neviem, ako mám brať vážne knihu, ktorá vznikla pred tisíckami rokov a odvtedy prešla neviem koľkými rukami."
+    en: "I do not know how I am supposed to take seriously a book written thousands of years ago that has passed through who knows how many hands since."
+    top_score: 0.662
+    credits:
+      - {path: "/je-biblia-pravdiva",  rank: 1, score: 0.662, en: "Can the Bible be trusted? What does the evidence say? — 36.6k chars, the LARGEST document in the source. Its own table of contents includes 'Did the Bible change over time, or do we have what was originally written?' — the transmission question verbatim"}
+      - {path: "/skutocne-zil-jezis", rank: 9, score: 0.498, en: "Did Jesus really live? Is there evidence? — Tacitus and Josephus, the extra-biblical attestation. ⚠️ BOUNDARY CREDIT, see below"}
+    boundary_credit: |
+      ⚠️ `/skutocne-zil-jezis` sits at RANK 9 / 0.498 and its result WILL FLAP between 2/2 and 1/2
+      between eval runs — the same boundary behaviour §0.10 recorded for `esru-newcomer-krest`,
+      where a 0.001 score difference moved a credit across the k=10 line. Do not read a future 1/2
+      as a regression. It is credited because it genuinely answers the asker's real doubt (why take
+      this ancient book seriously at all), not only the narrow copying question.
+    rejected:
+      - {path: "/ako-radikalny-moslim-nasiel-jezisa", rank: 2, why: "rank 2 and rejected — a conversion testimony. It touches textual integrity in one paragraph ('I never found a verse saying God changes his verses'), but its subject is one man's journey out of Wahhabism. Credited to case 9 instead, where its subject actually fits"}
+      - {path: "/jezis-v-islame",   rank: 5, why: "contains the tahrif (scripture-corruption) material and was a genuine call. Left uncredited so that no document is credited twice; its stronger home is case 9. Same overlap `bg`, `zh` and `kk` recorded in §0.7 and §0.11"}
+      - {path: "/citaty-o-jezisovi", rank: 10, why: "'Quotes about Jesus' — 20.5k chars of unannotated John's Gospel text. It IS the Bible, it does not argue for it"}
+      - {path: "/zmena-zivota",     rank: 3, why: "the general attractor — see hazard 3"}
+      - {path: "/regina",           rank: 4, why: "🔴 boilerplate tail — a child's testimony about the wordless book"}
+      - {path: "/homosexuali",      rank: 7, why: "🔴 boilerplate tail — third appearance"}
+
+  # ── 8 ────────────────────────────────────────────────────────── believer
+  - id: "essk-believer-ticho"                  # topic: prayer
+    persona: believer
+    q: "Za jednu vec sa modlím už mesiace a stále ticho. Je chyba vo mne?"
+    en: "I have been praying about one thing for months and there is still silence. Is the fault in me?"
+    top_score: 0.731
+    credits:
+      - {path: "/ako-sa-modlit", rank: 1, score: 0.731, en: "How do you pray? And why does God sometimes not answer? — 'let us look at which prayers God hears and which stay unanswered', and directly at this asker's fear: 'maybe there is an obstacle between you and him: your unconfessed sin'. Slovak twin of the Bulgarian 'Does God answer our prayers?' and the Russian /a/molitvi.html"}
+    content_gap: |
+      🟡 THIS IS THE THINNEST SHELF IN THE SOURCE, AND THE CASE IS HONEST ABOUT IT.
+      `everystudent-sk` publishes exactly ONE article on prayer. There is no second document to
+      credit, so this case is 1/1 by necessity rather than by judgement. The whole rest of its
+      top 10 is boilerplate tail: `/zmena-zivota` (r2), `/toxicke-porno-toxicky-sex` (r3),
+      `/potrat-pre-a-proti` (r5), `/prijmu-potravy`-shelf testimonies (r6, r10) and
+      `/preco-cakat-so-sexom` (r8). Nine of ten hits are the template, one is the answer.
+      This is the clearest single view of the §0.9 trap anywhere in this suite.
+      ⓘ The §0.7 believer thinness is structural, not a Slovak fault — this estate publishes
+      seeker apologetics, not discipleship. `fr` and `bg` recorded the same wall.
+    rejected:
+      - {path: "/milan", rank: 6, why: "'God is doing something, I just sense it' — a believer's account of conversion and of sensing God, not of unanswered prayer. The closest second candidate and still the wrong question"}
+      - {path: "/toxicke-porno-toxicky-sex", rank: 3, why: "🔴 boilerplate tail — a pornography article at rank 3 of a PRAYER question. §0.9's specimen reproduced exactly"}
+      - {path: "/potrat-pre-a-proti", rank: 5, why: "🔴 boilerplate tail"}
+      - {path: "/preco-cakat-so-sexom", rank: 8, why: "🔴 boilerplate tail"}
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "essk-skeptic-rovnake"                 # topic: religions
+    persona: skeptic
+    q: "Vyrastal som v tom, že každý si má nájsť svoju vlastnú cestu k Bohu a že sú v podstate rovnocenné. Prečo by mala byť práve tá kresťanská výnimočná?"
+    en: "I grew up being told that everyone should find their own way to God and that the ways are basically equivalent. Why would the Christian one be special?"
+    top_score: 0.682
+    credits:
+      - {path: "/astrologia-a-hladanie-boha",      rank: 1, score: 0.682, en: "Astrology and the road of searching for God — 🔴 A CANDIDATE A TITLE-ONLY REVIEWER WOULD REJECT, and it is rank 1. 13.5k chars: spiritual guides, meditation, astrology, the 'higher self', kundalini, gurus, astral travel, tarot, séances, Sufi meetings — one woman's actual tour of 'find your own way', and what she found instead. This is the Slovak `/a/chakr.html` (§0.10)"}
+      - {path: "/jezis-a-nabozenstva",             rank: 2, score: 0.656, en: "Jesus and religions: what is the difference? — 'in other religions a person spends a lifetime trying to reach God; in Christianity God stoops to us in the person of Jesus Christ'"}
+      - {path: "/vedu-vsetky-cesty-k-bohu",        rank: 3, score: 0.652, en: "Do all roads lead to the same god? A comparison of religions — 9.7k chars working Hinduism, Buddhism, Islam, New Age and Christianity in turn. This is the estate's /a/205 world-religions article under a localised title (§0.7)"}
+      - {path: "/ako-radikalny-moslim-nasiel-jezisa", rank: 4, score: 0.635, en: "How a radical Muslim found Jesus — 12.9k chars: Pakistan, Saudi Arabia, Wahhabism, studying the Qur'an from age twelve, and the comparison he ran between the two books. A person who did compare the ways and did not find them equivalent"}
+    reworded_and_what_it_cost: |
+      ⚠️ REWORDED AFTER ROUND 1 (guardrail #8 §2), and the reword COST a credit.
+      v1: "Mám kamarátov, ktorí veria rôzne — jeden je moslim, druhý sa hlási k budhizmu. Prečo by
+          mal byť ten kresťanský Boh iný ako ten ich?" → top 0.755 🔴 SMELL. It restated
+          `/vedu-vsetky-cesty-k-bohu`'s own opening, which enumerates the same religions in the
+          same order ("Hinduizmus, budhizmus, islam, new age, kresťanstvo…").
+      v2 (kept): drops the enumeration and frames the asker's upbringing instead → 0.682, smell
+          gone. Removing the word "moslim" pushed `/jezis-v-islame` (rank 3 at 0.719 in round 1)
+          out of the top 10, so it was dropped — it is a six-point Islam/Christianity comparison
+          and the reworded question is about plurality of paths in general, not about Islam.
+      What the reword BOUGHT, and it is worth more than what it cost: two testimonies of people who
+      actually walked the "find your own way" road (`/astrologia…` and `/ako-radikalny-moslim…`)
+      moved INTO the top 4 and are now credited. The honest question found the honest answers.
+    rejected:
+      - {path: "/kriziacke-vypravy-zabijanie-v-mene-boha", rank: 6, why: "the Crusades and the Inquisition — an objection about Christian behaviour, not a comparison of claims"}
+      - {path: "/reinkarnacia-karma-posmrtny-zivot", rank: null, why: "'Karma, reincarnation, heaven' — drafted as a credit and dropped after round 1, where it fell outside the top 10. On reflection correct: its subject is what happens after death, not why one road differs from another"}
+      - {path: "/krestan-a-katolik-je-to-to-iste", rank: 8, why: "🔴 boilerplate tail; also its subject is denominations WITHIN Christianity"}
+      - {path: "/zmenil-sa-mi-zivot", rank: 5, why: "credited to case 4; its subject is the meaning search"}
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "essk-newcomer-traja"                  # topic: trinity
+    persona: newcomer
+    q: "Kamarátka sa modlí k Ježišovi, ale hovorí o ňom aj ako o Božom Synovi a ešte spomína Ducha Svätého. Nechápem, kto je teda kto."
+    en: "A friend of mine prays to Jesus, but also calls him the Son of God, and on top of that mentions the Holy Spirit. I do not follow who is who."
+    top_score: 0.699
+    credits:
+      - {path: "/co-je-svata-trojica", rank: 1, score: 0.699, en: "What is the Holy Trinity? Is God one, or are there three? — the three-dimensions-of-a-book analogy and the 1×1×1=1 formulation, the same one `bg` credits"}
+      - {path: "/kto-je-duch-svaty",   rank: "NOT IN TOP 10", en: "Who is the Holy Spirit? — 'not an impersonal energy or an ethereal puff of steam, but a PERSON with all the divine attributes, equally with God the Father and God the Son. Together they form God's Trinity.' KEPT DELIBERATELY, see below"}
+    kept_deliberately: |
+      ⚠️ THE ONE CREDIT IN THIS SUITE THAT DOES NOT RETRIEVE. Kept on purpose (guardrail #8 §2:
+      "keep the honest phrasing and let the eval record the gap — a case that always passes
+      measures nothing"). This case will score coverage 1/2, by design.
+      It genuinely answers: the asker's difficulty is literally "who is who" among the three, and
+      this document answers one of the three by name. The reason it loses is measurable and it is
+      not about relevance — at 1,986 CHARACTERS it is one of the shortest documents in the source,
+      and it is beaten to the top 10 by eight longer documents, including two pure boilerplate
+      tails (`/moj-posledny-den` at rank 6 and `/vianoce` at rank 10).
+      This is the same defect class as the Chinese `/a/personally.html` at rank 15 (§0.9) and the
+      Russian `esru-newcomer-krest` (§0.10): the right short answer buried under long template
+      prose. Crediting it makes the eval RECORD that, which is the point.
+    reworded: |
+      v1: "V kostole sa raz modlia k Otcovi, raz k Ježišovi, raz k Duchu Svätému. Znamená to, že
+          kresťania majú viac bohov?" → top 0.771 🔴 SMELL — the strongest in the draft. It
+          restated `/co-je-svata-trojica`'s own opening line, which is itself a reader question:
+          "Môžete mi vysvetliť, čo je Svätá Trojica? Je Boh jeden, alebo sú traja?"
+      v2 (kept): the confusion a newcomer actually reports, in her own words, with the doctrinal
+          vocabulary removed → 0.771 → 0.699, still rank 1. `/kto-je-duch-svaty` was outside the
+          top 10 both before and after, so the reword did not cost it.
+    rejected:
+      - {path: "/povedal-jezis-niekedy-ze-je-boh", rank: 4, why: "'Did Jesus ever say he was God?' — the deity-of-Christ evidence question. Real and adjacent, but a different topic from how the three relate, and not on the §0.7 menu"}
+      - {path: "/bol-jezis-boh",     rank: 10, why: "'Was Jesus God, or an ordinary man?' — same reason"}
+      - {path: "/citaty-o-jezisovi", rank: 3,  why: "unannotated John's Gospel text"}
+      - {path: "/moj-posledny-den",  rank: 6,  why: "🔴 PURE BOILERPLATE TAIL — see the note below"}
+      - {path: "/jezis-v-islame",    rank: 2,  why: "rank 2 and rejected — it discusses the Christian/Islamic view of Jesus' sonship, but its subject is the Islam comparison (case 9's shelf)"}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 FOUR TITLE TRAPS — the most of any campaign source so far
+# ─────────────────────────────────────────────────────────────────────────────
+# Sources 1–3 produced one trap each (§0.7 /a/hochsten.html, §0.8 /a/yesno.html,
+# §0.11 "Why can we rely on God?"). everystudent-sk produced FOUR, and two of them
+# are the rank-1 and rank-2 hits of the SAME case.
+#
+# 1. /vznik-vesmiru-4  "Kto? (Vznik vesmíru IV.)"  → "Who? (Origin of the universe IV)"
+#    Reads as cosmology. IS the personhood-of-God argument. RANK 1 for know-god.
+# 2. /vznik-vesmiru-3  "Niekto (Vznik vesmíru III.)" → "Someone (Origin of the universe III)"
+#    Same trap, same series. RANK 2 for know-god. A title-only reviewer files both
+#    under god-exists and this case ends up with three credits instead of five.
+# 3. /zmenil-sa-mi-zivot "Zmena života: Chcel som dokázať, že Boh neexistuje"
+#    → "I wanted to prove God doesn't exist". Reads as an apologetics testimony.
+#    OPENS with "Do you know the feeling when you say I HATE MY LIFE?" — it is the
+#    purpose article. Credited to purpose, NOT to god-exists.
+# 4. /tomas "Boh neexistuje a basta!" → "There is no God, full stop!"
+#    The title is the OBJECTION, not the position. Body is the answer to it.
+#
+# ⓘ And the inverse, once: /astrologia-a-hladanie-boha ("Astrology and the road of
+# searching for God") is a title a title-only reviewer would REJECT as occult
+# content. It is the best document in the source for the world-religions question
+# and it is rank 1. Same lesson `ru` learned from /a/chakr.html: judging by title
+# gets BOTH directions wrong on the same source.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔴 BOILERPLATE TAIL — confirmed again, and this source adds a NEW variant
+# ─────────────────────────────────────────────────────────────────────────────
+# The §0.9 trap fired in eight of the ten cases. The specimens:
+#   /toxicke-porno-toxicky-sex  rank 9 of the ATONEMENT question, rank 3 of the PRAYER question
+#   /homosexuali                rank 6 god-exists, rank 5 anxiety, rank 7 bible-trust
+#   /potrat-pre-a-proti         rank 5 prayer; discovery also put it on anxiety and suffering
+#   /vianoce                    rank 4 suffering, rank 5 jesus-death
+#   /krestan-a-katolik…         rank 7 jesus-death, rank 8 religions
+#   /preco-cakat-so-sexom       rank 8 prayer
+#   /stastne-manzelstvo         rank 8 jesus-death
+#
+# 🆕 NEW VARIANT — PURE-TAIL DOCUMENTS. Two documents in this source are ALMOST
+# ENTIRELY the boilerplate, with no article attached:
+#   /moj-posledny-den            809 chars — a video promo line + the invitation prayer.
+#                                Reached RANK 6 of the trinity question.
+#   /padajuce-taniere-zmysel-zivota  476 chars — same shape. Its title is a direct
+#                                hit on the purpose question ("how to find the meaning
+#                                of life") and there is no content behind it.
+# Elsewhere the tail is one chunk of a real article; here it is the whole document.
+# Neither is credited. Any future suite on this estate should check document LENGTH
+# before crediting a title that looks like a perfect match — under ~1k chars on this
+# estate usually means a video stub.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CONTENT GAPS — what this source genuinely cannot answer well
+# ─────────────────────────────────────────────────────────────────────────────
+# No §0.7 topic is unanswerable here — all ten have at least one real article, which
+# is better than `ru` managed. Two shelves are thin enough to name:
+#   • PRAYER — exactly one article in 83 documents. Case 8 is 1/1 because there is
+#     nothing else to credit, not because one was enough.
+#   • TRINITY — the Trinity article is solid (3.4k) but the Holy Spirit article is
+#     1,986 chars and cannot clear the top 10. Case 10 is 1/2 by design.
+# Neither is a defect to fix. Both are facts about what everystudent.sk publishes.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 33 credits · 33 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Credits per case: 4 · 5 · 5 · 5 · 3 · 2 · 2 · 1 · 4 · 2
+# Coverage of the source: 33 of 83 documents (39.8%) are credited somewhere.
+#
+# Engine check, round 1 → round 3:
+#   paraphrase smells (top ≥ 0.75):  2 → 0   (max top score now 0.737)
+#   credits not returned in top 10:  7 → 1   (the one remaining is deliberate)
+#   unresolved credit titles:        0 → 0
+# Score range across the ten cases: 0.610 (purpose) … 0.737 (jesus-death).
+#
+# 🟢 THE HEADLINE: Slovak is the SECOND control on the Russian atonement gap, and it
+# agrees with Bulgarian. `everystudent-sk` has a dedicated "Why and how did Jesus
+# die?" article and returns it at RANK 1. Three sources now, one topic menu, one
+# embedder — Russian is the outlier and the cause is corpus composition, not the
+# engine. §0.11 argued this from one control; it is now measured twice.
+#
+# 🔴 THE OTHER FINDING, and it is new: a question can FAIL the engine check without
+# SMELLING. `essk-skeptic-nehoda` v1 scored a clean 0.671 and lost four of its five
+# credits, because softening the theodicy hook moved the engine onto the
+# death-and-fear shelf. A low top score is not evidence of a good question. Check
+# both numbers, every time.
+#
+# evidence_tier: llm-translated
+#   Every `en:` gloss above is my own translation from the Slovak. Nobody on the
+#   team is known to read Slovak, so none of it has been checked by a human who
+#   can. That is what the tier records — it is a fact about the reviewer, not about
+#   the language or the corpus. OPERATOR TO CONFIRM.

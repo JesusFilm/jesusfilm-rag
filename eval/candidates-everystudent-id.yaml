@@ -1,0 +1,439 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-id` (57 documents, mahasiswakeren.com).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 57 ÷ 8 = 7.1 → 7 cases (§0.7 rule).
+# Personas: skeptic 3 · newcomer 2 · seeker 1 · believer 1 — the §0.7 table for n=7.
+# Questions authored IN INDONESIAN, not translated from the English menu (§0.6).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# CORPUS SHAPE — read this before judging any hit
+# ─────────────────────────────────────────────────────────────────────────────
+#   57 documents, ALL under `/artikel/`. **ZERO `/story/` testimony pages** — this
+#   source has no separate testimony section at all. Testimony share by path: 0%,
+#   the lowest of any source drafted so far (`hu` is 24%, `pt` is 0% and was the
+#   previous floor).
+#   Four ARTICLES are testimonies in content and are shelved as articles:
+#     /artikel/607pengharapan.html  Steve Sawyer, HIV + haemophilia (23.6k)
+#     /artikel/brahmana-hindu.html  Rabi Maharaj, a Hindu Brahmin (14.2k)
+#     /artikel/303hidup.html        three people on what filled the emptiness (17.0k)
+#     /artikel/300berdosa.html      a reader's letter about her past (3.0k)
+#   Documents under 1,200 chars: 0 — **no pure-tail documents on this source**
+#     (failure mode #2 is absent here; the smallest document is 1,369 chars).
+#   Null-language documents: 0 of 57 (guardrail #3a — nothing excluded).
+#   Duplicate paths: 0.
+#
+#   ⚠️ DUPLICATE TITLES: 2, each naming two DIFFERENT documents. **Credits are by PATH.**
+#       "Keberadaan Tuhan"                  → /artikel/105dapatkah.html + /artikel/109Tuhan.html
+#       "Yesus dengan Agama-agama di dunia" → /artikel/200Islam.html   + /artikel/206Yesus.html
+#     Both pairs are live in this suite, and in both pairs the two documents are
+#     credited to DIFFERENT cases:
+#       105dapatkah → case 1 (god-exists)   vs  109Tuhan → case 2 (know-god)
+#       200Islam    → case 3 (bible-trust)  vs  206Yesus → case 6 (religions)
+#     A title-based credit on this source is a coin flip in both pairs. This is the
+#     Japanese finding from §0.12 reproduced exactly, and it is the reason
+#     phase5-check.ts resolves credits by path.
+#
+# ✅ THE `id` LANGUAGE POLLUTION IS GONE — VERIFIED, NOT ASSUMED.
+#   Until the 2026-07-31 sweep this bucket carried 47 Malay documents. The openings
+#   script's hazard report now reads, in full: "✅ every path resolves to exactly one
+#   document · ✅ no null-language documents · 57 documents · 0 under 1,200 chars ·
+#   0 duplicate paths · 2 duplicate titles · 0 null-language", and every one of the
+#   57 documents is tagged `lang id`. Clean. Nothing was excluded for language.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-id id
+#   → 24 distinct candidate documents of 57 across the ten English probe topics.
+#   Cross-lingual by construction (English question → Indonesian corpus), so the
+#   scores are low: 0.451–0.615. Used as a POOL only, never as evidence.
+# All 57 documents were then read from the database (title + opening ~900 chars)
+# before anything was credited — guardrail #5 — and four of them were pulled in full
+# to settle boundary calls (204siapa, 700jahat, 724menyembah, 200Islam4).
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts id id
+# ─────────────────────────────────────────────────────────────────────────────
+#   Round 1: 17 credits · **0 paraphrase smells** · 1 credit not in top 10 · max top 0.718
+#   Round 2: 16 credits · **0 paraphrase smells** · 1 credit not in top 10 · max top 0.718
+#   Round 3: 16 credits · **0 paraphrase smells** · 1 credit not in top 10 · max top 0.718
+#            — the one miss is a DELIBERATE keep, see `anganangan` below.
+#
+#   ⚠️ THE SUITE NEVER SMELLED, AND THAT IS THE WRONG THING TO CONGRATULATE IT FOR.
+#   All three rounds were spent on failure mode #6 — "a question can FAIL WITHOUT
+#   SMELLING". Round 1 was already 0-smell and it still had a prayer article at rank 1
+#   for the anxiety question and a promiscuous tail-matcher credited to it. What the
+#   rounds actually bought:
+#     r1 → r2  ADDED /artikel/204siapa.html to case 2 after reading it in full (it is
+#              the personhood article, invisible under its title "Siapa2");
+#              DROPPED /artikel/700jahat.html from case 4 and
+#              /artikel/brahmana-hindu.html from case 6 (both judged, both recorded);
+#              reworded case 4, which moved its two credits from ranks 3+4 to 2+3.
+#     r2 → r3  REVERTED case 1's reword. See its `reworded` block: the v2 wording did
+#              not fix the miss it was written for AND degraded the neighbourhood.
+#
+#   ⓘ Top scores on this source run 0.579–0.718. The 0.75 line was never close and was
+#   never the constraint — §0.12's warning that 0.75 is not universal, again.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 16 credited paths resolve to EXACTLY ONE document — 16/16.
+#   Guardrail #3a:   no credited document has a null language — 16/16.
+#   No document is credited to more than one case.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# THREE TOPICS DROPPED — and only ONE of them is a content gap
+# ─────────────────────────────────────────────────────────────────────────────
+#   🔴 `jesus-death` — GENUINE GAP. There is NO article on this source whose subject is
+#      what Jesus' death accomplished. All four candidates were read and all four fail:
+#        /artikel/401mengenal.html    the Four Spiritual Laws presentation — this IS the
+#                                     boilerplate tail, published as its own document
+#        /artikel/mengenal-Allah.html the same presentation as a 6.9k video transcript
+#        /artikel/201buta.html        Paul E. Little on Jesus' LIFE and claims (24.1k) —
+#                                     its subject is his identity, not his death
+#        /artikel/200Islam4.html      "Did Jesus really die on the cross?" — a HISTORICITY
+#                                     question inside the tahrif series
+#      The closest thing to substitutionary atonement anywhere in these 57 documents is
+#      four sentences inside /artikel/724menyembah.html, a Q&A about whether God can
+#      forgive sincere followers of other religions ("his grace provides a substitute to
+#      bear the punishment for sin; that is Jesus"). Four sentences is not an article.
+#      **`id` therefore joins `ru`, `zh-cn` and `mn`.** §0.12 settled this class as corpus
+#      composition and told drafters not to re-open it — recorded, not re-opened.
+#   ⚪ `suffering` — CARRIED, dropped for SIZING, not for a gap. /artikel/602mengapa.html
+#      ("Why is life so hard? Why does someone get cancer? Why do earthquakes destroy
+#      whole cities?", 10.6k) and /artikel/601dimanakah.html ("Where is God when we are in
+#      the middle of tragedy, fear, disaster, grief?", 14.7k) are both dedicated and
+#      strong, and both appear repeatedly in other cases' top 10s. Dropped because seven
+#      cases cannot hold ten topics and `religions` is the more distinctive probe here.
+#   ⚪ `purpose` — CARRIED, dropped for SIZING. /artikel/305tujuan.html (the hammer
+#      parable, the Indonesian twin of the Hungarian /a/celom.html), /artikel/303hidup.html
+#      and /artikel/302sumber.html (Josh McDowell) all answer it.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Indonesian). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Indonesian and
+# can sanity-check the questions, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS
+  - id: "esid-skeptic-anganangan"
+    persona: skeptic
+    topic: god-exists
+    q: "Teman-teman saya menganggap percaya kepada Tuhan itu cuma angan-angan. Saya ingin tahu, apakah ada dasar yang bisa dipertimbangkan dengan akal sehat, atau memang semuanya cuma soal perasaan?"
+    en: "My friends think believing in God is just wishful thinking. I want to know whether there is any basis that can be weighed with common sense, or whether the whole thing really is just a matter of feeling."
+    credits:
+      - { path: "/artikel/105dapatkah.html", en: "Can you PROVE God exists? (and why philosophers and atheists love the question) — Gregory E. Ganssle, PhD. On how 'you cannot prove God exists' has been raised to the status of dogma in intellectual culture since Kant, and what people actually mean when they say it. ⚠️ Its TITLE in the database is the generic 'Keberadaan Tuhan', which it SHARES with /artikel/109Tuhan.html — a different article, credited to case 2. Credited by path.", rank: 1, score: 0.682 }
+      - { path: "/artikel/101apakah.html", en: "Does God exist? SIX open and direct reasons for believing he does (Marilyn Adamson) — 21.5k chars, this source's flagship apologetics article. It opens by conceding the asker's own frame: 'if someone is set against God's existence, the evidence can be rationalised or explained away' — the moon-landing denier analogy — and then argues the case anyway.", rank: 2, score: 0.602 }
+      - { path: "/artikel/106nyata.html", en: "Is God real? Why the structure of DNA points to God — the British philosopher Antony Flew, 'a leading spokesman among atheists, actively involved in every debate', concluding after 30 years of scientific discovery that 'a higher intelligence is the only good explanation for the origin of life and the complexity of nature', then DNA as a written computer program. This is the source's factual/scientific-evidence article. 🔴 KEPT DELIBERATELY, see below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT IN THE SUITE THAT DOES NOT RETURN, AND WHY IT IS KEPT (#8 §2).
+      The question asks in as many words whether there is a BASIS that can be weighed by
+      reason rather than felt. /artikel/106nyata.html is this source's answer to exactly
+      that: an atheist spokesman changing his mind on scientific grounds. On reflection it
+      does not answer some other question, so dropping it would be dishonest. I KEPT it.
+
+      What it measures: for a question that asks for something checkable, the engine
+      returns at rank 3 /artikel/731menakjubkan.html ("Why doesn't God perform a stunning
+      miracle and prove himself?" — a different objection, about God's reticence), at
+      rank 4 the PRAYER article, and at ranks 8–9 the anxiety article and a personal
+      testimony — all ahead of the scientific-evidence article. This case will score
+      coverage 2/3 on purpose. It is the same treatment `eshu-skeptic-vagyalom` gave
+      /a/dns.html — the SAME ARTICLE in Hungarian — and `esbg-skeptic-katastrofa` before it.
+
+      🟢 THIRD SOURCE, SAME ARTICLE, SAME RESULT. The DNA/Antony Flew piece is the estate's
+      hardest document to retrieve for a god-exists question, in three languages now.
+      That is worth more as a recorded gap than as a dropped credit.
+    reworded: |
+      ⚠️ REWORDED ONCE AND THEN REVERTED — the reword is kept in the record because the
+      failure is instructive, and because it is failure mode #5 arriving by a side door.
+      v1 (KEPT): "…apakah ada dasar yang bisa dipertimbangkan dengan akal sehat…"
+          ("…is there any basis that can be weighed with common sense…")
+          → top 0.683 in round 1, 0.682 re-measured in round 3 (a 0.001 tie-flap, the
+          same behaviour §0.10 recorded on `esru-newcomer-krest`); no smell, 2 of 3
+          credits at ranks 1 and 2 in both rounds.
+      v2 (REVERTED): "…apakah ada sesuatu di dunia ini yang bisa diperiksa dan benar-benar
+          mendukungnya…" ("…is there anything in this world that can be examined and
+          actually supports it…"). Written specifically to reach /artikel/106nyata.html.
+          → top 0.667, no smell, and **it did not reach it** — 106nyata stayed outside the
+          top 10. Worse, it degraded the neighbourhood: "sesuatu di dunia ini" pulled THREE
+          crisis/emotional documents into the top 10 (/artikel/coronavirus.html to rank 4,
+          /artikel/601dimanakah.html to rank 6, /artikel/pertolongan-Tuhan.html to rank 8),
+          displacing the two know-god articles that had sat at ranks 5 and 7 under v1.
+          That is §0.12 failure mode #5 — emotional framing retrieves emotional documents —
+          triggered not by an emotional word but by a vague one.
+      🔑 THE LESSON WORTH CARRYING TO THE NEXT SOURCE: a reword aimed at ONE missing credit
+      is a change to the WHOLE top 10, and it can cost more than the credit is worth.
+      v1 was restored.
+    note: |
+      ⓘ THE FOUR-PART COSMOLOGICAL CHAIN IS PRESENT ON THIS SOURCE, exactly as §0.12
+      predicts, and it is unjudgeable by title by construction:
+        /artikel/102apakah.html  "Apakah ketiadaan pernah ada?"  (Was there ever nothing?)
+        /artikel/103sesuatu.html "Sesuatu"                       (Something)
+        /artikel/104siapa.html   "Siapa"                         (Who)
+        /artikel/204siapa.html   "Siapa2"                        (Who 2)
+      Note the path numbering: the fourth part is `204`, not `105`, so even the paths do
+      not group. Only the LAST one is credited anywhere in this suite (to case 2, and only
+      because it was read in full); the first three argue for an Eternal Something, which
+      is narrower than what this question asks. Ninth source after `hu` `pl` `mn` `sk`
+      `pt` `es` `fa` `cs`.
+    top_score: 0.682
+
+  # ── 2 ──────────────────────────────────────────── newcomer 🔴 TITLE TRAP HERE
+  - id: "esid-newcomer-energikabur"
+    persona: newcomer
+    topic: know-god
+    q: "Selama ini kalau saya mendengar kata \"Tuhan\", yang terbayang cuma kekuatan kabur entah di mana. Saya sama sekali tidak punya gambaran tentang Dia sebagai sosok yang punya watak dan sikap terhadap manusia."
+    en: "Up to now, whenever I hear the word 'God', all I picture is a vague force somewhere. I have no picture at all of him as a figure with a character and an attitude towards people."
+    credits:
+      - { path: "/artikel/107alkitab.html", en: "🔴 SYSTEMATIC TITLE TRAP #1, CONFIRMED ON `id` — SIXTH SOURCE. Titled 'Mengapa memilih Tuhan dalam Alkitab?' ('Why choose the God of the Bible?'), which reads as a comparative-religion or a conversion piece and which a title-only reviewer files anywhere but here. The BODY is the six-attributes what-is-God-like article: 'Many of us have an *ideal* God in mind… The following personal characteristics are what the Bible tells us about God — #1: God's basic nature, a God greater than us.' 19.1k chars. Same article, same misleading title, as in `bg` `tr` `fa` `pt` `cs`.", rank: 1, score: 0.718 }
+      - { path: "/artikel/109Tuhan.html", en: "Who is God? Who is he? What is he like? SIX personality traits of God — 'God, who created the universe in all its greatness and creative detail, can be known, by us. He tells us about himself, but more than that, he invites us into a relationship, so that we can know him personally. We do not merely know ABOUT him; we can know him intimately.' ⚠️ Its TITLE is the generic 'Keberadaan Tuhan', SHARED with /artikel/105dapatkah.html — a different article, credited to case 1. Credited by path.", rank: 2, score: 0.686 }
+      - { path: "/artikel/110dimana.html", en: "Where is God? Some people say 'show God to me' — but is God an invisible, hidden God? The analogy of two people living on a sheet of paper: two-dimensional, they cannot see you, only the fingertip you push through into their world. Its subject is precisely why God reads as a formless presence somewhere else, which is the asker's actual complaint rather than her stated question.", rank: 4, score: 0.613 }
+      - { path: "/artikel/204siapa.html", en: "Who 2 — part 4 of the cosmological chain, and 🔴 A DOCUMENT NO TITLE COULD IDENTIFY. Read in full to settle it: it is where the argument turns personal. 'If the Eternal Something produced Something Else, it is because it WANTED to. That means the Eternal Something has a will; therefore the Eternal Something is a Person.' It then handles invisibility on the same terms the asker uses — 'only what occupies space is visible; if something is outside space, how could it be seen?' The Indonesian twin of the Hungarian /a/kicsoda2.html, credited there for this same question and for the same reason.", rank: 5, score: 0.611 }
+    note: |
+      ⓘ ADDED IN ROUND 2, AND THE ROUTE MATTERS. /artikel/204siapa.html was NOT in the
+      discovery pool and its title is "Siapa2". It surfaced only as an uncredited rank-5
+      hit in round 1, was pulled from the database in full because §0.12 flags this chain
+      as unjudgeable, and turned out to carry the exact argument the question asks for.
+      **Reading the round-1 uncredited hits is what found it** — the check script printing
+      them is not a formality.
+    top_score: 0.718
+
+  # ── 3 ───────────────────────────── skeptic 🔑 SETTLES THE TAHRIF QUESTION FOR `id`
+  - id: "esid-skeptic-naskahkuno"
+    persona: skeptic
+    topic: bible-trust
+    q: "Saya sering dengar di kampus bahwa naskah setua Alkitab tidak mungkin bertahan utuh setelah ribuan tahun disalin tangan. Buat saya itu terdengar masuk akal. Apa yang membuat kitab ini berbeda dari naskah kuno mana pun?"
+    en: "I often hear on campus that a manuscript as old as the Bible cannot possibly have survived intact after thousands of years of hand-copying. To me that sounds reasonable. What makes this book different from any other ancient manuscript?"
+    credits:
+      - { path: "/artikel/215alkitab.html", en: "Why can you trust the Bible? — the books of the Bible, the history of the Bible, who wrote the Bible. 30.5k chars over 21 chunks, the longest document on this source. Opens on this exact objection ('How do we know the Bible we have today can be trusted? Can an intelligent person believe the Bible? Yes. The Bible is not a book of fairy tales — unlike other religious books, the Bible does not ask for blind faith') and answers it three ways: transmission, ancient history agreeing with the text, and archaeology.", rank: 1, score: 0.681 }
+      - { path: "/artikel/200Islam.html", en: "Jesus and Islam — six questions Muslims and others commonly ask about Jesus, prefaced 'this is offered out of respect to anyone who wants to know about Jesus. Not a challenge. Nor any criticism of any religion, in any form.' Question 1 IS the asker's objection: 'Has the Bible's authenticity been altered? Or has it been changed and cut down again and again?' — the tahrif / scripture-corruption question. ⚠️ Its TITLE, 'Yesus dengan Agama-agama di dunia', is SHARED with /artikel/206Yesus.html, a different article credited to case 6. Credited by path.", rank: 2, score: 0.678 }
+    the_finding: |
+      🔑 THIS CASE IS THE STRONGEST AVAILABLE TEST OF §0.12's TAHRIF CORRECTION, AND IT
+      PASSES. §0.12 replaced an earlier wrong generalisation with: "the bible-trust /
+      tahrif pattern is about PUBLISHING, not audience" — the evidence being that Japan,
+      not Muslim-majority, routes the topic through its Islam article, while Iran and
+      Czechia have no Islam article at all.
+
+      Indonesia is the hardest case that claim could face: the world's largest
+      Muslim-majority country, and a source that carries SIX separate Islam documents.
+      If audience drove the pattern, the Islam article would own this topic here.
+
+      It does not. The dedicated 30.5k Bible-reliability article wins at rank 1, the Islam
+      article follows at rank 2, and the gap between them is 0.003 — they are effectively
+      tied, with the standalone article ahead. **Same answer as Czechia and Portugal;
+      opposite audience.** §0.12's correction holds, and it now holds against the case
+      most likely to break it. Do not re-open the audience hypothesis.
+
+      ⓘ SECOND OBSERVATION, MEASURED NOT ASSUMED — THE ISLAM SERIES IS FRAGMENTED.
+      `id` publishes the Islam material as SIX documents (/artikel/200Islam.html plus
+      200Islam2–6.html, 3.0k–7.6k chars each), one per question, and every one of the six
+      repeats the same ~700-character preamble that lists all six questions. So the phrase
+      "has the Bible's authenticity been altered?" appears as CONTENT in one document and
+      as BOILERPLATE in five. The effect is visible in two cases here:
+        this case      — 200Islam6 at rank 4, 200Islam2 at rank 5, 200Islam5 at rank 10
+        case 7 trinity — 200Islam6 at rank 2 (!), 200Islam5 at 5, 200Islam3 at 7, 200Islam2 at 9
+      i.e. FOUR of the six flood the trinity top 10 and the one with the content is not
+      among them. No batch-1 source split its Islam article this way. **This is a
+      fragmentation effect distinct from the boilerplate tail — the repeated block is a
+      navigation preamble, not the gospel invitation — and it is new to the campaign.**
+      It costs this case nothing (both credits return at 1 and 2) but it is the likeliest
+      explanation for the odd rank-2 on case 7.
+    reworded: |
+      ⚠️ REWORDED ONCE, PRE-EMPTIVELY, on the `eshu-skeptic-masolat` lesson — which is the
+      only reason this topic did not cost three rounds here as it did on Hungarian.
+      Hungarian smelled TWICE on this topic (0.755 then 0.787) because `id`, like `hu`,
+      has TWO documents that both open with the "has the Bible changed?" question:
+      paraphrasing away from one lands on the other. The fix that worked there was to
+      change the question SHAPE — from "is it unchanged?" to "what makes it different from
+      any other old book?" — and set it in a lived scene. That shape was used from the
+      start here and Indonesian landed at 0.681 with both credits at ranks 1 and 2, first
+      attempt, no smell. A batch-1 finding transferring cleanly to batch 2.
+    top_score: 0.681
+
+  # ── 4 ───────────────────────────────────── seeker 🔴 REVERSE TITLE TRAP HERE
+  - id: "esid-seeker-cemas"
+    persona: seeker
+    topic: anxiety
+    q: "Saya hampir setiap hari merasa cemas, padahal sering kali tidak ada yang benar-benar salah dalam hidup saya. Pikiran saya seperti tidak pernah bisa tenang. Apakah iman bisa membantu keadaan seperti ini?"
+    en: "Almost every day I feel anxious, even though often nothing is actually wrong in my life. My mind feels like it can never settle. Can faith help with a state like this?"
+    credits:
+      - { path: "/artikel/301kedamaian.html", en: "Peace of mind in an uncertain world — 'in uncertain times, how is it possible to have peace of mind rather than worry and unease? Whatever is happening in the world or in each of our lives, is there a place to get certainty back?' 18.4k chars, the source's dedicated peace article. The Indonesian twin of the Hungarian /a/beke.html.", rank: 2, score: 0.584 }
+      - { path: "/artikel/coronavirus.html", en: "🔴 REVERSE TITLE TRAP, CONFIRMED ON `id` — SEVENTH SOURCE after `hu` `pl` `sq` `tr` `pt` `es`. The TITLE is 'Coronavirus (COVID-19)' — a dated 2020 notice that a title-only reviewer strikes on sight, six years on. The subtitle already broadens it ('how to overcome anxiety') and the body never goes back: 'you may feel anxious about some other threat entirely. Every day we are faced with all kinds of reasons to feel under pressure. The list is very long… terrorism, climate change, racism, war, government dysfunction, poverty, sexual violence, human trafficking, natural disasters, personal finances, illness, job security, stressful relationships, addiction.' 13.3k chars, and it is this source's general ANXIETY article.", rank: 3, score: 0.575 }
+    the_finding: |
+      ⚠️ THIS CASE IS THE SUITE'S SPECIMEN OF FAILURE MODE #6 — A CASE THAT FAILS WITHOUT
+      SMELLING — AND IT IS THE ONLY ONE STILL PARTLY UNFIXED. Both credits return, and
+      neither of them is rank 1. Rank 1 is /artikel/306menjawabdoa.html, the PRAYER
+      article, which is credited to case 5. Round 1 was worse: the credits sat at ranks 3
+      and 4, behind the prayer article AND the tragedy article; the reword lifted them to
+      2 and 3 and dropped the top score 0.670 → 0.628, but could not dislodge the prayer
+      article from the top.
+
+      Why the prayer article wins: it carries its own "what about UNANSWERED prayer?"
+      section that enumerates illness, money troubles and hardship, so it reads to the
+      embedder as a general 'what does God do about my situation' document. Any anxiety
+      question with a faith clause in it competes with that section. Removing the faith
+      clause entirely would fix the rank and would stop asking the §0.7 approved question,
+      so it was not done.
+
+      🔴 AND THE BOILERPLATE TAIL IS HERE TOO, WITH NO TESTIMONIES TO CARRY IT.
+      Ranks 9 and 10 for this anxiety question are /artikel/502langgeng.html (DIVORCE
+      STATISTICS AND MARRIAGE PROBLEMS, 23.1k) and /artikel/501keintiman.html (SEX AND THE
+      SEARCH FOR INTIMACY, 13.6k). Both entered only after the reword. This is worth
+      recording precisely because this source has ZERO `/story/` pages: §0.12 said tail
+      severity "tracks the testimony share", and `id` is 0% testimony and still produces
+      marriage-and-sex articles in an anxiety top 10. **The tail rides on ARTICLES here,
+      not on testimonies** — the same /a/gaylesbian.html document family from §0.9 shows
+      up at rank 9 of the prayer case. Testimony share predicts how BAD it gets, not
+      whether it happens.
+    dropped_after_engine_check:
+      - path: "/artikel/700jahat.html"
+        why: >-
+          "Worried about being attacked by evil spirits" (5.7k) — drafted as a third credit and DROPPED after round 1. The case for it was real: it is a document about a man living under permanent dread, and it is specific to this source's Indonesian readership in a way nothing on any batch-1 source is (his parents consulted dukun — shamans — for fortune and wealth, and he is certain Satan will collect). There is no equivalent anywhere else in the campaign. I pulled all four of its chunks and dropped it on two grounds. FIRST, its subject is spiritual attack and the occult, and its answer is conversion — "there is one way to make sure no evil spirit can disturb our lives: to have the Spirit of God dwell in us", then Jesus' five powers, then the invitation. Its closing line offers itself to readers with "kekuatiran semacam itu" — worry OF THAT KIND. The question asks about anxiety with nothing objectively wrong, which is the opposite shape. SECOND, it is a promiscuous matcher: the discovery pass matched it on its INVITATION-PRAYER tail ("Tuhan Yesus, saya memerlukan Dikau… Terima kasih, karena Tuhan telah mengampuni dosa-dosaku"), which is its own chunk, and it also turns up at rank 4 of the TRINITY case, where it has no business at all. Crediting it would have bought coverage on a document the engine did not find for the right reason. OPERATOR MAY OVERRIDE — it is a genuine fear document and Indonesian readers plausibly arrive at it through anxiety; I judged the tail match disqualifying.
+    top_score: 0.628
+
+  # ── 5 ──────────────────────────────────────────────────────────────── believer
+  - id: "esid-believer-berbulanbulan"
+    persona: believer
+    topic: prayer
+    q: "Sudah berbulan-bulan saya membawa hal yang sama dalam doa dan tidak ada apa pun yang berubah. Apakah ada yang keliru dari cara saya?"
+    en: "For months I have been bringing the same thing to God in prayer and nothing at all has changed. Is there something wrong with the way I am doing it?"
+    credits:
+      - { path: "/artikel/306menjawabdoa.html", en: "Does God answer our prayers? What does it take for God to answer? How to pray — told by a former atheist watching a friend's prayers answered week after week: 'do you know how hard it is for an atheist to watch that happen week after week? After seeing it over and over, the word coincidence started to sound like a very weak argument.' It carries its own section on prayer that is NOT answered, which is the asker's actual question. The Indonesian twin of the Hungarian /a/imadsagra.html, the Russian /a/molitvi.html, the Bulgarian 'Отговаря ли Бог на молитвите ни?' and the Spanish /articulos/oraciones.html — all credited for this exact question shape.", rank: 1, score: 0.635 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-id` carries exactly
+      one prayer article. Ranks 2–10 are: the HIV testimony, the Four Spiritual Laws page,
+      the tragedy article, the Josh McDowell testimony, a crisis-help video transcript, the
+      Hindu Brahmin testimony, the why-is-life-hard article, **/artikel/500gaylesbian.html
+      at rank 9** and the Islam article. Nine boilerplate-tail and adjacent matches, and the
+      rank-9 hit is the same document family (§0.9's /a/gaylesbian.html) that produced the
+      original tail finding in Chinese. Nothing else on this source answers unanswered
+      prayer. Same shape as `hu`, `bg` and `ru`, all three of which also credit exactly one
+      document here — the §0.7 believer-thinness finding showing up in the corpus rather
+      than in the persona split.
+    top_score: 0.635
+
+  # ── 6 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esid-skeptic-samayakin"
+    persona: skeptic
+    topic: religions
+    q: "Teman-teman dekat saya berasal dari agama yang berbeda-beda, dan masing-masing sama yakinnya bahwa jalannya yang benar. Dari luar semuanya terlihat serupa saja bagi saya. Kenapa satu di antaranya harus lebih benar daripada yang lain?"
+    en: "My close friends come from different religions, and each is equally convinced their own way is the right one. From the outside they all look much the same to me. Why should any one of them be more right than the others?"
+    credits:
+      - { path: "/artikel/terhubung.html", en: "Connecting with the Divine (Marilyn Adamson, 15.8k) — 'the major world religions and what they believe about God. Hindu, Buddhist, Islam, Christian and New Age Spirituality… a short explanation of each one's view of God, and what a person gets out of that religion. The ending explains how Jesus' teaching differs from the major religions.' This is the estate's /a/205 world-religions article under a localised slug — the same document as the German /artikel/hochsten.html, the Swahili /a/kuunganishwa.html, the French /a/205divin.html and the Hungarian /a/istenkereses.html (§0.7).", rank: 1, score: 0.579 }
+      - { path: "/artikel/206Yesus.html", en: "What is the difference between Jesus and the world's religions? — 'unlike other religions, which try to search for God, in Christ you find that it is God who searches for YOU.' ⚠️ Its TITLE, 'Yesus dengan Agama-agama di dunia', is SHARED with /artikel/200Islam.html, a different article credited to case 3. Credited by path — and note this pair is the one where a title-based credit would have been most tempting, because BOTH documents are genuinely about Jesus and other religions.", rank: 2, score: 0.576 }
+    reworded: |
+      ⚠️ REWORDED ONCE, PRE-EMPTIVELY, on the `eshu-skeptic-ugyanaz` lesson.
+      v1 named Hinduism, Buddhism and Islam in a list. That list, in that order, IS
+      /artikel/terhubung.html's own subtitle — the identical construction that scored 0.813
+      on Hungarian, the largest single paraphrase smell of batch 1. Rewritten before it was
+      ever measured: the objection is put in the asker's own circle of friends and the list
+      is dropped entirely. → 0.579 with both credits at ranks 1 and 2, no smell.
+      ⓘ 0.579 is the LOWEST top score in this suite and the case is fine. Failure mode #6
+      cuts both ways: a low top score is not evidence of a good question, and it is not
+      evidence of a bad one either. Judge by which documents came back.
+    dropped_after_engine_check:
+      - path: "/artikel/brahmana-hindu.html"
+        why: >-
+          "My experience as a Hindu Brahmin" (Rabi Maharaj, 14.2k) — drafted as a third credit and DROPPED after round 1, where it returned at rank 6. It is the source's only document written from inside Hinduism, and the argument for crediting it is that the question is specifically about people each convinced of their own way, and this is one such person changing his mind. I dropped it on SUBJECT: it is one man's life story — his father's vow of silence, his childhood as a Brahmin priest, his conversion — not an account of why one religion would be truer than another. That is the same call the Hungarian suite made on /story/Lilla.html, which even opens "Is Christianity a religion or a relationship?" and was still rejected as one person's story. ⚠️ THE CALL IS LESS OBVIOUS HERE THAN ON `hu`, and the operator should know why: `hu` had a 20-document `/story/` section, so "reject testimonies" was a cheap rule. `id` has NO story section — this article is shelved as an article and is the only Hinduism-specific page the site offers. OPERATOR MAY OVERRIDE. It returns at rank 6 either way, so crediting it changes coverage from 2/2 to 3/3 and changes no rank.
+    rejected:
+      - { path: "/artikel/724menyembah.html", rank: 4, why: "BOUNDARY, AND THE ONE I AM LEAST SURE OF — flagged for the reviewer. 'If people worship the wrong god, why can God not forgive those who are lost?' (6.4k). Read in full. It IS about religious pluralism and it answers on God's holiness, justice, mercy and love, ending on John 14:6. I rejected it because its subject is what happens to sincere adherents of other religions — a judgement-and-forgiveness question — rather than why one religion's claims would be truer, which is what was asked. A defensible credit; the operator may add it." }
+      - { path: "/artikel/302sumber.html", rank: 3, why: "Josh McDowell's changed-life testimony. It matches on its anti-religion rhetoric ('I'm sick of religion, I'm sick of church, I'm sick of the Bible, don't give me that garbage'), not on a comparison. Its actual subject is the search for meaning — it would be the credit for `purpose`, which this suite dropped." }
+      - { path: "/artikel/607pengharapan.html", rank: 5, why: "Steve Sawyer's HIV testimony — a tail match" }
+      - { path: "/artikel/200Islam6.html", rank: 7, why: "'Why not just regard Jesus as a prophet?' — one question of the six-part Islam series, and explicitly NOT a comparison; the series preamble says 'nor any criticism of any religion, in any form.'" }
+      - { path: "/artikel/105dapatkah.html", rank: 8, why: "credited to case 1" }
+      - { path: "/artikel/101apakah.html", rank: 9, why: "credited to case 1" }
+    top_score: 0.579
+
+  # ── 7 ───────────────────────────────────────────────────────────── newcomer
+  - id: "esid-newcomer-tigaatausatu"
+    persona: newcomer
+    topic: trinity
+    q: "Waktu saya ikut teman ke gereja, doanya kadang ditujukan kepada Yesus, kadang kepada Bapa, kadang kepada Roh Kudus. Tapi mereka bilang Tuhannya cuma satu. Buat saya itu terdengar seperti tiga."
+    en: "When I went to church with a friend, the prayers were addressed sometimes to Jesus, sometimes to the Father, sometimes to the Holy Spirit. But they say their God is only one. To me that sounds like three."
+    credits:
+      - { path: "/artikel/709dapatkah.html", en: "Can you explain the Trinity? — 'the Bible speaks clearly of God the Father, God the Son (Jesus Christ) and God the Holy Spirit, and just as clearly states that there is only ONE God.' Then the H2O illustration (water, ice, steam), and the Indonesian word-play the doctrine is actually named with in this language: Tri (three) + Tunggal (one) = Tritunggal.", rank: 1, score: 0.715 }
+      - { path: "/artikel/708siapakah.html", en: "Who is the Holy Spirit? — 'the Holy Spirit is not something vague, not a faint shadow, nor an impersonal force. He is a person, equal in every respect to God the Father and God the Son.' Credited because the asker names three parties and the Trinity article treats the third only briefly; this is the source's document on it, and 'not something vague' answers her framing directly.", rank: 3, score: 0.641 }
+    note: |
+      ⓘ NO REWORD NEEDED, and the reason is borrowed work. `ru`, `bg` and `hu` all smelled
+      on this topic when the question was stated as the doctrinal formula (`ru` 0.807,
+      `bg` 0.756) and all three fixed it by reframing it as something a newcomer NOTICES IN
+      A SERVICE. Starting from the fixed shape, Indonesian landed at 0.715 rank 1 on the
+      first attempt. Third batch-1 lesson to transfer without modification.
+    rejected:
+      - { path: "/artikel/200Islam6.html", rank: 2, why: "🔴 RANK 2 AND REJECTED, and the most interesting rejection in the suite. 'Why not just regard Jesus as a prophet?' — its opening genuinely reads 'there is only one God; here is what we know about the true God: God is eternal…', so the match is not absurd. But its subject is the Islamic objection to Jesus' divinity, not the one-versus-three question. Same call the Hungarian suite made on /a/iszlam.html. ⚠️ IT IS ALSO THE FRAGMENTATION EFFECT IN ACTION: 200Islam5 (rank 5), 200Islam3 (rank 7) and 200Islam2 (rank 9) are here too — FOUR of the six Islam documents in one trinity top 10, all four matching on the shared preamble. See case 3's the_finding." }
+      - { path: "/artikel/700jahat.html", rank: 4, why: "the evil-spirits Q&A at rank 4 of a Trinity question — a pure tail match, and the corroborating evidence for dropping it from case 4" }
+      - { path: "/artikel/204siapa.html", rank: 6, why: "credited to case 2" }
+      - { path: "/artikel/brahmana-hindu.html", rank: 8, why: "Hindu Brahmin testimony — tail match" }
+      - { path: "/artikel/mengenal-Allah.html", rank: 10, why: "the Four Spiritual Laws as a video transcript — exactly the /a/personally.html shape from Part A, matching on the tail" }
+    top_score: 0.715
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 7 cases · 16 credits · 16 distinct documents (no document credited twice)
+# Personas: skeptic 3 · newcomer 2 · seeker 1 · believer 1 — matches §0.7 for n=7
+# Topics used: god-exists · know-god · bible-trust · anxiety · prayer · religions · trinity
+# Topics dropped: jesus-death (GENUINE GAP) · suffering (carried, sizing) · purpose (carried, sizing)
+# Paraphrase smells: 0 in all three rounds. Top scores 0.579–0.718; 0.75 was never close.
+# Credits that do not retrieve: 1 (/artikel/106nyata.html on case 1), kept deliberately.
+# evidence_tier: llm-translated
+#
+# 🟢 THE `id` BUCKET IS CLEAN. 57 documents, every one `lang id`, 0 null-language,
+#   0 duplicate paths, 0 documents under 1,200 chars. The 47 Malay documents that
+#   polluted this source before the 2026-07-31 sweep are gone. Confirmed from the
+#   openings hazard report, not assumed.
+#
+# 🔴 TWO SYSTEMATIC TITLE TRAPS AND THE COSMOLOGICAL CHAIN, ALL THREE PRESENT.
+#   1. /artikel/107alkitab.html "Why choose the God of the Bible?" IS the six-attributes
+#      what-is-God-like article — rank 1 for that question at 0.718. Sixth source.
+#   2. /artikel/coronavirus.html "Coronavirus (COVID-19)" IS the general anxiety article.
+#      Seventh source.
+#   3. Nothing → Something → Who → Who 2 is present as 102apakah / 103sesuatu / 104siapa /
+#      **204siapa** — and note the fourth part's path does not even group with the other
+#      three. Ninth source.
+#   Plus a trap the estate has not recorded before: **TWO DUPLICATE TITLES, both live.**
+#   "Keberadaan Tuhan" names both 105dapatkah (can you prove God) and 109Tuhan (what God
+#   is like); "Yesus dengan Agama-agama di dunia" names both 200Islam (the tahrif article)
+#   and 206Yesus (the comparison article). In BOTH pairs the two documents are credited to
+#   DIFFERENT cases in this suite. Titles are not merely unreliable on this source — they
+#   are actively ambiguous.
+#
+# 🔑 THE TAHRIF QUESTION IS SETTLED, AGAINST THE HARDEST CASE. §0.12 corrected an earlier
+#   claim to "publishing, not audience". Indonesia — the largest Muslim-majority country,
+#   with SIX Islam documents — routes bible-trust through its dedicated 30.5k Bible
+#   article at rank 1, with the Islam article second by 0.003. Publishing, confirmed.
+#
+# 🔴 A FRAGMENTATION EFFECT THAT IS NEW TO THE CAMPAIGN. The Islam material is published
+#   as six documents that each repeat the same ~700-char preamble listing all six
+#   questions. Four of the six flood the TRINITY top 10 (ranks 2, 5, 7, 9) matching on
+#   that preamble, and three appear in the bible-trust top 10. This is NOT the boilerplate
+#   tail — the repeated block is a navigation preamble, not the gospel invitation — and no
+#   batch-1 source produced it. Worth watching on the other batch-2 sources that carry a
+#   split Islam series.
+#
+# 🔴 THE BOILERPLATE TAIL DOES NOT NEED TESTIMONIES. §0.12 said tail severity "tracks the
+#   testimony share". `id` has a testimony share of ZERO — no `/story/` section at all —
+#   and still produces /artikel/502langgeng.html (divorce statistics) at rank 9 and
+#   /artikel/501keintiman.html (sex and intimacy) at rank 10 of the ANXIETY case, and
+#   /artikel/500gaylesbian.html at rank 9 of the PRAYER case. Refinement, not a
+#   contradiction: testimony share predicts how BAD the tail gets, not whether it happens.
+#   The tail rides on articles here.
+#
+# ⓘ THE ATONEMENT GAP: `id` HAS NONE, making it the fourth after `ru`, `zh-cn` and `mn`.
+#   Recorded, not re-opened (§0.12 settled it over eight sources). The `jesus-death` topic
+#   was dropped rather than given a manufactured answer key.
+#
+# ⚠️ FOR THE REVIEWER — five things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. /artikel/106nyata.html on case 1 — KEEP (recommended; records the DNA/Antony Flew
+#      article missing for a question that asks for something checkable, the third source
+#      in a row where this same article is the estate's hardest god-exists retrieval) or
+#      DROP. This is the only credit in the suite that does not return.
+#   3. /artikel/brahmana-hindu.html on case 6 — I DROPPED it (one man's story, not an
+#      argument). Less clear-cut here than on `hu` because `id` has no `/story/` section.
+#      It returns at rank 6 either way; crediting it makes the case 3/3 instead of 2/2.
+#   4. /artikel/724menyembah.html on case 6 — I REJECTED it. It is genuinely about
+#      religious pluralism but answers a judgement-and-forgiveness question rather than the
+#      one asked. The boundary call I am least sure of in the suite.
+#   5. /artikel/700jahat.html on case 4 — I DROPPED it. It is the only document in the
+#      whole campaign written to an Indonesian folk-religion fear (dukun, spirit attack),
+#      and dropping it means the suite measures nothing culturally specific to this source.
+#      I dropped it because it matches on its invitation-prayer tail and turns up at rank 4
+#      of the Trinity case. Worth a second opinion.

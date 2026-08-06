@@ -1,0 +1,307 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ko` (everykoreanstudent.com, 37 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 37 ÷ 8 = 4.6 → 4 cases. Personas: skeptic 2 · newcomer 1 · seeker 1 (the
+# 4-case row of the §0.7 table; believer is 0 at this size).
+# Questions authored IN KOREAN, not translated from the English topic menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   37 documents, ALL under `/a/*.html`. There is no `/story/` tree, so a path-based
+#   testimony count reads 0% — and that reading is wrong, exactly as `uk` found.
+#   Read from the openings, SIX of the 37 (~16%) are first-person accounts carrying
+#   the estate's invitation tail: /a/hope607.html (Steve Sawyer, haemophilia→HIV),
+#   /a/source302.html (Josh McDowell), /a/heather310.html (a Stanford student),
+#   /a/quench507.html (Judy Clark, drinking), /a/inevitable611.html (a friend dying of
+#   stomach cancer), /a/stress309.html (student stress, closes "I found the answer and
+#   his name is Jesus"). /a/reallife303.html is an ANTHOLOGY of four more first-person
+#   accounts under one document id.
+#   Null-language documents: 0 of 37 (guardrail #3a — nothing excluded).
+#   Duplicate paths: 0.
+#
+# 🔴 FOUR DUPLICATE TITLES NAMING EIGHT DIFFERENT DOCUMENTS — the worst duplicate-title
+#   hazard measured on this estate so far, and in every one of the four pairs ONE member
+#   is a title trap. This is the Japanese coin-flip hazard, four times over:
+#     "하나님의 성품" (God's character)        /a/whypick107.html  · /a/why602.html
+#     "내면의 평화를 찾기…" (finding inner peace) /a/finding301.html  · /a/intimacy501.html
+#     "질문과 답변: 천국은…" (heaven Q&A)        /a/heaven725.html   · /a/loving726.html
+#     "예수님은 하나님일까?" (is Jesus God?)     /a/whodoyousay202.html · /a/difference206.html
+#   Only the FIRST member of each pair matches its title. The second members are, in
+#   order: the why-is-life-so-hard article; the SEX-and-intimacy article; the
+#   how-can-a-loving-God-send-people-to-hell article; the how-Jesus-differs-from-world-
+#   religions article. Credits below are declared by PATH for this reason.
+#
+# ⚠️ THE UNDER-1,200-CHAR WATCHLIST IS MISCALIBRATED FOR KOREAN AND MUST NOT BE USED AS
+#   A TRUNCATION SIGNAL HERE. Korean is a dense script: this corpus averages 5,264 chars
+#   and exactly ONE document falls under 1,200 — /a/heaven725.html (1,086). It was read,
+#   and it is a real heaven Q&A answering from Revelation 21, not a pure tail. Nothing in
+#   this source is a video-promo-plus-prayer stub. Zero pure-tail documents.
+#
+# ⓘ /a/bible215.html (14,965 chars, 9 chunks) WAS CHECKED FOR THE "uncommented gospel
+#   reproduction" concern and it is NOT one. It is the source's Bible-reliability
+#   article: it opens "왜 우리는 성경을 믿을 수 있는 것일까요?" ("why can we believe the
+#   Bible?") and argues from Tacitus and Josephus, from archaeology, and from textual
+#   transmission ("literary history says the Bible's contents have not changed once
+#   since they were first written"). The scripture density is quotation inside an
+#   argument. It is creditable — it is simply not credited here, because bible-trust is
+#   one of the six topics this 4-case suite had to drop (see below).
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-ko ko
+#   → 20 distinct candidate documents of 37; all ten topics returned something.
+#   English-probe scores topped out at 0.657 — per the `uk` finding, discovery
+#   UNDER-predicts in-language scores, so nothing was inferred from that ceiling.
+# Every one of the 37 documents was then read from the database (title + opening
+# ~900 chars) before anything was credited — guardrail #5.
+#
+# 🔎 THE TAIL MAGNET ON THIS SOURCE IS /a/hope607.html (Steve Sawyer's HIV account,
+#   10.1k). Discovery surfaced it under FIVE separate topics — god-exists, suffering,
+#   anxiety, jesus-death and prayer — always on its gospel-conversation chunk, never on
+#   its subject. It is credited nowhere. Second magnet: /a/whypick107.html surfaced
+#   under six topics; unlike hope607 it is a substantive article and IS credited, once,
+#   where its subject actually lies (case 3).
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts ko ko
+#   Round 1: 0 smells · 1 credit not in top 10 · max top score 0.634 · 11 credits
+#   Round 2: 0 smells · 1 credit not in top 10 · max top score 0.636 · 12 credits
+#   Round 3: 0 smells · 0 credits not in top 10 · max top score 0.637 · 12 credits ✅
+#   NO ROUND EVER SMELLED. This source's whole scale is low — the highest score any of
+#   the four questions produced against any document across three rounds is 0.638, a
+#   tenth below the 0.75 line. Per §0.12 and the Persian precedent, 0.75 is not reachable
+#   here and every round went to REACH. Failure mode #6 is the live risk on `ko`, not
+#   smell: round 1 had a clean 0.634 top score on case 1 and the rank-1 document was the
+#   life-purpose article. Judge these cases by WHICH documents came back.
+#   Both fixes were REACH fixes and both worked by changing which objection the question
+#   makes, not by paraphrasing — the `uk` refinement of §0.12, confirmed twice here.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Korean). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Korean and can
+# sanity-check the translations, it should be `human-verified`. OPERATOR TO CONFIRM.
+#
+# 🔴 SIX TOPICS DROPPED — and this source CARRIES nine of the ten. The drops are a
+#   consequence of the 4-case sizing, not of missing content. The answer document for
+#   each dropped topic, so the operator can re-open any of them cheaply:
+#     bible-trust  → /a/bible215.html (14,965) — the strongest single document in the
+#                    source. Dropped only because the skeptic budget is 2 and
+#                    god-exists and suffering have deeper, disjoint keys.
+#     religions    → /a/connecting205.html (8,200; Hinduism/Buddhism/Islam/Christianity/
+#                    New Age) + /a/difference206.html (1,608; "how Jesus differs from
+#                    the world's religions", filed under the title "Is Jesus God?").
+#                    Also a skeptic topic; same budget reason.
+#     anxiety      → /a/finding301.html (8,724; peace of mind in an unsettled world) +
+#                    /a/stress309.html (1,681; student stress). Seeker budget is 1 and
+#                    purpose has a three-document key against anxiety's two.
+#     prayer       → /a/prayers306.html (5,513; "does God answer our prayers?", told by
+#                    a former atheist watching a praying friend). Believer budget is 0
+#                    at 4 cases, so this topic could not be placed at all.
+#     trinity      → /a/trinity709.html (1,888) + /a/hspirit708.html (1,896). Both are
+#                    real Q&A answers, both short, and the newcomer budget is 1.
+#     jesus-death  → 🔴 GENUINE CONTENT GAP, not a budget drop. everystudent-ko has NO
+#                    dedicated atonement article. The closest are /a/knowing401.html
+#                    (the Four Spiritual Laws page) and point 4 of /a/difference206.html
+#                    ("Jesus paid the price for sin instead of us") — both state the
+#                    atonement in passing inside a decision page. Discovery for this
+#                    topic returned SIX documents and every one matched on its gospel
+#                    tail: faith201 (resurrection chunk), connecting205 (tail),
+#                    difference206, reallife303 (testimony), tragedy601 (tail),
+#                    hope607 (tail). This is the 4th source in the estate with the gap
+#                    (`ru`, `zh-cn`, `mn` per §0.12) — recorded, not re-litigated.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esko-skeptic-geunggeo" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "주변 친구들은 신을 믿는 것이 결국 사람들이 지어낸 이야기일 뿐이라고 말합니다. 저는 확인할 수 없는 것은 받아들이기가 어렵습니다. 과학이 지금까지 밝혀낸 것들, 이를테면 세포 안의 유전 정보 같은 것을 놓고 볼 때, 신이 있다고 볼 만한 객관적인 근거가 정말로 있습니까?"
+    en: "My friends say believing in a god is in the end just a story people made up. I find it hard to accept anything I cannot check. In light of what science has actually found — the genetic information inside a cell, for instance — is there really objective ground for holding that there is a God?"
+    credits:
+      - { path: "/a/isthere101.html", en: "Does God exist? Six clear reasons to believe he does (Marilyn Adamson, 11.9k) — the source's flagship apologetics article. Its opening is addressed exactly at this asker: 'have you never wished someone would just show you evidence for God — not forceful pressure, and not a vague come-on like just believe.'", rank: 1, score: 0.638 }
+      - { path: "/a/Godreal.html", en: "Is God real? — science gives sufficient reason to believe (3.3k). Antony Flew, 'a leading spokesman for atheism', reversing on the natural-science evidence, then DNA as a written computer program (A/T/G/C against binary code, 3 billion characters per cell). This is the source's FACTUAL-evidence article and the Korean twin of the Hungarian /a/dns.html.", rank: 2, score: 0.573 }
+    top_score: 0.638
+    reworded: |
+      ⚠️ REWORDED TWICE, both times for REACH. This case is the suite's specimen of
+      failure mode #6 — a question that fails without ever smelling.
+      v1: "…기분이나 분위기 말고 실제로 따져볼 수 있는 근거가 하나라도 있습니까?"
+          ("…is there anything at all that can actually be examined, as opposed to a mood
+          or a feeling?") — the Korean rendering of the Hungarian v3 that worked on `hu`.
+          → top 0.634, NO SMELL, and the result was wrong anyway: rank 1 was
+          /a/now304.html (the LIFE-PURPOSE article, credited to case 4), rank 2 was
+          /a/hope607.html (the HIV testimony), and the flagship apologetics article was
+          only rank 4. Naming feelings in order to reject them still pulled the emotional
+          shelf — failure mode #5 firing through a negation.
+      v2: dropped the feeling/mood contrast entirely and asked about the universe and the
+          origin of life. → top 0.592, isthere101 to rank 1, but /a/Godreal.html still
+          outside the top 10 behind two testimonies.
+      v3 (kept): names the actual evidence the asker would want checked — the genetic
+          information inside a cell. → **0.638, both credits at ranks 1 and 2.**
+          🔑 CROSS-SOURCE NOTE: the Hungarian suite could NOT reach its DNA article
+          (/a/dns.html is `eshu-skeptic-vagyalom`'s deliberate kept miss). Korean reaches
+          its twin, and the difference is entirely in the question: the estate's DNA
+          article is only retrievable if the question mentions something the DNA article
+          is about. Worth trying on `hu` before treating that miss as an engine property.
+    rejected:
+      - {path: "/a/source302.html", rank: 3, why: "RANK 3 AND REJECTED — Josh McDowell's changed-life testimony plus the gospel tail. Its subject is the search for meaning; credited to case 4."}
+      - {path: "/a/hope607.html",   rank: 4, why: "RANK 4 AND REJECTED — Steve Sawyer's HIV account. This source's tail magnet, matched on its gospel-conversation chunk. Two testimonies still outrank the science article on a question that explicitly asks for objective grounds."}
+      - {path: "/a/miracle731.html", rank: 5, why: "'Why does God not perform miracles to show he is alive?' — adjacent and rejected on its text: its subject is God's RETICENCE, why he leaves room to disbelieve, not what the evidence is. Same call the Hungarian suite made on /a/csodat.html."}
+      - {path: "/a/faith201.html",  rank: 7, why: "the life of Jesus (Paul E. Little) — its evidence is for Jesus' deity and resurrection, a different claim. It is this source's closest thing to a jesus-death document and is credited to no case."}
+
+  # ── 2 ────────────────────────────────── skeptic 🔴 DUPLICATE-TITLE TRAP HERE
+  - id: "esko-skeptic-sago" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "작년에 가깝게 지내던 친구가 교통사고로 갑자기 세상을 떠났습니다. 선한 신이 있다면 왜 그런 일을 그냥 두고 보는지, 저는 아직도 납득할 수가 없습니다."
+    en: "Last year a friend I was close to died suddenly in a traffic accident. If there is a good God, I still cannot accept why he would just stand by and let something like that happen."
+    credits:
+      - { path: "/a/tragedy601.html", en: "Where is God when we suffer? (Marilyn Adamson, 7.3k) — 'how far can we depend on God in our lives? Is he someone we can rely on when a crisis comes, and not only when nothing is wrong?' It says plainly that people who know God are not exempt from disaster.", rank: 4, score: 0.594 }
+      - { path: "/a/why602.html", en: "Why is life so hard? (5.3k) — earthquakes, terror, famine, a parent's divorce, a relative's cancer, then 'why is this happening to me?' 🔴 TITLE TRAP: its title field is 하나님의 성품 ('God's character'), which is ALSO the title of /a/whypick107.html — a completely different article credited in case 3. A title-crediting reviewer would have got a coin flip between the theodicy article and the attributes-of-God article.", rank: 3, score: 0.612 }
+      - { path: "/a/disaster603.html", en: "Recovering from a natural disaster (3.8k) — its second sentence is the asker's own situation verbatim: 'are you grieving the sudden loss of a friend or a close relative?' It then argues that 'why?' may be the wrong question to put to God at this moment, and names the ones he does answer.", rank: 2, score: 0.618 }
+    top_score: 0.624
+    the_finding: |
+      🔴 THE BOILERPLATE TAIL TAKES RANK 1 HERE — on a source with NO /story/ tree.
+      Ranks 1–4 are: hope607 (testimony, 0.624), then the three credits at 0.618, 0.612,
+      0.594. /a/hope607.html is Steve Sawyer's haemophilia-and-HIV account; the chunk that
+      matches is the gospel conversation with his friend ('the wages of our rebellion is
+      death… but God loves us'), not anything about a friend dying in an accident.
+      This is the `ms`/`mk` correction to §0.12 confirmed a third time: a path-based
+      testimony count on `ko` reads 0% because every document lives under /a/, and the
+      tail still wins rank 1. ONE document absorbs the load, exactly as predicted —
+      hope607 appears in the top 10 of THREE of the four cases here and in five of the
+      ten discovery topics.
+      This case is deliberately left with the defect in place. It is the cleanest
+      measurement in the suite: three genuine theodicy articles at ranks 2, 3 and 4, and a
+      testimony above all of them.
+    rejected:
+      - {path: "/a/hope607.html",     rank: 1, why: "RANK 1 AND REJECTED — see the_finding above."}
+      - {path: "/a/whypick107.html",  rank: 5, why: "the attributes-of-God article — credited to case 3. Its title (하나님의 성품) is identical to credited /a/why602.html's, so a title-based reviewer could not tell these two apart at all."}
+      - {path: "/a/inevitable611.html", rank: 6, why: "'The great meeting nobody escapes' — facing death without fear, told through the author's friend Rob dying of stomach cancer at 18. Genuinely close, and rejected on its subject: it answers how to face one's OWN death, not why a good God permits the death. A boundary call — see the reviewer notes."}
+      - {path: "/a/isthere101.html",  rank: 7, why: "credited to case 1"}
+      - {path: "/a/prayers306.html",  rank: 8, why: "the prayer article — the topic this suite could not place (believer budget 0 at four cases)"}
+      - {path: "/a/reallife303.html", rank: 9, why: "credited to case 4"}
+      - {path: "/a/source302.html",   rank: 10, why: "credited to case 4"}
+
+  # ── 3 ─────────────────────────────── newcomer 🔴 OTHER HALF OF THE SAME TRAP
+  - id: "esko-newcomer-giun" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "저는 교회에 다녀본 적이 없습니다. '하나님'이라는 말을 들으면 하늘 어딘가에 떠 있는 막연한 기운 정도가 떠오를 뿐입니다. 그분은 마음과 뜻이 있어서 말이 통하는 인격적인 상대입니까, 아니면 그냥 어떤 힘 같은 것입니까?"
+    en: "I have never been to church. When I hear the word 'God' all that comes to mind is some vague force floating somewhere in the sky. Is he a person, with a mind and a will, someone you could actually talk to — or just some kind of force?"
+    credits:
+      - { path: "/a/whypick107.html", en: "Seeking and finding the true God (9.8k) — 'the world has any number of gods; is the God the Bible presents the real one?' then an enumerated list of his attributes: '#1: a God greater than us…'. This is the estate's what-is-God-like article. 🔴 It is the other half of the 하나님의 성품 duplicate title; the document that shares its title (/a/why602.html) is the suffering article credited in case 2.", rank: 1, score: 0.637 }
+      - { path: "/a/whois109.html", en: "Who is God? Six characteristics of God (2.1k) — 'God is someone we can know', 'God is approachable', 'God is creative', each with a psalm. The Korean twin of the Russian /a/ktoeto.html and the Bulgarian 'Защо можем да разчитаме на Бог?'.", rank: 2, score: 0.618 }
+      - { path: "/a/likeness308.html", en: "What you have in common with God (1.9k) — argues from how strangers on a plane build a relationship out of what they share, to why a person can relate to a person but not to a rock or a plant, to being made in God's image. It answers the '말이 통하는 상대' ('someone you can actually talk to') half of the question directly.", rank: 5, score: 0.564 }
+      - { path: "/a/who2_204.html", en: "Eternal Being 2 (6.8k) — part 4 of the source's four-part cosmological chain, and the part where the Eternal Being is argued to be a PERSON: 'if the eternal being produces something it is not out of need but because it decided to — which means it is a being with a will, and that means it is personal.' 🔴 CONTENTLESS-TITLE TRAP: the chain is 태초-우주의 근원 → 최초로 존재했던 것 → 영원한 존재 1 → 영원한 존재 2, four titles that name no subject. Only the body identifies which part carries the personhood conclusion. Same placement as the Hungarian /a/kicsoda2.html; NOT the same as `mk`, where it is part 3.", rank: 3, score: 0.616 }
+    top_score: 0.637
+    reworded: |
+      ⚠️ REWORDED ONCE, for REACH, and the fix was to change the OBJECTION.
+      v1 ended "…기독교인들이 믿는 대상은 그런 막연한 기운과 무엇이 다릅니까?"
+         ("how is what Christians believe in different from that vague force?")
+         → top 0.631 with NO smell, and rank 1 was /a/connecting205.html — the WORLD
+         RELIGIONS comparison article. Asking how X differs from Y made it a
+         comparative-religion question in the engine's eyes, whatever the asker meant.
+         All three credits still returned, at ranks 2, 7 and 9.
+      v2 (kept): drops the comparison and asks the thing the newcomer actually wants to
+         know — is he a person with a mind and a will, or a force?
+         → **0.637, credits at ranks 1, 2, 3 and 5, connecting205 pushed to rank 4.**
+         The word 'different' is load-bearing on this estate: every source shelves a
+         religions-comparison article and it answers to that word.
+    rejected:
+      - {path: "/a/connecting205.html", rank: 4, why: "Hinduism, Buddhism, Islam, Christianity and the New Age — the world-religions article. It WAS rank 1 for v1 of this question. It is the answer document for the dropped `religions` topic, not for this one."}
+      - {path: "/a/hspirit708.html",  rank: 6, why: "'Who is the Holy Spirit?' (1.9k) — 'the Spirit is not a simple vague heavenly shadow but someone who has a personality.' Very close to the question's wording, and rejected because its subject is the third person of the Trinity specifically, which is the dropped `trinity` topic's key."}
+      - {path: "/a/isthere101.html",  rank: 7, why: "credited to case 1"}
+      - {path: "/a/source302.html",   rank: 8, why: "credited to case 4 — a testimony, matched on its tail"}
+      - {path: "/a/tragedy601.html",  rank: 9, why: "credited to case 2"}
+      - {path: "/a/knowing401.html",  rank: 10, why: "the Four Spiritual Laws page — 'how do you begin a relationship with God?'. The estate's decision page, and the document that carries the invitation prayer in its purest form. Never creditable."}
+
+  # ── 4 ────────────────────────────────────────────────────────────────- seeker
+  - id: "esko-seeker-namneunge" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "요즘은 하루를 다 보내고 나면 오늘 뭘 했나 싶고 남는 게 아무것도 없다는 기분이 듭니다. 남들처럼 학교도 다니고 할 일도 하고 있는데 그렇습니다. 저는 대체 무엇을 위해 살고 있는 걸까요?"
+    en: "These days when a day is over I wonder what I even did with it, and I am left with the feeling that nothing remains of it. That is true even though I go to school and do what I am supposed to, like everyone else. What am I even living for?"
+    credits:
+      - { path: "/a/now304.html", en: "Is there more to this life than this? (4.1k) — a second passes, a minute, an hour, a day, a year; you got the grades, the friends, the party, the date, and afterwards 'it didn't change my life as much as I thought'. Names the residue as an itch nothing you have experienced scratches.", rank: 1, score: 0.553 }
+      - { path: "/a/reallife303.html", en: "Real life — opinions and answers about what real life is (8.1k, four first-person pieces). Opens 'have you ever felt this isn't all there is?' The first piece is the climber who reached the summit and was devastated because there was nothing left to climb and his life was still empty.", rank: 2, score: 0.552 }
+      - { path: "/a/source302.html", en: "Have you ever said 'I hate my life'? (Josh McDowell, 7.7k) — 'I wanted to know the answers: who am I? Why do I exist in this world? Where am I going?' The Korean twin of the Hungarian /a/forrasa.html, the Spanish /articulos/lafuente.html and the Russian /a/istochnik.html, all credited for this same question shape.", rank: 3, score: 0.539 }
+    top_score: 0.553
+    note: |
+      ⓘ CLEANEST CASE IN THE SUITE AND THE LOWEST-SCORING ONE — 3 of 3 credits at ranks
+      1, 2, 3, with the whole answer key ahead of everything else and a 0.051 gap down to
+      rank 4. It also needed no reword. Note the top score: 0.553. On `ko` a good case and
+      a bad case are separated by which documents return, not by the number — the score
+      here is 0.085 BELOW case 1's, and case 1 needed two rewords to become correct.
+      🟢 /a/quench507.html (rank 6, the drinking article, titled '건강한 관계' /
+      'healthy relationships') did NOT take a high rank here. §0.12 records the estate's
+      drinking/despair article misfiring on the emptiness question in four languages
+      (`es` `ru` `hu` `bn`). Korean is the first source where it stays down.
+    rejected:
+      - {path: "/a/finding301.html", rank: 4, why: "the inner-peace article — the answer document for the dropped `anxiety` topic. Its subject is worry and fear in an unsettled world, not an empty day."}
+      - {path: "/a/why602.html",     rank: 5, why: "credited to case 2"}
+      - {path: "/a/quench507.html",  rank: 6, why: "'Quench your real thirst' — heavy drinking as a substitute for close friendship. Filed under the title '건강한 관계' ('healthy relationships'), which is a third title trap on this source. Not a purpose document."}
+      - {path: "/a/stress309.html",  rank: 7, why: "student stress and the semester timetable — the second half of the dropped `anxiety` key"}
+      - {path: "/a/hope607.html",    rank: 8, why: "the tail magnet, at its weakest position in the suite"}
+      - {path: "/a/whypick107.html", rank: 9, why: "credited to case 3"}
+      - {path: "/a/tragedy601.html", rank: 10, why: "credited to case 2"}
+    dropped_after_engine_check:
+      - {path: "/a/throne307.html", why: "'The throne of my life' (1.7k) — Descartes, the self on the throne of a room, and how that governs what a person does with God. It reads as a purpose document by title and never entered the top 10 in any of the three rounds. On reading, its subject is the WILL and self-rule, not the sense that a day added up to nothing. Dropped, the engine is right."}
+      - {path: "/a/heather310.html", why: "'A Stanford student fighting apathy' (2.7k) — she tutored, ran day camps, collected food, and the harder she pushed to change the world the more frustrated she got. Close to the asker's shape, but it is a conversion testimony carrying the tail, and its frustration is with the world's fixability, not with her own days. Dropped."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 12 credits · 12 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the 4-case row of §0.7
+# Topics used: god-exists · suffering · know-god · purpose
+# Topics dropped: bible-trust · religions · anxiety · prayer · trinity (all five for
+#   suite-size budget — the source carries every one of them, answer documents named in
+#   the header) and jesus-death (a genuine content gap).
+# Paraphrase smells: 0 in all three rounds. Max top score across the whole suite: 0.638.
+# Credits that do not retrieve: 0. Verification: 12/12 paths resolve to exactly one
+#   document, 0 null-language.
+# evidence_tier: llm-translated
+#
+# 🔴 THE HEADLINE FINDING ON `ko` IS THAT THE SMELL LINE IS NOT THE INSTRUMENT HERE.
+#   Nothing this source produced ever came within 0.11 of 0.75, and the two questions
+#   that were WRONG were wrong at 0.634 and 0.631 — scores that look identical to the
+#   two that were right. Case 1 v1 scored 0.634 with the life-purpose article at rank 1
+#   and the flagship apologetics article at rank 4. Case 3 v1 scored 0.631 with the
+#   world-religions article at rank 1. Failure mode #6, twice, in one four-case suite.
+#
+# 🔴 THE TAIL WINS RANK 1 ON A SOURCE WITH A 0% PATH-BASED TESTIMONY COUNT.
+#   everystudent-ko has no /story/ tree — every one of its 37 documents is under /a/.
+#   Six of them are first-person accounts carrying the invitation tail, and ONE of those,
+#   /a/hope607.html, is the magnet: rank 1 on the suffering case, rank 4 on god-exists,
+#   rank 8 on purpose, and in five of the ten discovery topics. This is the third
+#   confirmation (after `ms` and `mk`) that the §0.12 rule tying tail severity to
+#   testimony SHARE is wrong, and the second (after `uk`) that path prefixes cannot be
+#   used to measure the share at all.
+#
+# 🔴 FOUR DUPLICATE TITLES, EIGHT DOCUMENTS, FOUR TRAPS — the worst title hazard measured
+#   on this estate. Two of them are exercised by this suite in opposite directions:
+#   /a/why602.html (titled 'God's character', actually the theodicy article) is credited
+#   to case 2, and /a/whypick107.html (titled 'God's character', actually the
+#   attributes-of-God article) is credited to case 3. They appear in each other's top 10.
+#   A title-based reviewer had a 50% chance of swapping them. The other two pairs are not
+#   exercised but are recorded in the header, and one of them — /a/intimacy501.html,
+#   the SEX-and-intimacy article filed under the inner-peace title — would have been
+#   credited to an anxiety case had this suite had a slot for one and judged by title.
+#   A fifth, non-duplicate title trap: /a/quench507.html, the heavy-drinking article,
+#   is titled '건강한 관계' ('healthy relationships').
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. Case 2 keeps a KNOWN DEFECT deliberately: /a/hope607.html sits at rank 1 above all
+#      three credits. Coverage is 3/3, top-1 precision is 0. If the suite is meant to
+#      score clean rather than to measure, this case is the one to change — but changing
+#      it deletes the clearest tail measurement in the source.
+#   3. /a/inevitable611.html (facing death without fear) at rank 6 on case 2 — a boundary
+#      REJECT. It is about one's own death, not about God permitting another's. An
+#      operator who reads it the other way should credit it; the case would go to 4/4.
+#   4. The four dropped-for-budget topics are ready to author if the operator wants `ko`
+#      at more than four cases: bible-trust (/a/bible215.html) and religions
+#      (/a/connecting205.html + /a/difference206.html) are the two strongest, and both
+#      are skeptic topics that the 2-skeptic budget excluded.
+#
+# ⓘ ONE CONTENT GAP ONLY: jesus-death. No dedicated atonement article exists on this
+#   source; every discovery hit for the topic was a gospel-tail match. Fourth source in
+#   the estate with the gap (`ru`, `zh-cn`, `mn`). Recorded as corpus composition per
+#   §0.12 and not re-opened.

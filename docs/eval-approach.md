@@ -403,3 +403,46 @@ For each non-English source, author a suite with `/golden`
 4. **minScore** (0.37, English-derived) may shift under qwen and across languages —
    re-derive from the new score distribution using a few non-English off-topic
    negatives per language before changing the default; report before changing.
+
+#### Evidence tiers — added 2026-08-03 for the 45-language campaign (#111)
+
+Step 2 above ("the reviewer may not read the language, so present an English
+translation") was written when the corpus held four non-English languages. The
+#111 campaign takes it to **45**, including Tigrinya, Oromo, Georgian and
+Amharic, and it exposes a difference the flow had not needed to name:
+
+**For French, the operator can tell a bad translation from a good one. For
+Tigrinya, they cannot.** The approval is equally explicit in both cases — golden
+guardrail #4 holds unchanged — but the *evidence behind it* is not equally
+reviewable. Averaging the two into one coverage number asserts a confidence
+nobody has.
+
+So every case may carry `evidence_tier`, and `pnpm eval` reports the buckets
+separately (`coverageByTier`, `scripts/eval-metrics.ts`):
+
+| tier | meaning |
+|---|---|
+| `human-verified` | approved on content a reviewer could read, or on a translation they could sanity-check |
+| `llm-translated` | approved on a machine translation nobody available can verify |
+| *(absent)* | authored before the tier existed — reported as `(untagged)` |
+
+Three things this is **not**:
+
+1. **Not a quality gate.** No metric is discounted, no case is excluded, no
+   threshold applies. It is a reporting split, nothing more.
+2. **Not a default.** The 130 pre-campaign cases are left untagged rather than
+   backfilled to `human-verified` — nobody now can say which of them the
+   reviewer could read unaided, and asserting it would be the same overreach the
+   tier exists to prevent.
+3. **Not a replacement for the `# EN:` translation.** Step 2's requirements stand
+   in full; the tier records how checkable that translation was.
+
+**Promotion is cheap and expected.** If a Cru native speaker later reviews a
+language's suite, flip its cases to `human-verified` — the questions and answer
+keys do not change, only the claim about who checked them.
+
+**Operator decision, 2026-08-03** (campaign file §7): scope is decided by
+*capability*, not convenience. A language is `evaluate: deferred` only for a
+stated, specific reason — never as the residue of a blanket "everything else".
+Since the §0.4 language sweep cleared guardrail 3a (0 nulls corpus-wide), every
+campaign language is mechanically eligible, so all 45 are in scope.

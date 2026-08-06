@@ -1,0 +1,373 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-mn` (82 documents, Mongolian).
+# Campaign #111, tier A source 4 of 14 (after zh-cn §0.8, ru §0.10, bg §0.11).
+# Working record — NOTHING here has been written to eval/qa-golden.yaml.
+# Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 82 docs ÷ 8 = 10.25, capped at 10 → 10 cases (§0.7 rule).
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN MONGOLIAN, not translated word-for-word from the English menu.
+#
+# HOW THE CANDIDATES WERE FOUND
+#   .tmp-diag/phase5-partb-discover.ts everystudent-mn mn
+#   → 54 distinct candidate documents of 82, all ten topics covered.
+# ALL 82 DOCUMENTS were then dumped from the database (path + title + char count +
+# opening ~700 chars) and read — not just the 54 discovery hits, and not the 240-char
+# snippets. §0.9's rule: judge the document by its OPENING, never its title and never
+# the matched chunk. On this source that changed four judgements (see TITLE TRAPS below).
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-mn-check.ts
+#   Round 1: paraphrase smells 0 · credits not in top 10: 10 · 32 credits
+#   Round 2: paraphrase smells 1 🔴 · credits not in top 10: 7 · 30 credits
+#   Round 3: paraphrase smells 0 (max 0.738) · credits not in top 10: 5 · 30 credits ✅
+#   Round 2's smell was a reword that BACKFIRED — reverted, recorded under case 6.
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 30 credited paths resolve to EXACTLY ONE document — 30/30.
+#   Guardrail #3a:   no credited document has a null language — 30/30.
+#   Source-level:    everystudent-mn has 82 documents, 0 with a null language,
+#                    0 duplicated titles (unlike `bg`, whose title→path map collided).
+#   30 credits over 30 DISTINCT documents — no document is credited twice.
+#
+# evidence_tier: llm-translated
+#   Both the Mongolian questions and every English gloss below are model-produced and
+#   have NOT been read by a Mongolian speaker. This is a fact about the REVIEWER, not
+#   the language — matching everystudent-zh-cn / -ru / -bg. If anyone on the team reads
+#   Mongolian and can sanity-check them, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esmn-skeptic-notolgoo"               # topic: god-exists
+    persona: skeptic
+    q: "Найзууд маань Бурхан гэдэг зүгээр л хүний зохиосон зүйл гэж ярьдаг. Түүнийг үнэхээр байдаг гэж үзэх ямар нэг бодит үндэслэл, нотолгоо байдаг юм уу?"
+    en: "My friends say God is just something people made up. Is there any real ground or evidence for holding that he actually exists?"
+    top_score: 0.704                          # clear of 0.75
+    credits:
+      - {path: "/a/101Yertontsiyn.html", rank: 8, score: 0.673, en: "Is there a God? Six grounds for his existence — Marilyn Adamson. The canonical article; the Mongolian twin of the Russian /a/estli.html"}
+      - {path: "/a/100erdemted.html",    rank: 4, score: 0.696, en: "Laws of nature that astonished scientists — constants, the speed of light, the earth's rotation: why is the universe this ordered?"}
+      - {path: "/a/100yertontsiig.html", rank: 7, score: 0.680, en: "Did God create the universe? — the Big Bang, a singular beginning point, and what has to be outside time and space to cause it"}
+      - {path: "/a/100boditoi.html",     rank: "NOT IN TOP 10", en: "Is God real? — Antony Flew, the leading atheist philosopher, driven to 'a Super-Intelligence is the only good explanation', and the DNA argument. Directly answers 'people made it up'. KEPT DESPITE THE MISS — see note."}
+    rejected:
+      - {path: "/a/213Zaan.html",   rank: 1, why: "RANK 1 AND REJECTED. Title reads 'Where does this widespread commonality come from?' — the body is 'Is God an ELEPHANT?', the blind-men-and-the-elephant pluralism piece. Credited to case 9. 🔴 TITLE TRAP — see the header note."}
+      - {path: "/a/107Yaagaad.html", rank: 2, why: "credited to case 2 — its subject is what God is LIKE, not whether he exists"}
+      - {path: "/a/109Yertontsiyn.html", rank: 4, why: "credited to case 2, same reason"}
+      - {path: "/a/100buteev.html", rank: 6, why: "'Who created God?' — answers a counter-objection to the cosmological argument, not 'what grounds are there'. A different question."}
+      - {path: "/a/601Emgenelt.html", rank: 5, why: "the disaster/grief article (credited to case 3). Its opening paragraph happens to define who God is, which is why it keeps surfacing across five topics."}
+    dropped_after_engine_check:
+      - {path: "/a/731Hiyzh.html", why: "'Why doesn't God do a miracle to prove himself?' — credited in rounds 1–2, DROPPED in round 3. On re-reading, its subject is why the evidence is not more dramatic, which is a different objection from 'is there any evidence'. It belongs to a 'why is God hidden' question this suite does not carry."}
+    reworded: |
+      REWORDED AFTER ROUND 1 — guardrail #8 §2, and it is the §0.7 `know-god` lesson again:
+      the reword LOWERED the score and was still the right call.
+      v1: "…Найзууд маань Бурханд итгэдэг хүмүүсийг зүгээр л өөрсдийгөө ТАЙВШРУУЛААД
+           байгаа юм гэж ярьдаг…"  ("…are just COMFORTING themselves…")  top 0.708
+      v1 was not a paraphrase smell, it was worse: the word "comfort" pulled the whole
+      comfort/testimony shelf. Its top 10 was /a/300amgalan.html (peace), /a/710Boorhanig.html,
+      /a/603Bid.html (grief), /a/306Ezen.html (prayer), /a/601Emgenelt.html (disaster) and
+      /a/501Dotno.html (SEX AND INTIMACY, rank 9) — while /a/101Yertontsiyn.html, the
+      six-reasons article this question exists to find, was nowhere in the top 10.
+      v2 drops all comfort language and asks for grounds. Result: 0.708 → 0.704 (lower),
+      but /a/101Yertontsiyn.html enters at rank 8 and /a/100yertontsiig.html at rank 7.
+      Landing on the right document is the objective; score is not.
+    note: |
+      /a/100boditoi.html IS KEPT DESPITE MISSING. It is the estate's "is God real"
+      article — the Antony Flew conversion and the DNA-as-information argument — and it
+      is the single most on-point answer to "my friends say God was made up". It is
+      buried at k>10 by four articles it outranks on subject. Same treatment as
+      /a/personally.html in Part A: credit it and let the eval record the gap.
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "esmn-newcomer-yamarhuu"              # topic: know-god
+    persona: newcomer
+    q: "«Бурхан» гэхээр надад ямар нэгэн бүрхэг хүч л төсөөлөгддөг болохоос өөр юу ч ойлгогддоггүй. Тэр яг ямархуу нэгэн юм бэ?"
+    en: "When I hear 'God' all I picture is some vague force; nothing else comes to mind. What is he actually like?"
+    top_score: 0.716
+    credits:
+      - {path: "/a/109Yertontsiyn.html", rank: 1, score: 0.716, en: "Who is God? What can he be compared to? God's six distinctive characteristics — and he can be known personally. ⚠ The SLUG says 'Yertontsiyn' ('of the universe'); the article is the who-is-God piece. Slug is not evidence either."}
+      - {path: "/a/107Yaagaad.html",     rank: 2, score: 0.715, en: "Why choose the God of the Bible? — 'we each picture God as whatever is most complete to us', then #1: God's nature, an incomparably greater God. 21k chars. The Mongolian twin of the Russian /a/vibirat.html. ⚠ SLUG says 'Yaagaad' ('why'), TITLE says 'God's nature'."}
+      - {path: "/a/110Ezen.html",        rank: 4, score: 0.685, en: "'Show me God' — is God invisible, a hidden Lord? The flatland analogy: two-dimensional people on a paper cannot see you touching it. Answers the 'vague force somewhere' framing head-on. Twin of the Russian /a/gdyebog.html."}
+      - {path: "/a/204Hen2.html",        rank: 6, score: 0.684, en: "'Who 2' — closes the cosmological series: the Eternal One cannot be found by us, so to be known he must 'limit' himself. Exactly why an impersonal force is the wrong picture. ⚠ Title is literally the two characters 'Who 2'."}
+    rejected:
+      - {path: "/a/601Emgenelt.html", rank: 3, why: "the disaster article again. Its opening does ask 'Who is God?' and answer it — that is the boilerplate-style overlap, not its subject. Credited to case 3."}
+      - {path: "/a/100erdemted.html", rank: 6, why: "credited to case 1 — evidence FOR God, not what God is like"}
+      - {path: "/a/710Boorhanig.html", rank: 7, why: "credited to case 9 — which God you call on, not what he is like"}
+    swapped_after_engine_check:
+      - {dropped: "/a/104Hen.html", added: "/a/204Hen2.html", why: "Round 1 credited /a/104Hen.html ('Who', part 3 of the series) and it missed the top 10 while /a/204Hen2.html sat uncredited at rank 5. Re-reading both settled it on CONTENT, not on the score: 104 argues the Eternal Something must be self-sufficient and greatest — a god-exists argument. 204 asks what that One must do to be knowable — a know-god argument. The swap corrects a misassignment the check exposed."}
+
+  # ── 3 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esmn-skeptic-osol"                   # topic: suffering
+    persona: skeptic
+    q: "Өнгөрсөн жил найз маань осолд орж нас барсан. Сайн Бурхан байдаг юм бол яагаад үүнийг зөвшөөрсөн юм бэ гэдгийг надад хэн ч тайлбарлаж чадахгүй байна."
+    en: "Last year my friend died in an accident. Nobody can explain to me why, if there is a good God, he allowed that."
+    top_score: 0.726
+    credits:
+      - {path: "/a/605Tegvel.html",    rank: 4, score: 0.697, en: "So why do bad things happen? — Stacy James. 'If God is always good and all-powerful, why doesn't he do something?' The ARGUMENT article. Twin of the Russian /a/steysi2.html."}
+      - {path: "/a/602Yaagaad.html",   rank: 5, score: 0.697, en: "Why is life so hard? — why cancer, why earthquakes that destroy whole cities. Twin of the Russian /a/pochemu.html."}
+      - {path: "/a/711Tagalzah.html",  rank: 6, score: 0.688, en: "Q/A: Why did God create people who would reject him? — the free-will theodicy; its own opening asks 'why does he allow suffering and testing?'. ADDED after round 1, where it sat uncredited at rank 6."}
+      - {path: "/a/603Bid.html",       rank: 8, score: 0.677, en: "What now? — from bereavement to healing. Opens 'have you faced a natural disaster, or a close friend leaving this world? Did you get an answer from God about why?' — the asker's exact situation."}
+      - {path: "/a/601Emgenelt.html",  rank: "NOT IN TOP 10", en: "Where is God when fear, natural disaster and grief come? Finding inner strength, reducing distress and fear. The estate's grief article. KEPT — see note."}
+      - {path: "/a/702Gayzovlon.html", rank: "NOT IN TOP 10", en: "Q/A: Doesn't the existence of suffering mean God doesn't care? — the asker's objection stated as the article's own question. Twin of the Russian /a/stradaniy.html, which retrieved at rank 6 there. KEPT."}
+    rejected:
+      - {path: "/a/607Naydvar.html",  rank: 1, why: "RANK 1 AND REJECTED. An HIV/haemophilia testimony — living hopefully with a terminal diagnosis. A title-and-score reviewer credits this; the text says it is a life story, not an answer to 'why did God allow it'. This document surfaced under FIVE of the ten topics in discovery — the strongest boilerplate-tail signal in the source."}
+      - {path: "/a/604Saa.html",      rank: 4, why: "Stacy James's paralysis testimony. Her ARGUMENT is /a/605Tegvel.html, which is credited; this is the story. Exactly the ru steysi1/steysi2 split."}
+      - {path: "/a/712Ovchniyg.html", rank: 2, why: "Q/A: why does God allow illness? Borderline — it is a genuine theodicy Q/A, but its subject is disease in the body and its answer is 'the Bible does not tell us why'. The asker lost someone in an accident. Rejected on subject; a reviewer could reasonably disagree."}
+      - {path: "/a/514Zalhmaar.html", rank: 7, why: "depression and suicidal thoughts — a different subject"}
+      - {path: "/a/608Daraa.html",    rank: 9, why: "what happens after death — the afterlife, not the problem of evil"}
+    note: |
+      TWO CREDITS DELIBERATELY MISS, and they are the measurement.
+      /a/601Emgenelt.html and /a/702Gayzovlon.html are the two documents in this source
+      whose SUBJECT is this question — grief, and 'does suffering prove God doesn't
+      care'. Both sit outside the top 10 while two personal testimonies
+      (/a/607Naydvar.html rank 1, /a/604Saa.html rank 4) sit above them. This case
+      scores 4/6 by design. Do not "fix" it by crediting the testimonies.
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "esmn-seeker-zorilgo"                 # topic: purpose
+    persona: seeker
+    q: "Өдөр бүр адилхан өнгөрч, эцэст нь юунд ч хүрэхгүй юм шиг санагддаг. Хүн ер нь юуны тулд амьдардаг юм бэ? Надад ямар нэг зорилго байх учиртай юу?"
+    en: "Every day passes the same and in the end it feels like it reaches nothing. What do people live for anyway? Am I supposed to have some purpose?"
+    top_score: 0.677
+    credits:
+      - {path: "/a/303Zhinhene.html",     rank: 1, score: 0.677, en: "Real life — three people who found satisfaction, acceptance and purpose. Opens with the man who reached the summit he had aimed his whole life at, and it was not enough."}
+      - {path: "/a/305Miniy.html",        rank: 4, score: 0.620, en: "What is my life's purpose? — the hammer parable: a hammer in a toolbox is not being what it is for. Twin of the Russian /a/smisl.html."}
+      - {path: "/a/302Oorchlogdson.html", rank: 5, score: 0.614, en: "The source of a changed life — Josh McDowell: 'Who am I? Why am I here in this world? Where am I going?' Twin of the Russian /a/istochnik.html and the Spanish /articulos/lafuente.html, both credited for this same question shape."}
+    rejected:
+      - {path: "/a/509Monhiyn.html", rank: 10, why: "⚠ WAS RANK 1 BEFORE THE REWORD, at 0.628. It is 'Eternal beauty' — a fashion model who discovered that focusing on outward looks is a trap. Its opening reflects on 'what have I become, looking back at my life', which is why it matched an emptiness question. Its subject is beauty and self-worth."}
+      - {path: "/a/500gyeroinoos.html", rank: "top-10 pre-reword", why: "'The way out of heroin' — its opening literally asks 'were these ten years of my life all wasted?'. An addiction testimony."}
+      - {path: "/a/704Yaagaad.html", rank: 9, why: "Q/A: why do I need God to be happy? — its asker OPENS by saying they have already found happiness. The opposite premise."}
+      - {path: "/a/608Daraa.html",   rank: 6, why: "'you're 18–24 at college — then what?' reads like a life-trajectory piece, but the subject is what happens after death"}
+      - {path: "/a/211Oyoooon.html", rank: 7, why: "an astrology/occult conversion testimony"}
+    reworded: |
+      REWORDED AFTER ROUND 1 — guardrail #8 §2.
+      v1: "Өдөр бүр орой болоход энэ өдөр юунд ч хүрсэнгүй юм шиг санагддаг.
+           Би яг юуны төлөө амьдарч байгаа юм бол?"    top 0.628
+      v1 was pure emotional emptiness with no purpose vocabulary, so it retrieved the
+      emptiness TESTIMONIES: /a/509Monhiyn.html (beauty) at rank 1,
+      /a/500gyeroinoos.html (heroin) at rank 5, /a/514Zalhmaar.html (suicide) at rank 10 —
+      while /a/305Miniy.html, the purpose article itself, was not in the top 10.
+      v2 keeps the emptiness but adds the actual question ("what do people live for —
+      am I supposed to have a purpose?"). Result: 0.628 → 0.677, still clear of 0.75,
+      and all three credits now retrieve (305 enters at rank 4, 303 climbs 2 → 1).
+      This is the mirror image of case 1: there the reword lowered the score, here it
+      raised it. In both, what moved was WHICH DOCUMENT came back.
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "esmn-seeker-tvgshvvr"                # topic: anxiety
+    persona: seeker
+    q: "Онцгой болсон юм байхгүй атал би бараг байнга дотроо түгшиж, сандарч байдаг. Үүнд итгэл ямар нэгэн байдлаар тус болох уу?"
+    en: "Nothing particular has happened, yet I am anxious and on edge almost all the time. Can faith help with that in any way?"
+    top_score: 0.686
+    credits:
+      - {path: "/a/313Doroy.html",   rank: 2, score: 0.683, en: "Jesus: support for the weak — a Princeton student on being wrung out by coursework stress ('what use is putting hope in a dead carpenter?') and what changed"}
+      - {path: "/a/300amgalan.html", rank: 4, score: 0.681, en: "Peace in an unstable world — 'whatever happens in the future, you can be at peace and confident.' The estate's peace article; twin of the Russian /a/pokoy.html."}
+    rejected:
+      - {path: "/a/306Ezen.html",       rank: 1, why: "RANK 1 AND REJECTED — it is the prayer article, credited to case 8. Its closing section on 'unanswered' prayer and God's care is what matched."}
+      - {path: "/a/500gyeroinoos.html", rank: 5, why: "🔴 BOILERPLATE TAIL — a heroin-addiction testimony"}
+      - {path: "/a/500gyeilyesbi.html", rank: 6, why: "🔴 BOILERPLATE TAIL — 'Gay, lesbian people and God's love'. Precisely the §0.9 specimen: an article on sexuality retrieving for an anxiety question because of the shared closing gospel-summary chunk."}
+      - {path: "/a/514Zalhmaar.html",   rank: 7, why: "depression and suicidal thoughts — a different clinical subject from free-floating anxiety, and the same call ru made on /a/sigaretoy.html"}
+      - {path: "/a/601Emgenelt.html",   rank: 10, why: "its TITLE contains 'reducing distress and fear', but its OPENING is entirely 'where is God when trouble comes'. It is the grief article; credited to case 3, not here. Judged on the opening, per §0.9."}
+      - {path: "/a/309Hetih.html",      rank: "not returned", why: "'Overload and the class timetable' — practical time-management for a university course load. The asker says nothing in particular has happened."}
+    content_gap: |
+      🟡 `everystudent-mn` HAS NO CHRONIC-ANXIETY ARTICLE. Russian has one
+      (/a/chakr.html — a woman's account of years of anxiety, depression, Buddhism, yoga
+      and a USD200 energy-healing course) and Bulgarian has one ("How do we cope with
+      anxiety?"). Mongolian's only two anxiety-adjacent articles are both ACADEMIC
+      STRESS pieces (/a/309Hetih.html, /a/313Doroy.html), and the credited
+      /a/300amgalan.html is the general peace article. This case is the thinnest in the
+      suite at 2 credits and it is a corpus-composition fact, not a retrieval defect.
+
+  # ── 6 ────────────────────────────────────────────── newcomer ⚠ SEE NOTE
+  - id: "esmn-newcomer-zagalmai"              # topic: jesus-death
+    persona: newcomer
+    q: "Христэд итгэгчид Есүсийн үхлийг маш чухалчилдаг нь ойлгомжтой. Гэхдээ Түүний үхэл яг юуг өөрчилсөн юм бэ гэдэг нь надад ойлгогдохгүй байна."
+    en: "It is clear Christians treat Jesus' death as very important. But I do not understand what exactly his death changed."
+    top_score: 0.703
+    credits:
+      - {path: "/a/717Itgeh.html",     rank: 3, score: 0.662, en: "Q/A: what does it mean to 'believe' in Jesus? — 'we must grasp that Jesus died for our sins… what he did on the cross is the ONLY way our sins are forgiven.' The atonement taught as the answer's substance."}
+      - {path: "/a/401Yertontsiy.html", rank: "NOT IN TOP 10", en: "Knowing God personally — the Four Spiritual Laws in Mongolian, with the cross as the bridge across the gap our own effort cannot cross. The Mongolian twin of the Chinese /a/personally.html and the Russian /a/uznat.html. KEPT — see note."}
+    rejected:
+      - {path: "/a/201Moohar.html",       rank: 1, why: "RANK 1 AND REJECTED, and it is a TITLE TRAP. Title: 'What made Jesus special? From the story of Jesus' life…'. Body: Paul E. Little, 'More than blind faith — is Jesus really God? The historical facts about Jesus Christ are not superstition'. Its subject is Jesus' deity and historicity, not what his death accomplished."}
+      - {path: "/a/302Oorchlogdson.html", rank: 2, why: "🔴 BOILERPLATE TAIL — the Josh McDowell testimony, credited to case 4"}
+      - {path: "/a/206Yesys.html",        rank: 5, why: "BORDERLINE, considered carefully. Its body does state 'Jesus paid the price for sin on the cross, so our sins are forgiven and we are freed from eternal death' — a real atonement paragraph. But its OPENING, and therefore its subject, is 'How is Jesus different from the world religions?'. Credited to case 9, per §0.9's judge-on-the-opening rule."}
+      - {path: "/a/718Bidend.html",       rank: "not returned", why: "Q/A: what does Jesus offer us? — a list of benefits (light, satisfaction, eternal life). What he gives, not what his death did."}
+      - {path: "/a/203Arvan.html",        rank: 6, why: "why the twelve disciples faced death — resurrection evidence, a different argument"}
+      - {path: "/a/601Emgenelt.html",     rank: 4, why: "the disaster article, a fourth topic in which it surfaces"}
+    reworded: |
+      🔴 A REWORD WAS TESTED IN ROUND 2 AND REVERTED — it is worth keeping because it is
+      the clearest paraphrase smell the campaign has produced.
+      v2: "Есүс бидний оронд үхсэн гэж хэлдэг. Гэхдээ яагаад хэн нэгэн үхэх ёстой байсан
+           юм бэ? Бурхан зүгээр л уучилж болоогүй юм уу?"
+          ("They say Jesus died in our place. But why did anyone have to die? Could God
+           not have just forgiven?")                          → top 0.751 🔴 SMELL
+      That last clause restates /a/724Herev.html's own opening almost word for word
+      ("Бурхан үнэхээр нүглийг өршөөдөг л юм бол … зүгээр л уучилж болдоггүй юм уу?"),
+      so the engine returned /a/711Tagalzah.html 0.751, /a/701Ezeniyg.html 0.746 and
+      /a/724Herev.html 0.733 — three "why doesn't God just forgive" Q/As — and BOTH
+      credits fell out of the top 10, including /a/717Itgeh.html which v1 had at rank 3.
+      The reword cost a credit AND tripped the smell. v1 is kept unchanged.
+      ⚠ NOTE FOR OTHER SUITES: this v2 wording is almost exactly what `bg` used
+      successfully (`esbg-newcomer-krast`). It works there because Bulgarian HAS a
+      crucifixion article to land on. The same phrasing on a source that lacks one just
+      finds the forgiveness Q/As. Phrasing is not portable across sources.
+    content_gap: |
+      🟡 `everystudent-mn` HAS NO ARTICLE WHOSE SUBJECT IS THE ATONEMENT — no
+      "why did Jesus die" / "the crucifixion" page. This is the THIRD language to show
+      it (Chinese /a/personally.html at rank 15 in Part A, Russian `esru-newcomer-krest`
+      with both credits missing in §0.10). Mongolian is the least bad of the three:
+      /a/717Itgeh.html is a Q/A whose ANSWER is the atonement, and it retrieves at rank 3,
+      so this case scores 1/2 rather than the Russian 0/2.
+      /a/401Yertontsiy.html is KEPT AND EXPECTED TO MISS for the same reason
+      /a/personally.html was kept in Part A: it is the document that actually answers,
+      and crediting a boilerplate tail instead is the exact error the finding is about.
+      ⓘ Bulgarian remains the control (§0.11): it has a crucifixion article and returns
+      it at rank 3, so this is corpus composition, not a systemic retrieval defect.
+
+  # ── 7 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esmn-skeptic-bibli"                  # topic: bible-trust
+    persona: skeptic
+    q: "Библийг мянга мянган жилийн өмнө бичээд, гараар хуулж ирсэн гэдэг. Тэгээд одоо байгаа зүйл нь анхных нь хэвээрээ гэдгийг хэн яаж мэдэх юм бэ?"
+    en: "They say the Bible was written thousands of years ago and copied by hand. So how does anyone know what we have now is still what it originally was?"
+    top_score: 0.683
+    credits:
+      - {path: "/a/722Bibliyn.html", rank: 1, score: 0.683, en: "Q/A: what does it mean that the Bible is God-breathed? — how the Bible came to be written: God chose people across history, Moses for the first five books, Isaiah, Jeremiah, then Matthew, Mark, Luke and John for Jesus' life. The nearest thing this source has to a 'where the Bible came from' article."}
+      - {path: "/a/714Yneheer.html", rank: 4, score: 0.617, en: "Q/A: how do we know Jesus really lived? — Tacitus (AD 55–120) on Christus executed under Pontius Pilate, and Josephus. The external-corroboration answer."}
+    rejected:
+      - {path: "/a/209Shashintnig.html", rank: 2, why: "God's love for Muslims — a Pakistani man's conversion testimony that quotes the Zabur and Injil as the Qur'an names them. §0.7 records that Muslim-context sites answer bible-trust with Islam articles; here it is a testimony, not that argument. Rejected on the text."}
+      - {path: "/a/729Shinzhleh.html",   rank: 3, why: "Q/A: science and the Bible — a different objection (science, not transmission). Same call ru made on /a/razvye.html."}
+      - {path: "/a/730Boosin.html",      rank: 10, why: "Q/A: did the Bible's miracles really happen? — a different objection again"}
+      - {path: "/a/732Adam.html",        rank: 9, why: "Q/A: were Adam and Eve real? — historicity of one narrative, not textual transmission"}
+      - {path: "/a/201Moohar.html",      rank: 5, why: "the Paul Little historicity piece — evidence for Jesus, not for the text"}
+    content_gap: |
+      🟡 `everystudent-mn` HAS NO MANUSCRIPT-TRANSMISSION ARTICLE. Russian has
+      /a/bibliya.html ("why the Bible is worth trusting — the history of how it was
+      written and why we can trust the one that reached us") and Bulgarian has its twin.
+      Mongolian carries neither. The two credits above are the honest best available:
+      one on how the Bible was composed, one on non-biblical evidence for Jesus.
+      Neither addresses hand-copying. This case retrieves 2/2, so the eval will report
+      it as healthy — the weakness is in the ANSWER KEY's ceiling, not in retrieval,
+      and a reviewer should know that before reading the number.
+
+  # ── 8 ──────────────────────────────────────────────────────────── believer
+  - id: "esmn-believer-chimeegvi"             # topic: prayer
+    persona: believer
+    q: "Би нэг л зүйлийн төлөө хэдэн сар залбирсаар байна, гэтэл ямар ч хариу алга. Би ямар нэг зүйлийг буруу хийж байна уу?"
+    en: "I have been praying for the same thing for months and there is no answer at all. Am I doing something wrong?"
+    top_score: 0.535                          # lowest in the suite, still well clear of the 0.37 floor
+    credits:
+      - {path: "/a/306Ezen.html", rank: 1, score: 0.535, en: "Prayers God answers — what is prayer, how to pray, and its own section on 'unanswered' prayer: 'so why doesn't God answer everyone's prayer?'. The only prayer article in the source. Twin of the Russian /a/molitvi.html and the Spanish /articulos/oraciones.html, both credited for this same question shape."}
+    rejected:
+      - {path: "/a/701Ezeniyg.html", rank: 2, why: "Q/A: what if I turn God down? — about rejecting God, not about God's silence"}
+      - {path: "/a/505Izhil.html",   rank: 3, why: "🔴 BOILERPLATE TAIL, and the clearest one in the suite: 'Am I homosexual?' returning at 0.487 for a question about unanswered prayer. Exactly the §0.9 template effect."}
+      - {path: "/a/607Naydvar.html", rank: 6, why: "🔴 BOILERPLATE TAIL — in discovery this document's matched chunk for the prayer topic was literally the closing invitation prayer ('Lord Jesus, I need you…'). Evidence about the template, not the document."}
+      - {path: "/a/710Boorhanig.html", rank: "not returned", why: "does it matter which God you pray to? — the object of prayer, not unanswered prayer. Same call ru made on /a/imyeyet.html."}
+    note: |
+      ONE CREDIT IS THE HONEST ANSWER KEY, not an oversight. `everystudent-mn` publishes
+      exactly one article on prayer. `ru` was the same shape (1 credit) and scored 1/1.
+      The 0.535 top score is the lowest in the suite — no other question in this source
+      is answered by so narrow a shelf — but it is comfortably above the 0.37 cutoff and
+      the right document is rank 1.
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "esmn-skeptic-ijil"                   # topic: religions
+    persona: skeptic
+    q: "Буддизм, Лал, Христ шашин — надад бүгд өөр өөр үгээр нэг л зүйлийг ярьж байгаа юм шиг санагддаг. Үндсэн ялгаа нь юу вэ?"
+    en: "Buddhism, Islam, Christianity — to me they all seem to say one and the same thing in different words. What is the fundamental difference?"
+    top_score: 0.738                          # highest in the suite, clear of 0.75
+    credits:
+      - {path: "/a/200kholbogdokh.html", rank: 1, score: 0.738, en: "Connecting with the Divine One — Marilyn Adamson. Subtitle: 'Hinduism, Buddhism, Islam, Christian faith and the New Age', each with its concept of God, then how Jesus' teaching differs. This is the estate's /a/205 world-religions piece — the same article as the German /artikel/hochsten.html, the Russian /a/soyed.html and the French /a/205divin.html."}
+      - {path: "/a/206Yesys.html",       rank: 2, score: 0.650, en: "How is Jesus different from the world religions? — 'unlike other religions where each tries to reach their god their own way, in Jesus Christ God reaches us'"}
+      - {path: "/a/213Zaan.html",        rank: 9, score: 0.538, en: "Is God an 'ELEPHANT'? — David A. Horner on the four blind men and the elephant, the analogy used to argue every religion describes the same God, and why it fails. Attacks the asker's premise directly. Twin of the Russian /a/slon.html. 🔴 TITLE TRAP: the stored title is 'Where does this widespread commonality come from?'"}
+      - {path: "/a/710Boorhanig.html",   rank: "NOT IN TOP 10", en: "Does it matter which God you call on? — 'Hindu, Latter-day Saints, Jesus, Allah — people say it makes no difference, they all pray, right?' The asker's premise as the article's own opening question. KEPT — see note."}
+    rejected:
+      - {path: "/a/101Yertontsiyn.html", rank: 3, why: "credited to case 1 — whether God exists, not how the religions differ"}
+      - {path: "/a/302Oorchlogdson.html", rank: 4, why: "🔴 BOILERPLATE TAIL — the Josh McDowell testimony, credited to case 4"}
+      - {path: "/a/209Shashintnig.html", rank: 5, why: "a Muslim-background conversion testimony. Borderline for this topic; rejected because its subject is one man's story."}
+      - {path: "/a/723Katolik.html",     rank: 6, why: "Catholic vs Christian — an intra-Christian question. Same call ru made on /a/katolikom.html."}
+      - {path: "/a/211Oyoooon.html",     rank: 7, why: "astrology, the occult and the paranormal — a testimony about leaving them"}
+      - {path: "/a/218Zhinhene.html",    rank: 8, why: "'which Jesus is the real one?' — media portrayals of Jesus, not a comparison of religions"}
+      - {path: "/a/500gyeilyesbi.html",  rank: 10, why: "🔴 BOILERPLATE TAIL — the gay/lesbian article, its fourth appearance across this suite's top-10 lists"}
+      - {path: "/a/724Herev.html",       rank: "not returned", why: "Q/A: why doesn't God forgive people sincerely devoted to 'false' gods? — a fairness/judgment question, not a comparison of claims"}
+      - {path: "/a/610Yhliyn.html",      rank: "not returned", why: "reincarnation and karma — one specific doctrine, and its subject is the afterlife"}
+    dropped_after_engine_check:
+      - {path: "/a/716Gants.html", why: "'Q/A: Is Jesus the only way? Isn't it naive to believe there is only one truth?' — credited in round 1, missed the top 10, and DROPPED rather than kept. On reflection its subject is the exclusivity objection, which is the NEXT question, not this one. (The Russian suite credited its twin /a/put.html; that was a defensible different call on a source where it retrieved.)"}
+    note: |
+      /a/710Boorhanig.html IS KEPT DESPITE MISSING. Its opening is the asker's premise
+      almost verbatim — "they all pray, don't they? Are they all the same?" — and it
+      names Hindu, Latter-day Saints, Jesus and Allah. It is a well-connected document
+      that reaches the top 10 for THREE OTHER cases in this suite (rank 2 for
+      god-exists in round 1, rank 7 for know-god, rank 8 for trinity) and misses on the
+      one topic it is actually about. That is a finding worth measuring, not hiding.
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "esmn-newcomer-gurav"                 # topic: trinity
+    persona: newcomer
+    q: "Сүмд нэг удаа очиход Эцэг, Хүү, Ариун Сүнс гэж тус тусад нь нэрлээд байсан. Тэгэхээр Христэд итгэгчид нэгээс олон бурхныг шүтдэг юм уу?"
+    en: "I went to a church once and they named the Father, the Son and the Holy Spirit separately. So do Christians worship more than one god?"
+    top_score: 0.709
+    credits:
+      - {path: "/a/709Goorval.html", rank: 1, score: 0.709, en: "Q/A: can you explain the Trinity? — 'three Gods or one?', answered with the three-dimensions analogy"}
+      - {path: "/a/708Arioon.html",  rank: 2, score: 0.702, en: "Q/A: who is the Holy Spirit? — a real Person who came to live in Jesus' followers, 'another Helper' sent by the Father"}
+    rejected:
+      - {path: "/a/302Oorchlogdson.html", rank: 3, why: "🔴 BOILERPLATE TAIL — the Josh McDowell testimony again"}
+      - {path: "/a/201Moohar.html",       rank: 4, why: "the Paul Little historicity piece"}
+      - {path: "/a/500gyeilyesbi.html",   rank: 6, why: "🔴 BOILERPLATE TAIL — the gay/lesbian article, ranked 6th for a question about the Trinity"}
+      - {path: "/a/722Bibliyn.html",      rank: 7, why: "credited to case 7 — inspiration of scripture"}
+    dropped_after_engine_check:
+      - {path: "/a/202Yesys.html", why: "'Did Jesus claim to be God? Is Jesus God?' — credited in rounds 1–2, missed the top 10, and DROPPED. Its subject is whether Jesus claimed deity, an apologetic aimed at a skeptic; the asker here is not disputing that Christians call Jesus God, they are asking how that is not three gods. Matches the Russian suite's two-credit shape (/a/troitsu.html + /a/svyatoyduh.html)."}
+    note: |
+      The question deliberately uses the "something I noticed at a service" framing
+      rather than the doctrinal formula. The §0.10 Russian trinity case scored 0.807 —
+      a paraphrase smell — because it stated the formula and thereby restated the
+      article's own opening. This phrasing came in at 0.709 on the first attempt with
+      the right document at rank 1, so no reword was needed.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 30 credits · 30 DISTINCT documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Paraphrase smells: 0 (max top score 0.738, on the world-religions case)
+# Lowest top score: 0.535 (prayer) — well clear of the 0.37 cutoff
+# Credits that do not retrieve: 5, on four cases, every one a deliberate keep:
+#     esmn-skeptic-notolgoo  /a/100boditoi.html      (3/4)
+#     esmn-skeptic-osol      /a/601Emgenelt.html, /a/702Gayzovlon.html  (4/6)
+#     esmn-newcomer-zagalmai /a/401Yertontsiy.html   (1/2)
+#     esmn-skeptic-ijil      /a/710Boorhanig.html    (3/4)
+# Expected recall@10 if the answer keys are correct: 25/30 = 0.833 coverage,
+#     recall@10 = 1.000 (every case returns at least one credit).
+#
+# ⚠️ THE BOILERPLATE-TAIL TRAP FIRED ON THIS SOURCE HARDER THAN ON ru OR bg.
+# Rank-1 hits REJECTED on the text: /a/607Naydvar.html (an HIV testimony) for the
+# bereavement question; /a/306Ezen.html (the prayer article) for the anxiety question;
+# /a/201Moohar.html (Jesus' historicity) for the cross question; /a/213Zaan.html
+# (world religions) for the does-God-exist question; /a/509Monhiyn.html (beauty) for
+# the purpose question before its reword. Two documents recur across the whole suite
+# as tails: /a/500gyeilyesbi.html ("Gay, lesbian people and God's love") appeared in
+# FOUR different cases' top 10, and /a/607Naydvar.html surfaced under FIVE of the ten
+# discovery topics.
+#
+# ⚠️ FOUR TITLE / SLUG TRAPS ON THIS SOURCE, the estate's fourth through seventh:
+#   /a/213Zaan.html   title "Where does this widespread commonality come from?"
+#                     → body IS "Is God an elephant?", the world-religions piece
+#   /a/201Moohar.html title "What made Jesus special?"
+#                     → body is Paul Little's historical-evidence-for-Jesus'-deity essay
+#   /a/109Yertontsiyn.html  slug says "of the universe" → article is "Who is God?"
+#   /a/107Yaagaad.html      slug says "why", title says "God's nature"
+#                     → body is "Why choose the God of the Bible?" + six attributes
+#   Plus three articles whose titles are single words and carry no information at all:
+#   /a/103Yamar.html ("Something"), /a/104Hen.html ("Who"), /a/204Hen2.html ("Who 2") —
+#   the four-part cosmological series. Titles are unusable as evidence on this estate,
+#   and on Mongolian the SLUGS are unusable too.
+#
+# ⚠️ THREE CONTENT GAPS — topics `everystudent-mn` genuinely cannot answer well:
+#   anxiety      no chronic-anxiety article; both stress pieces are about coursework
+#   jesus-death  no article whose subject is the atonement (third language to show this)
+#   bible-trust  no manuscript-transmission article; the credits are the best available
+# All three are corpus-composition facts. None is a retrieval defect and none is fixable
+# by rewording.
+#
+# FOR THE OPERATOR TO DECIDE
+#   1. Approve or reject the five deliberate misses. Each is argued at its case.
+#   2. Confirm `evidence_tier: llm-translated` (no Mongolian speaker has read these).
+#   3. Case 5 (anxiety) carries only 2 credits and case 8 (prayer) only 1, both because
+#      the source has nothing more. Accept the thin keys, or drop those topics for `mn`.

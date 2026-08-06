@@ -21,7 +21,7 @@
  * for knowledge we already hold, so the mapped inventory is lifted here
  * directly. `sitemaps` is intentionally absent.
  *
- * **117 seeds from the 167 mapped.** Dropped as non-article chrome: the
+ * **116 seeds from the 167 mapped.** Dropped as non-article chrome: the
  * homepage, `/contact.php`, `/donate`, `/quiz`, `/sitemap.html`, the bare
  * `/podcasts` index, 10 `/menus/*` section indexes, and the two `search.html`
  * pages. Dropped as DUPLICATES: all 32 `/podcasts/*` pages — each is an audio
@@ -198,7 +198,17 @@ export const everystudent: SourceEntry = {
       "/wires/universe.html",
       "/wires/value-of-philosophy.html",
       "/wires/who-is-god.html",
-      "/wires/who-was-jesus.html",
+      // "/wires/who-was-jesus.html" — REMOVED 2026-08-06. 22,465 chars of
+      // curated highlights from the Gospel of John, carrying this estate's own
+      // formula: "excerpts straight from the Gospel of John … no commentary
+      // added". Because it is predominantly Bible-translation text, it stays
+      // quarantined until its translation, rights holder, reuse terms, and
+      // required attribution are known and representable. The same temporary
+      // rule covers the full Gospel-of-John pages and the Arabic sibling's
+      // /bible/**.pdf files. All 13 copies across the estate went
+      // together (campaign #111 §0.13). A `block` rule would be dead config
+      // here — `block` filters DISCOVERED urls and this is a seed-only source,
+      // so removing the seed is the only thing that works.
       "/wires/why-did-jesus-die.html",
       "/wires/will-God-forgive-me.html",
     ],
@@ -227,7 +237,7 @@ export const everystudent: SourceEntry = {
     ],
     // Firecrawl fronts every request; a scrape already takes seconds.
     requestDelayMs: 1000,
-    maxPages: 200, // 117 seeds + headroom
+    maxPages: 200, // 116 seeds + headroom
     minContentLength: 250,
   },
 };

@@ -1,0 +1,361 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-et` (46 documents, tudengielu.net).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 46 ÷ 8 = 5.75 → 5 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — the §0.7 five-case row.
+# Questions authored IN ESTONIAN, not translated from the English menu (§0.6).
+#
+# ── CORPUS SHAPE — read this before judging any hit ──────────────────────────
+#   46 documents, ALL of them `/a/*.html` articles. **ZERO `/story/` testimonies —
+#   0% testimony share.** That is the lowest in the estate alongside `pt`, and §0.12
+#   predicts the consequence exactly: the boilerplate tail is present but WEAK. No
+#   case in this suite has a tail at rank 1.
+#   The corpus is also unusually SHORT-TAILED: 30 of the 46 documents are 1.1k–4.8k
+#   char `KKK:` (FAQ) pages. Only six documents exceed 14k chars. A five-case suite
+#   on a 46-doc source therefore has thin answer keys by construction, not by
+#   sloppiness — most topics here are carried by ONE long article plus one FAQ page.
+#
+#   ⚠️ THIS SOURCE'S TAIL MAGNET IS AN ARTICLE, NOT A TESTIMONY. With no `/story/`
+#   pages, the role `/story/Atti.html` plays on `hu` is played here by
+#   `/a/elumuutuste.html` (Josh McDowell's changed-life article, 14.3k). It appears
+#   in the top 10 of FOUR of the five cases and was RANK 1 for both skeptic
+#   questions before they were reworded. It is credited to exactly one case
+#   (`purpose`), where its subject actually lies.
+#
+# ── HAZARDS (from .tmp-diag/phase5-openings.ts) ──────────────────────────────
+#   ✅ every path resolves to exactly one document — 46/46
+#   ✅ no null-language documents — 0 of 46. The seven Estonian documents that sat
+#      null-language before the 2026-07-31 sweep are labelled `et` and VERIFIED here.
+#   ✅ no duplicate titles (the hazard that bit `bg` and `ja` does not exist here)
+#   ⚠️ 1 document under 1,200 chars: `/a/sattusime.html` (1,114). It is NOT a pure
+#      tail — see case 1, where it is credited and the full text is quoted.
+#   ⓘ `.contentleftpadding` container (unique in the estate): NO truncation or
+#      padding artifact found. Openings are clean prose from the first sentence,
+#      character counts are consistent with body length, and the 27.5k
+#      `/a/piibel.html` is intact through manuscripts, archaeology and prophecy.
+#      Nothing to report against the extractor.
+#
+# ── DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-et et ─────────
+#   → 29 distinct candidate documents of 46. All 46 openings were then read from
+#     the database before anything was credited (guardrail #5).
+#
+# ── ENGINE-CHECKED FOUR ROUNDS — .tmp-diag/phase5-check.ts et et ─────────────
+#   Round 1: 0 smells · 1 credit not in top 10 · max top score 0.713
+#   Round 2: 0 smells · 0 credits not in top 10 · max top score 0.713
+#   Round 3: 0 smells · 1 credit not in top 10 · max top score 0.713
+#   Round 4: 0 smells · 2 credits not in top 10 · max top score 0.713  ← WORST, reverted
+#   Final:   0 smells · 0 credits not in top 10 · max top score 0.713
+#   Round 2 was already "clean" and I ran two more anyway, because of §0.12 failure
+#   mode #6: in round 2 case 1 returned both credits at ranks 9 and 10 — a survival,
+#   not an answer. The full four-round wording log for that case is in `reworded:`.
+#
+# ── MECHANICAL CHECKS — run inside the check script so they cannot be skipped ──
+#   Guardrail #8 §3: all 12 credited paths resolve to EXACTLY ONE document — 12/12.
+#   Guardrail #3a:   no credited document has a null language — 12/12.
+#
+# ── TOPICS: 5 of the §0.7 ten used, 5 dropped ────────────────────────────────
+#   USED     god-exists · religions · trinity · purpose · bible-trust
+#   DROPPED — 2 are CONTENT GAPS (this source does not carry them):
+#     `jesus-death` 🔴 NO DEDICATED ATONEMENT ARTICLE. Confirmed by discovery and by
+#        reading all 46 openings. The cross is stated in PASSING inside other
+#        articles — `/a/religioonidel.html` ("being God, he paid our debt… on the
+#        cross he bore all our sins"), `/a/usaldamine.html` ("what does trusting
+#        Jesus mean"), `/a/jolka.html` (the Four-Laws tract) — but no document's
+#        SUBJECT is what the death accomplished. Estonian joins `ru`, `zh-cn` and
+#        `mn` as the FOURTH source in this class; §0.12 settled that this is corpus
+#        composition, so it is recorded and not re-opened.
+#     `prayer`      🔴 NO PRAYER ARTICLE AT ALL. Discovery returned exactly one
+#        candidate for the prayer question — `/a/hingerahu.html` at 0.451, matched on
+#        its gospel tail ("he was executed on the cross in our place"). Nothing on
+#        this source addresses unanswered prayer. This is why the believer case rides
+#        `bible-trust` instead: the §0.7 believer topic does not exist here.
+#   DROPPED — 3 are DISCRETIONARY (carried, but the shelf is thinner than the five kept):
+#     `know-god`  — one article, `/a/keson.html` (3.8k, the six-attributes piece).
+#     `anxiety`   — one article, `/a/hingerahu.html` (15.6k), which is also this
+#        source's broadest document (it surfaced under FIVE of the ten topics in
+#        discovery). A one-credit case on the corpus's least-specific article
+#        measures little. See the SUMMARY: I recommend it as the first case to add
+#        if the operator wants six.
+#     `suffering` — carried only by 2.2k–3.5k FAQ pages (`/a/kurjus.html`,
+#        `/a/lukkab.html`, `/a/armastav.html`); no dedicated pain/tragedy article
+#        like the Hungarian `/a/faj.html`.
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Estonian. This is
+#   a fact about the REVIEWER, not the language. If anyone on the team reads Estonian,
+#   it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────── skeptic · the hardest case in this suite
+  - id: "eset-skeptic-valjamoeldud" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Minu sõpruskonnas peetakse usku puhtaks soovmõtlemiseks – millekski, mille inimene endale ise välja mõtleb. Kas selle poolt on midagi asjalikku tuua? Kas universumi ehitusest või ajaloost saab midagi järeldada, või jääb see lõpuks ikkagi tunde peale?"
+    en: "In my circle of friends, faith is regarded as pure wishful thinking — something a person invents for themselves. Is there anything substantial to be offered for it? Can anything be concluded from the make-up of the universe or from history, or does it in the end still come down to feeling?"
+    credits:
+      - { path: "/a/olemas.html", en: "'Does God exist? Six reasons to believe God exists' (Marilyn Adamson, 16.8k) — this source's flagship apologetics article. Opens: 'Would you not like someone, just once, to show you evidence for God's existence? No arm-twisting. No claims that you simply have to believe.' Then the moon-landing-denier analogy, then design in the universe: 'the more science discovers about human life and the universe, the clearer it becomes how complex and detailed their design is.' Answers the fact-versus-feeling question head-on.", rank: 3, score: 0.537 }
+      - { path: "/a/sattusime.html", en: "FAQ: 'Did we end up here by chance?' — the cosmological half of the question. 'It is impossible for something to arise from absolutely nothing, however many billions of years there are for it, because time itself causes nothing… the sum of chance and time is not a sufficient explanation. To say we got here by chance requires far more faith than believing in an Intelligent Creator.' ⚠️ 1,114 chars, below the script's 1,200 watch line — SEE THE NOTE, it is not a pure tail.", rank: 2, score: 0.572 }
+    note: |
+      ⚠️ THE ONE UNDER-1,200-CHAR CREDIT IN THIS SUITE, AND WHY IT IS NOT A PURE TAIL.
+      Failure mode #2 says never credit a 476–809 char page that is only a video promo
+      plus the invitation prayer. `/a/sattusime.html` is not one. Its full text was read
+      from the database: 1,114 chars of which ~1,050 are the argument quoted above
+      (the "flying polar bear" illustration and all). There is no video promo and no
+      invitation prayer — the only tail residue is a single trailing LINK line,
+      "Kuidas alustada suhet Jumalaga" ("How to begin a relationship with God"). The
+      check script will still WARN on the length; the warning is correct to raise and
+      wrong to act on here. OPERATOR MAY OVERRIDE — dropping it leaves the case with
+      one credit at rank 3, which is still a valid case.
+
+      ⓘ IT ALSO SHOWS WHAT ESTONIAN DID NOT LOCALISE. This FAQ closes by pointing the
+      reader to "Was there ever nothing?" — **in English, untranslated**. That is the
+      first article of the *Nothing → Something → Who → Who 2* four-part cosmological
+      series which §0.12 lists as a SYSTEMATIC title trap across `hu` `pl` `mn` `sk`
+      `pt` `es` `fa` `cs`. Estonian carries only this one-page FAQ digest of it and
+      links out to the English original. **The four-part title trap does not exist on
+      this source** — one fewer hazard, and a data point on how far localisation went.
+    reworded: |
+      ⚠️ REWORDED THREE TIMES, AND ROUND 4 WAS THE WORST. Recording all four, because
+      the pattern is the clearest specimen of failure mode #5 in this suite.
+      v1: "…millekski, mille inimesed on endale ise välja mõelnud, SEST NII ON LIHTSAM
+           ELADA. Kas selle taga on ka midagi, mida saaks päriselt kontrollida…"
+           ("…because it makes life easier…")
+           → top 0.574, no smell, but `/a/olemas.html` at rank 9 and `/a/enamat.html`
+           out entirely. The "makes life easier" clause is the FAITH-AS-A-CRUTCH
+           framing §0.12 warns about, and the top six came back accordingly:
+           rank 1 `/a/janu.html` (alcohol and real friendship), rank 3
+           `/a/elumuutuste.html`, rank 4 `/a/ilu.html` (a fashion model on self-worth),
+           rank 6 `/a/vabaks.html` (EATING DISORDERS). Emotional framing retrieved
+           emotional documents; every apologetics article fell to the bottom.
+      v2: dropped the coping clause, asked for "kontrollitav alus – midagi ajaloost või
+           maailmast endast" ("checkable grounds — from history or the world itself").
+           → top 0.622, no smell, BOTH credits returned — but at ranks 9 and 10.
+           A clean round that had not actually answered the question (#6). The word
+           "kristluse" ("Christianity's claims") pulled the comparative-religion shelf
+           up instead: `/a/kuidas.html` rank 2, `/a/juurde.html` rank 3.
+      v3 (KEPT): drops "kristluse", names the two grounds concretely as "universumi
+           ehitus" (the make-up of the universe) and "ajalugu", and restores the menu's
+           "soovmõtlemine" (wishful thinking).
+           → **`/a/olemas.html` rank 9 → rank 3, its best position in four rounds**,
+           and `/a/sattusime.html` arrives at rank 2. Cost: `/a/enamat.html` drops out
+           — see `dropped_after_engine_check`.
+      v4: same as v3 but with "universumi ehitusest" softened back to "maailmast
+           endast". → top 0.560, **BOTH credits out of the top 10**, rank 1
+           `/a/kuidas.html`, rank 2 `/a/ilu.html`. The concrete design noun is what
+           carries this article; removing it collapses the case. Reverted to v3.
+    dropped_after_engine_check:
+      - path: "/a/enamat.html"
+        why: >
+          "More than blind faith — the life of Jesus Christ. Was he the Son of God?" (Paul E. Little, 19.9k). It opens on exactly this question ("only if he takes the initiative and reveals himself can we know for certain whether God exists and what he is like… we must examine history"), which is why it was credited in rounds 1–4. But its SUBJECT is Jesus' life and deity; God's existence is its preamble, not its argument. It returned at rank 9 under v2 and outside the top 10 under v3 and v4. This is the same call `hu` made on `/a/hiten.html`, the Hungarian twin of this same Paul Little article, which `hu` also declined to credit for god-exists. Dropped — the engine is right.
+    rejected:
+      - { path: "/a/kuidas.html", rank: 1, why: "RANK 1 AND REJECTED — the world-religions article, credited to case 2. It reaches rank 1 on 'is there anything substantial' because its whole shape is comparative evaluation, but it does not argue that God exists." }
+      - { path: "/a/seks1.html", rank: 4, why: "'Is premarital sex wrong? Must we live a boring life?' at rank 4 for an evidence question. A boilerplate-tail match — and the only one in this suite that reaches the top 5." }
+      - { path: "/a/poole.html", rank: 5, why: "'Does it matter which God I call out to?' — its subject is praying to a god who may not exist, an adjacent but different question." }
+      - { path: "/a/hingerahu.html", rank: 6, why: "the peace/stress article — the source's broadest document, see the header" }
+      - { path: "/a/elevant.html", rank: 7, why: "credited to case 2" }
+      - { path: "/a/keson.html", rank: 8, why: "'Who is God' — the six-attributes article. It describes what God is like, presupposing he exists. This is the `know-god` answer, and the topic was dropped; see the header." }
+      - { path: "/a/kurjus.html", rank: 9, why: "the evil-and-suffering FAQ — a different objection" }
+      - { path: "/a/elumuutuste.html", rank: 10, why: "credited to case 4. It was RANK 1 for v2 of this question; this source's tail magnet." }
+    top_score: 0.576
+
+  # ── 2 ─────────────────────────────────────────── skeptic · the deepest key
+  - id: "eset-skeptic-nurgaalt" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "Mul on tuttavaid väga erineva usulise taustaga ja igaüks räägib omast sama veendunult. Mulle tundub, et nad kirjeldavad kõik lihtsalt sama asja eri nurga alt. Miks peaks kristlus siin midagi muud olema?"
+    en: "I know people from very different religious backgrounds and every one of them speaks about their own with the same conviction. It seems to me they are all just describing the same thing from a different angle. Why would Christianity be anything different here?"
+    credits:
+      - { path: "/a/elevant.html", en: "'Is God an elephant?' (David A. Horner) — the blind-men-and-the-elephant allegory, i.e. word for word the claim this question makes. Opens: 'a popular parable used to show that all religions can describe God adequately. Religious-studies lecturers especially love it, because it equalises all religions and shows their descriptions of God to be equally true.' Then dismantles it.", rank: 2, score: 0.653 }
+      - { path: "/a/juurde.html", en: "FAQ: 'Is Jesus the only way to God?' — the question it answers is this case's objection verbatim: 'Christianity is the RIGHT one — is that not naive?' Reply: 'Jesus said he is the Way, the Truth and the Life. Either he spoke the truth or he did not. If he spoke the truth, it is not naive to agree with him,' then that belief in Jesus is not a Western thing (the world's largest church is in South Korea). ⚠️ 1,496 chars and its first third is a pointer to /a/kuidas.html — a BOUNDARY credit, see the note.", rank: 3, score: 0.623 }
+      - { path: "/a/kuidas.html", en: "'How to find God — are all the world's religions really the same?' (Marilyn Adamson, 15.8k). Surveys Hinduism, the New Age, Buddhism, Islam and Christianity one at a time — what each is, what marks it out, what it offers a person — then sets Jesus' teaching against them. This is the estate's world-religions article (the twin of the Hungarian /a/istenkereses.html and the French /a/205divin.html) under a localised slug.", rank: 4, score: 0.619 }
+      - { path: "/a/religioonidel.html", en: "'Jesus and the world religions — what is the difference between Jesus' teaching and the world religions?' A point-by-point contrast: 'in contrast to religions that reach up toward God, with Jesus you see God stretching down to us'; 'no key figure of any world religion has been acknowledged as God.'", rank: 6, score: 0.596 }
+    note: |
+      ⚠️ TITLE TRAP, MILD BUT REAL — AND IT RUNS THE OPPOSITE WAY TO THE ESTATE NORM.
+      `/a/kuidas.html` carries TWO conflicting names. Its stored `title` is
+      "Hinduism, budism, islam, kristlus, New Age" — honest and machine-readable. Its
+      on-page H1 is "Kuidas leida Jumalat" ("How to find God"), and the slug follows
+      the H1. So a reviewer working from the URL files this under conversion, while a
+      reviewer working from the title field gets it right. The estate's usual trap is
+      the reverse (a contentless title over a substantive body); Estonian is the first
+      source in the campaign where the TITLE FIELD is the reliable half and the SLUG
+      is the misleading one. Credit by path and read the opening — both, as always.
+
+      ⓘ `/a/juurde.html` IS A BOUNDARY CREDIT. 1,496 chars — above the 1,200 line, so
+      the script does not warn — but roughly the first third is link furniture ("we have
+      an article about the main differences between the world religions… see the article
+      Kuidas leida Jumalat"). I credited it because the remaining two-thirds answer this
+      exact objection in this source's own words ("is that not naive?"), and because it
+      returns at rank 3 unprompted. OPERATOR MAY DROP IT: the case is a clean 3/3 without
+      it, at ranks 2, 4 and 6.
+    rejected:
+      - { path: "/a/elumuutuste.html", rank: 1, why: "RANK 1 AND REJECTED — Josh McDowell's changed-life article. Its 'Christianity is not a religion' passage and its church-hopping opening are why it matches; its subject is one man's search for meaning. Credited to case 4. This is this source's tail magnet, and this is the only place in the suite where it holds rank 1." }
+      - { path: "/a/katoliiklastel.html", rank: 5, why: "'Is there a difference between Catholics and Christians?' — an INTRA-Christian question, not a world-religions one. Same call `hu` made on /a/katolikus.html and `ru` on /a/katolikom.html. NOTE §0.12: this is the article Turkish got at rank 1 from the 'forgiveness of sins' trigger phrase; here it arrives on topic and is still not the answer." }
+      - { path: "/a/olemas.html", rank: 7, why: "credited to case 1" }
+      - { path: "/a/piibel.html", rank: 8, why: "credited to case 5" }
+      - { path: "/a/enamat.html", rank: 9, why: "the life-of-Jesus article, dropped from case 1" }
+      - { path: "/a/ilmutatud.html", rank: 10, why: "credited to case 5" }
+    top_score: 0.656
+
+  # ── 3 ────────────────────────────────── newcomer · the cleanest case here
+  - id: "eset-newcomer-kirikus" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "Käisin paar korda kirikus ja seal pöörduti kord Isa poole, kord Jeesuse poole, kord Püha Vaimu poole. Kas kristlased kummardavad siis mitut jumalat või kuidas seda mõista?"
+    en: "I went to church a couple of times and there they addressed the Father, then Jesus, then the Holy Spirit. So do Christians worship several gods, or how am I meant to understand it?"
+    credits:
+      - { path: "/a/kolmainsust.html", en: "FAQ: 'Can you explain the Trinity?' — 'The Bible speaks clearly of God the Father, God the Son (Jesus Christ) and God the Holy Spirit, and also says clearly that there is only ONE God.' Then the arithmetic of the Estonian word itself (kolm + ainsus = kolmainsus), the water/ice/steam analogy, and why the egg analogy misleads (it implies God is made of parts).", rank: 1, score: 0.637 }
+      - { path: "/a/vaim.html", en: "FAQ: 'Who is the Holy Spirit?' — 'The Holy Spirit is not a vague, evanescent shadow nor an impersonal force. He is a person, in every respect equal to God the Father and God the Son. He is regarded as the third person of God.' Answers the third of the three the asker heard named.", rank: 2, score: 0.587 }
+    note: |
+      ⓘ NO REWORD NEEDED, and that is the §0.10/§0.11 lesson transferring for the third
+      time. `ru` (0.807) and `bg` (0.756) both smelled on this topic when the question
+      was stated as the doctrinal formula, and both fixed it by reframing it as
+      something a newcomer NOTICES IN A SERVICE. Estonian started from the fixed shape
+      and landed at 0.637, ranks 1 and 2, first time. The question also never uses the
+      word "kolmainsus", which would have restated /a/kolmainsust.html's own title.
+    rejected:
+      - { path: "/a/kuidas.html", rank: 3, why: "the world-religions article — credited to case 2. It matches on 'do Christians worship several gods', which is a question it asks about OTHER religions." }
+      - { path: "/a/poole.html", rank: 4, why: "'Does it matter which God I call out to?' — about false gods and whether everyone prays to the same one, not about one-versus-three." }
+      - { path: "/a/pusida.html", rank: 5, why: "'Divorce statistics — marriage problems' at rank 5 for a Trinity question. A boilerplate-tail match, and the plainest specimen of the tail in this suite." }
+      - { path: "/a/mida.html", rank: 6, why: "'What does Jesus say about himself?' — Jesus' DEITY specifically, the closest near-miss here. Rejected because the asker's difficulty is the arithmetic (three named, one God), which /a/kolmainsust.html handles and this one does not." }
+      - { path: "/a/enamat.html", rank: 7, why: "the life-of-Jesus article, dropped from case 1" }
+      - { path: "/a/huntidega.html", rank: 8, why: "'Advice about relationships' (a young man on dating and sex) at rank 8 for a Trinity question. Tail match." }
+      - { path: "/a/lukka.html", rank: 9, why: "'What if I neither accept nor reject God?' — agnostic non-commitment, a different question" }
+      - { path: "/a/elumuutuste.html", rank: 10, why: "credited to case 4" }
+    top_score: 0.637
+
+  # ── 4 ────────────────────────────────────────────────────────────── seeker
+  - id: "eset-seeker-uhtemoodi" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "Iga päev möödub mul ühtemoodi ja õhtul jääb tunne, et sellest ei jäänud midagi järele. Mille nimel ma seda kõike üldse teen ja kas elul on mingi suurem siht kui lihtsalt ühest päevast teise jõuda?"
+    en: "Every day of mine passes the same way, and in the evening I am left feeling that nothing remained of it. What am I actually doing all of this for, and does life have any larger aim than just getting from one day to the next?"
+    credits:
+      - { path: "/a/elumuutuste.html", en: "'The source of life change' (Josh McDowell, 14.3k) — 'I longed to be happy… I also longed for life to have meaning. I was looking for answers to the questions: who am I, why am I here, where am I going?' The Estonian twin of the Hungarian /a/forrasa.html, the Russian /a/istochnik.html and the Spanish /articulos/lafuente.html, all three credited for this same question shape.", rank: 2, score: 0.559 }
+      - { path: "/a/olla.html", en: "FAQ: 'Why do I need God in order to be happy?' — asked by someone already content, which is the mirror image of this asker: 'you are right that happiness can be found in life without God… yet however happy you are now, your life would be fuller with him.' The tricycle-versus-Porsche parable, then that Jesus can fill the deepest longings.", rank: 7, score: 0.498 }
+    reworded: |
+      ⚠️ REWORDED ONCE, for LENGTH — the §0.12 Polish finding, confirmed on Estonian.
+      v1 was 18 words and stopped at the feeling: "…Mille nimel ma seda kõike üldse
+      teen?" → `/a/elumuutuste.html` rank 3, `/a/olla.html` rank 8.
+      v2 (kept) adds the second half — "and does life have any larger aim than just
+      getting from one day to the next" — which turns a mood into a question.
+      → **rank 3 → rank 2 and rank 8 → rank 7.** Small, in the predicted direction,
+      and it cost nothing: top score fell 0.593 → 0.578, no smell either way.
+    rejected:
+      - { path: "/a/ilu.html", rank: 1, why: "RANK 1 AND REJECTED — 'In search of eternal beauty', a Christian Dior model on what her self-worth was built on. Its 'I lay ill in bed and began to think about my life and question my values' passage is why it matches; its subject is appearance and self-esteem. Same call `hu` made on /a/szepseg.html and `ru` on /a/krasoti.html — third source, same misfire, same rejection." }
+      - { path: "/a/voiks.html", rank: 3, why: "'Could I not enjoy myself now and deal with God later?' — deferral and judgment, not what life is for" }
+      - { path: "/a/huntidega.html", rank: 4, why: "dating and relationships — tail match" }
+      - { path: "/a/hingerahu.html", rank: 5, why: "the peace/stress article. Its SEO title is literally 'How to cope with stress – The meaning of life', so it is a near-miss by design; its body is about anxiety and stability, and `anxiety` was the dropped topic it would have carried." }
+      - { path: "/a/jolka.html", rank: 6, why: "'J.O.L.K.A.' — the Four Spiritual Laws tract. This is this source's pure gospel-summary page and exactly the /a/personally.html shape from Part A. Never credit it." }
+      - { path: "/a/silmitsi.html", rank: 8, why: "death and the fear of dying — adjacent, different" }
+      - { path: "/a/vabaks.html", rank: 9, why: "'Free from an eating disorder' at rank 9 for a purpose question. Tail match — and the article that was rank 6 for v1 of case 1." }
+      - { path: "/a/kuidas.html", rank: 10, why: "credited to case 2" }
+    top_score: 0.578
+
+  # ── 5 ─────────────────────────── believer · the strongest case in this suite
+  - id: "eset-believer-urik" # topic: bible-trust
+    persona: believer
+    topic: bible-trust
+    q: "Ma ise usun, aga kui keegi ütleb mulle, et Piibel on lihtsalt vana tekst, mida on sajandeid käsitsi ümber kirjutatud, jään ma vastuse võlgu. Mille poolest erineb see mis tahes muust muistsest ürikust?"
+    en: "I believe myself, but when someone says to me that the Bible is just an old text that has been copied by hand for centuries, I have no answer to give. What makes it different from any other ancient document?"
+    credits:
+      - { path: "/a/piibel.html", en: "'The books of the Bible — the history of the Bible' (27.5k, the longest document in this source). Answers on transmission specifically: 'textual studies confirm that the books of the Bible have not changed since the time they were written down' and 'the New Testament we have today corresponds to its original form because: 1. we have numerous manuscripts…' — plus ancient historiography, the gospels as reliable accounts, and archaeology.", rank: 1, score: 0.713 }
+      - { path: "/a/ilmutatud.html", en: "FAQ: 'What does it mean that the Bible was revealed?' — the internal-consistency argument the long article does not carry: 40 different writers over 1,500 years in geographically different places, 'yet their descriptions of God and of how we can know God are the same.' Names who wrote what (Moses, Isaiah, Jeremiah, the four gospel writers).", rank: 2, score: 0.676 }
+    note: |
+      ⓘ WHY THE BELIEVER PERSONA RIDES A SKEPTIC TOPIC. The §0.7 believer topic is
+      `prayer`, and this source has no prayer article at all (see the header). Rather
+      than manufacture a case with no valid answer key, the believer slot asks the
+      apologetics-EQUIPPING version of `bible-trust` — a Christian who cannot answer
+      the objection when it is put to them. That is a real question shape for this
+      audience and it keeps the four-persona spread the §0.7 five-case row asks for.
+
+      🟢 ESTONIAN IS A CLEAN DATA POINT ON THE `bible-trust`/*tahrif* QUESTION (§0.12).
+      **This source has NO Islam article.** Discovery returned only two candidates for
+      this topic, both of them standalone Bible-reliability pieces. Estonian therefore
+      patterns with Czechia and Iran (no Islam article, answered head-on), not with
+      Japan (routed through the Islam article). §0.12's correction holds: it is about
+      what the site publishes, not about the audience.
+    reworded: |
+      ⓘ NOT REWORDED — 0.713 rank 1 and rank 2 on the first attempt, the highest and
+      best-placed case in the suite. It was drafted straight into `hu`'s v3 shape:
+      change the question from "is it unchanged?" (which restates /a/piibel.html's own
+      opening line, "How do we know the modern Bible is reliable?") to "what makes it
+      different from any other old document?", set in a lived scene. `hu` needed three
+      rounds to find that shape; borrowing it cost nothing here.
+    rejected:
+      - { path: "/a/reinkarn.html", rank: 3, why: "'What does the Bible say about reincarnation?' — matched on 'the Bible says', a different subject. Same misfire `hu` recorded on /a/reinkarnaciorol.html for this same question shape." }
+      - { path: "/a/religioonidel.html", rank: 4, why: "credited to case 2" }
+      - { path: "/a/toesti.html", rank: 5, why: "'Did the biblical miracles really happen?' — miracles, not textual transmission. 1,739 chars." }
+      - { path: "/a/poole.html", rank: 6, why: "'Does it matter which God I call out to?' — tail-adjacent match" }
+      - { path: "/a/kuidas2.html", rank: 7, why: "'How can we be sure Jesus really lived?' — Tacitus and Josephus. GENUINELY CLOSE: it is extra-biblical historical evidence. Rejected because the asker's objection is about the TEXT's transmission, not about whether the person existed. OPERATOR MAY CREDIT — this is the boundary call in this case." }
+      - { path: "/a/nimel.html", rank: 8, why: "'What about all the evil done in God's name?' — a different objection" }
+      - { path: "/a/hingerahu.html", rank: 9, why: "the peace/stress article — tail match" }
+      - { path: "/a/enamat.html", rank: 10, why: "the life-of-Jesus article, dropped from case 1" }
+    top_score: 0.713
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 5 cases · 12 credits · 12 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7 five-case row
+# Paraphrase smells: 0 across all four rounds. Max top score 0.713 (case 5).
+# Credits that do not retrieve: 0.
+# evidence_tier: llm-translated
+#
+# 🟢 THE 0% TESTIMONY SHARE SHOWS UP EXACTLY WHERE §0.12 PREDICTS. Estonian has no
+#   `/story/` pages at all, and no case in this suite has a boilerplate tail at rank 1.
+#   The tail is still verified present — `/a/pusida.html` (divorce statistics) at rank 5
+#   for a TRINITY question, `/a/huntidega.html` (dating advice) at rank 8 for the same,
+#   `/a/seks1.html` (premarital sex) at rank 4 for an EVIDENCE question, `/a/vabaks.html`
+#   (eating disorders) at rank 9 for a purpose question — but it never wins. This is the
+#   `pt` pattern, not the `hu` pattern, and it is the second confirmation that tail
+#   severity tracks testimony share rather than being a fixed property of the estate.
+#
+# ⚠️ WHAT REPLACES THE TESTIMONIES: ONE ARTICLE. `/a/elumuutuste.html` (Josh McDowell,
+#   14.3k) is in the top 10 of four of the five cases and was RANK 1 for BOTH skeptic
+#   questions before they were reworded. On a source with no testimonies, the estate's
+#   most narrative article takes the whole tail-magnet load by itself. Worth watching if
+#   Estonian is ever compared against `hu` on precision@1.
+#
+# 🔴 TITLE TRAP, REVERSED RELATIVE TO THE ESTATE NORM. `/a/kuidas.html` has an honest
+#   title field ("Hinduism, budism, islam, kristlus, New Age") and a MISLEADING slug and
+#   H1 ("Kuidas leida Jumalat" / "How to find God"). Everywhere else in the campaign the
+#   title is the unreliable half. Estonian is the first source where the URL is the trap.
+#   Judging by either alone fails; judging by the opening works, as always.
+#
+# 🟢 ONE SYSTEMATIC TRAP IS ABSENT HERE. The four-part *Nothing → Something → Who →
+#   Who 2* cosmological series (§0.12, seen on eight sources) was NEVER LOCALISED into
+#   Estonian. What exists is a single 1,114-char FAQ digest, `/a/sattusime.html`, which
+#   links out to the ENGLISH "Was there ever nothing?". Likewise absent: the
+#   "Why can we rely on the God of the Bible?" trap — Estonian's six-attributes article
+#   is titled plainly "Kes on Jumal" ("Who is God"), so it is not a trap on this source.
+#
+# 🔴 TWO CONTENT GAPS, BOTH CONFIRMED BY READING ALL 46 OPENINGS.
+#   1. NO ATONEMENT ARTICLE. Estonian is the FOURTH source with no document whose
+#      subject is what Jesus' death accomplished, after `ru`, `zh-cn` and `mn`. §0.12
+#      settled this class as corpus composition; recorded, not re-opened.
+#   2. NO PRAYER ARTICLE. Discovery returned ONE candidate for the prayer question and
+#      it matched on a gospel tail. This is a harder gap than the `hu`/`bg`/`ru` case,
+#      where each source had exactly one prayer article to credit. Estonian has zero.
+#      This is what forced the believer case onto `bible-trust`.
+#
+# ⓘ THE `.contentleftpadding` CONTAINER IS CLEAN. This source is the only one in the
+#   estate using that container. No truncation, no padding artifact, no leading
+#   navigation text: every opening starts on the article's own first sentence and the
+#   27.5k `/a/piibel.html` is intact end to end. Nothing to raise against the extractor.
+#
+# ⚠️ FOR THE REVIEWER — five things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. Case 1 `/a/sattusime.html` — 1,114 chars, below the script's watch line. I verified
+#      the full text and it is genuine cosmological argument, not a pure tail (the
+#      complete text is quoted in the case note). CREDIT (recommended) or DROP; dropping
+#      leaves a valid one-credit case at rank 3.
+#   3. Case 2 `/a/juurde.html` — 1,496 chars, first third is link furniture. CREDIT
+#      (recommended, it returns at rank 3 unprompted) or DROP for a clean 3/3.
+#   4. Case 5 `/a/kuidas2.html` at rank 7 — "How can we be sure Jesus really lived?"
+#      (Tacitus, Josephus). I rejected it because the objection is about the text's
+#      transmission, not the person's existence. It is the boundary call in this suite.
+#   5. SUITE SIZE. If a sixth case is wanted, add `anxiety` (seeker) on
+#      `/a/hingerahu.html` — the only remaining topic with a substantial article. It
+#      would be a one-credit case on this source's least-specific document, which is why
+#      I left it out of five; at six it is the best of what remains.

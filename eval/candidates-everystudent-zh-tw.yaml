@@ -1,0 +1,361 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-zh-tw` (46 documents).
+# Campaign #111, tier B. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 46 ÷ 8 = 5.75 → 5 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7 5-case row.
+# Questions authored IN TRADITIONAL CHINESE (Taiwan usage), not translated from the
+# English §0.7 menu, and not Simplified.
+#
+# 🔴 LANGUAGE FILTER IS `zh`, NOT `zh-tw`. Every document in this source is labelled
+#   with the base ISO 639-1 code. `phase5-check.ts zh-tw zh` — passing `zh-tw` as the
+#   language returns nothing.
+#
+# 🔴 THE `zh` BUCKET HOLDS THREE SOURCES AND THEY COMPETE FOR THE SAME TOP 10.
+#   `everystudent-zh-tw` (46 docs, this file), `everystudent-zh-cn` (128 docs, already
+#   has a 10-case suite) and `thelife-zh`. Every retrieval below is language-scoped to
+#   `zh`, so 3–7 of each top 10 belong to the other two sources. Ranks here are NOT
+#   comparable to a single-source language such as `hu` or `cs`. Measured slot share,
+#   round 2, own-source documents in the top 10:
+#     religions 7/10 · know-god 7/10 · suffering 6/10 · god-exists 5/10 ·
+#     bible-trust 5/10 · anxiety 3/10 · prayer 3/10
+#   The two thinnest — anxiety and prayer — still hold rank 1, so the competition costs
+#   depth, not the top slot.
+#
+# CORPUS SHAPE — read this before judging any hit
+#   46 documents in four namespaces: /content/WhoIsHe (17), /content/LifeIssues (12),
+#   /content/TheExperience (9), /content/Enigmas (8). There is NO `/a/` namespace and
+#   NO `/story/` namespace — the path shape of this source is unlike every batch-1
+#   sibling, so path-pattern heuristics written for `/a/*.html` do not transfer.
+#   Testimony share by PATH is 0%; by CONTENT about 9 of 46 (20%) are first-person
+#   accounts filed under LifeIssues / TheExperience / Enigmas
+#   (TrueLove512, Pornography301, Journey208, HopeInLife607, FaceDeath611,
+#   Ashamed533, Beauty504, Lifesource302, RealLife303).
+#   Null-language documents: 0 of 46. Duplicate paths: 0. Duplicate titles: 0.
+#
+#   ⚠️ CASE-VARIANT PATH PREFIXES — a real transcription hazard. Four documents use a
+#   LOWERCASE namespace while the other 42 use CamelCase:
+#     /content/whoishe/bible220            (not WhoIsHe)
+#     /content/whoishe/isgodelephant       (not WhoIsHe)
+#     /content/whoishe/when2dmanmeet3dgod  (not WhoIsHe)
+#     /content/lifeissues/facing-anxiety   (not LifeIssues)
+#   All four are the source's REWRITTEN articles (modern SEO subheadings, newest prose).
+#   Three of the four are credited below. Get the case wrong and the path does not resolve.
+#
+#   ⚠️ 23 of 46 documents (50%) are under 1,200 chars — the highest short-document share
+#   in the campaign so far. BUT: **pure-tail count is 0** (failure mode #2 does not fire
+#   here). Every short document was read; none is a video promo plus an invitation prayer.
+#   They are TRUNCATED ARTICLE BODIES — real argument that stops mid-thought
+#   (`/content/WhoIsHe/worldview218`, 646 chars, ends on "…必須要透過人的解釋。").
+#   This is a different defect from the one `sk`/`pt`/`es` found and it should be
+#   reported as an ingest/scrape finding, not as a corpus-composition finding.
+#
+#   ⓘ FAILURE MODE #1 (BOILERPLATE TAIL) IS STRUCTURALLY WEAK ON THIS SOURCE, and the
+#   reason is mechanical: 37 of 46 documents are ONE chunk. Only nine are multi-chunk
+#   (exist207 11 · bible220 8 · Search501 7 · Parents540 5 · facing-anxiety 5 ·
+#   faith201 3 · AnswerPrayer306 2 · Suffering631 2 · Stress505 2). Where the gospel tail
+#   exists (whichdenom, TrustJesus, difference206, FaceDeath611, Reincarnation) it is
+#   FUSED into the single article chunk instead of standing as its own chunk, so it
+#   cannot match on its own. Across 7 drafted questions × 10 hits, not one tail-only
+#   match reached ranks 1–3. Compare `hu`, where /story/Atti.html hit the top 10 of five
+#   of ten cases. **Chunk granularity, not testimony share, is what drives failure mode #1.**
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-zh-tw zh
+#   → 20 distinct candidate documents of 46, all ten topics returning something.
+# All 46 openings were then read from the database (title + char length + ~900 chars)
+# before anything was credited — guardrail #5.
+#
+# ENGINE-CHECKED (guardrail #8 §2) — .tmp-diag/phase5-check.ts zh-tw zh
+#   SEVEN cases were drafted and measured so the five could be chosen on evidence
+#   rather than on a guess about which topics this source carries.
+#   Round 1: 0 paraphrase smells · 4 credits not returned · 17 credits · max top 0.745
+#   Round 2: 0 paraphrase smells · 2 credits not returned · 16 credits · max top 0.744
+#   Round 3 (this file, 5 cases): 0 smells · 0 credits not returned · 11 credits
+#   No round ever smelled. The 0.75 line was never approached — max 0.744 over three
+#   rounds. Like Persian (§0.12), the whole budget went to REACH, not to smell.
+#
+# MECHANICAL CHECKS — run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all credited paths resolve to EXACTLY ONE document.
+#   Guardrail #3a:   no credited document has a null language.
+#
+# evidence_tier: proposed `llm-translated`. This is a fact about the REVIEWER, not the
+# language — if anyone on the team reads Traditional Chinese, it should be
+# `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ────────────────────────────── skeptic · god-exists  ⚠ REWORDED, SEE BELOW
+  - id: "eszhtw-skeptic-jituo"
+    persona: skeptic
+    topic: god-exists
+    q: "我朋友都說信神只是一種寄託，說到底沒有半點根據。撇開個人感受不談，這件事有沒有可以攤開來檢驗的事實？"
+    en: "My friends all say believing in God is just something to lean on, with no basis whatsoever. Setting personal feelings aside, are there any facts on this that can be laid out and examined?"
+    credits:
+      - { path: "/content/WhoIsHe/exist207", en: "Does God really exist? — Marilyn Adamson's nine reasons. 6,735 chars / 11 chunks, the largest and most-chunked document in the source and its flagship apologetics article. Cosmic fine-tuning (earth's size, distance from the sun, the moon's pull), DNA as encoded information, and the anthropological universality of belief. Opens by separating evidence from 'just believe'.", rank: 2, score: 0.653 }
+      - { path: "/content/WhoIsHe/prove", en: "Why does God not prove his own existence? — 942 chars. NOT a pure tail: it is a Q&A that states plainly that strong factual and philosophical arguments for God DO exist (and cross-references the article above), then answers the second half of the question — why God will not compel belief, quoting Philip Yancey on 'the miracle of restraint'. It answers the asker's implied 'if it were real it would be obvious'.", rank: 6, score: 0.606 }
+    reworded: |
+      ⚠️ REWORDED ONCE, and it is FAILURE MODE #5 reproduced exactly (§0.12).
+      v1: "我身邊的朋友都覺得信神只是一種自我安慰，是人想像出來讓自己好過一點的東西……
+           還是純粹只是心理作用？"
+          ("…just a form of SELF-COMFORT, something people imagine to make themselves
+           feel better… or is it purely PSYCHOLOGICAL?")
+          → top 0.690, no smell, but only 1 of 4 credits returned and the flagship
+          article sat at rank 6. The emotional framing pulled emotional documents:
+          rank 2 was /content/WhoIsHe/praydifference (praying to a cactus gives
+          "temporary peace, encouragement and hope — but false") and rank 4 was
+          /content/Enigmas/Tragic601 (God as a refuge in disaster). The two documents
+          that actually argue the case fell out.
+      v2 (kept): keeps the "just something to lean on" premise but asks for FACTS THAT
+          CAN BE LAID OUT AND EXAMINED instead of asking whether it is psychological.
+          → **exist207 rank 6 → rank 2 (0.654); /WhoIsHe/prove entered at rank 6.**
+          Same direction and roughly the same size as the Turkish 0.583 → 0.704 result.
+    the_finding: |
+      🔴 THIS IS ONE OF THE TWO CASES WHERE A NON-TRADITIONAL-CHINESE DOCUMENT
+      LEGITIMATELY TAKES RANK 1 — and the margin is 0.001.
+      Top score 0.655 belongs to a document from `everystudent-zh-cn` or `thelife-zh`;
+      `/content/WhoIsHe/exist207` is rank 2 at 0.654. Only 5 of the 10 slots are
+      Traditional Chinese. This is not a question defect and not a retrieval defect: two
+      sibling sites publish the same Marilyn Adamson article in two scripts and the
+      Simplified one wins by a rounding error. Record it; do not try to reword past it.
+    dropped_after_engine_check:
+      - path: "/content/WhoIsHe/faith201"
+        why: >-
+          "Definitely not blind faith" (5,440 chars / 3 chunks). Its TITLE denies the wishful-thinking charge, which is why it was drafted in, but its BODY is the case for JESUS' identity — the manger, the "who do you say I am", the blasphemy charge, the claim to forgive sins. That is a different question from whether God exists, and it missed the top 10 in both rounds. The engine is right. Dropped rather than kept as a miss.
+      - path: "/content/WhoIsHe/nothing102"
+        why: >-
+          "Was there ever nothing?" — part 1 of the four-part cosmological series. Its subject is the origin of matter, and the series' actual conclusion (that the Self-Existent One is personal) lives in `/content/WhoIsHe/whoii`, which case 3 credits. Crediting both ends of the same argument measures it twice.
+    rejected:
+      - { path: "/content/WhoIsHe/twokinds217", rank: 4, why: "'Two kinds of truth' (1,329 ch) — whether Christianity can be true for you and not for me. It matches the 'setting feelings aside' framing, but its subject is relativism, which belongs to the religions topic (it was rank 2 there). Rejected on the text." }
+      - { path: "/content/Enigmas/Tragic601", rank: 7, why: "'When disaster strikes, does believing in God make a difference?' (899 ch) — a general God-as-refuge page. ⚠ THIS IS THIS SOURCE'S GENERAL ATTRACTOR: it appeared in the top 10 of FOUR of the seven drafted questions (god-exists, suffering, know-god, and god-exists v1 at rank 4). It is credited nowhere. On a source with almost no separable gospel tail, this page plays the role the tail plays elsewhere." }
+      - { path: "/content/WhoIsHe/praydifference", rank: 10, why: "'Does it matter which god you pray to?' — its subject is the identity of the God addressed, not evidence. Was rank 2 for v1 of this question; the reword pushed it to 10." }
+    top_score: 0.655
+
+  # ── 2 ──────────────────────── skeptic · suffering  🟢 THE STRONGEST CASE HERE
+  - id: "eszhtw-skeptic-chehuo"
+    persona: skeptic
+    topic: suffering
+    q: "去年我一個很要好的朋友出車禍走了，走得毫無道理。如果真的有一位良善的神，祂當時在哪裡？為什麼祂不出手？"
+    en: "Last year a close friend of mine was killed in a car accident, for no reason at all. If there really is a good God, where was he at the time? Why did he not step in?"
+    credits:
+      - { path: "/content/Enigmas/BadThings605", en: "Why do bad things happen? — Stacy James, paralysed by a diving accident as a student, writing in the first person: 'God did not push me into the water.' Free will, consequence, and C.S. Lewis on the 80% of suffering caused by human wrongdoing. 1,171 chars — short, but a complete argument, not a tail.", rank: 1, score: 0.744 }
+      - { path: "/content/Enigmas/Suffering631", en: "Life, why so much suffering! — the source's dedicated theodicy article (2,301 chars / 2 chunks). Splits the question in two ('why does God allow it at all' vs the personal experience of it) and answers the first at length: God did not create evil, free will is the price of not being a robot, suffering is temporary for those who return to him.", rank: 2, score: 0.676 }
+      - { path: "/content/Enigmas/Lost612", en: "A lost world — how could a suffering world be made by a loving God? Attenborough's eye-worm, then Darwin's daughter Annie, whose death (not his biology) is what actually cost Darwin his faith. Written by a Taiwanese author, 林韡承 — original Traditional-Chinese content, not a translation of an English parent article.", rank: 8, score: 0.603 }
+    the_finding: |
+      🟢 THE BEST-PLACED CASE IN THE SUITE, AND THE ONLY ONE WHERE THIS SOURCE OWNS THE
+      TOP OF A CONTESTED BUCKET. Top score 0.744 IS the rank-1 credit, with the second
+      credit at rank 2 and 6 of the 10 slots Traditional Chinese — against 128
+      Simplified-Chinese documents and `thelife-zh`. If the operator wants one case from
+      this suite to watch as a regression canary, this is it.
+    rejected:
+      - { path: "/content/Enigmas/Tragic601", rank: 3, why: "RANK 3 AND REJECTED — 'When disaster strikes, does believing in God make a difference?' Its opening does ask '災難、天災或悲傷來襲時：神在那裡？', which looks like a direct answer to the question's 'where was he'. But the body is about how far God can be relied on for strength and refuge, not about why he allows it. Same call the `hu` suite made on /a/isten-segitsege.html, and this page is a general attractor across four of the seven questions." }
+      - { path: "/content/WhoIsHe/exist207", rank: 4, why: "credited to case 1 — matched here on its problem-of-evil passage" }
+      - { path: "/content/WhoIsHe/prove", rank: 5, why: "credited to case 1" }
+    top_score: 0.744
+
+  # ── 3 ─────────────────── newcomer · know-god  🔴 TWO TITLE TRAPS IN ONE CASE
+  - id: "eszhtw-newcomer-nengliang"
+    persona: newcomer
+    topic: know-god
+    q: "別人講到「神」的時候，我腦中只浮現一團看不見的力量，飄在某個地方。祂到底是不是一個有心思、有意志的對象，還是只是一種能量？"
+    en: "When other people talk about 'God', all that comes to my mind is some invisible force floating somewhere. Is he actually someone with a mind and a will, or just a kind of energy?"
+    credits:
+      - { path: "/content/WhoIsHe/whoii", en: "Who? II — part 4 and the conclusion of the cosmological series. 🔴 TITLE TRAP: the title names no subject a reviewer could use. The BODY is precisely this question's answer — the Self-Existent One is not a machine, it is not driven by need, therefore its decision to create was a CHOICE, therefore it has will: '有選擇的意志，因此是有個性、位格的' (it has a will that chooses, therefore it has personality and personhood). It then argues transcendence over time and space, and invisibility. 852 chars and NOT a tail — it is a step in a philosophical argument.", rank: 2, score: 0.568 }
+      - { path: "/content/whoishe/when2dmanmeet3dgod", en: "How can a finite person see an infinite God? — 🔴 SECOND TITLE TRAP, of the reverse kind: it reads like an abstract philosophy piece and is in fact this source's what-is-God-like article. Opens '神在哪裡？人們說：「讓我看到神吧。」但是如果神超乎我們的感官世界之外，祂會如何顯現自己？' ('Where is God? People say show me God. But if God is beyond our sensory world, how would he reveal himself?'). Two-dimensional figures on a sheet of paper, then God's fingertip entering our world as Jesus. Note the LOWERCASE `whoishe` path prefix.", rank: 5, score: 0.54 }
+    note: |
+      ⓘ THIS SOURCE HAS NO SIX-ATTRIBUTES "WHAT IS GOD LIKE?" ARTICLE, so the systematic
+      trap catalogued in §0.12 ("Why can we rely on / choose the God of the Bible?" →
+      the six-attributes article, seen in `bg` `tr` `fa` `pt` `cs`) DOES NOT EXIST here.
+      There is nothing to mistake. What `zh-tw` carries instead is a dimensional analogy
+      plus the conclusion of a cosmological argument — a genuinely different editorial
+      shape for the same topic, and the reason this is the lowest-scoring case in the
+      suite (top 0.575). Both credits still return, at ranks 2 and 5.
+
+      ⓘ THE FOUR-PART COSMOLOGICAL SERIES IS PRESENT AND COMPLETE — ninth language.
+      /content/WhoIsHe/nothing102 (天下萬物生於無？ "Was there ever nothing?") →
+      /content/WhoIsHe/something103 (原有 "The Original") →
+      /content/WhoIsHe/who104 (誰？ "Who?") →
+      /content/WhoIsHe/whoii (誰？II "Who? II").
+      Contentless sequential titles, judgeable only by reading. Add `zh-tw` to
+      `hu` `pl` `mn` `sk` `pt` `es` `fa` `cs`.
+    rejected:
+      - { path: "/content/TheExperience/inner-universe", rank: 1, why: "RANK 1 AND REJECTED — 'Your inner universe' (1,051 ch). Descartes, then free will pictured as a king on a throne inside you, with conscience announcing that someone called God is looking for the entrance. Its subject is HUMAN personhood and the will, not God's nature. It is the closest thing in this suite to a rank-1 near-miss that a title-only reviewer would also reject — for the wrong reason." }
+      - { path: "/content/WhoIsHe/exist207", rank: 3, why: "credited to case 1" }
+      - { path: "/content/WhoIsHe/praydifference", rank: 4, why: "'Does it matter which god you pray to?' — it does argue that a real God must be the personal creator rather than a wave or a cactus, which is adjacent. Rejected because its subject is the choice between gods, not what God is like." }
+      - { path: "/content/Enigmas/Tragic601", rank: 9, why: "the general attractor again — third of four questions" }
+      - { path: "/content/WhoIsHe/prove", rank: 10, why: "credited to case 1" }
+    top_score: 0.576
+
+  # ── 4 ──────────────────────────────────────────────────── seeker · anxiety
+  - id: "eszhtw-seeker-jinbeng"
+    persona: seeker
+    topic: anxiety
+    q: "我幾乎每天都處在緊繃的狀態，明明沒發生什麼大事，心裡就是靜不下來。信仰對這種情況幫得上忙嗎？"
+    en: "I am in a tense state almost every day; nothing major is actually happening, but my mind just will not settle. Is faith any help for something like this?"
+    credits:
+      - { path: "/content/lifeissues/facing-anxiety", en: "Living with anxiety — Marilyn Adamson, 4,460 chars / 5 chunks, the source's dedicated anxiety article and its third-largest document. Opens with the list (terrorism, climate change, racism, war, poverty, sexual assault, trafficking, disaster, money, illness, job insecurity, strained relationships, addiction), handles MEDICATION honestly and without embarrassment ('if you are self-harming, see a doctor; the brain's chemistry may need help, like insulin for a diabetic'), then turns to durable inner steadiness. Note the LOWERCASE `lifeissues` prefix.", rank: 1, score: 0.633 }
+      - { path: "/content/LifeIssues/Stress505", en: "Relieving the stress of university life (2,030 chars / 2 chunks) — names the causes and works through them: a sense of inadequacy, a habitually worrying disposition, fear, and conflict in one's belief system. Its subject IS the asker's situation — chronic low-grade tension with nothing acutely wrong — rather than crisis.", rank: 6, score: 0.582 }
+      - { path: "/content/TheExperience/Peace301", en: "Peace in an unstable world — how to have real confidence and peace when nothing around you holds still, grounded in God's unchangingness rather than on circumstances improving. ⚠ BOUNDARY CREDIT, rank 10; see the note.", rank: 10, score: 0.57 }
+    note: |
+      ⓘ NO REVERSE TITLE TRAP HERE, and that is worth stating because five sources had
+      one. §0.12 records that a page titled "Coronavirus" is the general anxiety article
+      in `hu` `pl` `sq` `tr` `pt` `es`, and that "Anxiety and chakra healing" is the
+      chronic-anxiety account in `ru` `hu` `tr` `pt` `es`. `everystudent-zh-tw` has
+      NEITHER page. It carries a plainly-titled anxiety article instead, and that article
+      is rank 1. Not every source needs the trap catalogue.
+
+      ⚠️ /content/TheExperience/Peace301 IS A BOUNDARY CREDIT AND WILL FLAP. It returned
+      at rank 10 (0.571) in round 1 and rank 10 (0.570) in round 3. Only 3 of the 10 slots
+      in this case are Traditional Chinese — this is the most heavily contested question
+      in the suite, with 7 slots going to `everystudent-zh-cn` / `thelife-zh`. If a future
+      run reads 2/3 instead of 3/3 on this case, that is the tie order moving, not the
+      engine changing. The operator may prefer to drop it for a stable 2/2; I kept it
+      because it genuinely answers and because the flap itself is the measurement.
+    top_score: 0.633
+
+  # ── 5 ──────────────────────────────────────────────────── believer · prayer
+  - id: "eszhtw-believer-anjing"
+    persona: believer
+    topic: prayer
+    q: "同一件事我已經禱告好幾個月了，每次禱告完還是一樣安靜，什麼都沒改變。是我哪裡做錯了嗎？還是這件事本來就不該求？"
+    en: "I have been praying about the same thing for months. After every prayer it is just as silent as before and nothing has changed. Am I doing something wrong, or was this something I should never have been asking for?"
+    credits:
+      - { path: "/content/TheExperience/AnswerPrayer306", en: "Does God answer our prayers? — Marilyn Adamson, 2,919 chars / 2 chunks, told by a former atheist who watched a praying friend week after week until 'coincidence' stopped being a serious explanation. Its second half is specifically '為什麼有些人的禱告似乎沒有回應？' ('why do some people's prayers seem to go unanswered?'), which is this question.", rank: 1, score: 0.688 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-zh-tw` carries
+      exactly one prayer article. The same shape was recorded for `hu`, `bg` and `ru`,
+      all of which also credit exactly one document here. This is the §0.7 believer-
+      thinness finding showing up in the corpus rather than in the persona split.
+    rejected:
+      - { path: "/content/WhoIsHe/praydifference", rank: 3, why: "'Does it matter which god you pray to?' — a genuine prayer article, and rejected. Its subject is WHICH god is real (praying to a cactus, to a wave at Venice Beach, to Allah, to a Taoist deity), not what to do about unanswered prayer. For a Taiwanese audience it is arguably the source's most locally-aimed page; it deserves a case of its own if this suite is ever expanded." }
+      - { path: "/content/TheExperience/Peace301", rank: 5, why: "credited to case 4" }
+    top_score: 0.688
+
+# ─────────────────────────────────────────────────────────────────────────────
+# THE TWO TOPICS THAT WERE DRAFTED, MEASURED AND THEN CUT FOR BUDGET
+# ─────────────────────────────────────────────────────────────────────────────
+# Seven cases were authored and engine-checked; the §0.7 5-case row allows only two
+# skeptic questions, so two working skeptic cases were cut. **Neither was cut for
+# quality.** Both are recorded here in full so the operator can promote either one
+# without redoing the work, and so the numbers are not lost.
+#
+# CUT A — `bible-trust`, would have been `eszhtw-skeptic-chaoxie`
+#   q:  "聖經是兩千多年前的東西，中間又是靠人一份一份抄下來的。誰能保證今天印出來的內容，
+#        跟當初寫的沒有走樣？"
+#   en: "The Bible is a thing from over two thousand years ago, and in between it was
+#        copied by hand one copy at a time. Who can guarantee that what is printed today
+#        has not drifted from what was originally written?"
+#   credit: /content/whoishe/bible220 — rank 2, 0.618, top 0.622, no smell. 1/1.
+#     "Why can you trust the Bible?" 6,554 chars / 8 chunks, the source's second-largest
+#     document. Answers transmission head-on: textual criticism confirms the text was not
+#     altered; Plato survives in 7 manuscripts, the New Testament in over 5,000, 99.5%
+#     consistent; 40 authors across 1,600 years; 300 messianic prophecies.
+#   🔴 SECOND OF THE TWO CASES WHERE A NON-TRADITIONAL-CHINESE DOCUMENT TAKES RANK 1,
+#     again by a hair: top 0.622 versus bible220's 0.618 — a 0.004 margin.
+#   ⓘ THE tahrif PATTERN DOES NOT APPLY HERE. `everystudent-zh-tw` has NO Islam article
+#     at all, so unlike `ja` `kk` `th` and `zh-cn`, bible-trust is answered by a
+#     standalone Bible-reliability piece. Same shape as Czech and Portuguese (§0.12).
+#
+# CUT B — `religions`, would have been `eszhtw-skeptic-baibai`
+#   q:  "我從小跟著家人到廟裡拜拜，同學裡也有人信佛。長輩常說信哪一尊都一樣，反正最後走的
+#        都是同一條路。那基督徒憑什麼說耶穌跟別人不一樣？"
+#   en: "I grew up going to the temple with my family and some of my classmates are
+#        Buddhist. My elders always say it makes no difference which deity you believe in,
+#        since in the end everyone walks the same road. So on what grounds do Christians
+#        say Jesus is different from the rest?"
+#   credits: /content/WhoIsHe/difference206 — rank 1, 0.646 (five specific contrasts:
+#              God initiates rather than being pursued; only Jesus claimed deity;
+#              forgiveness paid rather than earned by self-punishment; the resurrection)
+#            /content/WhoIsHe/connect205 — rank 10, 0.549. This is the estate's /a/205
+#              world-religions article under a localised slug that still carries the 205
+#              (compare `de` hochsten, `sw` kuunganishwa, `fr` 205divin, `hu` istenkereses).
+#            /content/whoishe/isgodelephant — NOT IN TOP 10. David Horner dismantling the
+#              blind-men-and-the-elephant parable, i.e. the exact claim in the question.
+#   Result: 2/3, no smell, and 7 of the 10 slots Traditional Chinese — the best own-source
+#     slot share of any question drafted.
+#   ⚠️ THIS IS THE CUT I AM LEAST SURE ABOUT AND THE OPERATOR SHOULD LOOK AT IT.
+#     It is the most Taiwan-specific question in the batch (temple worship, folk deities,
+#     Buddhist classmates) and it exercises three documents no other case touches. It was
+#     cut in favour of `god-exists` on two grounds: its rank-10 credit is more fragile than
+#     god-exists' rank-2/rank-6 pair, and `god-exists` exercises the source's flagship
+#     11-chunk document. If the operator would rather measure the locally-aimed question,
+#     swap CUT B in for case 1 — it needs no rework.
+#
+# THREE TOPICS WERE NOT DRAFTED AT ALL — genuine content gaps, verified by reading all 46
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. `jesus-death` — **NO DEDICATED ATONEMENT ARTICLE.** `everystudent-zh-tw` joins `ru`,
+#    `zh-cn` and `mn`. §0.12 settled this class of finding: it is corpus composition, not
+#    a retrieval defect, confirmed eight times. Nearest candidates, both rejected:
+#      /content/WhoIsHe/whichdenom (1,000 ch) — 🔴 REVERSE TITLE TRAP. Titled "What is the
+#        difference between a Christian and a Catholic?", and roughly 80% of its body is a
+#        full atonement presentation (sin's penalty is death → Jesus died in our place →
+#        the debt is paid → reconciliation). A title-only reviewer files it under
+#        denominations; it is the closest thing this source has to a why-Jesus-died page,
+#        and it is still not one, because the question it answers is about churches.
+#      /content/TheExperience/TrustJesus (1,063 ch) — "What does 'trusting' Jesus mean?"
+#        States the atonement plainly but its subject is what trusting Christ involves.
+#        Exactly the document the `hu` suite dropped for the same reason.
+#    Both are also the two documents where the estate's trigger phrase "forgiveness of
+#    sins" (罪蒙赦免) is densest — §0.12's 🔑 warning. No question in this suite contains it.
+# 2. `trinity` — **NO TRINITY ARTICLE.** /content/WhoIsHe/holyspirit708 (1,039 ch) is the
+#    only document that names 三位一體, and it does so in passing while answering "who is
+#    the Holy Spirit?". Discovery for the trinity topic returned /content/WhoIsHe/whichdenom
+#    (0.455) and /content/WhoIsHe/difference206 — i.e. nothing on-topic. Manufacturing a
+#    trinity case here would produce a case with no valid answer key.
+# 3. `purpose` — carried, but thinly and entirely by truncated documents:
+#    /content/LifeIssues/LifePurpose (1,131 ch, the hammer parable),
+#    /content/TheExperience/RealLife303 (1,084 ch, three people who reached the summit and
+#    were still empty) and /content/TheExperience/Lifesource302 (1,119 ch, Josh McDowell).
+#    English-probe discovery scored it 0.477 — the weakest of the ten topics on this source.
+#    Cut in favour of `anxiety` for the single seeker slot, which probed at 0.670.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 5 cases · 11 credits · 11 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7 5-case row
+# Topics used: god-exists · suffering · know-god · anxiety · prayer
+# Topics measured then cut for budget: bible-trust (1/1 rank 2) · religions (2/3 rank 1)
+# Topics not carried: jesus-death · trinity ·（purpose carried but thin）
+# Paraphrase smells: 0 across all three rounds. Max top score 0.744 — the 0.75 line was
+#   never approached, so every round went to REACH, exactly as Persian did (§0.12).
+# Credits that do not retrieve: 0.
+# evidence_tier: llm-translated
+#
+# 🔴 THE HEADLINE FINDING — COMPETITION IS REAL AND IT IS MEASURABLE.
+#   The `zh` bucket is shared by three sources. Two of the seven drafted questions have a
+#   non-Traditional-Chinese document at rank 1, and in both the margin is under 0.005:
+#     god-exists  top 0.655 (competitor)  vs  exist207 0.654  → 0.001
+#     bible-trust top 0.622 (competitor)  vs  bible220 0.618  → 0.004
+#   Both are cases where `everystudent-zh-cn` publishes the SAME Marilyn Adamson article
+#   in Simplified Chinese. This is duplicate publishing across two source keys, not a
+#   retrieval defect, and no reword can fix it. The other five questions all hold rank 1
+#   with a Traditional-Chinese document.
+#
+# 🟢 FAILURE MODE #1 IS DRIVEN BY CHUNK GRANULARITY, NOT TESTIMONY SHARE.
+#   §0.12 states that boilerplate-tail severity "tracks the testimony share". This source
+#   is a counter-example that sharpens the rule: 20% of its documents are first-person
+#   accounts (comparable to `hu`'s 24%), yet across 70 measured hits not one tail-only
+#   match reached ranks 1–3. The reason is that 37 of 46 documents are a SINGLE chunk, so
+#   the gospel tail is fused with the article body and cannot match alone. Where the tail
+#   is its own chunk it dominates; where it is not, it is invisible. Worth folding back
+#   into §0.12.
+#
+# ⚠️ AN INGEST FINDING, NOT A CORPUS FINDING — 50% OF THIS SOURCE IS TRUNCATED.
+#   23 of 46 documents are under 1,200 chars and NONE is a pure tail. They are article
+#   bodies that stop mid-sentence: /content/WhoIsHe/worldview218 (646 ch) ends on
+#   "…必須要透過人的解釋。", /content/LifeIssues/Lonely532 (773 ch) ends on the fourth Greek
+#   word for love with no conclusion, /content/LifeIssues/ToxicPorns511 (735 ch) ends
+#   mid-argument. The pages on everystudent.com.tw are longer than what was ingested.
+#   This is a SCRAPE defect worth its own ticket; it caps what this source can ever score,
+#   independently of anything the eval suite does.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. CUT B (`religions`) vs case 1 (`god-exists`) for the second skeptic slot. CUT B is
+#      more Taiwan-specific and has better own-source slot share; case 1 has the sturdier
+#      ranks and exercises the flagship document. Both are drafted and measured above.
+#   3. /content/TheExperience/Peace301 on case 4 — KEEP (recommended; it is rank 10 in the
+#      most contested question in the suite and its flapping is itself informative) or DROP
+#      for a stable 2/2.
+#   4. The truncation defect above. It is out of campaign scope but it is the ceiling on
+#      this source.

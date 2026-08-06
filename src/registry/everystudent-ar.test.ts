@@ -31,7 +31,12 @@ describe("everystudent-ar registry entry", () => {
     // /sitemap.xml is 403 to plain HTTP anyway. A `sitemaps` entry would re-pay
     // per scrape for URLs we already hold.
     expect(entry.crawl.sitemaps).toBeUndefined();
-    expect(entry.crawl.seedPaths).toHaveLength(68);
+    // 67, not 68: /a/whowas.html was removed 2026-08-06 under the same
+    // scripture policy this entry already applies to its own /bible/**.pdf —
+    // 23,624 chars of Gospel-of-John excerpts "دون إضافة لأي تعليق" (without
+    // adding any commentary). Campaign #111 §0.13.
+    expect(entry.crawl.seedPaths).toHaveLength(67);
+    expect(entry.crawl.seedPaths).not.toContain("/a/whowas.html");
   });
 
   it("is a SEPARATE source key from everystudent, not a language of it (ADR-0006)", () => {
@@ -57,8 +62,9 @@ describe("everystudent-ar registry entry", () => {
 
   it("keeps the Arabic article body and the video testimonies", () => {
     const paths = ar().crawl.seedPaths!;
-    // /a/* is the article corpus — the substance of this source.
-    expect(paths.filter((p) => p.startsWith("/a/"))).toHaveLength(61);
+    // /a/* is the article corpus — the substance of this source. 60, not 61:
+    // /a/whowas.html left under the scripture policy (2026-08-06).
+    expect(paths.filter((p) => p.startsWith("/a/"))).toHaveLength(60);
     // /v/* are testimony transcripts; the English sibling's /videos/ pages were
     // probed and found to be genuine unique prose, not media stubs.
     expect(paths.filter((p) => p.startsWith("/v/"))).toHaveLength(5);

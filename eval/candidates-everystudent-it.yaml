@@ -1,0 +1,491 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-it` (38 documents, ognistudente.com).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 38 ÷ 8 = 4.75 → 4 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the n=4 row of the persona table.
+#   No believer slot at n=4. That costs nothing here: the believer topic (`prayer`)
+#   is a one-article shelf on this source, as it is on `hu`, `bg` and `ru`.
+# Questions authored IN ITALIAN, not translated from the English topic menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   38 documents, ALL under flat top-level slugs (`/esisteundio`, `/dio`). There is
+#   NO `/a/` tree and NO `/story/` tree on this source — the estate's usual two
+#   namespaces are both absent. Path-counting therefore reads this source as 0%
+#   testimony, and that reading is WRONG in exactly the way `uk` was wrong.
+#   ⚠️ TESTIMONY SHARE, derived from the OPENINGS and not from the paths:
+#   6 of 38 documents (~16%) are first-person accounts carrying the estate's shared
+#   gospel-summary-plus-invitation-prayer tail —
+#     /atea (Marilyn Adamson's own atheist conversion), /come-avere-speranza
+#     (Steve Sawyer, haemophiliac with HIV), /bellezza (fashion model),
+#     /alimentari (Susan Broadwell, eating disorders), /corteggiamento
+#     ("di Anonimo", ten dating rules), /saziate (Judy Clark, drinking).
+#   Character length: 1,443 – 28,485, mean 10.8k.
+#   Null-language documents: 0 of 38 (guardrail #3a — nothing excluded).
+#   Duplicate titles: 0. Duplicate paths: 0. (Both hazards absent.)
+#   🟢 PURE-TAIL DOCUMENTS (failure mode #2): ZERO. Nothing on this source is under
+#   1,200 chars — the smallest, /dio-e-buono at 1,443, is a real free-will theodicy
+#   video transcript. Failure mode #2 cannot fire here and was not guarded against.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-it it
+#   → 31 distinct candidate documents of 38; all ten topics surfaced something.
+#   Max English discovery score 0.652. Per the `uk` finding, the English pass
+#   under-predicts in-language, so nothing was inferred about smell from it. It
+#   under-predicted here too: 0.652 in English, 0.702 measured in Italian.
+# All 38 openings were then read from the database before anything was credited
+# (guardrail #5). On this source that changed three judgements — see the traps below.
+#
+# ENGINE-CHECK ROUND LOG (guardrail #8 §2) — .tmp-diag/phase5-check.ts it it
+#   Round 1: 0 smells (max top 0.702) · 2 credits not in top 10 · 10 credits
+#            Case 1 reached only 2 of its 4 credits: /universo and /dimostra both
+#            missed and the top 10 filled with emotional/tail documents (/preghiere
+#            at RANK 2 for a god-exists question, /come-avere-speranza at 4,
+#            /saziate at 10). Failure mode #5, textbook.
+#   Round 2: 0 smells (max top 0.702) · 1 credit not in top 10 · 10 credits
+#            Case 1 reworded to ask for GROUNDS (§0.12's 0.583 → 0.704 finding).
+#            Result: 2/4 → 3/4 credits, /esisteundio 3 → 1, /universo missing → 4,
+#            /preghiere 2 → 5. Cases 2 and 3 were clean in round 1 and unchanged.
+#   Round 3: 0 smells (max top 0.742) · 1 credit not in top 10 · 10 credits
+#            Case 4 reworded: /instabile 3 → 1, but at 0.742 — 0.008 under the
+#            smell line, which is too close to ship. See case 4's `reworded`.
+#   Round 4 (final, --update): 0 smells (max top 0.702) · 1 credit not in top 10 ·
+#            10 credits. Case 4 reworded again to buy headroom; /instabile HELD
+#            rank 1 and the score fell 0.742 → 0.670. The one non-returning credit
+#            is the deliberate keep on case 1.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 10 credited paths resolve to EXACTLY ONE document — 10/10.
+#   Guardrail #3a:   no credited document has a null language — 10/10.
+#   No credited document is under 1,200 chars — the smallest credit is /dimostra at 2,065.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔴 THE SIX TOPICS DROPPED, AND THE ANSWER DOCUMENT FOR EACH
+# ═══════════════════════════════════════════════════════════════════════════════
+# Four cases means six of the ten §0.7 topics are dropped. FOUR are SLOT drops (the
+# source answers them well; the n=4 persona table has no room) and TWO are CONTENT
+# GAPS (this source has no answer document at all). Answer documents are named here
+# so the suite extends to 6, 8 or 10 cases without re-running discovery.
+#
+#  DROP | topic       | persona  | why dropped         | the answer document(s)
+#  -----|-------------|----------|---------------------|---------------------------------
+#   1   | suffering   | skeptic  | SLOT — only 2       | /perche (8.8k, "Why is life so
+#       |             |          | skeptic slots at    |   hard?" — terrorism, sexual
+#       |             |          | n=4, and god-exists |   slavery, racism, world hunger;
+#       |             |          | (9 candidate docs)  |   "our parents divorce, the girl
+#       |             |          | and bible-trust     |   in the street is abducted, a
+#       |             |          | (2 docs / 50k chars)|   relative gets cancer")
+#       |             |          | are deeper shelves. | /tragedia (12.8k, "Where is God
+#       |             |          | ⚠️ THIS IS THE      |   when tragedy strikes?")
+#       |             |          | STRONGEST DROPPED   | /terribili (3.9k, "Why worship a
+#       |             |          | TOPIC — 5 documents,|   God who allows terrible things,
+#       |             |          | more than any topic |   like a child being abused?")
+#       |             |          | in the suite except | /dio-e-buono (1.4k video, the
+#       |             |          | god-exists.         |   free-will theodicy, square circles)
+#       |             |          | EXTEND HERE FIRST.  | /ama (3.8k, a loving God and hell)
+#   2   | religions   | skeptic  | SLOT — same reason  | /unirsi (16.7k, "Can we say all
+#       |             |          | as suffering. Both  |   religions are the same?" — Marilyn
+#       |             |          | its documents       |   Adamson, subtitled "Indian
+#       |             |          | already appear in   |   deities, Buddhism, Christianity,
+#       |             |          | this suite's top 10s|   Islam, New Age — are they all the
+#       |             |          | uncredited, so the  |   same thing?". THIS IS THE
+#       |             |          | reach is proven.    |   ESTATE'S /a/205 WORLD-RELIGIONS
+#       |             |          | EXTEND HERE SECOND. |   ARTICLE — same document as
+#       |             |          |                     |   /a/205divin.html (fr),
+#       |             |          |                     |   /artikel/hochsten.html (de),
+#       |             |          |                     |   /a/kuunganishwa.html (sw),
+#       |             |          |                     |   /a/istenkereses.html (hu))
+#       |             |          |                     | /cosa-rende-gesu-diverso-dalle-religioni
+#       |             |          |                     |   (3.1k, the point-by-point contrast)
+#       |             |          |                     | /gesu-e-islam (21.8k, credited here
+#       |             |          |                     |   to case 2 — note it is explicitly
+#       |             |          |                     |   NOT a comparison: its own preamble
+#       |             |          |                     |   says "no criticism of religions")
+#   3   | trinity     | newcomer | SLOT — one newcomer | /trinita (3.4k, "Can you explain the
+#       |             |          | slot, and know-god  |   Trinity?" — the three-dimensions
+#       |             |          | is the deeper shelf |   analogy and the 1x1x1=1
+#       |             |          | (3 credited docs,   |   formulation, "the Bible speaks
+#       |             |          | 29k chars, vs 2     |   clearly of God the Son, God the
+#       |             |          | docs at 7k).        |   Father and God the Spirit, but
+#       |             |          | Discovery reached   |   stresses there is only ONE God")
+#       |             |          | it fine (0.620).    | /chi-e-lo-spirito-santo (3.6k, "not
+#       |             |          | EXTEND HERE THIRD.  |   a hazy otherworldly shadow, nor an
+#       |             |          |                     |   impersonal force… the third person
+#       |             |          |                     |   of the Trinity")
+#   4   | prayer      | believer | NO BELIEVER SLOT at | /preghiere (9.9k, "Does God answer
+#       |             |          | n=4. One-article    |   our prayers?" — told by a former
+#       |             |          | shelf anyway, the   |   atheist watching a praying friend
+#       |             |          | same as `hu`, `bg`  |   week after week. Twin of
+#       |             |          | and `ru`.           |   hu /a/imadsagra.html and
+#       |             |          | EXTEND HERE FOURTH. |   ru /a/molitvi.html.) It has an
+#       |             |          |                     |   explicit "unanswered prayers"
+#       |             |          |                     |   section, so the §0.7 believer
+#       |             |          |                     |   question would land 1/1 here.
+#   5   | purpose     | seeker   | 🔴 CONTENT GAP — no | NONE. Nearest: /bibbia's sixth
+#       |             |          | meaning-of-life     |   heading, "A God who gives meaning
+#       |             |          | article exists.     |   and purpose to life" (one section
+#       |             |          | Discovery topped out|   inside the know-god article), and
+#       |             |          | at 0.482 and        |   /bellezza (10.2k, a fashion model
+#       |             |          | returned a          |   on building a life on appearance).
+#       |             |          | conversion          |   `it` has no twin of hu /a/celom.html
+#       |             |          | testimony, the peace|   ("What is my purpose in life?" —
+#       |             |          | article and a       |   the hammer parable) or of
+#       |             |          | beauty story — no   |   hu /a/valddi.html ("Real life").
+#       |             |          | document whose      |   Extending to 10 cases would need a
+#       |             |          | SUBJECT is meaning. |   deliberate no-good-key decision.
+#       |             |          | DO NOT MANUFACTURE. |
+#   6   | jesus-death | newcomer | 🔴 CONTENT GAP —    | NONE. `everystudent-it` joins `ru`,
+#       |             |          | THE ATONEMENT GAP.  |   `zh-cn` and `mn` as a source with
+#       |             |          | Per §0.12 this is   |   no dedicated "why did Jesus die?"
+#       |             |          | settled corpus      |   article. Nearest, all rejected on
+#       |             |          | composition, NOT a  |   their text: /conoscere-dio-
+#       |             |          | retrieval defect —  |   personalmente (6.4k, the Four
+#       |             |          | recorded here and   |   Spiritual Laws tract — it states the
+#       |             |          | NOT re-opened.      |   substitution but is a "how to begin"
+#       |             |          |                     |   page); /gesu-e-islam Q4/Q5 ("Did
+#       |             |          |                     |   Jesus die on the cross?" — a
+#       |             |          |                     |   HISTORICITY question inside a tahrif
+#       |             |          |                     |   article, and discovery's best hit at
+#       |             |          |                     |   0.596 on the vase-and-air analogy);
+#       |             |          |                     |   /chi-era-gesu (23.1k) is UNANNOTATED
+#       |             |          |                     |   Gospel-of-John excerpts.
+#
+# evidence_tier: proposed `llm-translated`. This is a fact about the REVIEWER, not
+# the language — if anyone on the team reads Italian, it should be `human-verified`.
+# OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ──────────────────── skeptic ⚠ REWORDED ONCE · SEE THE KEPT MISS
+  - id: "esit-skeptic-illusione"              # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "I miei amici sono convinti che credere in Dio sia solo un'illusione consolatoria. Io vorrei capire se esistono argomenti seri, per esempio dalla scienza o da un ragionamento rigoroso, che portino davvero a pensare che Dio ci sia."
+    en: "My friends are convinced that believing in God is just a consoling illusion. I would like to understand whether there are serious arguments, for example from science or from rigorous reasoning, that genuinely lead one to think God is there."
+    top_score: 0.699
+    credits:
+      - { path: "/esisteundio", rank: 1, score: 0.699, en: "Is there a God? (Marilyn Adamson, 18.5k) — the source's flagship apologetics article. 'Just once, wouldn't you like someone to show you the proof of God's existence? No arm-wrestling. No statements of the sort, You just have to believe.' Then six reasons argued as evidence." }
+      - { path: "/atea", rank: 2, score: 0.695, en: "How an atheist found God — Marilyn Adamson's own account: 'I systematically reviewed FIVE OBJECTIVE reasons why I believed God exists. So my faith in God was not based on feelings, but on facts, on reasoning.' It answers the wishful-thinking objection in its own words." }
+      - { path: "/universo", rank: 4, score: 0.602, en: "Did God create the universe? (9.5k) — the Big Bang as a singular beginning of space, time and matter; Hubble's 1920s observation of receding galaxies; and why a universe that began 'poses enormous challenges to non-theist scientists'. The cosmological half of 'arguments from science'." }
+      - { path: "/dimostra", rank: "NOT IN TOP 10", en: "A scientist gives the proof that demonstrates God (2.1k) — Dr Francis Collins, director of the Human Genome Project, on the fine-tuning of the gravitational constant: one part in 10^14 weaker and there is no coalescence of stars, galaxies, planets or us. 🔴 KEPT DELIBERATELY, see below." }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/dimostra` is this source's HARD-SCIENCE document — a named scientist (Francis
+      Collins, Human Genome Project) on cosmological fine-tuning. The question asks in
+      so many words whether there are serious arguments FROM SCIENCE. This document is
+      one. It does not answer a different question, so dropping it would be dishonest.
+      I KEPT it.
+
+      What it measures: LENGTH, not relevance. /dimostra is 2,065 chars over 2 chunks —
+      the shortest credit in this suite — competing against 9k–18k articles that make
+      the same fine-tuning and cosmology case at length. Its own argument DOES return,
+      inside /universo (9.5k) at rank 4. The engine is preferring the long restatement
+      over the short primary source. This case will score coverage 3/4, on purpose.
+      Same treatment as `hu`'s /a/dns.html and `bg`'s esbg-skeptic-katastrofa.
+
+      ⚠️ It did NOT return in any of the four rounds, at any wording — including round 1,
+      whose wording was more emotional and pulled short documents higher. So unlike
+      `hu`'s /a/dns.html this is not a boundary that flapped; it is a stable miss, which
+      makes it the more informative of the two.
+    reworded: |
+      ⚠️ REWORDED ONCE, AND IT IS §0.12'S "ASK FOR GROUNDS" FINDING REPRODUCED EXACTLY.
+      v1: "…C'è qualcosa di concreto dietro, oppure è davvero soltanto una questione di
+           sentimento?"  ("Is there anything concrete behind it, or is it really just a
+           matter of feeling?")
+           → top 0.668, NO smell, but only 2 of 4 credits returned. Naming FEELING as
+           the alternative dragged the top 10 into emotional and testimony documents:
+           /preghiere (the prayer article) at RANK 2 for a god-exists question,
+           /come-avere-speranza (HIV testimony) at 4, /tragedia at 5, /saziate (a
+           drinking story) at 10. Both science credits missed. Failure mode #5.
+      v2 (kept): keeps the "consoling illusion" objection from the §0.7 menu but asks
+           for GROUNDS and names where they might come from — "arguments, for example
+           from science or from rigorous reasoning".
+           → **0.668 → 0.699, still no smell, 2/4 → 3/4 credits.** /esisteundio moved
+           3 → 1, /universo missing → 4, /preghiere 2 → 5, /saziate out of the top 10.
+      ⓘ This is the same magnitude of improvement §0.12 records (0.583 → 0.704, 2/4 →
+      4/4 credits). Second source to reproduce it.
+    rejected:
+      - { path: "/miracolo", rank: 3, why: "'Why doesn't God perform a grand miracle and prove his existence?' — the TITLE is a near-perfect topic match and it is REJECTED on its text. Its subject is God's RETICENCE: Philip Yancey on why God leaves us free to believe or not, 'my faith suffers from too much freedom'. That is a different objection from whether any grounds exist. Same call `hu` made on /a/csodat.html." }
+      - { path: "/preghiere", rank: 5, why: "'Does God answer our prayers?' — the answer document for the dropped `prayer` topic. It was RANK 2 for v1 of this question and fell to 5 after the reword; see `reworded`." }
+      - { path: "/unirsi", rank: 6, why: "the world-religions article — the answer document for the dropped `religions` topic" }
+      - { path: "/come-avere-speranza", rank: 7, why: "Steve Sawyer's HIV testimony — matched on the shared invitation tail. Was rank 4 for v1." }
+      - { path: "/tragedia", rank: 8, why: "'Where is God when tragedy strikes' — the dropped `suffering` topic's article" }
+      - { path: "/chi-2", rank: 9, why: "'Who 2' — part 4 of the cosmological chain, credited to case 3 where its personhood conclusion belongs" }
+      - { path: "/ama", rank: 10, why: "'How can a loving God let some people end up in hell?' — a judgment question. NOTE: unlike `everystudent-es` (§0.9), this source DOES carry a hell article; it simply is not the answer here. Answer document for the dropped `suffering` topic." }
+    note: |
+      ⓘ THE FOUR-PART COSMOLOGICAL CHAIN IS PRESENT ON THIS SOURCE AND IS NOT CREDITED HERE.
+      /nulla ("Was there nothing at the beginning?", 4.9k) → /qualcosa ("Something", 7.0k)
+      → /chi ("Who", 5.9k) → /chi-2 ("Who 2", 9.1k) is the estate's four-part argument,
+      published as four documents whose titles name no subject. §0.12 warns there is NO
+      safe cross-source rule about which part carries the personhood conclusion — `mk`
+      puts it in part 3 and gives two parts the same title. On `it` it is in PART 4
+      (/chi-2), like `hu`, and this was established by READING part 3 and part 4, not by
+      precedent: /chi argues whether the eternal Something is one or many; /chi-2 argues
+      that it has a WILL. /chi-2 is credited to case 3. None of /nulla, /qualcosa or /chi
+      returned in the top 10 for this question at either wording, so crediting the earlier
+      parts would have added three known misses for one argument.
+
+  # ── 2 ─────────────────────── skeptic · CLEAN FIRST TIME, NO REWORD NEEDED
+  - id: "esit-skeptic-ricopiata"              # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "A me la Bibbia sembra un testo antico come tanti altri, ricopiato a mano da generazioni di persone molto prima che esistesse la stampa. Cosa la renderebbe più attendibile di un qualsiasi altro documento di quell'epoca?"
+    en: "To me the Bible looks like an ancient text like plenty of others, recopied by hand by generations of people long before printing existed. What would make it any more trustworthy than any other document from that era?"
+    top_score: 0.702
+    credits:
+      - { path: "/ecco-perche-puoi-credere-nella-bibbia", rank: 1, score: 0.702, en: "The history of the Bible — who wrote the Bible (28.5k, the LONGEST document on this source). Opens on transmission and authorship directly: '40 authors over 1,500 years… unlike other religious texts the Bible is written as a truthful account of real events, places, people and dialogue. Historians and archaeologists have repeatedly confirmed its authenticity.' The retrieved chunk is the archaeology table — Petra, the walls of Jericho, the Hittites — which is exactly the 'how is it different from any other ancient document' answer." }
+      - { path: "/gesu-e-islam", rank: 2, score: 0.698, en: "Jesus and Islam (21.8k) — six questions, and question 1 IS this one: 'Has the Bible changed from its original version? Or was it modified over time?' The retrieved chunk is the tahrif answer: 'The Qur'an does not claim the Bible was changed. Quite the opposite — it honours the Torah and the Bible many times.' This is the scripture-corruption overlap already on record for `zh`, `kk`, `th`, `bg` and `hu` (§0.7) — not an error." }
+    note: |
+      🟢 THE ONLY CASE IN THIS SUITE THAT WAS CLEAN ON THE FIRST WORDING — and the
+      contrast with `hu` is the useful part.
+
+      `hu` needed THREE wordings on this topic and hit 0.755 then 0.787, because BOTH
+      of its candidate documents open with the reader's own doubt ("Can we believe the
+      Bible?" / "Has the Bible changed from the original?"), so paraphrasing away from
+      one landed on the other. On `it` only /gesu-e-islam opens that way;
+      /ecco-perche-puoi-credere-nella-bibbia opens on the Bible's COMPOSITION ("40
+      authors over 1,500 years"), not on the doubt. There was no second title to
+      collide with, so the shape `hu` needed three rounds to find — "what makes it
+      different from any other old book?", asked in the reader's own terms — worked
+      here immediately at 0.702, ranks 1 and 2.
+
+      ⓘ TWO CREDITS IS THE HONEST NUMBER. This source carries exactly two documents
+      whose subject is whether the Bible is trustworthy AS A TEXT, and both return at
+      ranks 1 and 2. Everything below rank 2 drops to 0.534 or less — a 0.164 cliff,
+      the widest in this suite, which is the engine agreeing that the shelf has two
+      documents on it.
+    rejected:
+      - { path: "/fede", rank: 3, why: "'Beyond blind faith' (Paul E. Little, 21.1k) — its subject is JESUS' identity and deity ('a brief look at the life of Jesus of Nazareth and why believing in him is not just blind faith'). An evidence article, but evidence for Christ, not for the text's transmission." }
+      - { path: "/bibbia", rank: 4, why: "the six-attributes what-is-God-like article — credited to case 3. Its TITLE ('Why choose the God of the Bible?') is exactly why it lands on Bible questions; its body is about God's character. See the header on this source's magnet." }
+      - { path: "/cosa-rende-gesu-diverso-dalle-religioni", rank: 5, why: "'What makes Jesus different from the religions?' — the answer document for the dropped `religions` topic" }
+      - { path: "/codice", rank: 6, why: "⚠️ CONSIDERED AND NOT CREDITED — see `considered_and_rejected` below. This is the boundary the reviewer may want to flip." }
+    considered_and_rejected:
+      - path: "/codice"
+        why: >-
+          "The historical truth behind The Da Vinci Code" (Rick James, 8.4k). It was on
+          the shortlist during drafting on the reasonable theory that a Da Vinci Code
+          rebuttal is a gospel-reliability piece. Reading the opening settles that it is
+          not: its subject is Dan Brown's SPECIFIC claims — a conspiring Church hiding
+          Jesus Christ's true identity, with the Roswell aliens and the JFK assassin as
+          its stated comparators — and the difficulty of telling Brown's history from
+          his fiction. It argues about one novel's plot, not about how an ancient text
+          reaches us intact. English discovery did not surface it for this topic at all,
+          and in-language it sits at rank 6 / 0.477, well below the 0.164 cliff under
+          the two real credits. The engine agrees. NOT CREDITED.
+          OPERATOR MAY OVERRIDE: a reviewer who reads `bible-trust` as including "was
+          the New Testament tampered with by the institutional Church" would credit it,
+          making this a 3-credit case.
+
+  # ── 3 ──────────────────── newcomer 🔴 TITLE TRAP HERE · NO REWORD NEEDED
+  - id: "esit-newcomer-energia"               # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "Quando sento la parola «Dio» mi viene in mente solo una specie di energia indefinita da qualche parte lassù. È qualcuno con cui si può davvero avere a che fare, o resta un'idea astratta?"
+    en: "When I hear the word 'God' all that comes to mind is some kind of undefined energy somewhere up there. Is he someone you can actually have dealings with, or does he stay an abstract idea?"
+    top_score: 0.64
+    credits:
+      - { path: "/bibbia", rank: 1, score: 0.64, en: "🔴 THE §0.12 TITLE TRAP, CONFIRMED PRESENT IN ITALIAN. Titled 'Perché scegliere il Dio della Bibbia?' ('Why choose the God of the Bible?'), which reads as an apologetic for Christianity over other faiths. Its BODY is a six-attribute enumeration of what God is like — '1. A God greater than us. 2. A God who can be known personally. 3…' — i.e. this IS the what-is-God-like article. Same document as bg 'Защо можем да разчитаме на Бог?' and the `tr`, `fa`, `pt`, `cs` twins. VERIFIED here by reading, NOT credited on precedent — §0.12 records that `ro` and `de` broke this same pattern and that assuming it cost `ro` a credit." }
+      - { path: "/chi-2", rank: 2, score: 0.617, en: "'Who 2' (9.1k) — part 4 of the four-part cosmological chain, and the part where the 'eternal Something' is argued to have a WILL and to be a person rather than a machine ('if it produces something else, it must DECIDE to do so, and it possesses a will'), and where God's omnipresence is handled ('in a sense we exist inside God, because he is everywhere, while being distinct from us'). This is the document that turns 'undefined energy' into 'someone'." }
+      - { path: "/dio", rank: 4, score: 0.574, en: "Who is God? (4.1k) — the honestly-titled twin: 'Who is God? What is he like? 6 personal qualities of God.' Then: 'Who is God… We can know him… Who is God… We can approach him. God invites us to speak with him and to take part in his life.' Directly answers 'is he someone you can have dealings with'." }
+    the_finding: |
+      🟢 THIS CASE IS THIS SOURCE'S DEMONSTRATION THAT TITLES ARE UNUSABLE, BOTH WAYS.
+      Its rank-1 credit is a document a title-only reviewer files under "why Christianity
+      rather than another religion" (/bibbia). Its rank-2 credit has the bare title
+      "Chi 2" and names no subject at all. The one document a title-only reviewer WOULD
+      pick first — /dio, "Chi è Dio?" — is the LOWEST-ranked of the three at rank 4.
+      A title-only reviewer would have credited one of three and mis-filed the other two.
+
+      Both title traps §0.12 lists as SYSTEMATIC are present on `it`, and both were
+      re-verified rather than assumed:
+        • "Why choose / rely on the God of the Bible?" → the six-attributes
+          what-is-God-like article. ✅ HOLDS on `it`. (Broke on `ro` and `de`.)
+        • Nothing → Something → Who → Who 2 → the four-part cosmological chain with
+          contentless titles. ✅ HOLDS, with the personhood conclusion in PART 4, like
+          `hu` and NOT like `mk`, which puts it in part 3.
+      The third systematic trap (a "Coronavirus"-titled general anxiety article, a
+      "chakra healing"-titled chronic-anxiety account) has NO Italian instance: this
+      source publishes no pandemic article and no occult article at all. A fourth was
+      checked for and did not fire — see case 4 on /alimentari.
+    rejected:
+      - { path: "/atea", rank: 3, why: "credited to case 1. Its retrieved chunk is the passage where the author demands 'how do you know God exists?' and gets 'oh, you just know' — an evidence passage, not a description of God's character." }
+      - { path: "/tragedia", rank: 5, why: "'Where is God when tragedy strikes' — the dropped `suffering` topic's article" }
+      - { path: "/preghiere", rank: 6, why: "the prayer article — the dropped `prayer` topic's answer document" }
+      - { path: "/gesu-e-islam", rank: 7, why: "its Islam section DOES enumerate God's attributes ('God is present everywhere, God is powerful, God is omniscient, God is creator. There is one God'), which is why it matches — but the document's subject is six questions Muslims ask about JESUS. Credited to case 2, where its subject lies." }
+      - { path: "/esisteundio", rank: 8, why: "credited to case 1. Whether God exists is a different question from what he is like." }
+      - { path: "/instabile", rank: 9, why: "credited to case 4" }
+      - { path: "/unirsi", rank: 10, why: "the world-religions article — the dropped `religions` topic's answer document. Its per-religion summaries include 'Muslims believe in a mighty but unknowable God', which is why it reaches a what-is-God-like question." }
+    note: |
+      ⓘ TWO DOCUMENTS WERE CONSIDERED AND NOT CREDITED, AND BOTH ARE DEFENSIBLE FLIPS.
+      • /chi (5.9k), part 3 of the chain, did NOT return in the top 10. Its subject is
+        whether the eternal Something is ONE or MANY, which is a god-exists question;
+        the personhood conclusion is in part 4, which IS credited. Crediting both would
+        credit one argument twice. Identical call to `hu`'s on /a/kicsoda.html.
+      • /fede (21.1k) did NOT return in the top 10 either, and its OPENING is squarely
+        on this question: "it is impossible for us to know how God exists and what his
+        characteristics are unless he takes the initiative and reveals himself. We need
+        to know what God is like and what his attitude to us is. Suppose we knew he
+        existed but was like Adolf Hitler — capricious, spoiled, racist and cruel."
+        That is the best single paragraph on this source for this question. The
+        remaining 21k chars are about Jesus of Nazareth's identity, so the DOCUMENT's
+        subject is not God's character. Rejected on the whole document, not the opening.
+        See the reviewer note — this is the closest call in the suite after /tragedia.
+
+  # ── 4 ──────────────────── seeker ⚠ REWORDED TWICE · THE SMELL/REACH FINDING
+  - id: "esit-seeker-tensione"                # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Vivo con un'inquietudine di fondo che non passa mai: mi preoccupo di quello che potrebbe succedere anche quando nel presente va tutto bene. Non riesco mai a stare davvero tranquillo. Dio ha qualcosa da offrire a chi è fatto così?"
+    en: "I live with an underlying restlessness that never goes away: I worry about what could happen even when everything is fine in the present. I can never really be at ease. Does God have anything to offer someone who is made like this?"
+    top_score: 0.67
+    credits:
+      - { path: "/instabile", rank: 1, score: 0.67, en: "Spiritual peace in an unstable world (15.6k) — its own subtitle is this question: 'In such uncertain times, how can you find inner peace instead of being overwhelmed by worry and anxiety? Can we look to the future with hope, whatever the circumstances of life and of the world?' Then Heather, a student, and the argument that God is the one constant in a world that keeps changing. This is the source's general anxiety article." }
+    reworded: |
+      ⚠️ REWORDED TWICE, AND ROUND 4 IS THE FINDING WORTH KEEPING FROM THIS SUITE.
+      v1: "Vivo quasi sempre con una tensione addosso, anche nei periodi in cui
+           oggettivamente non c'è niente che non va… Dio offre qualcosa a chi si sente
+           così?"
+           → top 0.688, no smell, but /instabile only RANK 3, behind /tragedia (rank 1)
+           and /preghiere (rank 2). Reach failure: a generic "does God offer anything"
+           ending pulled the crisis article and the prayer article above the anxiety one.
+      v2: "Sono in ansia praticamente ogni giorno, per cose che non sono ancora
+           successe… non c'è nessuna emergenza in corso…"
+           → top 0.676, /instabile STILL rank 3. Naming the emotion did not help, and the
+           boilerplate tail got worse: /dellintimita (sex and intimacy) at rank 5 and
+           /matrimonio (marriage) at rank 7 — two of the three articles §0.12 names as
+           confirmed repeat tail-carriers across the estate — for an anxiety question.
+      v3: "…Vorrei qualcosa di solido a cui appoggiarmi. Dio dà una serenità che regge
+           anche quando intorno a me tutto cambia?"
+           → **/instabile 3 → RANK 1, but at 0.742** — 0.008 under the smell line. It
+           worked because those two clauses restate the article's own thesis ("the world
+           around us changes constantly, God is unchanging… placing our hearts on a solid
+           and secure foundation"). Reaching by restating is exactly what guardrail #1
+           forbids, and 0.742 is `uk`'s 0.748 all over again.
+      v4 (kept): DELETES both restating clauses — "something solid to lean on" and "even
+           when everything around me is changing" — and keeps only the reader's own
+           symptom (worrying about what has not happened, never being at ease).
+           → **/instabile HELD RANK 1 and the score fell 0.742 → 0.670.**
+
+      🟢 THE FINDING: reach and smell pulled TOGETHER here, and the rule that predicts
+      when they do is about WHAT KIND OF EDIT it is. §0.12 says they pull in opposite
+      directions; the `uk` note refines that to "unless the fix changes which objection
+      the question makes". This suite adds a third, cheaper case: when the fix DELETES
+      A RESTATEMENT rather than paraphrasing one, rank is unaffected and the whole
+      restatement's contribution to the score disappears. 0.072 of headroom for zero
+      reach. Try deletion before paraphrase.
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER ON THIS SOURCE, AND THE REJECTS SHOW WHY.
+      `everystudent-it` carries exactly one document whose subject is living anxious.
+      Ranks 2–10 are the tragedy article, the prayer article, the suffering article, the
+      child-abuse Q&A, an eating-disorder account, the six-attributes article, a drinking
+      story, a conversion testimony and DATING ADVICE (rank 10). That is the familiar
+      shape from `hu`'s prayer case. Manufacturing a second credit would measure the
+      engine's willingness to return adjacent documents rather than the right one.
+
+      🟢 THE `mk` TRANSLATION TRAP WAS CHECKED FOR AND DOES NOT FIRE HERE.
+      §0.12 records that `mk /a/sindrom508.html` is the largest document in that source
+      and the only one whose title carries the Macedonian word for anxiety — because the
+      translator rendered "eating disorder" as "анксиозен синдром" — and that it is
+      really the eating-disorder article. `it` publishes that same article as /alimentari
+      (20.8k, the third-largest document here) and titles it HONESTLY: "Un aiuto per i
+      disordini alimentari" ("Help for eating disorders"), subtitled "many female students
+      do not understand the causes of eating disorders". It surfaced in English discovery
+      for anxiety at 0.494 and returns here at rank 6. REJECTED on its text: its subject
+      is bulimia, body image and Susan Broadwell's own recovery, not chronic anxiety.
+      The trap is a per-translation accident exactly as §0.12 says, and Italian did not
+      make it. Cross-source precedent predicted a trap that is not there — the mirror
+      image of `ro`, where precedent predicted a credit that was not there.
+    rejected:
+      - { path: "/tragedia", rank: 2, why: "'Where is God when tragedy strikes?' (12.8k) — ⚠️ THE BOUNDARY REJECT OF THIS SUITE, and it has been rank 1, 2 or 3 at every wording. Its opening genuinely reaches toward this question — 'how can we find the inner strength to face FEARS, tragedies, misfortunes and terrorist attacks… is he really someone to rely on, in hard times AND in calm times?' — and its retrieved chunk quotes 'a refuge and strength, an ever-present help in anguish'. REJECTED because the question says nothing is actually happening, and this document's subject is when something IS. Identical call to `hu`'s on /a/faj.html and `ru`'s on /a/gdebog.html. See the reviewer note." }
+      - { path: "/preghiere", rank: 3, why: "'Does God answer our prayers?' — the dropped `prayer` topic's answer document. Its 'unanswered prayers' section is about asking and trusting, not about living anxious." }
+      - { path: "/perche", rank: 4, why: "'Why is life so hard?' — the dropped `suffering` topic's article. Its closing does say 'we may be dismayed and troubled, but God can give us his peace, which is greater than the problems in front of us', which is the tail-adjacent match." }
+      - { path: "/terribili", rank: 5, why: "'Why worship a God who allows terrible things?' — child abuse and free will. The dropped `suffering` topic's article." }
+      - { path: "/alimentari", rank: 6, why: "the eating-disorder account — this is the `mk` trap checked and NOT firing; see the note above" }
+      - { path: "/bibbia", rank: 7, why: "the six-attributes what-is-God-like article — credited to case 3. Its heading 5, 'a God who loves', is the match. Third of this suite's four cases in which it appears; see the header." }
+      - { path: "/saziate", rank: 8, why: "'Quench your real thirst' — heavy drinking at parties and the longing for real friendship behind it. A tail match, and the Italian twin of the /a/szomjadat.html that `hu` dropped from its purpose case for the same reason." }
+      - { path: "/atea", rank: 9, why: "credited to case 1. Its retrieved chunk is the passage where the author is overwhelmed by deadlines and prays — genuinely adjacent, but the document is a conversion account." }
+      - { path: "/corteggiamento", rank: 10, why: "'How to date intelligently?' — DATING ADVICE at rank 10 for an anxiety question. This is one of the three estate articles §0.12 names as a confirmed repeat tail-carrier across languages, and it is the plainest boilerplate-tail match in this suite." }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 10 credits · 10 distinct documents (no document credited twice).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the n=4 row exactly.
+# Topics USED:    god-exists, bible-trust, know-god, anxiety.
+# Topics DROPPED: suffering, religions, trinity, prayer (SLOT — all four have real
+#                 answer keys today) · purpose, jesus-death (CONTENT GAP — no answer
+#                 document exists). Answer documents for all six are named in the
+#                 header table so the suite extends without re-running discovery.
+#                 EXTEND IN THIS ORDER: suffering, religions, trinity, prayer.
+# Paraphrase smells: 0 across all four rounds. Max top score 0.702.
+# Credits that do not retrieve: 1 (/dimostra on case 1), kept deliberately.
+# evidence_tier: llm-translated
+#
+# 🔴 BOTH SYSTEMATIC TITLE TRAPS FROM §0.12 ARE PRESENT, AND BOTH WERE RE-VERIFIED
+#   RATHER THAN CREDITED ON PRECEDENT — which is the mistake that cost `ro` a credit.
+#   1. /bibbia — "Perché scegliere il Dio della Bibbia?" IS the six-attributes
+#      what-is-God-like article. Rank 1 for know-god at 0.640.
+#   2. /nulla → /qualcosa → /chi → /chi-2 — the four-part cosmological chain published
+#      as four documents with contentless titles. The personhood conclusion is in PART 4
+#      (/chi-2), as on `hu` and NOT as on `mk`. Established by reading parts 3 and 4.
+#   The third systematic trap (coronavirus → general anxiety, chakra → chronic anxiety)
+#   has NO Italian instance: no pandemic article and no occult article exists here.
+#   A FOURTH was checked for and did NOT fire: /alimentari is the same article `mk`
+#   mistranslated into an anxiety title, and Italian titles it honestly as eating
+#   disorders. Precedent predicted a trap that is not there — the mirror of `ro`.
+#
+# 🔴 THE TESTIMONY SHARE CANNOT BE READ FROM THE PATHS HERE — the `uk` finding,
+#   reproduced in a new shape. `everystudent-it` has NO `/a/` tree and NO `/story/`
+#   tree; all 38 documents sit at flat top-level slugs. Path-counting reads 0%
+#   testimony. Reading the openings gives 6 first-person accounts of 38 (~16%), and
+#   /atea and /come-avere-speranza appear uncredited in the top 10 of two cases each.
+#
+# 🟢 THE TAIL MAGNET HERE IS AN ARTICLE, NOT A TESTIMONY — A SECOND MAGNET MECHANISM.
+#   §0.12's corrected rule says one document absorbs the tail-magnet load at low
+#   testimony share, and names the carriers found so far: a Josh McDowell testimony
+#   (`et`), a prayer article (`mk`), dating and marriage advice (`ms`). On `it` there
+#   are THREE co-magnets, each appearing in the top 10 of 3 of the 4 cases:
+#     /bibbia     ranks 4, 1(credited), 7  — and 5 separate topics in discovery
+#     /preghiere  ranks 5, 6, 3
+#     /tragedia   ranks 8, 5, 2
+#   Only /preghiere and /tragedia carry the classic invitation tail. /bibbia does not:
+#   it spreads because a SIX-HEADING ENUMERATION OF GOD'S CHARACTER ("greater than us /
+#   knowable / good / just / loving / gives meaning and purpose") has a paragraph
+#   pointed at almost every topic in the §0.7 menu. That is a distinct mechanism from
+#   the invitation-prayer chunk shape and is worth recording alongside it: an
+#   enumerated overview article is a magnet by structure, not by boilerplate.
+#   ⓘ The classic pure-tail document, /conoscere-dio-personalmente (Four Spiritual Laws,
+#   6.4k), surfaced ONCE in discovery (jesus-death, 0.544) and in NO case's top 10.
+#
+# 🔴 THE ATONEMENT GAP: `everystudent-it` HAS NO "WHY DID JESUS DIE?" ARTICLE.
+#   It joins `ru`, `zh-cn` and `mn`. Per §0.12 this is settled corpus composition, not
+#   a retrieval defect, and is recorded here rather than re-opened. Discovery's best
+#   jesus-death candidate was /gesu-e-islam at 0.596, matched on the vase-and-air
+#   analogy for "if Jesus died, was God dead for three days" — a historicity answer
+#   inside a tahrif article. The topic is DROPPED, not manufactured.
+#
+# 🔴 A SECOND CONTENT GAP, AND THIS ONE IS NOT YET ON RECORD FOR THIS ESTATE:
+#   NO PURPOSE / MEANING-OF-LIFE ARTICLE. `it` has no twin of hu /a/celom.html ("What
+#   is my purpose in life?", the hammer parable) or /a/valddi.html ("Real life"). The
+#   `purpose` discovery probe topped out at 0.482 — the LOWEST of all ten topics — and
+#   returned a conversion testimony (/atea), the peace article (/instabile) and a
+#   fashion model's story (/bellezza). No document on this source has meaning as its
+#   subject. Worth checking whether other small siblings share this gap; if they do it
+#   is an estate-level publishing fact, not an Italian one.
+#
+# ⚠️ FOR THE REVIEWER — five decisions, ranked by how much they change
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. /tragedia on case 4 — I REJECTED it at rank 2. THE CLOSEST CALL IN THE SUITE.
+#      Its opening explicitly covers "calm times" as well as crises and leads with
+#      "fears". I rejected it because the question says nothing is actually wrong,
+#      matching the calls `hu` (/a/faj.html) and `ru` (/a/gdebog.html) made on the same
+#      article. Crediting it makes case 4 a 2-credit case at ranks 1 and 2.
+#   3. /dimostra on case 1 — KEEP (recommended) or DROP. It records a 2.1k primary
+#      source (Francis Collins on fine-tuning) losing to 9k–18k articles restating the
+#      same evidence. Unlike `hu`'s /a/dns.html it never returned at ANY wording across
+#      four rounds, so it is a stable miss rather than a flapping boundary.
+#   4. /fede on case 3 — REJECTED (did not return in the top 10). Its opening paragraph
+#      is the best single paragraph on this source for "what is God like"; the other
+#      21k chars are about Jesus' identity. A reviewer who reads `know-god` as including
+#      "God as revealed in Christ" would credit it and accept a known miss.
+#   5. /codice on case 2 — NOT CREDITED (rank 6, 0.477). A Da Vinci Code rebuttal about
+#      one novel's claims. Crediting it makes case 2 a 3-credit case. Reasoning is in
+#      that case's `considered_and_rejected` block.

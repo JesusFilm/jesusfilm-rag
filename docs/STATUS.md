@@ -5,7 +5,23 @@ Live "you are here" for the build. Stable design lives in
 [sources.md](./sources.md). **This file is the churn layer** — update it
 whenever state changes; keep it to ~one screen.
 
-_Last updated: 2026-07-27 — **slice #10 (EveryStudent French, `everystudent-fr`)
+_Last updated: 2026-07-30 — **the #111 campaign has CLOSED PHASES 1–2**:
+47 of 48 sibling domains registered, **45 acquired locally, 2,281 documents**,
+zero duplicate-content groups, zero doctype leaks, gate green at **744 tests**.
+Five batches on `feat/everystudent-siblings`, **nothing pushed and no PR** (that
+is Phase 6). **Nothing is indexed yet — Phase 3 (`pnpm index`) runs ONCE and is
+the next action.** Three domains are unacquired by decision, none blocking:
+`sr` ([#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129)), `he`
+([#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)) and `lv`
+([#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)). Two prod-corpus
+defects were found and filed rather than fixed on this branch:
+[#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131) (`everystudent-ar`
+serves a full Gospel of John, against the policy that entry set) and the
+standing [#128](https://github.com/JesusFilm/jesusfilm-rag/issues/128). Full
+resume contract:
+**[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md)**.
+Previously:
+slice #10 (EveryStudent French, `everystudent-fr`)
 is DONE — all four stages GREEN and PROMOTED TO PROD**, closing the #112 route
 both locally and in prod (en ✅ → ar ✅ → fr ✅). 67 French articles acquired,
 ingested (67 docs / 418 chunks, 66 `fr` / 1 `null`), queryable, evaluated, and now
@@ -36,6 +52,19 @@ The **#17/#75 canary is resolved**, gate green at 432/432; slice #8 MERGED
 (PR #119) and live in prod; prod is 100% qwen3_
 
 ## You are here
+
+**▶ The #111 sibling-domain campaign is the active work — see "Next action"
+below for its current state, and
+[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md) for
+the full contract.** Phases 1–2 closed 2026-07-30: 45 sources acquired, 2,281
+documents, nothing indexed yet.
+
+⚠️ **The slice narrative below is HISTORY, not current state.** It stops at
+slice #9 and predates the campaign entirely. It is kept for the per-slice detail
+that is not recorded anywhere else; do not read its opening line as "you are
+here".
+
+---
 
 **Slice #9 (EveryStudent Arabic, `everystudent-ar`) is DONE — all four stages
 green, source Evaluated** on `slice/everystudent-ar` (2026-07-25), **not yet
@@ -337,6 +366,95 @@ Eval methodology (source-agnostic questions + multi-source living `relevant` set
 recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-approach.md)**.
 
 ## Next action
+
+**▶ ACTIVE: the #111 campaign — 48 non-walled EveryStudent sibling domains.**
+Branch `feat/everystudent-siblings`. **The state file is
+[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md) — read
+it first; it is the complete resume contract and needs no chat history.**
+
+This is a **batched campaign, NOT 48 `/slice` runs** — only acquisition is
+per-source; ingest and eval are already whole-corpus single commands. Do not run
+`/slice` for these.
+
+_You are here (2026-08-04):_ **PHASES 1–4 ARE CLOSED. PHASE 5 IS IN PROGRESS —
+14 of 45 golden suites written.**
+
+⚠️ **This block was STALE until 2026-08-03** — it reported "Indexed: NOTHING YET"
+and "Next: Phase 3" for four days after Phase 3 finished. That is the precise
+failure this file hit on 2026-07-17 and the reason the campaign file's §0 exists.
+**The campaign file is the truth; this is a pointer to it.**
+
+| | |
+|---|---|
+| Registered | **47 of 48** |
+| Acquired locally | **45** — 2,281 documents |
+| Duplicate-content groups | **0** |
+| Doctype leaks | **0** (14 cleaned up 2026-07-30, before Phase 3) |
+| Gate | green — depcruise · lint · typecheck · db:check · status:check · **764 tests** |
+| Indexed (Phase 3) | ✅ **2,281 / 2,281**, 12,974 chunks, ~95 min, 0 retries · 2026-07-30 |
+| Language labels | ✅ 225 null + 182 mislabelled → **0** (LLM sweep, 2026-07-31) |
+| Retrieve (Phase 4) | ✅ **47 / 47**, zero wrong-language hits · 2026-08-03 |
+| Eval (Phase 5) | 🔵 **IN PROGRESS** — Part A ✅ closed; Part B **14 of 45 suites** written |
+| Eval, latest | **270 cases** · recall@10 **1.000** · coverage **0.841** · P@1 **0.759** · `eval/results-2026-08-04-batch1-tierA-keep.md` |
+| Suites written | `zh-cn` `ru` `bg` + tier-A batch 1 (`sk` `hu` `mn` `ja` `pl` `sq` `es` `fa` `pt` `cs` `tr`) |
+| Control | the 130 pre-campaign cases moved **0.721 → 0.720** — 110 new cases disturbed nothing |
+
+Five batches: 8 pilot (599 docs) · 12 → 11 acquired (782) · 12 (567) · 11 → 10
+acquired (233) · 4 → 3 acquired + 1 partial (100). **Batches 4 and 5 both staged
+100% with ZERO skips.**
+
+_Next:_ **BATCH B — 14 mid-tier sources (41–67 docs), drafted in PARALLEL and
+approved in ONE turn.** The operator ended the one-source-at-a-time loop on
+2026-08-04; do not reinstate it. Then batch C (9) and D (8), **then the mandatory
+closing Part A sweep** — bulk removed the per-source version, so the living
+relevant sets must be re-reviewed once at the end or the keys go stale.
+
+≈150 cases remain across 31 sources, taking the suite to roughly 420. Then Phase
+6 (ONE PR), Phase 7 (prod — which **must** re-run `lang:sweep:production`; the
+Persian text itself contains Arabic characters, so ingest will reproduce the
+mislabels from scratch). **The full brief for a cold start is the campaign
+file's §0 and §0.12.**
+
+⚠️ The `QUERY_EMBED_MAX_ATTEMPTS=8 QUERY_EMBED_TIMEOUT_MS=25000` override on
+`pnpm eval` is MANDATORY — it has no resume. Also: `pnpm eval` is **not
+run-to-run deterministic** (recall@3 drifts ~0.9% relative between identical
+runs); recall@10 and coverage are the stable primaries.
+⚠️ **Re-run the FULL gate after ingest**, not just after code changes —
+integration tests query the live Postgres.
+
+**3 of the 48 are not acquired, all by decision, none blocking Phase 3:**
+
+| Key | Why | Issue |
+|---|---|---|
+| `everystudent-sr` | DNS-blackholed from this network. **Do NOT add an `/etc/hosts` line** — considered and rejected. | [#129](https://github.com/JesusFilm/jesusfilm-rag/issues/129) |
+| `everystudent-he` | **Not a Cru property** (footer `© המכללה למקרא`); 1,020 articles, not the ~5 recon said; CDATA sitemap `discover.ts` cannot parse | [#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132) |
+| `lv` (unwritten) | **Rights, not crawlability** — robots disallows `ClaudeBot` by name. Ask Agape Students Latvia. | [#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133) |
+
+Filed on the way:
+- **[#128](https://github.com/JesusFilm/jesusfilm-rag/issues/128)** — share-widget
+  chrome embedded in all three EXISTING EveryStudent sources, **live in prod**
+  (232 chunks; `-ar` and `-fr` at 100% of documents). Deliberately kept out of
+  the campaign branch.
+- **[#131](https://github.com/JesusFilm/jesusfilm-rag/issues/131)** —
+  `everystudent-ar` seeds a **full Gospel of John** (23,624 ch), **live in
+  prod**, against the scripture policy that entry itself established. Exactly
+  one document; the other two prod sources were checked and are clean.
+- **[#132](https://github.com/JesusFilm/jesusfilm-rag/issues/132)**,
+  **[#133](https://github.com/JesusFilm/jesusfilm-rag/issues/133)** — as above.
+- **[#138](https://github.com/JesusFilm/jesusfilm-rag/issues/138)** (2026-08-03) —
+  the LLM language detector's 200-token output cap can truncate a **correct**
+  reply mid-`evidence`-string, which the adapter then rejects as
+  `response was not JSON`. Hit 1 document in 409. The row is left null and logged
+  as an anomaly, so **the bug is indistinguishable from an honest abstain** in
+  the report. Fix is a bigger cap and/or a shorter evidence quote.
+
+⚠️ **`everystudent-ru-ca` (studentstan.com) carries only 5 seeds, deliberately.**
+It is a **mirror** of `everystudent-ru` — 42 of its 87 articles overlap at ≥95%,
+mean 84.1%. Do not "complete" its seed list from the site's own map: the ingest
+dedup gate keys on `(sourceKey, canonicalUrl)`, so ~81 near-duplicates would be
+chunked and embedded with nothing downstream to catch them.
+
+---
 
 **✅ DONE — slice #10 (`everystudent-fr`, questions2vie.com), ALL FOUR STAGES
 GREEN 2026-07-27 AND PROMOTED TO PROD the same day.** The third and final walled

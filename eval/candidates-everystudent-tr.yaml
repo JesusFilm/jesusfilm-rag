@@ -1,0 +1,461 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-tr` (71 documents).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# ⚠️ SIZING — OPERATOR DECISION WANTED. 71 ÷ 8 = 8.9, which rounds to 9 cases.
+# This draft carries TEN, one per §0.7 topic, and here is the case for it:
+#   • All ten topics are answered by a DEDICATED Turkish document — verified by
+#     reading the opening of all 71 documents from the database, not by title.
+#     No topic had to be manufactured. (Contrast `ti` in §0.7, which genuinely
+#     lacks five of the ten.)
+#   • The §0.7 persona split (skeptic 4 · newcomer 3 · seeker 2 · believer 1) is
+#     defined for ten. Cutting to nine breaks it: dropping `prayer` removes the
+#     ONLY believer case in the suite, and dropping a skeptic topic makes `tr`
+#     the only tier-A source with 3 skeptic cases instead of 4.
+#   • `zh-cn`, `ru` and `bg` are all ten-case full-menu suites. A nine-case `tr`
+#     is the first hole in §0.7's "topical coverage is consistent across all 45".
+# If the operator wants strict arithmetic, DROP case 9 (`religions`) — it is the
+# one whose two credits are also the most thinly differentiated. Everything else
+# in this file is unaffected by that cut.
+#
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN TURKISH, not translated from the English menu (§0.6).
+# Null-language documents: 0 of 71. Duplicate titles: 0. Duplicate paths: 0.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-tr tr
+#   → 30 distinct candidate documents of 71, all ten topics covered.
+#   ⚠️ That 30/71 is the THINNEST discovery pool of the campaign so far
+#      (`ru` 66/95, `bg` 58/84, `zh-cn` 51/128). The English discovery probe is a
+#      weaker scaffold for Turkish — its top score across all ten topics was
+#      0.621. The in-Turkish questions below reach much further (max 0.739), so
+#      the thin pool is a property of the PROBE, not of the corpus. Several
+#      credited documents below never appeared in discovery at all.
+#
+# 🔴 EVERY ONE OF THE 71 DOCUMENTS was read from the database (title + opening
+# 700–750 chars) before any credit was assigned — guardrail #5. Not a sample of
+# candidates: all 71. This is what caught the title trap in case 2 and the two
+# reverse traps in case 5.
+#
+# ENGINE-CHECKED TWICE (guardrail #8 §2) — .tmp-diag/phase5-tr-check.ts
+#   Round 1: 27 declared → 2 paraphrase smells (0.755, 0.755), 7 credits not in top 10.
+#   Round 2: **0 paraphrase smells** (max top score 0.739), 3 credits not in top 10.
+#   Final:   26 credits — one of those 3 (`guven.html`) was then dropped on the
+#            text. Removing a credit cannot change retrieval, so round 2's ranks
+#            and scores stand as measured; no third run was performed.
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 26 credited PATHS resolve to EXACTLY ONE document — 26/26.
+#   Guardrail #3a:   no credited document has a null language — 26/26.
+#
+# 🔴 A CORRECTION TO THE `bg` CHECK TEMPLATE, CARRIED OUT HERE.
+# `.tmp-diag/phase5-bg-check.ts` declares credits by TITLE and resolves them to
+# paths via the database. That is unsafe: `everystudent-ja` has a DUPLICATED title
+# naming two different documents, one of which is a title trap, so a title→path
+# map has a 50% chance of silently crediting the wrong one. `phase5-tr-check.ts`
+# declares credits BY PATH — the thing `eval-metrics.ts` actually matches on — and
+# uses the database only to VALIDATE (one document per path, non-null language).
+# Titles are printed for humans and are never load-bearing. Future suites should
+# copy the `tr` script, not the `bg` one.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Turkish). This
+# is a fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ HAZARDS SPECIFIC TO THIS SOURCE — read before editing the keys
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. 🔴 TITLE TRAP — FOURTH SOURCE, FOURTH INSTANCE, and it is the same article
+#    as Bulgaria's. `/makaleler/tanrikimdir.html` is titled
+#    "Tanrı'ya Neden Güvenebiliriz?" = "Why can we trust God?", but its body opens
+#    "Rab neye benzer? Rabbin kişilik özellikleri nelerdir?" ("What is God like?
+#    What are God's personality traits?") and lists SIX personal attributes. It is
+#    the know-god article, filed under trust by its title. Note the SLUG is honest
+#    — `tanrikimdir` literally means "who is God" — so on this source the slug and
+#    the title disagree and the slug is the truthful one. Exact twin of
+#    `Защо можем да разчитаме на Бог?` (§0.11) and of `/artikel/hochsten.html` (§0.7).
+#
+# 2. ASCII paths, unlike `bg`. `/makaleler/*.html`, plain, no percent-encoding.
+#    One path is MIXED CASE — `/makaleler/KutsalRuh.html` and
+#    `/makaleler/Rabiyimidir.html`. Do not lower-case them when transcribing.
+#
+# 3. THE PROMISCUOUS DOCUMENT: `/makaleler/rehber.html` ("İnancın Rehberi",
+#    Guide to Faith) appears in the top 10 of SIX of the ten cases — god-exists
+#    (rank 1), know-god (3), suffering (9), anxiety (**rank 1**), prayer (6),
+#    religions (9). This is the Turkish equivalent of the Japanese testimony that
+#    surfaced in four unrelated cases. It is credited in exactly ONE case
+#    (god-exists, where the Russian twin /a/rukovodstvo.html is also credited) and
+#    rejected in the other five. Its opening is a meandering meditation on the
+#    search for meaning, which is why it matches almost anything emotional.
+#
+# 4. `/makaleler/imanakil.html` ("What is the relationship between faith and
+#    reason?") is the runner-up promiscuous document — top 10 in five cases
+#    (god-exists, suffering, anxiety, religions, trinity), credited in NONE. Its
+#    subject is a Christian philosopher reconciling revelation and inquiry, not
+#    an answer to any of the five questions that retrieve it.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "estr-skeptic-kanit"                  # topic: god-exists
+    persona: skeptic
+    q: "Arkadaşlarımın hepsi Tanrı'ya inanmayı bir temenniden ibaret görüyor. Elle tutulur bir dayanağı var mı bunun?"
+    en: "All my friends see believing in God as nothing more than wishful thinking. Is there anything tangible to back it up?"
+    top_score: 0.704                          # clear of 0.75
+    credits:
+      - {path: "/makaleler/varmi.html",    rank: 1, score: 0.704, en: "Is there a God? — Reasons to believe. 22.0k chars, the source's flagship apologetics article: 'everyone would like someone to produce a simple proof of God's existence — real evidence instead of \"you just have to believe\"'"}
+      - {path: "/makaleler/ispatlar.html", rank: 2, score: 0.691, en: "Can you prove God's existence? — why 'you can't prove it' has itself been elevated into a dogma since Kant. Turkish twin of the Russian /a/dokazivat.html"}
+      - {path: "/makaleler/rehber.html",   rank: 3, score: 0.687, en: "A guide to faith — written at the person who suspects there might be more but would rather not look. Turkish twin of the Russian /a/rukovodstvo.html, credited for this same question shape. ⚠ See hazard 3: this is the promiscuous document, credited HERE ONLY"}
+      - {path: "/makaleler/ateist.html",   rank: 7, score: 0.651, en: "How an atheist found God — 17.3k chars, a first-person account by someone who kept asking believers 'how do you know God exists?' and got 'well, we just know'. Answers the wishful-thinking charge on its own terms"}
+    rejected:
+      - {path: "/makaleler/kutsalkitap.html", rank: 4, score: 0.684, why: "the Bible-reliability article — credited to case 7. A different objection"}
+      - {path: "/makaleler/dualar.html",      rank: 5, score: 0.683, why: "the prayer article — credited to case 8"}
+      - {path: "/makaleler/imanakil.html",    rank: 6, score: 0.659, why: "faith-and-reason philosophy for Christians, not evidence for a skeptic. See hazard 4 — top 10 in five cases, credited in none"}
+      - {path: "/makaleler/ichuzur.html",     rank: 8, score: 0.629, why: "inner peace — credited to case 5"}
+      - {path: "/makaleler/korona.html",      rank: 9, score: 0.626, why: "credited to case 5"}
+      - {path: "/makaleler/kaynak.html",      rank: 10, score: 0.623, why: "credited to case 4"}
+    reworded_and_what_it_bought: |
+      ⚠️ REWORDED AFTER ROUND 1 — and this is FAILURE MODE C (the lexical artifact),
+      caught in the wild for the second time on this estate.
+      v1: "Çevremdekiler inancı, kendi başına ayakta duramayanların tutunduğu bir şey
+           olarak görüyor…" ("the people around me see faith as something clung to by
+           those who can't stand on their own") → top 0.583, NOT a smell — but
+           `varmi.html` AND `ateist.html` both fell out of the top 10, and the list
+           filled with /makaleler/ichuzur.html (inner peace, rank 2),
+           /makaleler/yalnizlikla.html (loneliness, rank 6) and /makaleler/korona.html
+           (coronavirus fear, rank 7). The COPING vocabulary — "can't stand", "cling to"
+           — drove retrieval, not the subject. Same mechanism as the Japanese
+           "over drinks" case, but caused by an emotional register rather than a noun.
+      v2 (kept) asks for GROUNDS instead of diagnosing the believer.
+      Result: **0.583 → 0.704, and 2/4 credits → 4/4 credits.** The best single
+      reword in this suite. Lesson for the remaining suites: an emotionally-framed
+      question retrieves emotionally-framed documents regardless of topic.
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "estr-newcomer-nasilbiri"             # topic: know-god
+    persona: newcomer
+    q: "Tanrı deyince aklıma uzaklarda duran belirsiz bir güç geliyor. Aslında nasıl biri?"
+    en: "When someone says God, what comes to mind is some vague force standing far away. What is he actually like?"
+    top_score: 0.656
+    credits:
+      - {path: "/makaleler/idealtanri.html",  rank: 1, score: 0.656, en: "Finding the ideal God — 18.6k chars, the qualities we would expect a real God to have, enumerated '#1: God is greater than us', '#2: God can be known personally'. Twin of Bulgaria's 'In search of the ideal God'"}
+      - {path: "/makaleler/boyutlar.html",    rank: 2, score: 0.643, en: "How do we find an invisible God? — the flatland analogy (two-dimensional people on a sheet of paper who can only see your fingertip). Answers the 'vague force far away' image directly. Twin of the Russian /a/gdyebog.html and Bulgaria's 'Is God invisible?'"}
+      - {path: "/makaleler/tanrikimdir.html", rank: 5, score: 0.604, en: "🔴 TITLE TRAP — titled 'Why can we trust God?' but the body opens 'What is God like? What are God's personality traits?' and lists SIX personal attributes. THIS IS THE KNOW-GOD ARTICLE. A title-based reviewer files it under trust and never credits it here. Its slug (`tanrikimdir` = 'who is God') is the honest half. Twin of Bulgaria's `Защо можем да разчитаме на Бог?`"}
+    rejected:
+      - {path: "/makaleler/rehber.html",   rank: 3, score: 0.622, why: "the promiscuous guide-to-faith article (hazard 3) — credited to case 1"}
+      - {path: "/makaleler/dualar.html",   rank: 4, score: 0.620, why: "RANK 4 AND REJECTED — the prayer article, matching on its 'have you ever known someone who really trusted God?' opening. About praying to God, not what God is like"}
+      - {path: "/makaleler/trajedi.html",  rank: 6, score: 0.576, why: "the tragedy article — credited to case 3. Its 'God who exists and longs to be known' passage is a boilerplate-adjacent match"}
+      - {path: "/makaleler/uclubirlik.html", rank: 7, score: 0.574, why: "the Trinity article — credited to case 10. Answers how God is three-and-one, not what he is like"}
+    not_credited_deliberately:
+      - {path: "/makaleler/rableiliski.html", en: "What is having a relationship with God like? — did not retrieve at all. Its subject is what a RELATIONSHIP with God is like, not what God is like. Identical call to the Russian /a/znat.html, which §0.10 dropped for the same reason. Consistent across both sources."}
+
+  # ── 3 ─────────────────────────────────────────────────────────── skeptic
+  - id: "estr-skeptic-kaza"                   # topic: suffering
+    persona: skeptic
+    q: "Geçen yıl bir arkadaşımı kazada kaybettim. O günden beri bunun iyi bir Tanrı fikriyle nasıl bağdaştığını çözemiyorum."
+    en: "I lost a friend in an accident last year. Since then I can't work out how that squares with the idea of a good God."
+    top_score: 0.614
+    credits:
+      - {path: "/makaleler/trajedi.html",     rank: 1, score: 0.614, en: "Where is God in the middle of tragedy? — 15.1k chars. 'How do we stand up against the terrorist attacks on our society, the terrible tragedies in our lives, the anxiety, the anger, the hatred, the destruction?'"}
+      - {path: "/makaleler/Rabiyimidir.html", rank: 5, score: 0.596, en: "Is God good? — a 1.4k video transcript opening 'Is God good? If so, why is there pain and evil?', then the free-will argument. Turkish twin of the Chinese /a/isgodgood.html (rank 1 for this question shape in Part A) and Bulgaria's `Добър ли е Бог?`. NOTE: in Bulgarian this document did NOT retrieve; in Turkish it does, at rank 5"}
+      - {path: "/makaleler/zor.html",         rank: 8, score: 0.583, en: "Why is life so hard? — 'How do we explain the evil we see in this world? Terror attacks, sex trafficking, racism, hunger…' and the wake-up list: our parents divorce, a girl is abducted, a relative gets cancer"}
+    rejected:
+      - {path: "/makaleler/umut2.html", rank: 2, score: 0.614, why: "RANK 2 (tied on score with rank 1) AND REJECTED — 'How to be hopeful', Steve's journey from HIV rage to hope. Its subject is COPING, not theodicy. The asker is not asking how to feel better, he is asking how the facts fit together"}
+      - {path: "/makaleler/olum.html",  rank: 3, score: 0.605, why: "'How to face death' — fear of one's own mortality. Same call §0.9 made on the Spanish /articulos/inevitable.html"}
+      - {path: "/makaleler/huznu.html", rank: 4, score: 0.603, why: "'Ninth-floor blues' — 28.4k depression-and-suicide testimony. Turkish twin of the Russian /a/sigaretoy.html and Spanish /articulos/blues.html, BOTH of which retrieved for the wrong question in their own sources too. Third independent sighting of the same cross-source quirk"}
+      - {path: "/makaleler/korona.html", rank: 6, score: 0.596, why: "credited to case 5"}
+      - {path: "/makaleler/ateist.html", rank: 7, score: 0.593, why: "conversion testimony — credited to case 1"}
+    dropped_after_engine_check:
+      - path: "/makaleler/tapinma.html"
+        en: "Why should I believe in a God who allows terrible things to happen?"
+        why: >
+          On its title this is the single most on-point document in the source, and it did NOT
+          retrieve in the top 10. Reading it settles the question rather than raising it: the
+          article is framed ENTIRELY around child abuse ("Question: why should I believe in a
+          God who allows terrible things like child abuse?") and answers via human free will —
+          i.e. why God permits people to do evil to each other. An accidental death is nobody's
+          evil choice, so the article answers a different question. DROPPED rather than
+          credited-and-missed. Same call `bg` made on "Is there a God?" for its crutch case.
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "estr-seeker-bosluk"                  # topic: purpose
+    persona: seeker
+    q: "Her günün sonunda geriye hiçbir şey kalmamış gibi hissediyorum. Yıllardır böyle. Bütün bunlar ne için?"
+    en: "At the end of every day I feel like nothing is left of it. It has been like this for years. What is all of this for?"
+    top_score: 0.631
+    credits:
+      - {path: "/makaleler/yasaminanlami.html", rank: 1, score: 0.631, en: "'Gerçek Yaşam' (Real Life) — 15.6k chars. ⚠ MILD TITLE/SLUG MISMATCH: the slug says 'meaning of life', the title says 'Real Life'. Body: 'The real meaning of life. These three perspectives show where it can be found' — the man who climbed his mountain and was empty at the summit. Turkish twin of the Russian /a/nastoy.html"}
+      - {path: "/makaleler/simdi.html",         rank: 3, score: 0.616, en: "Is there more to this life? — 'Hey! You, looking at the screen! Another moment of your life just went by.' Written at exactly this feeling. Twin of Bulgaria's 'Is there more to this life?'"}
+      - {path: "/makaleler/yasamamaci.html",    rank: 4, score: 0.546, en: "What is my life's purpose? — the hammer parable (a hammer with a soul, locked in the toolbox, that breaks kindling and is still unfulfilled). Twin of the Russian /a/smisl.html"}
+      - {path: "/makaleler/kaynak.html",        rank: 8, score: 0.532, en: "The source of a changed life — 'Have you ever said to yourself, I hate my life?' Josh McDowell's 'Who am I? Why am I on this earth? Where am I going?'. Turkish twin of the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Bulgarian 'Have you ever said I hate my life?' — all credited for this same question shape"}
+      - {path: "/makaleler/felsefe.html",       rank: "NOT IN TOP 10", en: "The importance of philosophy — opening: 'Neden buradayız? Amacımız ne? Hayata doyum ve anlam katan şeyler nedir?' ('Why are we here? What is our purpose? What gives life satisfaction and meaning?'). Socrates, Plato, Aristotle, Peter Kreeft. KEPT DELIBERATELY, see below"}
+    kept_as_an_honest_miss: |
+      `/makaleler/felsefe.html` does not retrieve, and it is KEPT. Guardrail #8 §2:
+      "keep the honest phrasing and let the eval record the gap — a case that always
+      passes measures nothing." The document's own opening asks the asker's question
+      almost verbatim, so this is not a mis-credit; it is the engine missing a correct
+      answer. Its Bulgarian twin ("The fundamental questions of life") retrieved at
+      rank 4 for the same question shape, so the miss is specific to `tr`.
+      This case will score coverage 4/5, on purpose.
+    rejected:
+      - {path: "/makaleler/huznu.html",        rank: 2, score: 0.620, why: "RANK 2 AND REJECTED — the depression/suicide testimony again (see case 3). Third source in which this article retrieves for the EMPTINESS question rather than the depression one"}
+      - {path: "/makaleler/yasamdansonra.html", rank: 6, score: 0.542, why: "'What happens after we die?' — mortality is not the same question as purpose. Same call `bg` made at its rank 2"}
+      - {path: "/makaleler/seks.html",         rank: 7, score: 0.537, why: "🔴 BOILERPLATE TAIL — 'Why my views on dating changed', a 20.2k article listing 10 reasons to save sex for marriage. It has no bearing on the meaning of life; its closing gospel summary is what matched. This same article also lands in the top 10 of the anxiety and prayer cases"}
+      - {path: "/makaleler/spiritualizm.html",  rank: 9, score: 0.526, why: "the anxiety/chakra testimony — credited to case 5"}
+      - {path: "/makaleler/marcia-montenegro.html", rank: 10, score: 0.520, why: "🔴 BOILERPLATE TAIL — 'Astrology, Zen and psychic abilities', a New Age testimony. Also lands in the top 10 of god-exists, jesus-death and religions"}
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "estr-seeker-kaygi"                   # topic: anxiety
+    persona: seeker
+    q: "Ortada somut bir sebep yokken bile içimde sürekli bir tedirginlik var. İman bu konuda gerçekten bir şey sunuyor mu?"
+    en: "Even when there is no concrete reason, there is a constant unease inside me. Does faith really offer anything for this?"
+    top_score: 0.668
+    credits:
+      - {path: "/makaleler/ichuzur.html",     rank: 3, score: 0.642, en: "Finding inner peace in an uncertain world — 17.8k chars. 'Whatever happens in the world or in our own individual lives, is there somewhere we can find balance?' The source's dedicated peace article"}
+      - {path: "/makaleler/korona.html",      rank: 5, score: 0.638, en: "⚠️ REVERSE TITLE TRAP — 'Coping with coronavirus fear'. A title-only reviewer bins this as a dated 2020 page. Its own opening generalises immediately: 'you may also be anxious because of OTHER threats. Every day we face different sources of stress. The list is long — terror, climate change, racism, wars, government failure, poverty, sexual assault, slavery, natural disasters, financial problems, illness, job security, stressful relationships, addiction.' 16.5k chars. Exactly the Japanese COVID-page finding, independently confirmed"}
+      - {path: "/makaleler/spiritualizm.html", rank: "NOT IN TOP 10", en: "⚠️ REVERSE TITLE TRAP #2 — 'Anksiyete & Çakra İyileşmesi' (Anxiety & Chakra Healing). A title-only reviewer bins this as New Age content. Its opening: 'Throughout my university years and long after, I struggled with LONELINESS, DEPRESSION, ANXIETY and pessimism' — then Buddhism/Zen, yoga, New Age self-help, daily horoscopes, fortune-tellers, meditation, crystals and energy healing, and what she found instead. It is the ONLY document in this source whose opening subject is chronic anxiety. Turkish twin of the Russian /a/chakr.html. KEPT DELIBERATELY, see below"}
+    kept_as_an_honest_miss: |
+      🔴 THIS IS THE SUITE'S MOST INFORMATIVE RESULT AND IT SHOULD NOT BE HIDDEN.
+      The one Turkish document actually ABOUT chronic anxiety does not retrieve for
+      the chronic-anxiety question. Its Russian twin /a/chakr.html retrieved at
+      rank 2 for the same question shape (§0.10). The difference is length: the
+      Turkish version is 3.6k chars against 16.5k (korona) and 17.8k (ichuzur), so
+      it is out-competed by longer documents that mention peace in passing.
+
+      I did NOT reword to rescue it. Adding "meditation" or "crystals" to the
+      question would pull it on surface-word overlap — that is failure mode C, the
+      exact defect case 1 was reworded to remove. The honest question is the one a
+      person with unexplained anxiety actually asks, and it misses. Case scores 2/3.
+    rejected:
+      - {path: "/makaleler/rehber.html",  rank: 1, score: 0.668, why: "🔴 RANK 1 AND REJECTED — the guide-to-faith article (hazard 3), matching on its 'we are all searching for meaning' opening. Chronic anxiety is not a search for meaning. Top-1 is not evidence"}
+      - {path: "/makaleler/dualar.html",  rank: 2, score: 0.646, why: "the prayer article — credited to case 8"}
+      - {path: "/makaleler/trajedi.html", rank: 4, score: 0.641, why: "RANK 4 AND REJECTED even though its own subtitle names 'endişe' (anxiety). It is the tragedy article, credited to case 3 — and anxiety with nothing objectively wrong is not a tragedy. Identical call §0.10 made on the Russian /a/gdebog.html at rank 1"}
+      - {path: "/makaleler/seks.html",    rank: 10, score: 0.585, why: "🔴 BOILERPLATE TAIL — the dating article again"}
+
+  # ── 6 ────────────────────────────────────────────────────────── newcomer
+  - id: "estr-newcomer-carmih"                # topic: jesus-death
+    persona: newcomer
+    q: "Hristiyanlar İsa'nın çarmıhta ölmesine çok büyük bir anlam yüklüyor ama bu ölümün tam olarak neyi değiştirdiğini anlayamıyorum."
+    en: "Christians attach enormous significance to Jesus dying on the cross, but I can't work out what exactly that death changed."
+    top_score: 0.701
+    credits:
+      - {path: "/makaleler/isanedenolmus.html", rank: 2, score: 0.683, en: "Why did Jesus die? — 16.6k chars, a DEDICATED atonement article: 'everything about the death, resurrection and crucifixion of Jesus Christ'. Works the Old Testament lamb sacrifice, why a yearly sacrifice was only a temporary forgiveness, and what the cross settled permanently"}
+    the_finding: |
+      🟢 TURKEY SIDES WITH BULGARIA, NOT RUSSIA — third data point on the atonement gap.
+      §0.10 recorded that `esru-newcomer-krest` cannot retrieve because `everystudent-ru`
+      has NO article whose subject is the atonement. §0.11 showed Bulgaria HAS one and it
+      retrieves. Turkish has one too — `isanedenolmus.html`, 16.6k chars — and it retrieves
+      at rank 2. Two of three tier-A sources checked carry a dedicated atonement article.
+      The Russian result is corpus composition, confirmed twice over, not a defect of the
+      embedder or of the estate.
+    reworded_and_the_finding_inside_it: |
+      🔴 REWORDED AFTER ROUND 1, AND THE ROUND-1 FAILURE IS THE CLEANEST SPECIMEN OF THE
+      BOILERPLATE-TAIL TRAP THIS CAMPAIGN HAS PRODUCED SINCE §0.9's `xinzhu`.
+      v1: "Günahlarımın affedilmesi için neden birinin ölmesi gerekmiş, bunu anlamıyorum.
+           Tanrı öylece affedemez miydi?" ("I don't understand why someone had to die for
+           my sins to be forgiven. Couldn't God just forgive?") → top **0.755 🔴 SMELL**.
+
+      And the smell was NOT my question restating an article. It was the TAIL:
+
+        | rank | score | document                    | what the document is about        |
+        |-----:|------:|-----------------------------|-----------------------------------|
+        |    1 | 0.755 | /makaleler/katolik.html     | Catholic vs Christian             |
+        |    2 | 0.695 | /makaleler/evlilik.html     | marriage advice, 21.8k chars      |
+        |    3 | 0.693 | /makaleler/neden-farklidir  | the five world religions          |
+        |    6 | 0.671 | /makaleler/samimiyet.html   | sex and the search for intimacy   |
+        |    9 | 0.660 | /makaleler/umut2.html       | living with HIV                   |
+        |  **4**|**0.689**|**/makaleler/isanedenolmus**|**THE ATONEMENT ARTICLE**       |
+
+      Marriage advice and a sex-and-intimacy article outranked the atonement article on a
+      question about the atonement. The cause is exact: the phrase "günahlarımın
+      affedilmesi" ("forgiveness of my sins") is the shared closing gospel summary's own
+      vocabulary, so every article carrying that tail matched it.
+
+      v2 (kept) asks what the death CHANGED and never uses the tail's phrasing.
+      Result: **0.755 → 0.701, smell gone, ALL FIVE tail documents gone from the top 10,
+      and the atonement article moved rank 4 → rank 2.**
+      🎯 Rule worth carrying to the remaining 41 suites: DO NOT put "forgiveness of sins"
+      in a question. It is the estate's boilerplate trigger phrase.
+    rejected:
+      - {path: "/makaleler/muslumanlik.html", rank: 1, score: 0.701, why: "RANK 1 AND REJECTED. The Islam article genuinely covers the crucifixion — two of its six questions are 'Did Jesus die on the cross?' and 'If Jesus died and was buried, does that mean God was dead for three days?'. But its subject is answering Islamic objections, not explaining what the death accomplished, and it is already credited to case 7. Crediting it here would double-count one document across two cases, which no campaign suite has done"}
+      - {path: "/makaleler/farklar.html",  rank: 3, score: 0.680, why: "world-religions comparison — credited to case 9"}
+      - {path: "/makaleler/dirilis.html",  rank: 8, score: 0.630, why: "see dropped_after_engine_check"}
+      - {path: "/makaleler/marcia-montenegro.html", rank: 6, score: 0.643, why: "🔴 BOILERPLATE TAIL — the astrology testimony"}
+    dropped_after_engine_check:
+      - path: "/makaleler/dirilis.html"
+        en: "Does the Death and Resurrection of Christ Mean Anything for Us?"
+        why: >
+          SOFT TITLE TRAP. The title promises doctrine about the atonement; the body is a
+          personal testimony — "when you hear the word resurrection, what is the first thing
+          that comes to mind? … I kept journals for years because I was afraid to talk to
+          people. 'Lord, I am dead, I want to rise.'" It is the author's own emotional
+          resurrection, not an explanation of what Christ's death accomplished. Dropped.
+      - path: "/makaleler/guven.html"
+        en: "What does it mean to 'trust' Jesus Christ?"
+        why: >
+          Dropped after ROUND 2 (still not in the top 10). Its opening does state the atonement
+          plainly, and its Russian twin /a/dovyeryat.html IS credited in §0.10 — but Russian
+          credited it BECAUSE `ru` has no dedicated atonement article and this was the only
+          thing available. Turkish has one, and it retrieves. guven.html's actual subject is
+          the asker's RESPONSE ("what does trusting mean"), not what the death changed.
+          Crediting it would be crediting a near-miss to pad the key.
+
+  # ── 7 ─────────────────────────────────────────────────────────── skeptic
+  - id: "estr-skeptic-degistirildi"           # topic: bible-trust
+    persona: skeptic
+    q: "Kutsal Kitap yüzyıllar boyunca elle çoğaltılmış. Bugün elimizdekinin aslıyla aynı olduğunu nereden bilebilirim?"
+    en: "The Bible was copied by hand over centuries. How can I know that what we have today is the same as the original?"
+    top_score: 0.718
+    credits:
+      - {path: "/makaleler/muslumanlik.html", rank: 1, score: 0.718, en: "Jesus Christ and Islam — 25.9k chars. Its FIRST of six stated questions is literally 'Kutsal Kitap orijinal halinden değiştirildi mi?' ('Was the Bible changed from its original form?'), i.e. the tahrif (scripture-corruption) charge, answered as 'can God fail to protect his own words from being altered?'"}
+      - {path: "/makaleler/kutsalkitap.html", rank: 2, score: 0.674, en: "How can you believe the Bible? — 24.4k chars: 40 authors over 1,600 years across three continents, plus non-Christian Roman, Jewish and Greek historians corroborating the New Testament record"}
+    the_muslim_majority_pattern: |
+      ⓘ THE §0.7 MUSLIM-MAJORITY PATTERN, CONFIRMED — AND IT IS STRONGER HERE THAN ANYWHERE.
+      §0.7 recorded that `kk`, `th` and `zh` answer bible-trust with a "Jesus and Islam"
+      article, and §0.11 saw it as an uncredited 0.750 top hit in Bulgarian. In Turkey it is
+      not a near-miss and not a curiosity: `Isa Mesih ve Müslümanlık` is **rank 1**, ahead of
+      the general "why trust the Bible" article, and it is the RIGHT answer — the article's
+      own first question is the asker's question. Turkey is Muslim-majority and this is where
+      the estate treats scripture reliability. Credited without reservation. This is the same
+      shape as the existing `esar-skeptic-tahrif` case.
+    rejected:
+      - {path: "/makaleler/bilim.html", rank: 3, score: 0.572, why: "'Has modern science disproved the Bible?' — a different objection (science, not transmission). Same call §0.10 made on the Russian /a/razvye.html"}
+      - {path: "/makaleler/varmi.html", rank: 4, score: 0.569, why: "credited to case 1"}
+
+  # ── 8 ──────────────────────────────────────────────────────────── believer
+  - id: "estr-believer-sessizlik"              # topic: prayer
+    persona: believer
+    q: "Aylardır aynı şey için dua ediyorum ama karşılığında hiçbir şey yok. Yanlış bir şey mi yapıyorum?"
+    en: "I have been praying for the same thing for months but there is nothing in return. Am I doing something wrong?"
+    top_score: 0.684
+    credits:
+      - {path: "/makaleler/dualar.html", rank: 1, score: 0.684, en: "Does God answer our prayers? — 10.7k chars, and it carries a dedicated section headed 'Ya \"Cevapsız\" Dualar?' ('What about \"unanswered\" prayers?'): people get sick, even die; financial problems are real. Turkish twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html and the Bulgarian 'Does God answer our prayers?' — all credited for this exact question shape"}
+    note: |
+      ⓘ ONE CREDIT, AND THAT IS THE HONEST ANSWER. `everystudent-tr` has exactly one
+      prayer article. The believer persona is thin across this whole estate — §0.7
+      recorded it as an honest property, not a sampling failure: these sites publish
+      seeker apologetics, not discipleship. Ranks 2–10 for this question are ALL
+      boilerplate tails, listed below, which is itself the finding.
+    rejected:
+      - {path: "/makaleler/umut2.html",   rank: 2, score: 0.656, why: "living with HIV — a coping testimony"}
+      - {path: "/makaleler/huznu.html",   rank: 3, score: 0.597, why: "depression/suicide testimony"}
+      - {path: "/makaleler/ondokuz.html", rank: 5, score: 0.575, why: "🔴 BOILERPLATE TAIL — 'After nineteen men', a testimony about ending up in prostitution and stripping. Zero bearing on unanswered prayer"}
+      - {path: "/makaleler/evlilik.html", rank: 7, score: 0.565, why: "🔴 BOILERPLATE TAIL — 21.8k of marriage and divorce advice"}
+      - {path: "/makaleler/seks.html",    rank: 8, score: 0.559, why: "🔴 BOILERPLATE TAIL — the dating article, third case in which it appears"}
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "estr-skeptic-aynisey"                # topic: religions
+    persona: skeptic
+    q: "Bana kalırsa bütün dinler farklı kelimelerle aynı şeyi söylüyor. Aradaki asıl fark nerede?"
+    en: "As far as I'm concerned all religions say the same thing in different words. Where is the real difference?"
+    top_score: 0.646
+    credits:
+      - {path: "/makaleler/neden-farklidir.html", rank: 1, score: 0.646, en: "How different are religions from each other? — 19.8k chars, subtitled 'Hinduism, Buddhism, Islam, Christianity and New Age Spiritualism', each described with what its adherent gains, then how Jesus differs. This is the estate's /a/205 world-religions piece under a Turkish slug — the same article as the German /artikel/hochsten.html (§0.7's title trap), the Swahili /a/kuunganishwa.html and the French /a/205divin.html"}
+      - {path: "/makaleler/farklar.html",         rank: 6, score: 0.544, en: "What are the differences between Jesus Christ and the world's other religions? — the shorter companion piece: '1. Jesus initiates the relationship. Unlike religions that reach up toward God…'"}
+    rejected:
+      - {path: "/makaleler/marcia-montenegro.html", rank: 2, score: 0.583, why: "RANK 2 AND REJECTED — 'Astrology, Zen and psychic abilities'. This one is genuinely arguable (New Age IS one of the five religions in scope) but it is a personal testimony about leaving the occult, not a comparison. It also appears in the top 10 of three other cases, which is the §0.9 signature of a tail match rather than a topical one"}
+      - {path: "/makaleler/kaynak.html",   rank: 3, score: 0.577, why: "🔴 BOILERPLATE TAIL — the changed-life article, credited to case 4"}
+      - {path: "/makaleler/imanakil.html", rank: 4, score: 0.554, why: "faith-and-reason philosophy (hazard 4)"}
+      - {path: "/makaleler/katolik.html",  rank: 5, score: 0.553, why: "Catholic vs Christian — an INTRA-Christian question, not a comparison of religions. Same call §0.10 made on the Russian /a/katolikom.html"}
+      - {path: "/makaleler/muslumanlik.html", rank: 10, score: 0.518, why: "credited to case 7; single-religion, not a comparison"}
+      - {path: "/makaleler/yahudilik.html", rank: "not in top 10", why: "'Judaism and Christianity' — a single-religion comparison. Would answer 'how does Christianity differ from Judaism', which is not what was asked"}
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "estr-newcomer-uckisi"                # topic: trinity
+    persona: newcomer
+    q: "Kilisede kimi zaman İsa'ya, kimi zaman Baba'ya sesleniliyor, bir de Kutsal Ruh var. Hristiyanlar birden fazla Tanrı'ya mı tapıyor yani?"
+    en: "At church they sometimes address Jesus, sometimes the Father, and then there's the Holy Spirit too. So do Christians worship more than one God?"
+    top_score: 0.739                          # the suite's highest, still clear of 0.75
+    credits:
+      - {path: "/makaleler/uclubirlik.html", rank: 1, score: 0.739, en: "Could you explain the Trinity? — the three-dimensions analogy and the 1×1×1=1 formulation. 'The Bible speaks plainly of God the Son, God the Father and God the Holy Spirit. Yet it stresses there is only one God.'"}
+      - {path: "/makaleler/KutsalRuh.html",  rank: 2, score: 0.703, en: "Who is the Holy Spirit? — 'the Holy Spirit is not an imaginary spiritual shadow or an impersonal force'. Twin of the Russian /a/svyatoyduh.html and Bulgaria's 'Who is the Holy Spirit?', both credited for this same question shape. ⚠ NOTE THE MIXED-CASE PATH: `/makaleler/KutsalRuh.html`, capital K and R"}
+    reworded: |
+      ⚠️ REWORDED AFTER ROUND 1 — guardrail #8 §2, and the same defect `ru` and `bg` both hit
+      on their trinity case. Three sources, three identical smells on this one topic.
+      v1: "…Bunlar üç ayrı varlık mı, yoksa aynı mı?" ("are these three separate beings, or
+           the same one?") → top **0.755 🔴 SMELL**. It restated uclubirlik.html's own
+           framing back at it.
+      v2 (kept) holds the church observation and replaces the doctrinal formula with the
+      practical worry a newcomer actually voices — am I looking at polytheism?
+      Result: **0.755 → 0.739, still rank 1, and KutsalRuh.html improved rank 3 → rank 2.**
+      The reword cost nothing and removed the softball.
+    rejected:
+      - {path: "/makaleler/muslumanlik.html", rank: 3, score: 0.662, why: "RANK 3 AND REJECTED — and this one deserves a note. The Islam article's third question is 'Isn't it blasphemy to say God has a Son?', and its body carries a full Trinity explanation ('God lives without the limits of a three-dimensional universe… so his Son Jesus can be both distinct from and the same as the Father'). In a Muslim-majority source the Trinity question ALSO routes through the Islam article — the same pattern as case 7. Not credited only because it is already credited to case 7 and no campaign suite credits one document to two cases. ⚠️ IF THE OPERATOR PREFERS COVERAGE OVER THAT CONVENTION, THIS IS THE ONE CREDIT TO ADD"}
+      - {path: "/makaleler/iman.html",       rank: 6, score: 0.589, why: "'Not a blind faith' — the historical case for Jesus' divinity, not the three-and-one problem"}
+      - {path: "/makaleler/boyutlar.html",   rank: 7, score: 0.579, why: "credited to case 2; the flatland analogy is shared with the Trinity article, which is why it surfaces"}
+      - {path: "/makaleler/isanintanriligi.html", rank: "not in top 10", why: "'Did Jesus claim to be God?' — the deity-of-Christ question, adjacent but distinct from how three can be one"}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 26 credits · 26 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly
+# Paraphrase smells: 0 (max top score 0.739, on the reworded trinity case).
+#   Round 1 had 2, both at exactly 0.755; three questions were reworded in total.
+# Credits that do not retrieve: 2 — /makaleler/felsefe.html (purpose) and
+#   /makaleler/spiritualizm.html (anxiety) — both KEPT deliberately. Two more were
+#   DROPPED on the text (/makaleler/tapinma.html, /makaleler/guven.html) and one
+#   as a soft title trap (/makaleler/dirilis.html).
+# Expected coverage if approved: 24/26. Cases 4 and 5 score 4/5 and 2/3 by design.
+#
+# ROUND 1 → ROUND 2
+#   paraphrase smells          2  →  **0**
+#   credits not in top 10      7  →  **3**  (→ 2 after the guven.html drop)
+#   credits retrieving        20/27 → **24/26**
+#
+# 🔴 THE HEADLINE — THE BOILERPLATE TAIL FIRED HARDEST ON THE CROSS QUESTION.
+# Round 1's jesus-death case put marriage advice (21.8k) at rank 2 and a
+# sex-and-intimacy article at rank 6, both ahead of nothing less than the source's
+# 16.6k dedicated atonement article at rank 4 — because the question contained the
+# phrase "forgiveness of my sins", which is the shared closing gospel summary's own
+# wording. Rewording around it removed all five tail documents from the top 10 and
+# lifted the correct article to rank 2. **"Forgiveness of sins" is a trigger phrase
+# for this estate's boilerplate; keep it out of questions in the remaining suites.**
+#
+# 🔴 TITLE TRAP — FOURTH SOURCE, FOURTH INSTANCE, and it is Bulgaria's twin.
+# `/makaleler/tanrikimdir.html` is titled "Why can we trust God?" and IS the
+# what-is-God-like article (six personal attributes). Note the pattern now visible
+# across four sources: this SAME article carries a misleading title in Bulgarian
+# AND Turkish. It is not random — the estate mistranslates this one headline.
+#
+# 🟢 AND THE TRAP RUNS BOTH WAYS ON THIS SOURCE, TWICE IN ONE CASE.
+# The two best anxiety documents in `everystudent-tr` are titled "Anxiety & Chakra
+# Healing" and "Coping with Coronavirus Fear". A title-only reviewer bins both —
+# one as New Age content, one as a stale 2020 page. Read, they are a first-person
+# account of chronic anxiety and an article that generalises to "terror, climate
+# change, racism, wars, poverty… addiction" in its own third sentence.
+# Judging on titles would have got BOTH directions wrong on the same source, which
+# is exactly what §0.10 reported for Russian and §0.9 for Japanese.
+#
+# 🟢 TURKEY IS THE THIRD DATA POINT ON THE ATONEMENT GAP, AND IT SIDES WITH BULGARIA.
+# `ru` has no dedicated atonement article and its case is an expected miss. `bg` has
+# one and it retrieves at rank 3. `tr` has one and it retrieves at rank 2. Two of
+# three: the Russian gap is corpus composition, now confirmed twice independently.
+#
+# ⓘ THE MUSLIM-MAJORITY BIBLE-TRUST PATTERN IS NOT A NEAR-MISS HERE, IT IS RANK 1.
+# `Isa Mesih ve Müslümanlık` beats the general "why trust the Bible" article for the
+# hand-copying question, and it is correct: the article's own first question is
+# "Was the Bible changed from its original form?" — the tahrif charge. §0.7 predicted
+# this for Muslim-majority sources; Turkey is the strongest confirmation so far.
+#
+# ⓘ NO §0.7 TOPIC IS UNANSWERABLE IN THIS SOURCE. All ten have a dedicated document,
+# verified by reading all 71 openings. That is not true of every source (`ti` carries
+# four of ten) and it is worth recording as a positive.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THE OPERATOR MUST DECIDE — three things, nothing else
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. TEN CASES OR NINE. 71 ÷ 8 = 8.9. See the sizing block at the top of this file.
+#    To cut, drop case 9 (`religions`). My recommendation: keep ten.
+# 2. THE TWO KEPT MISSES. /makaleler/felsefe.html and /makaleler/spiritualizm.html
+#    do not retrieve and are credited anyway, so this suite will land at coverage
+#    ~0.923 rather than ~1.000. That is guardrail #8 §2 working as designed, and
+#    the spiritualizm miss in particular is a finding worth measuring — but it is
+#    the operator's call whether a first-run number below `bg`'s 0.975 is acceptable.
+# 3. `evidence_tier: llm-translated`. Confirm, or upgrade to `human-verified` if
+#    anyone on the team reads Turkish.
+#
+# ⚠️ REMINDER: this is the FIRST number this suite will ever produce, at n=10, and
+# §0.11 measured an 11.9% swing on a 3-case bucket from tie-reordering alone. Read
+# recall@10 and whole-corpus coverage, not `everystudent-tr` coverage in isolation.
+
+evidence_tier: llm-translated   # proposed — OPERATOR TO CONFIRM

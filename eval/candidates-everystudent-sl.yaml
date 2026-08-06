@@ -1,0 +1,369 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-sl` (23 documents, vsakstudent.com).
+# Campaign #111, BATCH 2, tier D (smallest sources). Working record — NOTHING here has been
+# written to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 23 documents → 4 cases (tier-D floor). Personas: skeptic 2 · newcomer 1 · seeker 1.
+# Questions authored IN SLOVENIAN, not translated from the English §0.7 menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   23 documents, ALL under `/a/*.html`. There is NO `/story/` tree on this site.
+#   ⚠️ TESTIMONY SHARE BY PATH = 0%. TESTIMONY SHARE BY OPENINGS = 17% (4 of 23).
+#      This is the `uk` finding reproducing exactly: path-counting reads this source as
+#      testimony-free, and it is not. The four first-person accounts are
+#        /a/zivetizupanjem.html         Steve Sawyer, haemophilia + HIV (19.8k)
+#        /a/izvirnovegazivljenja.html   Josh McDowell, "I hated my life" (17.1k)
+#        /a/izpolnjenozivljenje.html    three people on where they found fulfilment (17.0k)
+#        /a/soocanjezneizbeznostjo.html Brandon Markette, facing death (4.3k)
+#      Each carries the shared invitation-prayer tail as its own chunk. /a/zivetizupanjem.html
+#      was RANK 1 on the first version of case 1 — see that case's `reworded` block.
+#   Null-language documents: 0 of 23. 🟢 The `sl` language sweep is VERIFIED CLEAN by the
+#      openings hazard report: the 6 documents formerly mislabelled `sr` and the 17 formerly
+#      null (fixed 2026-07-31) all now carry `lang sl`. Nothing is excluded by guardrail #3a.
+#   Pure-tail documents (<1,200 chars): 0. Nothing on the watchlist — unusual for this estate.
+#   Duplicate paths: 0. Duplicate titles: 1 — see the hazard note below.
+#   Ingest note: this source uses `#contentpadding` as an ID rather than the estate's usual
+#      class. Handled at ingest; no effect on any document read here.
+#
+# 🔴 THE DUPLICATE-TITLE HAZARD (the trap that bit Japanese in batch 1)
+#   TWO different documents are both titled "Kako osebno spoznati Boga?":
+#     /a/spoznatiboga.html   (6.8k) — the Four Spiritual Laws page
+#     /a/spoznatiboga2.html  (2.9k) — "I have just invited Jesus in; is he really in me?"
+#   Neither is credited anywhere. Crediting either by TITLE would have been a coin flip.
+#   Consequence for question design: the verb phrase "osebno spoznati Boga" is UNUSABLE in
+#   any question on this source — it is two documents' entire title.
+#
+# 🔴 CATEGORY COUNT (the `am` pre-drafting check: category dominance predicts which WORDS
+#    you cannot use). Largest category on `everystudent-sl` is the WHO-IS-GOD / HOW-TO-KNOW-GOD
+#    shelf: 6 of 23 documents (26%) — zakajizbratiboga, kdojebog, spoznatiboga, spoznatiboga2,
+#    kdojesvetiduh, svetatrojica. Second is the COSMOLOGICAL CHAIN: 4 of 23 (17%) —
+#    praznina → nekaj → kdo → kdo2, contentless sequential titles (§0.12 trap #2).
+#    Sex/relationships is ONE document (4%). This source is NOT `am`-shaped and the
+#    sex/marriage vocabulary hazard does not apply — though /a/spolnostinintimnost.html still
+#    reached rank 6 on a god-exists question and rank 5 on an anxiety question as a pure tail
+#    match, so the CHUNK SHAPE defect is present even where the category is not dominant.
+#
+# 🔴 THIS SOURCE'S ONE MAGNET IS NOT THE PRAYER PAGE — IT IS THE GOD'S-NATURE ARTICLE.
+#   `/a/zakajizbratiboga.html` (16.8k, titled "Božja narava") surfaced on 6 of the 10 English
+#   discovery probes and appears in the top 10 of ALL FOUR final cases (ranks 1, 2, 8, 8).
+#   It is credited to NOTHING. At 17% testimony the batch-2 rule predicted "one document
+#   absorbs the entire tail-magnet load", and that is what happened — but the absorber here is
+#   a broad topical article, not the invitation page. /a/spoznatiboga.html (Four Spiritual
+#   Laws) appears in NO final top 10 at all. Refines the rule: the magnet is whichever document
+#   is broadest, and on a 23-document source that is a survey article, not the prayer page.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-sl sl
+#   → 20 distinct candidate documents of 23. English probe scores 0.453–0.643.
+#   Every one of the 23 documents was then read from the database (title + opening ~900 chars)
+#   before anything was credited — guardrail #5.
+#
+# ENGINE-CHECKED TWICE — .tmp-diag/phase5-check.ts sl sl
+#   Round 1: 1 paraphrase smell (0.783) · 2 credits not in top 10 · 7 credits
+#   Round 2: **0 paraphrase smells** (max top score 0.739) · **0 credits not in top 10** · 6 credits
+#   Two questions were reworded and one credit was dropped. Details in each case.
+#
+# ⓘ THE 0.75 LINE IS REACHABLE ON THIS SOURCE, WHICH CONTRADICTS THE TIER-B EXPECTATION.
+#   The batch brief records that no tier-B source ever reached 0.75 (highest anywhere 0.748)
+#   and told me to expect it unreachable at 23 documents. Round 1 hit **0.783** on the Trinity
+#   question. Smaller subcorpora do NOT reliably score lower: `/a/svetatrojica.html` is only
+#   3.3k chars / 2 chunks, and a small, single-subject document is the easiest thing in the
+#   estate to restate. Corpus SIZE does not set the smell ceiling; the size and focus of the
+#   ANSWER DOCUMENT does. Worth carrying into the remaining tier-D sources.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 6 credited paths resolve to EXACTLY ONE document — 6/6.
+#   Guardrail #3a:   no credited document has a null language — 6/6.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Slovenian). This is a
+# fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ───────────────────────────────── skeptic 🔴 TITLE TRAP #1, IN A NEW FORM
+  - id: "essl-skeptic-preveril" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Kadarkoli koga vprašam, zakaj verjame v Boga, dobim odgovor, da je treba pač verjeti. Nihče mi ne zna povedati, ali za tem stoji karkoli, kar bi lahko človek tudi sam preveril."
+    en: "Whenever I ask someone why they believe in God, the answer I get is that you simply have to believe. Nobody can tell me whether there is anything behind it that a person could actually check for themselves."
+    credits:
+      - { path: "/a/alibogobstaja.html", en: "Does God really exist? — Marilyn Adamson's six honest reasons (20.3k, the source's flagship apologetics article). Its body opens on this exact complaint: readers who wish someone would present them evidence 'without beating around the bush and without sentences like: you just have to believe', then the moon-landing analogy for a person who refuses all evidence in advance.", rank: 2, score: 0.659 }
+      - { path: "/a/onkrajslepegazaupanja.html", en: "Beyond blind trust — Paul E. Little (23.4k). Opening: 'We can never be entirely sure God exists, and can never know what he is like, until he takes the initiative and reveals it to us… our task is to examine history carefully and see whether God has already revealed himself somewhere.' It is the historical-evidence route to the same question, which is why it is credited here and not to a who-is-Jesus case.", rank: 3, score: 0.649 }
+    the_finding: |
+      🔴 TITLE TRAP #1 IS PRESENT ON THIS SOURCE — BUT THE TRAP IS NOT THE TITLE, IT IS A
+      DUPLICATED SUBTITLE, AND THAT IS A NEW VARIANT.
+
+      `/a/zakajizbratiboga.html` is RANK 1 on this question at 0.662 — three thousandths
+      above the credited `/a/alibogobstaja.html` — and it is REJECTED. The brief records
+      "Why can we rely on / choose the God of the Bible?" as systematically the six-attributes
+      what-is-God-like article (`bg` `tr` `fa` `pt` `cs`), and I verified it rather than
+      crediting on precedent: on `sl` it IS that article. Its H1 is "Zakaj Izbrati Boga
+      Svetega pisma?" and its body is God's attributes — "God who is mightier than us",
+      "God whom we can know personally", "even a perfect God may allow bad things for a time
+      if they are part of a bigger plan".
+
+      What makes it rank 1 is that vsakstudent.com **pasted `/a/alibogobstaja.html`'s
+      subtitle onto it verbatim**: both documents open with the identical line "Ali Bog
+      resnično obstaja? Ta članek vam ponuja šest iskrenih razlogov, ki dokazujejo obstoj
+      Boga." One of them is that article; the other is not.
+
+      🔑 THE PRACTICAL CONSEQUENCE: rank 1 on this question is STRUCTURALLY UNWINNABLE by
+      rewording. Any phrasing that moves toward "evidence that God exists" raises BOTH
+      documents by the same amount, because the matching text is byte-identical. The only
+      lever that works is matching `/a/alibogobstaja.html`'s BODY instead of its metadata —
+      which is what the round-2 reword does, and it moved the credit from rank 5 to rank 2.
+      Do NOT read this case's rank 2 as a weak question. Read it as a corpus defect: the
+      site published one article's metadata on top of another's.
+    reworded: |
+      ⚠️ REWORDED ONCE, and it is a clean specimen of FAILURE MODE #6 — a question that
+      failed without smelling.
+      v1: "Moji prijatelji pravijo, da je vera v Boga samo pobožna želja, ki si jo ljudje
+           izmislijo. Ali za tem stoji kaj oprijemljivega, ali gre v resnici samo za občutek?"
+           ("…is there anything tangible behind it, or is it really just a feeling?")
+           → top 0.705, NO SMELL, and the result was still bad. Ranks 1–4 were
+             1  0.705  /a/zivetizupanjem.html      the HIV testimony — a pure tail match
+             2  0.692  /a/zakajizbratiboga.html    the title-trap article
+             3  0.678  /a/povezanizbozanstvom.html world religions
+             4  0.674  /a/kjejebog.html            where is God in tragedy
+           and the credited /a/alibogobstaja.html sat at RANK 5. /a/spolnostinintimnost.html
+           (sex and intimacy) came in at rank 6 on a question about evidence for God.
+           The word "občutek" (feeling) is what did it — FAILURE MODE #5 exactly: framing the
+           question around feeling retrieved the emotional documents and pushed the evidence
+           articles down.
+      v2 (kept): changes WHICH OBJECTION the question makes — from "is it just a feeling?"
+           to "everyone tells me you just have to believe; has anyone laid out something
+           checkable?" That is the `uk` refinement of §0.12: reach and smell pull in opposite
+           directions for a paraphrase, but TOGETHER when the objection changes.
+           → **0.705 → 0.662, and 1 of 3 credits → 2 of 2.** /a/alibogobstaja.html rank 5 → 2,
+             /a/onkrajslepegazaupanja.html not-in-top-10 → rank 3, and the HIV testimony fell
+             from rank 1 to rank 9. One round, both problems.
+    rejected:
+      - { path: "/a/zakajizbratiboga.html", rank: 1, why: "RANK 1 AND REJECTED — the duplicated-subtitle trap. See the_finding above. Its subject is God's nature, not evidence for his existence." }
+      - { path: "/a/zakaj.html", rank: 4, why: "'Why?' — why cancer, why earthquakes. The problem of evil, a different objection. This is the strongest 5th-case document (see the dropped-topics section)." }
+      - { path: "/a/zakajlahkozaupamo.html", rank: 5, why: "credited to case 2" }
+      - { path: "/a/alibogodgovarja.html", rank: 6, why: "does God answer prayer — matched on 'I was an atheist and watched a friend pray', but its subject is prayer" }
+      - { path: "/a/kjejebog.html", rank: 7, why: "where is God in tragedy — the problem of evil" }
+      - { path: "/a/kdojebog.html", rank: 8, why: "the six-attributes what-is-God-like article — the know-god topic, dropped; see the dropped-topics section" }
+      - { path: "/a/zivetizupanjem.html", rank: 9, why: "the HIV testimony. It was RANK 1 on v1 of this question and fell to rank 9 on the reword — the single clearest before/after of the boilerplate-tail defect in this suite." }
+      - { path: "/a/dusevnimir.html", rank: 10, why: "credited to case 4" }
+    dropped_after_engine_check:
+      - path: "/a/kdo.html"
+        why: >
+          "Kdo" (Who) — part 3 of the four-part cosmological chain, credited in round 1 and dropped in round 2. It does argue the conclusion this question wants (the Eternal Something has a will, therefore a personality, therefore is an Eternal SOMEONE), but its opening is a RECAP: "This is the continuation of the article titled 'Nekaj'." A reader asking whether there is anything checkable behind belief in God should be handed part 1 (/a/praznina.html), not the third instalment's summary of what parts 1–2 established. It missed the top 10 in round 1 and, on reading, the engine is right. Dropped rather than kept as a miss. ⚠️ SERIES NOTE FOR THE ESTATE RECORD: on `sl` the PERSONHOOD conclusion is in PART 3 (/a/kdo.html), and part 4 (/a/kdo2.html) is God's attributes — eternal, invisible, spirit. That is the `mk` numbering, not the `hu` numbering, and it confirms there is no safe cross-source rule about which part to credit. The `sl` chain is praznina → nekaj → kdo → kdo2 and, unlike `mk`, the four titles are distinct.
+    top_score: 0.662
+
+  # ── 2 ─────────────────────────────────────────────────────────────────── skeptic
+  - id: "essl-skeptic-prepisovali" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "V šoli so nam rekli, da je Sveto pismo Božja beseda, zame pa je to še vedno knjiga, ki so jo pisali in prepisovali ljudje skozi stoletja. Po čem se sploh razlikuje od katerega koli drugega starega spisa?"
+    en: "At school they told us the Bible is God's word, but to me it is still a book that people wrote and people copied over centuries. What actually makes it any different from any other ancient writing?"
+    credits:
+      - { path: "/a/zakajlahkozaupamo.html", en: "Why we can trust the Bible / the history of the Bible (29.7k, the largest document in the source). Its opening answers on transmission specifically: 'Ancient history proves the Bible is a reliable record of events. The Gospels tell us convincingly about the life of Jesus. Archaeological finds agree with the events of the Bible. Textual study confirms that the books of the Bible have not changed at all.'", rank: 1, score: 0.739 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER. `everystudent-sl` carries exactly one Bible-reliability
+      article, and it took rank 1 first time with no reword needed.
+      🔑 THE ISLAM ROUTE DOES NOT EXIST HERE. The brief records that `bible-trust` is often
+      answered by a source's Islam article (the tahrif / scripture-corruption question, seen on
+      `zh` `kk` `th` `bg` `hu`). `everystudent-sl` HAS NO ISLAM ARTICLE. Islam appears only as
+      one section inside /a/povezanizbozanstvom.html, the world-religions survey, which reached
+      rank 7 here on that section alone and is not an answer. Publishing choice, not audience.
+      This case was authored on the `hu` lesson: state the objection as "what makes it different
+      from any other old book?" rather than "how do we know it hasn't changed?", the latter
+      being a near-verbatim restatement of the document's own opening line. Starting from the
+      fixed shape, it landed at 0.739 rank 1 with no reword. The §0.12 lesson transferred.
+    rejected:
+      - { path: "/a/zakajizbratiboga.html", rank: 2, why: "the magnet again — 'Why choose the God OF THE BIBLE?' matches on the Bible reference; its subject is God's attributes" }
+      - { path: "/a/kdo2.html", rank: 3, why: "part 4 of the cosmological chain — matched on its long strings of quoted Scripture, not on its subject" }
+      - { path: "/a/kdojebog.html", rank: 4, why: "the six-attributes article — same reason, it is largely quoted Scripture" }
+      - { path: "/a/izpolnjenozivljenje.html", rank: 5, why: "three fulfilment testimonies — a tail match at rank 5 on a manuscript-transmission question" }
+      - { path: "/a/alibogodgovarja.html", rank: 6, why: "prayer" }
+      - { path: "/a/povezanizbozanstvom.html", rank: 7, why: "world religions — matched on its Islam section. See the note above; it is not a tahrif article." }
+      - { path: "/a/svetatrojica.html", rank: 8, why: "credited to case 3 — matched on 'the Bible says clearly…'" }
+      - { path: "/a/onkrajslepegazaupanja.html", rank: 9, why: "credited to case 1" }
+    top_score: 0.739
+
+  # ── 3 ───────────────────────────────── newcomer 🔴 THE ONE SMELL IN THE SUITE
+  - id: "essl-newcomer-tribogovi" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "Prvič sem bil v cerkvi in sem prišel ven čisto zmeden. Pesmi so bile naslovljene na Jezusa, pridigar je govoril o Očetu, vmes pa še o Duhu, ki naj bi deloval v nas. Koliko jih je torej pravzaprav?"
+    en: "It was my first time in a church and I came out completely confused. The songs were addressed to Jesus, the preacher spoke about the Father, and in between about the Spirit who is supposed to work in us. So how many of them are there actually?"
+    credits:
+      - { path: "/a/svetatrojica.html", en: "Can you explain the Holy Trinity? — a Q&A. Derives 'trinitas' from tri + unitas ('the oneness of three') and states the doctrine plainly: Scripture speaks of God the Father, God the Son (Jesus Christ) and God the Holy Spirit while stating just as plainly that there is only ONE God — three 'persons' sharing the essence of one divinity.", rank: 1, score: 0.738 }
+      - { path: "/a/kdojesvetiduh.html", en: "Who is the Holy Spirit? — a Q&A answering the exact newcomer confusion: 'The Holy Spirit is not some impersonal energy or vague supernatural shadow, but a person, equal in every respect to God the Father and God the Son. We count the Holy Spirit as the third member of the Godhead.'", rank: 2, score: 0.685 }
+    reworded: |
+      ⚠️ REWORDED ONCE — the only paraphrase smell in the suite, and the reason this source
+      contradicts the tier-D expectation.
+      v1: "Ko sem bil v cerkvi, so enkrat govorili Jezusu, drugič Očetu, potem še Svetemu Duhu.
+           Meni je to zvenelo, kot da gre za tri različne bogove. Sem kaj narobe razumel?"
+           → top **0.783 🔴 PARAPHRASE SMELL** — the highest score anywhere in this suite.
+           v1 was ALREADY the fixed shape borrowed from `ru` `bg` `hu` (frame it as something a
+           newcomer NOTICES IN A SERVICE rather than as the doctrinal formula), and it smelled
+           anyway. The reason is the document, not the framing: /a/svetatrojica.html is 3.3k
+           chars in 2 chunks, and its central sentence enumerates exactly Father / Son (Jesus
+           Christ) / Holy Spirit and then "only one God". v1 enumerated the same three names in
+           the same order and then said "three different gods". That is a restatement.
+      v2 (kept): keeps the church scene but makes it CONCRETE AND SPECIFIC (songs, a preacher,
+           the Spirit "working in us") and replaces "sounded like three different gods" with a
+           plain counting question, "how many of them are there actually?"
+           → **0.783 → 0.738.** Both credits held ranks 1 and 2 throughout.
+           🔑 The lever was DILUTION, not rephrasing: the added concrete detail is what dropped
+           the score. On a 2-chunk answer document there is nothing to paraphrase away from.
+    the_finding: |
+      🔴 SMALL CORPUS ≠ LOW SCORES. The batch brief told tier-D agents to expect 0.75 to be
+      unreachable because "smaller subcorpora score lower for identical question quality", and
+      that no tier-B source ever got past 0.748. `everystudent-sl` has 23 documents and hit
+      0.783 on its first in-language check. What sets the ceiling is the size and focus of the
+      ANSWER DOCUMENT: a 3.3k single-subject Q&A is the easiest thing in the estate to restate.
+      Expect smells on short Q&A documents (Trinity, Holy Spirit, and similar) on EVERY source,
+      regardless of corpus size, and expect them not to appear on long survey articles.
+    rejected:
+      - { path: "/a/onkrajslepegazaupanja.html", rank: 3, why: "'Jesus is God' — its subject is Jesus' DEITY and the historical case for it, not the one-versus-three counting question. Credited to case 1. Same call `hu` made on /a/hiten.html." }
+      - { path: "/a/izvirnovegazivljenja.html", rank: 4, why: "the Josh McDowell testimony — a tail match at rank 4 on a Trinity question" }
+      - { path: "/a/spoznatiboga2.html", rank: 5, why: "'I just invited Jesus in, is he really in me?' — the invitation follow-up page, and the ONLY appearance of either tail-magnet document in any final top 10 in this suite" }
+      - { path: "/a/kdo2.html", rank: 6, why: "part 4 of the cosmological chain — it does argue God is spirit and invisible, but it never addresses the three-in-one question" }
+      - { path: "/a/zakajlahkozaupamo.html", rank: 7, why: "credited to case 2" }
+      - { path: "/a/zakajizbratiboga.html", rank: 8, why: "the magnet" }
+      - { path: "/a/alibogobstaja.html", rank: 9, why: "credited to case 1" }
+      - { path: "/a/spolnostinintimnost.html", rank: 10, why: "'What is love? What is intimacy? Sex and the search for intimacy' — at rank 10 for a Trinity question. A textbook boilerplate-tail match." }
+    top_score: 0.738
+
+  # ── 4 ─────────────────────────────────────────────────────────────────── seeker
+  - id: "essl-seeker-tesnoba" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Skoraj ves čas me spremlja tesnoba, tudi kadar objektivno ni nič narobe in nimam nobenega konkretnega razloga zanjo. Ali vera pri tem sploh kaj ponudi?"
+    en: "Anxiety is with me almost all the time, even when objectively nothing is wrong and I have no concrete reason for it. Does faith offer anything at all for that?"
+    credits:
+      - { path: "/a/dusevnimir.html", en: "Peace of mind in an unsteady world (17.8k) — 'The search for peace of mind: how can we attain inner peace in such an unreliable time, and overcome worry and fear? Is there any institution or person we can turn to regardless of what is happening around us or inside us?' This is the source's general anxiety article.", rank: 1, score: 0.629 }
+    note: |
+      ⓘ ONE CREDIT, AND THE DISCRIMINATOR IS DELIBERATE. `/a/kjejebog.html` is rank 2 at 0.623,
+      six thousandths behind the credit, and it is rejected on its text: its subject is
+      TRAGEDY, DISASTER AND GRIEF ("Where is God when we face tragedies, fears, accidents and
+      sorrow?"), not anxiety with nothing objectively wrong. The clause "tudi kadar objektivno
+      ni nič narobe in nimam nobenega konkretnega razloga zanjo" is in the question precisely
+      to make that distinction measurable. Same call `hu` made on /a/faj.html and `ru` on
+      /a/gdebog.html.
+      ⓘ NO TITLE TRAP HERE, IN EITHER DIRECTION — and I checked rather than assuming. `sl` has
+      no coronavirus-titled article, no occult/chakra article and no eating-disorder article,
+      so none of the three reverse traps recorded for `ru` `hu` `tr` `pt` `es` `ro` `mk` exists
+      on this source. Its anxiety shelf is one honestly-titled peace article. The `ro` and `de`
+      lesson — these are per-site publishing choices, not estate constants — holds again.
+      Word choice note: "tesnoba" (anxiety) appears nowhere in /a/dusevnimir.html's opening,
+      which uses "notranji mir", "skrb" and "strah". The question deliberately avoids all three
+      to stay clear of both a smell and of /a/kjejebog.html's fear vocabulary.
+    rejected:
+      - { path: "/a/kjejebog.html", rank: 2, why: "RANK 2 AND REJECTED — tragedy, disaster and grief, not free-floating anxiety. See the note above." }
+      - { path: "/a/alibogodgovarja.html", rank: 3, why: "does God answer prayer — the prayer topic, dropped by persona budget" }
+      - { path: "/a/zakaj.html", rank: 4, why: "'Why?' — the problem of evil" }
+      - { path: "/a/spolnostinintimnost.html", rank: 5, why: "sex and intimacy, at rank 5 on an anxiety question. Tail match. Second case in this suite where this document reaches the top 6 on an unrelated topic." }
+      - { path: "/a/povezanizbozanstvom.html", rank: 6, why: "world religions" }
+      - { path: "/a/onkrajslepegazaupanja.html", rank: 7, why: "credited to case 1" }
+      - { path: "/a/zakajizbratiboga.html", rank: 8, why: "the magnet — present in all four cases' top 10" }
+      - { path: "/a/zivetizupanjem.html", rank: 9, why: "the HIV testimony" }
+      - { path: "/a/soocanjezneizbeznostjo.html", rank: 10, why: "'Death and dying — is there life after death? Fear of death.' Its subject is the fear of DYING specifically, a different condition from generalised anxiety." }
+    top_score: 0.629
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TOPICS DROPPED, AND WHY (§0.7 menu of ten; 4 kept)
+# ─────────────────────────────────────────────────────────────────────────────
+# jesus-death   🔴 CONTENT GAP — NO ATONEMENT ARTICLE. `everystudent-sl` has no document whose
+#               subject is what Jesus' death accomplished. The discovery probe returned, in
+#               order: /a/spoznatiboga.html (Four Spiritual Laws, 0.556), /a/zakajizbratiboga.html
+#               (God's nature + gospel chunk, 0.532), /a/dusevnimir.html (peace + gospel chunk,
+#               0.531), /a/zivetizupanjem.html (HIV testimony tail, 0.510),
+#               /a/onkrajslepegazaupanja.html (Jesus' DEITY, not the cross, 0.495),
+#               /a/povezanizbozanstvom.html (world religions, 0.490). Every hit is either a
+#               boilerplate-tail match or a different subject. `sl` joins `ru`, `zh-cn` and `mn`
+#               in the no-atonement-article group. Recorded as corpus composition per the brief;
+#               not re-opened. NOT MANUFACTURABLE — there is no valid answer key to write.
+#
+# know-god      DROPPED AS A DUPLICATE OF CASE 1'S DOCUMENT SET, not for lack of content. Its
+#               answer documents are /a/zakajizbratiboga.html, /a/kdojebog.html and
+#               /a/kdo2.html, and /a/zakajizbratiboga.html is rank 1 on the god-exists case as
+#               well — the two topics land on the same document, which the tier-D rule makes one
+#               case, not two. god-exists keeps the slot because it has a document
+#               (/a/alibogobstaja.html) that know-god does not share.
+#               ⚠️ It is also the more hazardous of the two to author: "osebno spoznati Boga" is
+#               the entire title of both tail-magnet documents.
+#
+# suffering     DROPPED AS A DUPLICATE OF CASE 4'S DOCUMENT SET. The two probes return the SAME
+#               THREE documents reordered — suffering: zakaj 0.604, kjejebog 0.554, dusevnimir
+#               0.493; anxiety: dusevnimir 0.582, kjejebog 0.531, zakaj 0.523. Only rank 1
+#               differs. anxiety keeps the slot because the 4-case split needs a seeker topic
+#               and anxiety has the cleaner single answer.
+#               ⓘ THE SOURCE CARRIES THIS TOPIC WELL. /a/zakaj.html ("Why do so many people get
+#               cancer? Why are there earthquakes that destroy whole cities?") and
+#               /a/kjejebog.html ("Where is God when we face tragedies?") are both genuine and
+#               both reached the top 10 of two final cases. 🔑 STRONGEST 5th-CASE CANDIDATE.
+#
+# religions     DROPPED ON CROSS-BLEED, not on quality. /a/povezanizbozanstvom.html is the single
+#               cleanest document in the source (0.643, the highest English discovery score of
+#               all ten topics). But it also surfaces on the trinity probe (0.488) and
+#               /a/alibogobstaja.html surfaces on the religions probe at rank 2 (0.508), so a
+#               religions case bleeds into BOTH case 1 and case 3. bible-trust was taken instead
+#               because /a/zakajlahkozaupamo.html reached rank 1 without contesting any other
+#               credited document. 🔑 SECOND-STRONGEST 5th-CASE CANDIDATE.
+#
+# purpose       DROPPED. Its two documents (/a/izpolnjenozivljenje.html,
+#               /a/izvirnovegazivljenja.html) are BOTH first-person testimonies carrying the
+#               invitation-prayer tail — the topic is only answerable here through the exact
+#               chunk shape that failure mode #1 says contaminates everything, and both duly
+#               showed up as tail matches on unrelated cases (ranks 5 and 4 respectively).
+#               ⓘ /a/izvirnovegazivljenja.html is this source's Josh McDowell article — the same
+#               estate article that is `et`'s tail magnet (/a/elumuutuste.html).
+#
+# prayer        DROPPED BY PERSONA BUDGET, not by content. /a/alibogodgovarja.html ("Does God
+#               answer our prayers? What does it take for God to hear them?") is a clean,
+#               dedicated prayer article at 0.596, and it reached the top 10 of three of the four
+#               final cases. The 4-case split allots believer 0 and prayer is the believer topic.
+#               🔑 THIRD-STRONGEST 5th-CASE CANDIDATE, and the only one that restores a fourth
+#               persona.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 6 credits · 6 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the 4-case split exactly.
+# Paraphrase smells: 0 (max top score 0.739). Round 1 had 1, at 0.783.
+# Credits that do not retrieve: 0. One credit was DROPPED after the engine check
+#   (/a/kdo.html); none was kept as a deliberate miss.
+# Two questions were reworded, one for smell and one for reach.
+# evidence_tier: llm-translated
+#
+# 🔴 THREE FINDINGS THIS SOURCE CONTRIBUTES THAT THE CAMPAIGN DID NOT ALREADY HAVE
+#
+#   1. THE TITLE TRAP CAN BE A DUPLICATED SUBTITLE, AND THEN IT IS UNBEATABLE BY REWORDING.
+#      /a/zakajizbratiboga.html and /a/alibogobstaja.html open with the SAME SENTENCE, because
+#      vsakstudent.com pasted one article's metadata onto the other. One of them is the
+#      six-reasons-God-exists article; the other is the God's-attributes article. Every
+#      phrasing that raises one raises the other identically, so the god-exists case can reach
+#      rank 2 and no higher. The fix that worked was to match the answer article's BODY rather
+#      than its metadata (rank 5 → rank 2). Reviewers comparing `sl`'s numbers against other
+#      sources should discount this case's rank by one.
+#
+#   2. CORPUS SIZE DOES NOT SET THE SMELL CEILING — ANSWER-DOCUMENT SIZE DOES. 23 documents,
+#      and round 1 produced 0.783, higher than any of the 14 tier-B sources ever reached. The
+#      answer document was a 3.3k / 2-chunk Q&A. Expect smells on short single-subject Q&A
+#      documents on every source; the "smaller subcorpora score lower" expectation is wrong.
+#
+#   3. AT 17% TESTIMONY THE MAGNET IS THE BROADEST ARTICLE, NOT THE INVITATION PAGE. The
+#      batch-2 rule predicts one document absorbs the tail-magnet load, and one does:
+#      /a/zakajizbratiboga.html, in the top 10 of ALL FOUR cases, credited to nothing. But
+#      /a/spoznatiboga.html (Four Spiritual Laws) appears in NO final top 10 despite being rank
+#      1 on the jesus-death discovery probe. On a 23-document source the absorber is whichever
+#      article is broadest in subject, and that is a survey article.
+#
+# 🟢 THE LANGUAGE SWEEP IS CONFIRMED CLEAN. All 23 documents carry `lang sl`; 0 nulls, 0
+#   duplicate paths. The 6 documents formerly mislabelled `sr` and the 17 formerly null are
+#   correct as of this run. Nothing in this suite is excluded by guardrail #3a.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. SUITE SIZE. 4 cases is the tier-D floor and all four have real, verified answer keys. If
+#      a 5th is wanted, `suffering` on /a/zakaj.html + /a/kjejebog.html is the strongest
+#      addition (it would make the split skeptic 3 / newcomer 1 / seeker 1); `prayer` on
+#      /a/alibogodgovarja.html is the only option that restores a believer case. Both documents
+#      are already proven to retrieve — they sit at ranks 2–4 across this suite.
+#   3. CASE 1 RANK 2 IS A BOUNDARY RESULT AND WILL FLAP. /a/alibogobstaja.html (0.659) and the
+#      rejected /a/zakajizbratiboga.html (0.662) are three thousandths apart on byte-identical
+#      matching text. Do not read a future rank-1 or rank-3 as a change in the engine.

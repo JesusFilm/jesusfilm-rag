@@ -1,0 +1,365 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-sw` (13 documents, lipotumaini.com).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 13 ÷ 8 = 1.6 → the 4-case FLOOR. This is the SMALLEST source in the campaign.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the 4-case row of the Part B table.
+# Questions authored IN SWAHILI, not translated from the English §0.7 menu (§0.6).
+#
+# ─── CORPUS SHAPE ───────────────────────────────────────────────────────────────
+#   13 documents, ALL under `/a/`. No `/story/` tree.
+#   TESTIMONY SHARE: 0% by document — there is not one document on this source whose
+#     genre is a personal account. Derived from the OPENINGS, not from paths (the `uk`
+#     rule). BUT see the magnet finding below: two articles EMBED first-person accounts
+#     and those are this source's tail carriers.
+#   Pure-tail documents (<1,200 chars): 0. The smallest document is 3,330 chars.
+#   Duplicate paths: 0. Duplicate titles: 0. Null-language documents: 0 of 13.
+#
+#   🟢 THE LANGUAGE-DETECTION CANARY RESOLVED CLEAN. `sw` was the source that motivated
+#   the whole LLM language sweep: `tinyld` reads Swahili as Kirundi and its best document
+#   reached only 0.744 confidence — 0.006 under the 0.75 gate — so all 13 sat null.
+#   The openings hazard report now says `✅ no null-language documents`, 13/13 at
+#   language `sw`. Guardrail #3a is satisfied on the source that most nearly failed it.
+#
+#   CATEGORY COUNT (failure mode #4 — find the largest shelf, treat its words as unusable):
+#     "Kuunganishwa na Mungu" (connecting with God)  5 docs
+#     "Kuwepo kwa Mungu"      (existence of God)     4 docs
+#     "Maisha yangu"          (my life)              4 docs
+#   No shelf dominates and there is NO sex/marriage/addiction shelf — the `am` hazard
+#   (29% of that source) does not exist here. Exactly ONE document is relationship
+#   material (`/a/utafutaji.html`, dating and friendship) and it is the ONLY document of
+#   the 13 that discovery never surfaced for any topic. Relationship vocabulary was still
+#   kept out of all four questions.
+#
+# ─── THE ONE VOCABULARY TRAP THAT IS SPECIFIC TO THIS SOURCE ────────────────────
+#   🔴 The breadcrumb category string is PREPENDED TO CHUNK 0 OF EVERY DOCUMENT.
+#   So the literal phrase "Kuunganishwa na Mungu" opens the body of SIX of the 13
+#   documents (biblia, imani, kwa-nini-yesu-alikufa, kumjua, utatu-mtakatifu — plus it is
+#   the TITLE of a seventh, /a/kuunganishwa.html). "Kuwepo kwa Mungu" opens four.
+#   Putting either phrase in a question would pull half the corpus on furniture text.
+#   Both were kept out of all four questions. This is a `sw`-specific ingestion artifact
+#   and it does not appear in any batch-1 source's notes.
+#
+# ─── DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-sw sw ───────────
+#   → 12 of 13 documents surfaced; all TEN §0.7 topics reached, each at rank 1 on a
+#     DIFFERENT document. This source has near-perfect topical coverage for its size —
+#     the constraint here is the 4-case floor, not the corpus.
+#   Every one of the 13 documents was then read from the database (title + opening
+#   ~900 chars, and full chunk text for the four boundary calls) before anything was
+#   credited — guardrail #5.
+#
+#   🔴 THE TWO MAGNETS, found exactly where the `mk` finding predicted.
+#   Discovery's multi-topic report:
+#       /a/amani.html      god-exists, suffering, purpose, anxiety   (4 topics)
+#       /a/sala-zetu.html  god-exists, suffering, anxiety, prayer    (4 topics)
+#       /a/kuunganishwa.html  jesus-death, religions, trinity        (3 topics)
+#   Both magnets are "Maisha yangu" articles and both EMBED first-person accounts —
+#   `/a/sala-zetu.html` opens "when I was someone who did not believe there was a God,
+#   I had a good friend who prayed often", and `/a/amani.html` carries Steve's and
+#   Becky's accounts in chunks 1–3. This is the `mk` pattern (the prayer article as the
+#   one magnet) on a 0%-testimony source, and it confirms the CORRECTED §0.12 rule:
+#   what carries the defect is the chunk SHAPE, not the `/story/` namespace.
+#   NEITHER magnet is credited anywhere in this suite. Deliberate — see case 4.
+#
+#   🟢 `/a/kumjua.html` IS this source's Four Spiritual Laws page, verified chunk by
+#   chunk ("Kanuni ya Kwanza… Kanuni ya Tatu… Yesu Kristo alilipa adhabu ya dhambi
+#   zetu"). §0.12 lists that page as a confirmed repeat tail-carrier across languages.
+#   It is NOT credited. Watch for it in case 3.
+#
+# ─── ENGINE-CHECK ROUND LOG (guardrail #8 §2) — .tmp-diag/phase5-check.ts sw sw ──
+#   Round 1: 1 paraphrase smell (0.791) · 0 credits missing · 4 credits
+#   Round 2: 1 paraphrase smell (0.814 — WORSE) · 0 credits missing · 5 credits
+#   Round 3: 0 smells (max top score 0.707) · 0 credits missing · 5 credits
+#            — clean, but case 3's credit sat at rank 2 behind a near-neighbour.
+#   Round 4: 0 smells (max top score 0.678) · 0 credits missing · 5 credits
+#            — **all four credited topics now return their answer at RANK 1.**
+#   Four rounds, and rounds 2 and 4 are the two worth reading: round 2 because
+#   paraphrasing a smelly question made it smellier, and round 4 because the fix that
+#   finally worked was measured against the database rather than guessed. Both are
+#   written up in the `reworded:` blocks on cases 1 and 3.
+#
+#   MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#     Guardrail #8 §3: all 5 credited paths resolve to EXACTLY ONE document — 5/5.
+#     Guardrail #3a:   no credited document has a null language — 5/5.
+#
+# 🔴 THE 0.75 SMELL LINE IS REACHABLE HERE, WHICH CONTRADICTS THE BATCH-2 EXPECTATION.
+#   The brief's guidance — carried from Persian and from all 14 tier-B sources — is that
+#   0.75 is unreachable and every round should go to reach. On `everystudent-sw` the very
+#   first in-language check came back at **0.791** and the reword took it to **0.814**.
+#   The English discovery probe for that same topic was 0.612, so in-language ran +0.20
+#   over discovery — far beyond the ~0.08 gap `uk` measured.
+#   🔑 The reason is corpus SIZE, and it should be expected on every small source left in
+#   the campaign: with 13 documents there is exactly ONE article per topic and no
+#   near-duplicates to split the similarity, so a well-aimed question lands on a single
+#   document with nothing competing. Small corpora INVERT the batch-1 risk profile — the
+#   boilerplate tail gets weaker (it never took rank 1 here) and paraphrase smell gets
+#   stronger. Two of the four questions in this suite needed smell work; none needed
+#   rescuing from a tail.
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Swahili.
+#   This is a fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "essw-skeptic-hadithi" # topic: bible-trust
+    persona: skeptic
+    q: "Bibi yangu husoma Biblia kila asubuhi na anasema kila neno ndani yake ni kweli. Mimi nilisoma historia shuleni na najua maandishi ya kale mara nyingi huchanganya mambo yaliyotokea na hadithi za kubuni. Kwa nini hiki kiwe tofauti na yale?"
+    en: "My grandmother reads the Bible every morning and says every word in it is true. I studied history at school and I know that ancient writings often mix things that happened with invented stories. Why would this one be different from those?"
+    credits:
+      - { path: "/a/biblia.html", en: "Why you can believe the Bible (23.4k chars, 15 chunks — the LARGEST document on this source). Opens on who wrote the Bible and how: '1,500 years, 40 writers… unlike other religious writings the Bible reads as a factual account of real events, places, people and conversations. Historians and archaeologists have repeatedly confirmed its accuracy.' The chunk discovery matched is the archaeology section — the Hittites 'did not exist' until hundreds of references to their remarkable civilisation were found, Belshazzar 'was not a real king of Babylon'. This is the source's dedicated Bible-reliability article.", rank: 1, score: 0.656 }
+      - { path: "/a/imani.html", en: "⚠ CREDITED ON ITS CHUNK 3, NOT ON ITS TITLE OR ITS SUBJECT — read the note below. The document as a whole is the deity-of-Christ article, but chunk 3 is a self-contained manuscript-reliability argument and it is the second such argument this source carries: 'modern archaeology confirms that there are four biographies of Christ written within the lifetime of the people who saw, heard and followed Jesus. These gospels are full of firm evidence and detail confirming that they were eyewitnesses,' then the late William F. Albright of Johns Hopkins, that there is no reason to believe any Gospel was written after AD 70. That answers the question's 'is there any way to verify it' directly and from a different angle than /a/biblia.html (dating and eyewitnesses, rather than archaeology of the events).", rank: 2, score: 0.569 }
+    boundary: |
+      ⚠️ FOR THE REVIEWER — `/a/imani.html` IS THE ONE BOUNDARY CREDIT IN THIS SUITE.
+      Judged by SUBJECT, this document is "Is Jesus God? Was Jesus Christ only a prophet,
+      or God?" — a deity-of-Christ article, and it is REJECTED on exactly that basis in
+      case 3 below, where the question is about the cross. It is credited here because one
+      of its fourteen chunks makes a standalone Gospel-dating-and-eyewitness argument,
+      which is the second half of the bible-trust answer and is not in /a/biblia.html.
+      Crediting a document for a section rather than for its subject is the looser call,
+      and the reviewer may prefer to drop it and let this case run 1/1 on /a/biblia.html
+      alone. I credited it because the question asks how an ordinary person could VERIFY,
+      and this chunk is the source's only answer about the manuscripts themselves.
+    reworded: |
+      ⚠️ REWORDED TWICE, and round 2 got WORSE — the same trajectory `hu` case 7 recorded.
+      v1: "…kitabu kilichoandikwa na watu na kunakiliwa kwa mkono karne baada ya karne.
+           Kwa nini nikubali kwamba maneno yaliyomo leo ni yale yale yaliyoandikwa
+           mwanzoni?" ("…written by people and copied by hand century after century. Why
+           should I accept the words in it today are the ones written at the beginning?")
+           → top 0.791 🔴 SMELL. It restates /a/biblia.html's own opening frame, which is
+           "see who wrote the Bible and how it was written… 1,500 years, 40 writers".
+      v2: "…Kuna njia yoyote ya mtu wa kawaida kuthibitisha kama yaliyoandikwa humo
+           yalitokea kweli?" ("…is there any way for an ordinary person to verify that
+           what is written there actually happened?")
+           → top 0.814 🔴 SMELL, WORSE. Paraphrasing away from the origin story landed on
+           the article's THESIS instead ("historians and archaeologists have repeatedly
+           confirmed its accuracy"). Both v1 and v2 were paraphrases of the same objection.
+      v3 (kept): changes WHICH OBJECTION is being made — from "was it preserved / can it
+           be verified?" to "ancient writings mix history with legend, why is this one
+           different?" — and sets it in a lived scene (grandmother, school history class)
+           that dilutes the Bible-vocabulary density.
+           → **0.791 → 0.814 → 0.656.** Both credits kept, now ranks 1 and 2.
+      This is the `uk` refinement of §0.12 confirmed a second time: reach and smell fight
+      each other when the fix is a paraphrase, and move together when the fix changes the
+      objection. Two paraphrase rounds bought nothing; one objection change fixed it.
+    rejected:
+      - { path: "/a/je-kuna-mungu.html", rank: 3, why: "'Is there a God?' — six reasons God exists. The scene mentions a believing grandmother, so the existence article matches, but the question is about a book's historical reliability." }
+      - { path: "/a/amani.html", rank: 4, why: "the peace-of-mind article — one of this source's two magnets, at rank 4 for a manuscript question. A tail-shaped match, not an answer." }
+      - { path: "/a/kumjua.html", rank: 5, why: "the Four Spiritual Laws page. Its opening does say 'God has made clear in the Bible how we can know him', which is why it matches; it makes no reliability claim." }
+      - { path: "/a/kuunganishwa.html", rank: 6, why: "credited to case 2" }
+      - { path: "/a/utatu-mtakatifu.html", rank: 7, why: "the Trinity article — matched on 'the Bible speaks clearly about…'" }
+    top_score: 0.656
+
+  # ── 2 ────────────────────────────────── skeptic 🔴 THE SYSTEMATIC TITLE TRAP
+  - id: "essw-skeptic-uhakika" # topic: religions
+    persona: skeptic
+    q: "Kazini kwangu kuna Waislamu na kuna Wahindu, na kila mmoja anaeleza imani yake kwa uhakika ule ule kama Wakristo ninaowajua. Kwa nini nifikiri kwamba mmoja wao anaijua kweli kuliko wengine?"
+    en: "At my workplace there are Muslims and there are Hindus, and each one explains their faith with the same certainty as the Christians I know. Why should I think that one of them knows the truth better than the others?"
+    credits:
+      - { path: "/a/kuunganishwa.html", en: "🔴 TITLE TRAP, CONFIRMED ON THIS SOURCE BY READING IT. The title is 'Kuunganishwa na Mungu' — 'Connecting with God' — which names no subject and reads like a generic invitation page; a title-only reviewer files it under conversion and loses the best document in the source. The BODY is the estate's /a/205 world-religions comparison: 'we look at the major world religions… Hinduism, New Age, Buddhism, Islam and Christianity… at the end we explain how the teachings of Jesus differ from those religions.' It then works through karma and rebirth, New Age self-divinity, Nirvana, Allah as 'a mighty and strict judge, merciful to those who follow him depending on the good deeds of their life', and Christianity's one eternal God who offers each person a personal relationship. Same article as the German /artikel/hochsten.html, the Hungarian /a/istenkereses.html and the French /a/205divin.html (§0.7).", rank: 1, score: 0.667 }
+    note: |
+      ⓘ NO REWORD NEEDED — 0.667 at rank 1 on the first try, and that is because the
+      `hu` lesson was applied before the first check rather than after it. `hu` v1 listed
+      "Hinduism, Buddhism and Islam" and hit 0.813, the worst smell in that suite, because
+      /a/kuunganishwa.html's twin opens with exactly that list in exactly that order — and
+      the Swahili article does the same ("Uhindu, Enzi Mpya, Ubudha, Uislamu, na Ukristo").
+      This question therefore names only TWO faiths, in the reverse of the article's order,
+      and puts them in a workplace rather than in a list. It is also the reason the two
+      named are Muslims and Hindus rather than Muslims and Buddhists: both are in the
+      article, and both are the communities a Swahili-speaking East African reader actually
+      works alongside. Guardrail #6 — the question has to be one a real user would ask.
+    rejected:
+      - { path: "/a/je-kuna-mungu.html", rank: 2, why: "RANK 2 AND REJECTED — 'Is there a God?', the six-reasons apologetics article. It argues that God exists, not which account of him is right. The nearest miss in the suite." }
+      - { path: "/a/imani.html", rank: 3, why: "'Is Jesus God? Every major religion honours him. Was he only a prophet, or God?' — the closest thing this source has to a second religions credit, and I judged it out: its SUBJECT is Jesus' deity argued from the Jewish trial and Roman sources, and the comparative line is one opening sentence, not the article's argument. Same call the `hu` suite made on /a/iszlam.html. ⚠ THE REVIEWER MAY OVERTURN THIS — see the summary." }
+      - { path: "/a/utatu-mtakatifu.html", rank: 4, why: "the Trinity article — matched on one-God-versus-many, which is the shape of the Islamic objection, not a comparison of religions" }
+      - { path: "/a/amani.html", rank: 5, why: "magnet — the peace article, no comparative content" }
+      - { path: "/a/biblia.html", rank: 6, why: "credited to case 1" }
+      - { path: "/a/sala-zetu.html", rank: 7, why: "magnet — the prayer article, first-person account plus tail" }
+      - { path: "/a/kumjua.html", rank: 8, why: "the Four Spiritual Laws page — pure tail match" }
+    top_score: 0.667
+
+  # ── 3 ──────────────────────── newcomer ⚠ THE BOILERPLATE-TAIL TEST FOR THIS SOURCE
+  - id: "essw-newcomer-msalaba" # topic: jesus-death
+    persona: newcomer
+    q: "Wakristo wananiambia Yesu alikufa badala yangu, lakini sielewi jambo hilo hata kidogo. Mimi sikumwomba mtu yeyote afe kwa ajili yangu, wala sistahili hilo. Kifo cha mtu mmoja kinawezaje kulipa kosa la mwingine?"
+    en: "Christians tell me Jesus died in my place, but I do not understand that at all. I did not ask anyone to die for me, and I do not deserve it either. How can one person's death pay for another's wrongdoing?"
+    credits:
+      - { path: "/a/kwa-nini-yesu-alikufa.html", en: "Why did Jesus die? (13.1k chars, 8 chunks) — a DEDICATED atonement article. Its own subtitle: 'this article explains what caused Jesus Christ to be crucified, his death and resurrection, and what it was all about.' It works through who demanded his death (the Jewish religious leaders, the Roman government and the crowd), then what the death was for. `everystudent-sw` therefore does NOT have the `ru`/`zh-cn`/`mn` atonement gap — at 13 documents it still carries the article. Recording that, per §0.12: the gap is corpus composition, and this is the smallest source yet to disprove it for itself.", rank: 1, score: 0.678 }
+    the_finding: |
+      🟢 THE BOILERPLATE TAIL DOES NOT WIN ANYWHERE ON THIS SOURCE — including here, the
+      case where §0.12 says it bites hardest. On `hu` this same topic returned tails at
+      ranks 1, 2 AND 3 with the atonement article at rank 5. Here the atonement article is
+      rank 1 at 0.678 and this source's verified tail-carrier, /a/kumjua.html (the Four
+      Spiritual Laws page — "First Law: God loves you… Third Law: Jesus Christ paid the
+      penalty for our sins"), is rank 3 at 0.652. Across all four cases in this suite NO
+      tail-carrier and NEITHER magnet takes rank 1 of anything.
+
+      🔑 WHY, and it is worth carrying to the remaining sources: this source has 0%
+      testimony BY DOCUMENT — there is not one document here whose genre is a personal
+      account. The `ms`/`mk` correction to §0.12 says a 0%-testimony source is not safe
+      because one document usually absorbs the whole tail load. That did happen — the load
+      is on /a/kumjua.html and, to a lesser degree, on the two magnets — but at 13
+      documents each topic has exactly ONE dedicated article and no near-duplicates, so the
+      real answer always has a clear lexical field of its own to win on. **Small corpora
+      protect against the tail and expose you to paraphrase smell instead** — which is the
+      inverse of the large-source pattern and matches what happened to case 1 above.
+    reworded: |
+      ⚠️ REWORDED TWICE, and the second reword is the most transferable single trick found
+      in this suite.
+      v1: "…kwangu ni mauaji tu yaliyotokea miaka elfu mbili iliyopita. Kifo cha mtu mmoja
+           kilitimiza nini kwa ajili yangu?" → 0.564 top, credit at RANK 2 behind
+           /a/imani.html by 0.006. LEXICAL ARTIFACT (failure mode #4): "miaka elfu mbili
+           iliyopita" is verbatim in /a/imani.html's opening ("miaka 2,000 iliyopita, Mtoto
+           alizaliwa katika zizi"), so the phrase handed rank 1 to the deity article.
+      v2: dropped that phrase, added "kinanihusu vipi mimi ninayeishi leo" ("how does it
+           concern me, living today") → got WORSE, credit fell to RANK 3. The
+           relevance-to-me clause pulled /a/misiba.html ("where is God in hard times",
+           whose whole subject is what you can rely on God for) up to rank 2.
+      v3 (kept): 🔑 I counted, across all 13 documents, which words occur in the atonement
+           article and NOWHERE else. Exactly one useful one came back: **`kustahili`**
+           ("to deserve") — 1 chunk in /a/kwa-nini-yesu-alikufa.html, 0 chunks in the other
+           twelve. It sits in the substitution passage: "Yesu, ambaye hakutenda dhambi,
+           alilipa dhambi zetu msalabani. Sio haki. **Hatukustahili** yeye kuchukua nafasi
+           yetu." Building the question's objection around not deserving it ("wala
+           sistahili hilo") flipped the case from rank 2 to **rank 1**, 0.670 → 0.678,
+           while /a/imani.html fell 0.707 → 0.655.
+           → **rank 2 → rank 3 → RANK 1.** One word, measured rather than guessed.
+      ⓘ The check is cheap and repeatable and no earlier suite records it: for a credit
+      that keeps losing to a near-neighbour, ask the database which vocabulary is unique to
+      the credited document, then build the objection around it. It is the reach-side
+      counterpart to the smell-side rule about not restating an article's title.
+      🔴 Constraint honoured throughout: "msamaha wa dhambi" (forgiveness of sins), the
+      estate's trigger phrase, is NOT in this question — §0.12's Turkish finding.
+    rejected:
+      - { path: "/a/imani.html", rank: 2, why: "RANK 2 AND REJECTED, and it was rank 1 for both earlier versions. 'Is Jesus God?' — 21.2k chars of deity argument that includes the full crucifixion narrative (the scourging, the blasphemy trial, the centurion), which is why any cross question retrieves it. Its subject is WHO Jesus was, not what his death accomplished. Same call `hu` made on /a/hiten.html. It IS credited in case 1, for a different chunk and a different reason." }
+      - { path: "/a/kumjua.html", rank: 3, why: "the Four Spiritual Laws page and this source's verified tail-carrier. It states the substitution in one line ('Jesus Christ paid the penalty for our sins for us') but it is a how-to-begin page, not an explanation of the cross. Same call the `hu` suite made on /a/bizni.html and the `bg` suite before it. Rank 3 is as high as the tail gets anywhere in this suite." }
+      - { path: "/a/kuunganishwa.html", rank: 4, why: "credited to case 2. It matches because its comparative section discusses what each religion requires as a sacrifice for sin — genuinely adjacent, but it is a survey, not an account of the cross." }
+      - { path: "/a/misiba.html", rank: 5, why: "'Where is God in hard times?' — was rank 2 for v2 of this question. Suffering, not atonement." }
+      - { path: "/a/biblia.html", rank: 6, why: "credited to case 1" }
+      - { path: "/a/amani.html", rank: 7, why: "magnet" }
+    top_score: 0.678
+
+  # ── 4 ────────────────────────────────────────── seeker ⚠ THE MAGNET TEST
+  - id: "essw-seeker-haikuacha" # topic: purpose
+    persona: seeker
+    q: "Kila siku naamka, nafanya kazi, narudi nyumbani na kulala, na jioni nahisi kwamba siku nzima haikuacha kitu chochote. Nashindwa kuona maisha yangu yanaelekea wapi wala kama yana maana yoyote."
+    en: "Every day I wake up, I work, I come home and sleep, and in the evening I feel that the whole day left nothing behind. I cannot see where my life is heading, or whether it has any meaning at all."
+    credits:
+      - { path: "/a/kusudi.html", en: "What is my purpose in life? — the hammer parable, told at length: a hammer is made to drive nails; imagine one that is never used and just sits in the toolbox; now imagine that hammer with a soul and self-awareness. Day after day it stays in the box, unhappy without knowing why. Someone takes it out to break branches and it is delighted — held, carried, striking — but at the end of the day it still has not fulfilled what it was made for. This is the SMALLEST document in the source (3,330 chars, 2 chunks) and it is the only one whose subject is what life is for.", rank: 1, score: 0.58 }
+    the_finding: |
+      🟢 THE SMALLEST DOCUMENT IN THE SOURCE BEATS THE BIGGEST MAGNET, CLEANLY.
+      /a/kusudi.html is 3,330 chars and 2 chunks. /a/amani.html is 15,251 chars, 11 chunks,
+      and is the document discovery surfaced for FOUR separate topics. On this question the
+      2-chunk article takes rank 1 at 0.580 and the magnet is rank 2 at 0.510 — a 0.070
+      gap, the widest rank-1-to-rank-2 margin in the suite. Length is not what wins here.
+      ⓘ This case is also the only place in the suite where /a/utafutaji.html appears at
+      all (rank 4, 0.442). That document — dating, love and the search for real friendship —
+      is the estate article §0.12 lists as a confirmed repeat tail-carrier, and it is the
+      ONLY one of the 13 that the English discovery pass never surfaced for any topic. It
+      surfaces here and only here, on the emptiness question. That is the fourth language
+      in which the estate's emptiness question pulls its dating/despair shelf (`es` `ru`
+      `hu` `bn` did it with /a/blues.html, which this source does not carry). It does not
+      win, and it is not credited.
+    rejected:
+      - { path: "/a/amani.html", rank: 2, why: "RANK 2 AND REJECTED, and it is the closest boundary call in the suite. 'Peace of mind in an unstable world' genuinely contains an emptiness-after-achievement passage — 'everything I set out to do and achieve at university came true, and I still was not satisfied. Something was missing and I had nowhere else to go', then Becky: 'how often have you thought that if you just had that piece of clothing, or that partner, or got to visit that place, your life would be happy and complete? And how often have you bought that shirt… and left emptier than you started?' That is close to /a/valddi.html, which the `hu` suite DID credit for this topic. I rejected it because `hu`'s document is a dedicated article about people who reached the summit and were still empty, whereas here the passage is an illustration inside an article whose subject is confidence about the FUTURE. `everystudent-sw` has no dedicated emptiness article. ⚠ THE REVIEWER MAY OVERTURN THIS — it is the one rejection I would most expect to be argued with." }
+      - { path: "/a/imani.html", rank: 3, why: "credited to case 1 — the deity article, matched on 'his life changed the course of history'" }
+      - { path: "/a/utafutaji.html", rank: 4, why: "'Relationships and the search for friendship' — the dating article. See the finding above." }
+      - { path: "/a/kumjua.html", rank: 5, why: "the Four Spiritual Laws page — its 'God has a wonderful plan for your life' opening is why it matches a purpose question. Tail." }
+      - { path: "/a/misiba.html", rank: 6, why: "hard times — a different condition from an empty routine" }
+      - { path: "/a/kwa-nini-yesu-alikufa.html", rank: 10, why: "credited to case 3" }
+    top_score: 0.58
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 5 credits · 5 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the 4-case row of the Part B table.
+# Topics used:    bible-trust · religions · jesus-death · purpose
+# Topics dropped: god-exists · know-god · suffering · anxiety · prayer · trinity
+# Paraphrase smells: 0 (max top score 0.678). Rounds 1 and 2 each had one.
+# Credits that do not retrieve: 0. Every credit is at rank 1 except the boundary
+#   second credit on case 1, which is rank 2.
+# evidence_tier: llm-translated
+#
+# 🔴 THE SIX DROPPED TOPICS ARE **NOT** CONTENT GAPS, AND THIS MATTERS FOR THE ESTATE
+#   PICTURE. `everystudent-sw` carries all TEN §0.7 topics, each on a different
+#   document, and discovery returned all ten at rank 1:
+#       god-exists  → /a/je-kuna-mungu.html     (18.5k, six reasons God exists)
+#       know-god    → /a/mungu-ni-nani.html     (6.3k, seven attributes of God)
+#       suffering   → /a/misiba.html            (12.0k, where is God in hard times)
+#       anxiety     → /a/amani.html             (15.3k, peace of mind)
+#       prayer      → /a/sala-zetu.html         (9.6k, does God answer prayer)
+#       trinity     → /a/utatu-mtakatifu.html   (5.2k, three gods or one — 1x1x1=1)
+#   They were dropped ONLY because 4 is the case floor and §0.7's own derivation warns
+#   that a 10-case suite over 13 documents "enumerates rather than measures". The four
+#   kept are the four whose answer documents are most clearly distinct from each other
+#   and from everything else in the corpus. **A 13-document source with 10/10 topical
+#   coverage is the campaign's strongest single argument that this estate publishes a
+#   consistent core menu regardless of how small a language site is.**
+#   ⚠️ If the operator wants more Swahili cases later, trinity and know-god are the two
+#   cheapest additions — both are single-purpose documents (5.2k and 6.3k, 3 and 4
+#   chunks) with no competitor in the corpus, and trinity scored the highest of all ten
+#   topics in discovery (0.620).
+#
+# 🟢 THE LANGUAGE-DETECTION CANARY IS CLEAN. `sw` is why the LLM language sweep exists:
+#   `tinyld` reads Swahili as Kirundi and its best document reached 0.744 confidence,
+#   0.006 under the 0.75 gate, so all 13 documents sat at null language and would have
+#   been excluded by guardrail #3a. The openings hazard report now reads
+#   `✅ no null-language documents`, 13/13 at `sw`, and the check script confirms all 5
+#   credits are non-null. The source that most nearly failed the guardrail passes it.
+#
+# 🔴 ONE TITLE TRAP, AND IT IS THE SYSTEMATIC ONE — VERIFIED, NOT ASSUMED.
+#   /a/kuunganishwa.html is titled "Kuunganishwa na Mungu" ("Connecting with God"),
+#   which names no subject and reads like a generic invitation page. It is the estate's
+#   /a/205 world-religions comparison and it is rank 1 for the religions question at
+#   0.667. §0.7 already identified it; I confirmed it chunk by chunk rather than on
+#   precedent, because §0.12 records Romanian and German breaking the precedents.
+#
+# 🔴 A NEW TRAP CLASS, SPECIFIC TO THIS SOURCE'S INGESTION — THE BREADCRUMB IS IN THE BODY.
+#   Every document's chunk 0 begins with its site breadcrumb. So the literal string
+#   "Kuunganishwa na Mungu" opens the BODY of five documents (biblia, imani,
+#   kwa-nini-yesu-alikufa, kumjua, utatu-mtakatifu) while also being the TITLE of a
+#   sixth — and that sixth, /a/kuunganishwa.html, opens with a DIFFERENT breadcrumb
+#   ("Kuwepo kwa Mungu"). A reviewer matching on that phrase gets six wrong documents and
+#   misses the right one. All four questions were written to keep both breadcrumb strings
+#   ("Kuunganishwa na Mungu", "Kuwepo kwa Mungu") out. No batch-1 source records this.
+#
+# 🟢 NO TAIL AND NEITHER MAGNET TAKES RANK 1 OF ANY CASE. This source is 0% testimony BY
+#   DOCUMENT — not one of the 13 is a personal account (derived from the openings, per the
+#   `uk` rule, not from paths). The tail load is real and concentrated exactly where the
+#   `ms`/`mk` correction predicts: /a/kumjua.html is this source's Four Spiritual Laws
+#   page, verified chunk by chunk, and the two "Maisha yangu" magnets (/a/amani.html and
+#   /a/sala-zetu.html, both of which EMBED first-person accounts) were surfaced by four
+#   topics each in discovery. But the highest any of them reaches in the final suite is
+#   rank 3, on the atonement case, where `hu` had tails at ranks 1, 2 AND 3. See the
+#   finding on case 3 for why: at 13 documents every topic has one dedicated article and
+#   no near-duplicate, so the real answer always has its own lexical field to win on.
+#
+# ⓘ NO ATONEMENT GAP. `everystudent-sw` carries a dedicated 13.1k "Why did Jesus die?"
+#   article and it is rank 1 for the cross question. At 13 documents this is the smallest
+#   source in the campaign to carry one, which is another data point that the `ru`/
+#   `zh-cn`/`mn` gap is corpus composition and not a function of source size. Not
+#   re-opened; recorded per §0.12.
+#
+# ⓘ NO ISLAM ARTICLE, SO NO tahrif ROUTE FOR bible-trust. Unlike `ja`, `kk`, `th`, `bg`
+#   and `hu`, this source has no standalone Islam article; Islam appears only as one
+#   section inside /a/kuunganishwa.html, and that section is about Allah and paradise,
+#   not about scripture corruption. bible-trust is answered head-on by /a/biblia.html
+#   plus the Gospel-dating chunk of /a/imani.html. Same shape as Czech and Portuguese.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#      If anyone on the team reads Swahili it should be `human-verified`.
+#   2. **Case 1's second credit `/a/imani.html` — KEEP or DROP.** I credited it for one
+#      chunk (Gospel dating, eyewitnesses, Albright) while rejecting the same document in
+#      case 3 for its subject. That is the loosest call in the suite. Dropping it makes
+#      the whole suite 4 cases / 4 credits, all rank 1. Full reasoning in its `boundary:`
+#      block.
+#   3. **Case 4's rejection of `/a/amani.html` — the one I most expect to be argued with.**
+#      It carries a real emptiness-after-achievement passage and the `hu` suite credited
+#      that content type for this topic. I rejected it because here the passage sits
+#      inside an article about confidence in the future, not in a dedicated article.
+#   4. **Case 2's rejection of `/a/imani.html` at rank 3.** Its opening sentence is
+#      comparative ("every major religion honours him; was he only a prophet, or God?"),
+#      so crediting it is defensible; I judged the article's subject to be Jesus' deity,
+#      not a comparison of religions.

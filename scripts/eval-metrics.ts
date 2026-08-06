@@ -16,6 +16,24 @@
  */
 import { z } from "zod";
 
+/**
+ * How well the OPERATOR could see what they approved — not how good the case is.
+ *
+ * The multilingual campaign (#111) puts 45 languages in the corpus and no
+ * reviewer reads most of them. `docs/eval-approach.md` already answers that:
+ * candidates are presented with an English translation of the question AND of
+ * the retrieved results, and the operator approves the translation. That flow
+ * is sound, but it hides one real difference — for French the operator can spot
+ * a bad translation, for Tigrinya they cannot. The approval is equally explicit
+ * either way; the *evidence behind it* is not.
+ *
+ * So the tier records the reviewability of the evidence, and the report keeps
+ * the buckets apart so a Tigrinya number is never averaged into a French one.
+ * It is deliberately NOT a quality gate: no metric is discounted, nothing is
+ * excluded. Operator decision, 2026-08-03 (campaign §7).
+ */
+export const EVIDENCE_TIERS = ["human-verified", "llm-translated"] as const;
+
 export const GoldenCaseSchema = z
   .object({
     id: z.string(),
@@ -25,6 +43,11 @@ export const GoldenCaseSchema = z
     // languages. Set it when derivation is ambiguous (a case whose only
     // relevant source is multilingual, e.g. familylife ["en","es"]).
     language: z.string().optional(),
+    // Reviewability of the evidence the operator approved on (see above).
+    // ABSENT IS NOT A DEFAULT: the 130 pre-campaign cases carry no tier and are
+    // reported under "(untagged)" rather than being retro-labelled, because
+    // nobody now can say which of them the reviewer could read unaided.
+    evidence_tier: z.enum(EVIDENCE_TIERS).optional(),
     // sourceKey -> canonical-url pathnames. Every doc that legitimately answers
     // the question, grouped by its source (each source listed has >= 1 path).
     relevant: z.record(z.array(z.string().min(1)).min(1)),
@@ -73,6 +96,13 @@ export interface SourceCoverage {
 
 export interface LanguageCoverage {
   language: string; // resolved case language, or "(unscoped)" when none was derivable
+  cases: number;
+  recall_at_10: number;
+  coverage: number;
+}
+
+export interface TierCoverage {
+  tier: string; // an EVIDENCE_TIERS value, or "(untagged)" for pre-campaign cases
   cases: number;
   recall_at_10: number;
   coverage: number;
@@ -238,6 +268,36 @@ export function coverageByLanguage(results: CaseResult[]): LanguageCoverage[] {
     });
 }
 
+/**
+ * Per-evidence-tier coverage — the same shape as coverageByLanguage(), grouped
+ * by how reviewable the operator's evidence was rather than by language.
+ *
+ * Why it exists: a whole-corpus mean silently blends cases the operator could
+ * verify with cases they took on a machine translation's word. Reading them
+ * apart is the entire point of the tier; a blended headline would defeat it.
+ * "(untagged)" is a real bucket, not a gap to fill — see EVIDENCE_TIERS.
+ */
+export function coverageByTier(results: CaseResult[]): TierCoverage[] {
+  const byTier = new Map<string, CaseResult[]>();
+  for (const r of results) {
+    const key = r.case.evidence_tier ?? "(untagged)";
+    const bucket = byTier.get(key);
+    if (bucket) bucket.push(r);
+    else byTier.set(key, [r]);
+  }
+  return [...byTier.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([tier, rs]) => {
+      const m = computeMetrics(rs);
+      return {
+        tier,
+        cases: m.cases,
+        recall_at_10: m.recall_at_10,
+        coverage: m.coverage,
+      };
+    });
+}
+
 function escape(s: string): string {
   return s.replace(/\|/g, "\\|");
 }
@@ -250,6 +310,7 @@ export interface RenderInput {
   metrics: Metrics;
   perSource: SourceCoverage[];
   perLanguage: LanguageCoverage[];
+  perTier: TierCoverage[];
 }
 
 /**
@@ -257,7 +318,8 @@ export interface RenderInput {
  * + per-case table.
  */
 export function renderMarkdown(input: RenderInput): string {
-  const { modelId, topK, scope, results, metrics, perSource, perLanguage } = input;
+  const { modelId, topK, scope, results, metrics, perSource, perLanguage, perTier } =
+    input;
 
   const caseRows = results.map((r) => {
     const tick = r.matchedRank !== null ? "✓" : "✗";
@@ -275,6 +337,11 @@ export function renderMarkdown(input: RenderInput): string {
   const perLanguageRows = perLanguage.map(
     (l) =>
       `| \`${l.language}\` | ${l.cases} | ${l.recall_at_10.toFixed(3)} | ${l.coverage.toFixed(3)} |`,
+  );
+
+  const perTierRows = perTier.map(
+    (t) =>
+      `| \`${t.tier}\` | ${t.cases} | ${t.recall_at_10.toFixed(3)} | ${t.coverage.toFixed(3)} |`,
   );
 
   return [
@@ -315,6 +382,18 @@ export function renderMarkdown(input: RenderInput): string {
     "| language | cases | recall@10 | coverage |",
     "|----------|------:|----------:|---------:|",
     ...perLanguageRows,
+    "",
+    "## Per-evidence-tier coverage",
+    "",
+    "(how reviewable the OPERATOR's evidence was — not how good the case is.",
+    "`human-verified` = approved on content a reviewer could read or check;",
+    "`llm-translated` = approved on a machine translation nobody available can",
+    "verify. `(untagged)` = authored before the tier existed. Kept apart so a",
+    "machine-translated language's number is never averaged into a checked one.)",
+    "",
+    "| tier | cases | recall@10 | coverage |",
+    "|------|------:|----------:|---------:|",
+    ...perTierRows,
     "",
     "## Per-case",
     "",

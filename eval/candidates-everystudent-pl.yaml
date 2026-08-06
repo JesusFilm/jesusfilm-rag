@@ -1,0 +1,380 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-pl` (77 documents).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 77 ÷ 8 = 9.6, cap 10 → **10 cases**. The rule allows 9 or 10 here; 10 was
+#   chosen because all ten §0.7 topics are genuinely answerable from this source
+#   (see the bible-trust caveat below) and 10 keeps the persona split exact.
+#   NO TOPIC WAS DROPPED.
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN POLISH as a real person would ask, not translated from the
+#   English menu — see the guardrail-#1 near-miss recorded on `kazdyswoje` below.
+#
+# CORPUS FACTS (from the database, not from memory)
+#   77 documents · **0 with a NULL language** (guardrail #3a — nothing excluded)
+#   **0 duplicate titles** — unlike `everystudent-bg`, a title→path map is safe here
+#   Paths are plain ASCII (`/a/*.html`) — no percent-encoding hazard
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-pl pl
+#   → 58 distinct candidate documents of 77, all ten topics surfaced.
+# Every credited document was read from the database (title + opening ~700–850 chars,
+# several in full) before being credited — guardrail #5, and specifically because of
+# the boilerplate-tail trap recorded in §0.9. It fired here too; see `krzyz`.
+#
+# ENGINE-CHECKED TWICE (guardrail #8 §2) — .tmp-diag/phase5-pl-check.ts
+#   Round 1: 1 paraphrase smell · 0 credits outside top 10 · 0 unresolved titles
+#   Round 2: **0 paraphrase smells** (max top score 0.743) · **0 credits outside top 10**
+#   Three questions were reworded between rounds. Only one was reworded for the smell;
+#   the other two were reworded for FRAGILITY — see `mysleniezyczeniowe` and `cisza`.
+#
+# MECHANICAL CHECKS — both green
+#   Guardrail #8 §3: all 28 credited titles resolve to EXACTLY ONE document — 28/28.
+#   Guardrail #3a:   no credited document has a null language — 28/28 (all `pl`).
+#
+# evidence_tier: llm-translated
+#   Proposed, matching `everystudent-zh-cn`, `-ru` and `-bg`. This is a fact about the
+#   REVIEWER, not the language: the Polish was authored and the article openings judged
+#   by an LLM with no human Polish reader in the loop. If anyone on the team reads
+#   Polish and can sanity-check the questions and the English glosses, it should be
+#   `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────── skeptic
+  - id: "espl-skeptic-mysleniezyczeniowe"     # topic: god-exists
+    persona: skeptic
+    q: "Znajomi powtarzają, że Bóg to wymysł i ludzie wierzą w niego tylko dlatego, że chcą, żeby był prawdziwy. Czy jest jakikolwiek konkretny powód, żeby sądzić inaczej?"
+    en: "My friends keep saying God is an invention and that people believe in him only because they want him to be real. Is there any concrete reason to think otherwise?"
+    top_score: 0.713                          # clear of 0.75
+    credits:
+      - {path: "/a/istnienieboga.html", rank: 1, score: 0.713, en: "Does God exist? Six reasons to believe God exists (Marilyn Adamson) — opens by conceding these are indirect grounds, not proofs. The source's flagship apologetics article, 21.7k chars."}
+      - {path: "/a/dowod.html",         rank: 2, score: 0.678, en: "Can the existence of God be proved? (Dr Gregory Ganssle) — 'you can't prove God exists' has itself been raised to the status of a dogma. Attacks the asker's epistemology directly."}
+      - {path: "/a/ateistka.html",      rank: 3, score: 0.666, en: "How an atheist woman came to believe in God — Marilyn Adamson's own account. She kept asking believers 'how do you know?' and kept getting 'well, you just know'. Answers the wishful-thinking charge with the charge itself."}
+      - {path: "/a/wiare.html",         rank: 5, score: 0.648, en: "How to find faith? — written at the agnostic who would rather not look, because looking has consequences."}
+    rejected:
+      - {path: "/a/natury.html",     rank: 4,  score: 0.654, why: "The laws of nature astonish scientists — a design argument. It supplies ONE strand of physical evidence; it does not engage the claim that belief is wish-fulfilment. Same reasoning the `bg` suite used to drop its flagship."}
+      - {path: "/a/wszechswiat.html", rank: 7, score: 0.635, why: "Did God create the universe? — cosmological argument, same reason as above."}
+      - {path: "/a/odrzucenie.html", rank: 8,  score: 0.634, why: "What if I neither accept nor reject God? — fence-sitting has consequences. A different question."}
+      - {path: "/a/dopiekla.html",   rank: 9,  score: 0.632, why: "How can a loving God send people to hell? — a different objection."}
+      - {path: "/a/cierpienie.html", rank: 10, score: 0.629, why: "credited to case 3 — its subject is suffering."}
+    reworded: |
+      ⚠️ REWORDED AFTER ROUND 1 — NOT for a smell, for FRAGILITY (§0.11's noise finding).
+      v1: "Znajomi mówią mi, że wiara w Boga to myślenie życzeniowe dla ludzi, którzy nie
+           radzą sobie sami. Czy stoi za tym cokolwiek poważnego?"
+           ("…wishful thinking for people who can't cope on their own")
+      That scored a clean 0.680 with all four credits inside k=10 — but "can't cope on
+      their own" pulled the COPING shelf: ranks 2–7 were koronawirus, Boża pomoc,
+      tragedia, pokój, cierpienie, samotność, and the three apologetics credits sat at
+      ranks **8, 9 and 10** — one tie-reorder away from falling out. §0.11 measured an
+      11.9% per-source coverage swing from exactly that.
+      v2 drops the coping clause and sharpens the wish-fulfilment charge.
+      Result: credits moved 8/9/10/1 → **1/2/3/5**, top 0.680 → 0.713, still clear of 0.75.
+
+  # ── 2 ────────────────────────────────────────────────────────── newcomer
+  - id: "espl-newcomer-jakion"                # topic: know-god
+    persona: newcomer
+    q: "Kiedy ktoś mówi „Bóg”, w mojej głowie pojawia się jakaś bezosobowa energia gdzieś w kosmosie. Czy chrześcijanie mają o Nim coś konkretniejszego do powiedzenia?"
+    en: "When someone says 'God', what appears in my head is some impersonal energy somewhere out in space. Do Christians have anything more concrete to say about him?"
+    top_score: 0.648
+    credits:
+      - {path: "/a/bogbiblii.html", rank: 1, score: 0.648, en: "TITLED 'The nature of God'; the body opens 'IN SEARCH OF THE IDEAL GOD — human nature likes choosing its own God. Why should we choose the God revealed in the Bible?' then four numbered attributes. The Polish twin of the Bulgarian 'В търсене на идеалния Бог', rank 1 for the same question there."}
+      - {path: "/a/kto2.html",      rank: 2, score: 0.631, en: "'Who 2' — a title carrying literally zero information (part 4 of a series: Nothingness → Something → Who → Who 2). The body argues the Eternal Being produces nothing out of necessity, therefore it CHOSE, therefore it has a will, therefore it is PERSONAL — and is invisible, transcendent, and made itself knowable in Jesus. This is the most direct answer in the source to 'impersonal energy somewhere in space', and no title-based reviewer would ever find it."}
+      - {path: "/a/bog.html",       rank: 7, score: 0.597, en: "Who is God? Six traits of God's personality — 'God is knowable… he invites us into friendship with himself'."}
+      - {path: "/a/gdzie.html",     rank: 8, score: 0.590, en: "Where is God? — the flatland analogy: two-dimensional people cannot see you until you push a fingertip through their paper. God exists outside our dimensions. 🔴 TITLE TRAP, see the note below."}
+    title_trap: |
+      🔴 `/a/gdzie.html` ("Where is God?") and `/a/tragedia.html` ("Where is God when
+      misfortune, tragedy, grief hits us?") are DIFFERENT ARTICLES on DIFFERENT TOPICS
+      with near-identical titles. `/a/gdzie.html` is the flatland / invisible-God piece
+      and belongs to know-god; `/a/tragedia.html` is the suffering article (case 3).
+      A title-only reviewer credits `gdzie` to the bereavement question and gets it
+      exactly backwards. Third source, and the trap keeps re-appearing (§0.7, §0.8, §0.11).
+    rejected:
+      - {path: "/a/kobieta.html",     rank: 3,  score: 0.625, why: "Can God be a woman? — its subject is God's gender, a narrower question."}
+      - {path: "/a/szukanieboga.html", rank: 4, score: 0.618, why: "credited to case 9 — the world-religions comparison."}
+      - {path: "/a/tragedia.html",    rank: 5,  score: 0.607, why: "credited to case 3 — the suffering article. See the title-trap note above."}
+      - {path: "/a/wszechswiat.html", rank: 6,  score: 0.599, why: "Did God create the universe? — cosmology, not what God is like."}
+      - {path: "/a/zrodlo.html",      rank: 9,  score: 0.588, why: "credited to case 4 — a testimony about finding meaning."}
+      - {path: "/a/jezusislam.html",  rank: 10, score: 0.585, why: "credited to case 7."}
+
+  # ── 3 ─────────────────────────────────────────────────────────── skeptic
+  - id: "espl-skeptic-wypadek"                # topic: suffering
+    persona: skeptic
+    q: "W zeszłym roku zginął w wypadku mój przyjaciel. Do dziś nie potrafię tego poskładać z tym, że Bóg miałby być dobry."
+    en: "Last year a friend of mine was killed in an accident. To this day I cannot fit that together with God supposedly being good."
+    top_score: 0.684
+    credits:
+      - {path: "/a/dlaczego.html",   rank: 1, score: 0.684, en: "Why is life so hard? — 'Why do people get cancer? Why do earthquakes destroy whole cities?' Then: your parents divorce, someone snatches a little girl off the street, a family member is diagnosed."}
+      - {path: "/a/bol.html",        rank: 2, score: 0.669, en: "Why does God allow suffering? — an unusually honest FAQ: 'we are not sure God answers your question in the Bible… he probably will explain later, most likely at the Judgement.'"}
+      - {path: "/a/tragedia.html",   rank: 3, score: 0.663, en: "Where is God when misfortune, tragedy and grief hit us? Finding the inner strength to face stress and fear (Marilyn Adamson), 14.7k chars."}
+      - {path: "/a/cierpienie.html", rank: 5, score: 0.649, en: "Believe in a God who allows suffering? — framed around the hardest case the estate uses anywhere: 'Why should I worship a God who allows children to be raped?'"}
+      - {path: "/a/Boza-pomoc.html", rank: 7, score: 0.623, en: "God's help in hard times — a 6.3k video transcript that opens 'When tragedy strikes we often ask: God, where are you?' Shorter companion to /a/tragedia.html; both are separate documents and both answer."}
+    rejected:
+      - {path: "/a/koronawirus.html", rank: 4,  score: 0.651, why: "credited to case 5 — it is the anxiety article."}
+      - {path: "/a/pokoj.html",       rank: 6,  score: 0.627, why: "credited to case 5 — peace of mind."}
+      - {path: "/a/przyzwoici.html",  rank: 8,  score: 0.621, why: "Can 'decent people' end up in hell? — judgement, not theodicy."}
+      - {path: "/a/bogbiblii.html",   rank: 9,  score: 0.616, why: "credited to case 2."}
+      - {path: "/a/ateistka.html",    rank: 10, score: 0.615, why: "credited to case 1 — a conversion testimony."}
+
+  # ── 4 ───────────────────────────────────────────────────────────── seeker
+  - id: "espl-seeker-nicniezostaje"           # topic: purpose
+    persona: seeker
+    q: "Kończę dzień i mam wrażenie, że nic z niego nie zostało. I tak od kilku lat. Po co to wszystko?"
+    en: "I finish the day with the feeling that nothing is left of it. And it has been like that for a few years. What is it all for?"
+    top_score: 0.661
+    credits:
+      - {path: "/a/celzycia.html",      rank: 1, score: 0.661, en: "What is the purpose of my life? — the hammer parable: a hammer with a soul, left in the toolbox, feeling bad without knowing why."}
+      - {path: "/a/prawdziwezycie.html", rank: 4, score: 0.596, en: "Real life — three people describe finding fulfilment, acceptance and purpose. Opens with the man who summited the mountain he had aimed at all his life and felt only disappointment."}
+      - {path: "/a/zrodlo.html",        rank: 5, score: 0.579, en: "The source of a changed life (Josh McDowell) — 'Who am I? Why am I even here? Where am I going?' The Polish twin of the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Bulgarian 'Казвали ли сте си някога „мразя живота си“' — all credited for this same question shape."}
+      - {path: "/a/filozofii.html",     rank: 7, score: 0.552, en: "The value of philosophy — 'Why are we here? What is our purpose? What gives fulfilment and meaning?' Socrates, Plato, Aristotle, Peter Kreeft."}
+    rejected:
+      - {path: "/a/piekno.html", rank: 2,  score: 0.614, why: "In search of beauty that does not fade — a model on building a life on appearance. Self-worth, not purpose. Same rejection the Russian suite made for /a/krasoti.html."}
+      - {path: "/a/blues.html",  rank: 3,  score: 0.605, why: "'Ninth-floor blues' — a personal account of emotional pain and suicidal thoughts. A depression testimony, not a meaning article. ⚠️ NOTE: this is the SAME article as the Spanish /articulos/blues.html and the Russian /a/sigaretoy.html, and it has now behaved identically in all THREE languages — retrieving high for the EMPTINESS question rather than the depression one. Third independent confirmation of that cross-source quirk."}
+      - {path: "/a/potem.html",  rank: 6,  score: 0.563, why: "What happens after death? — mortality is not the same question as purpose. Same rejection the Bulgarian suite made."}
+      - {path: "/a/pokoj.html",  rank: 8,  score: 0.549, why: "credited to case 5."}
+      - {path: "/a/ateistka.html", rank: 9, score: 0.542, why: "credited to case 1."}
+      - {path: "/a/dlaczego.html", rank: 10, score: 0.539, why: "credited to case 3."}
+
+  # ── 5 ───────────────────────────────────────────────────────────── seeker
+  - id: "espl-seeker-lek"                     # topic: anxiety
+    persona: seeker
+    q: "Prawie cały czas siedzi we mnie niepokój, nawet kiedy obiektywnie nic złego się nie dzieje. Czy wiara ma na to jakąkolwiek odpowiedź?"
+    en: "There is anxiety sitting in me almost all the time, even when objectively nothing bad is happening. Does faith have any answer to that?"
+    top_score: 0.707
+    credits:
+      - {path: "/a/pokoj.html",       rank: 1, score: 0.707, en: "Peace of mind in an unstable world — 'how do you find peace of mind instead of worry and fear in uncertain times?' 19.9k chars."}
+      - {path: "/a/koronawirus.html", rank: 2, score: 0.699, en: "🔴 TITLE TRAP — see below. Titled simply 'Coronavirus'; the body is 'Anxiety connected with the coronavirus' (Marilyn Adamson) and its second paragraph says: 'Perhaps the anxiety you feel is connected with something else entirely' — then lists terrorism, climate change, racism, war, incompetent governments, poverty, sexual assault, disasters, money trouble, illness, unemployment, difficult relationships, addictions. A general anxiety article, 12.3k chars."}
+    title_trap: |
+      🔴 A title-only reviewer REJECTS `/a/koronawirus.html` as a 2020 pandemic piece and
+      loses the source's second-best anxiety document. This is the same direction as the
+      Russian `/a/chakr.html` ("Anxiety and Chakra Healing"), which a title-only reviewer
+      would have rejected as New Age content when it is the best anxiety article in that
+      source. Two languages, same failure mode, opposite-looking titles.
+    rejected:
+      - {path: "/a/dlaczego.html",    rank: 3,  score: 0.667, why: "credited to case 3."}
+      - {path: "/a/modlitwy.html",    rank: 4,  score: 0.658, why: "credited to case 8."}
+      - {path: "/a/tragedia.html",    rank: 5,  score: 0.636, why: "credited to case 3 — chronic anxiety with nothing objectively wrong is not a tragedy. Same rejection the Russian suite made for /a/gdebog.html at rank 1."}
+      - {path: "/a/wiare.html",       rank: 6,  score: 0.603, why: "credited to case 1."}
+      - {path: "/a/Boza-pomoc.html",  rank: 7,  score: 0.600, why: "credited to case 3."}
+      - {path: "/a/blues.html",       rank: 8,  score: 0.567, why: "depression and suicidal thoughts — a testimony, and a different clinical picture from free-floating anxiety."}
+      - {path: "/a/samotnoscia.html", rank: 10, score: 0.548, why: "loneliness."}
+
+  # ── 6 ────────────────────────────────────────────────────────── newcomer
+  - id: "espl-newcomer-krzyz"                 # topic: jesus-death
+    persona: newcomer
+    q: "Nie rozumiem, dlaczego ktoś musiał umrzeć, żebym dostał przebaczenie. Bóg nie mógł po prostu odpuścić?"
+    en: "I do not understand why somebody had to die for me to get forgiveness. Could God not just let it go?"
+    top_score: 0.743                          # highest in the suite, still clear of 0.75
+    credits:
+      - {path: "/a/dlaczego-umarl.html", rank: 1, score: 0.743, en: "TITLED 'The crucifixion of Jesus'; the body headline is 'WHY DID JESUS DIE? What is the deal with the death and resurrection of Jesus Christ?' 13.7k chars, written by the KazdyStudent.pl team. A DEDICATED atonement article — 'he paid for our sin on the cross. It is not fair. We did not deserve him taking our place.'"}
+      - {path: "/a/nieprzebaczenie.html", rank: 3, score: 0.693, en: "🔴 TITLE TRAP IN THE OTHER DIRECTION — 'Why doesn't God forgive everyone?' The title AND the opening question frame religious pluralism ('why can't the Christian God forgive people who picked the wrong religion?'). But the body's core is four numbered steps answering literally 'Why can God not simply OVERLOOK sin?' — he is holy, he is just, he is merciful, he is love — ending with Jesus taking the penalty in our place. Read only the opening and you file this under pluralism; read the body and it is the best second answer in the source to THIS question."}
+    the_finding: |
+      🟢 THIS CASE IS THE CLEANEST BOILERPLATE-TAIL SPECIMEN IN THE CAMPAIGN SO FAR —
+      and Polish comes out on the BULGARIAN side of the Russian gap.
+
+      EIGHT of the ten hits are boilerplate tails or gospel-summary chunks: Boża pomoc
+      (r2, 0.695), W prawdziwym życiu (r4), Jak osobiście poznać Boga (r5), Reinkarnacja
+      i karma (r6), Gdzie jest Bóg gdy tragedia (r7), the haemophilia/HIV testimony (r8),
+      **Czy istnieje nadzieja na trwałe małżeństwo? (r9, 0.676 — a MARRIAGE article)** and
+      Osobiste poznanie Boga (r10). Verified by reading the closing chunks: this estate's
+      Polish articles end with the same gospel summary and invitation prayer
+      ("Panie Jezu, zdaję sobie sprawę ze swojego grzechu… proszę, przebacz mi").
+
+      The difference from Russian: `everystudent-ru` has NO article whose subject is what
+      the cross accomplished, so `esru-newcomer-krest`'s credits are buried under those
+      tails and the case is an expected miss. `everystudent-pl` HAS one — and it is
+      **rank 1 at 0.743, above every tail.** Same result as Bulgarian.
+      **Three sources now: `ru` lacks the article and misses; `bg` and `pl` have it and
+      rank it first. The Russian result is corpus composition, confirmed twice.**
+    rejected:
+      - {path: "/a/Boza-pomoc.html",              rank: 2,  score: 0.695, why: "RANK 2 AND REJECTED — boilerplate tail. Its subject is God's help in hard times (credited to case 3)."}
+      - {path: "/a/prawdziwezycie.html",          rank: 4,  score: 0.691, why: "boilerplate tail on a fulfilment-testimony article (credited to case 4)."}
+      - {path: "/a/jak-osobiscie-poznac-Boga.html", rank: 5, score: 0.688, why: "'How you can start a personal relationship with God' — the Four Spiritual Laws as a video transcript. Its SUBJECT is how to begin, not what the cross accomplished. The Polish twin of the Chinese /a/personally.html and the Russian /a/uznat.html. Rejected here BECAUSE Polish has the dedicated article; crediting the how-to-begin pages is what was necessary in Russian only because nothing else existed."}
+      - {path: "/a/karma.html",       rank: 6,  score: 0.687, why: "Reincarnation and karma — its subject is the afterlife; it reaches this question only through its closing gospel chunk."}
+      - {path: "/a/tragedia.html",    rank: 7,  score: 0.679, why: "boilerplate tail (credited to case 3)."}
+      - {path: "/a/nadzieja.html",    rank: 8,  score: 0.677, why: "the haemophilia/HIV student testimony — boilerplate tail."}
+      - {path: "/a/malzenstwo.html",  rank: 9,  score: 0.676, why: "🔴 'Is there hope for a lasting marriage?' — a 24k-char MARRIAGE-ADVICE article at rank 9 for an atonement question, purely on its closing gospel chunk ('the wage of sin is death… proved by the cross'). The specimen that makes the tail trap unmistakable."}
+      - {path: "/a/poznanieboga.html", rank: 10, score: 0.672, why: "'Knowing God personally' — the written Four Spiritual Laws. Same reason as /a/jak-osobiscie-poznac-Boga.html."}
+
+  # ── 7 ─────────────────────────────────────────── skeptic ⚠ CONTENT GAP
+  - id: "espl-skeptic-przepisywana"           # topic: bible-trust
+    persona: skeptic
+    q: "Biblię przepisywano ręcznie przez setki lat. Skąd mam wiedzieć, że to, co dziś czytam, to nadal ten sam tekst?"
+    en: "The Bible was copied by hand for hundreds of years. How am I supposed to know that what I read today is still the same text?"
+    top_score: 0.705
+    credits:
+      - {path: "/a/jezusislam.html", rank: 1, score: 0.705, en: "Jesus and Islam — six questions Muslims most often ask about Jesus. Question ONE is 'Has the original version of the Bible been changed?' The body carries the full transmission argument: historians comparing the manuscripts put today's New Testament at ≥99.5% agreement with the originals (the half-percent being spelling, no changes of meaning), plus the Qumran scrolls against today's Old Testament at ~100%, ending 'do not let anyone tell you the New or Old Testament was altered — historically that is untrue.' 23.9k chars."}
+    the_gap: |
+      ⚠️ **CONTENT GAP — READ THIS BEFORE JUDGING THE CASE.**
+      `everystudent-pl` has **no standalone Bible-reliability article.** The Russian
+      sibling has `/a/bibliya.html` ("Why the Bible is worth trusting") and the Bulgarian
+      has "Защо да вярвам на Библията? - История на Библията". Polish has neither. A
+      full-text search of all 77 documents for the transmission vocabulary
+      (rękopis / manuskrypt / zniekształcony / tekst oryginalny) returns **exactly one
+      document: `/a/jezusislam.html`.**
+
+      So this topic is answerable in Polish ONLY through the Islam article — which is the
+      *tahrif* (scripture-corruption) shape §0.7 already recorded for `kk`, `th` and
+      `zh-cn`, and which the existing `esar-skeptic-tahrif` case matches. That makes this
+      the FOURTH source where the Bible-trust question is answered from the Islam shelf,
+      and the first where nothing else exists at all.
+
+      This is why the case has a single credit and why the rest of its top 10 collapses
+      from 0.705 straight to 0.594 and then under 0.52 — a 0.111 cliff after rank 1, the
+      steepest in the suite. Nothing to fix; a corpus-composition fact worth measuring.
+    rejected:
+      - {path: "/a/muzulmanin2.html", rank: 2, score: 0.594, why: "'Can God love a Muslim' — a Pakistani convert's testimony. It compares the Qur'an and the Bible but its subject is his own journey."}
+      - {path: "/a/innepisma.html",   rank: 8, score: 0.478, why: "'How do we know Jesus really lived?' — Tacitus, Josephus, Suetonius, the Talmud. The nearest neighbour and a deliberate rejection: its subject is whether JESUS EXISTED (extra-biblical corroboration), not whether the biblical TEXT survived transmission. Crediting it would blur two different skeptical questions."}
+      - {path: "/a/reinkarnacja.html", rank: 3, score: 0.513, why: "'What does the Bible say about reincarnation?' — matched on 'Bible', subject is the afterlife."}
+      - {path: "/a/wiara.html",       rank: 6, score: 0.483, why: "'Faith that is not blind' (Paul Little) — the life of Jesus and his deity. Under 0.50 and a different subject."}
+
+  # ── 8 ──────────────────────────────────────────────────────────── believer
+  - id: "espl-believer-cisza"                 # topic: prayer
+    persona: believer
+    q: "Od pół roku modlę się o jedną i tę samą sprawę i kompletnie nic z tego nie wynika. Zaczynam się zastanawiać, czy ktokolwiek tego słucha."
+    en: "I have been praying about the same one thing for six months and absolutely nothing comes of it. I am starting to wonder whether anyone is listening at all."
+    top_score: 0.706
+    credits:
+      - {path: "/a/modlitwy.html", rank: 1, score: 0.706, en: "Does God answer our prayers? What conditions have to be met for God to hear a prayer? (Marilyn Adamson) — asks 'but why doesn't God answer everyone's prayers?' and carries a dedicated section on 'unanswered' prayers. The Polish twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html and the Bulgarian 'Отговаря ли Бог на молитвите ни?' — all credited for this same question shape."}
+    reworded: |
+      ⚠️ REWORDED AFTER ROUND 1 — again for FRAGILITY, not for a smell, and this is the
+      most instructive of the three.
+      v1: "Modlę się o to samo od miesięcy i nic się nie dzieje. Robię coś źle?"
+          (13 words — a natural, terse utterance)
+      Result: **top score 0.500 for the WHOLE top 10**, and /a/modlitwy.html only rank 3
+      at 0.489, behind the ninth-floor-blues depression testimony (r1) and the beauty
+      article (r2), both pure boilerplate-tail matches. A short query embeds weakly and
+      the tails win by default.
+      v2 says the same thing at natural length. Result: **0.500 → 0.706, rank 3 → rank 1**,
+      and every tail dropped below 0.61.
+      📌 WORTH CARRYING TO THE REMAINING SUITES: the boilerplate tail is most dangerous
+      against SHORT questions. Two of the three rewords in this suite were about question
+      length and shape, not about paraphrase.
+    rejected:
+      - {path: "/a/koronawirus.html", rank: 2, score: 0.603, why: "credited to case 5."}
+      - {path: "/a/ateistka.html",    rank: 3, score: 0.600, why: "credited to case 1 — it does describe watching a friend's prayers answered, but its subject is her conversion."}
+      - {path: "/a/blues.html",       rank: 4, score: 0.592, why: "boilerplate tail (it ends on a prayer)."}
+      - {path: "/a/guru.html",        rank: 5, score: 0.586, why: "'I was a Hindu guru' — testimony."}
+
+  # ── 9 ─────────────────────────────────────────────────────────── skeptic
+  - id: "espl-skeptic-kazdyswoje"             # topic: religions
+    persona: skeptic
+    q: "W mojej grupie każdy wierzy w co innego — jeden w Allaha, ktoś w karmę, ja w nic. Czy chrześcijaństwo naprawdę mówi coś innego niż reszta?"
+    en: "In my group everyone believes something different — one in Allah, someone in karma, me in nothing. Does Christianity really say anything different from the rest?"
+    top_score: 0.665
+    credits:
+      - {path: "/a/szukanieboga.html", rank: 1, score: 0.665, en: "TITLED, verbatim, 'Hinduism, Buddhism, Islam, Christianity, New Age — do the world's great religions really come down to the same thing?'; body header 'In search of contact with God' (Marilyn Adamson), 20.8k chars, each system described then contrasted. This is the estate's /a/205 world-religions article — the same piece as the Russian /a/soyed.html, the German /artikel/hochsten.html, the Swahili /a/kuunganishwa.html and the French /a/205divin.html."}
+      - {path: "/a/roznica.html", rank: 4, score: 0.616, en: "Jesus and other religions — 'How does the teaching of Jesus differ from the other world religions?' Five numbered contrasts, starting with 'Jesus Christ seeks to enter a relationship with us.'"}
+      - {path: "/a/slon.html",    rank: 7, score: 0.597, en: "Is God an elephant? — the blind-men-and-the-elephant parable used to argue every religion describes the same God, and why the analogy fails. Attacks the asker's premise directly."}
+    guardrail_1_near_miss: |
+      🔴 THE ONE PLACE THIS SUITE NEARLY BROKE GUARDRAIL #1 (do not restate an article title).
+      `/a/szukanieboga.html`'s TITLE is a word-for-word Polish rendering of the §0.7 menu
+      question. Translating the menu question into Polish — the obvious thing to do — would
+      have produced a question that IS the article's title, guaranteeing a paraphrase smell
+      and measuring nothing. The question was instead written as the asker's own social
+      situation (a mixed friend group), which is why it sits at 0.665.
+      📌 CHECK THIS ON EVERY REMAINING SOURCE: the estate localises titles, so whether the
+      menu question collides with a title is a per-source fact, not a constant.
+    rejected:
+      - {path: "/a/zrodlo.html",       rank: 2,  score: 0.623, why: "RANK 2 AND REJECTED — matched on the McDowell testimony's 'I've had it with religion, church makes me sick' passage, not on any comparison. Credited to case 4."}
+      - {path: "/a/nieprzebaczenie.html", rank: 3, score: 0.619, why: "credited to case 6. Its opening does frame the pluralism question, but the body answers the atonement one; crediting it twice would break the one-document-one-case property this suite keeps."}
+      - {path: "/a/podroz.html",      rank: 5,  score: 0.606, why: "'An unusual but true spiritual journey' — Marcia Montenegro on astrology, Tarot, kundalini and gurus. A testimony, and it ends on the standard tail."}
+      - {path: "/a/muzulmanin2.html", rank: 6,  score: 0.597, why: "a Muslim convert's testimony."}
+      - {path: "/a/katolik.html",     rank: 8,  score: 0.592, why: "Catholic vs Christian — an intra-Christian question. Same rejection the Russian suite made for /a/katolikom.html."}
+      - {path: "/a/istnienieboga.html", rank: 9, score: 0.576, why: "credited to case 1."}
+
+  # ── 10 ───────────────────────────────────────────────────────── newcomer
+  - id: "espl-newcomer-trzech"                # topic: trinity
+    persona: newcomer
+    q: "Kolega mówi, że chrześcijanie modlą się do Jezusa, do jego Ojca i jeszcze do jakiegoś Ducha. Dla mnie z zewnątrz wygląda to na trzy różne postacie."
+    en: "A friend says Christians pray to Jesus, to his Father and to some Spirit as well. From the outside that looks to me like three different figures."
+    top_score: 0.699
+    credits:
+      - {path: "/a/trojca.html",    rank: 1, score: 0.699, en: "Could you explain what the Trinity is? — 'the word is not in the Bible, but we use it for what Scripture plainly teaches… three Persons sharing one divine essence.'"}
+      - {path: "/a/duchswiety.html", rank: 2, score: 0.669, en: "Who is the Holy Spirit? — 'a real person… the Holy Spirit is NOT some vague, fleeting shadow or an impersonal force.' Answers the 'some Spirit as well' part of the question directly."}
+    reworded: |
+      ⚠️ REWORDED AFTER ROUND 1 — the suite's ONLY paraphrase smell.
+      v1: "Na nabożeństwie modlą się raz do Jezusa, raz do Ojca, raz do Ducha Świętego.
+           To w końcu jeden Bóg czy trzech?"  → **top 0.750 🔴 SMELL**, exactly on the line.
+      "One God or three" is /a/trojca.html's own formulation ('Trój' = three, 'ca' = unity,
+      hence 'three in one'), so the question was restating the article.
+      Two alternatives were A/B tested against v1:
+        (a) "…czy to znaczy, że chrześcijanie czczą kilku różnych bogów?" → 0.747
+            REJECTED: still 0.003 under the line, and §0.10 measured 0.001 of run-to-run
+            drift on top scores. That is not clearance, that is luck.
+        (b) "Kolega mówi… wygląda to na trzy różne postacie."           → **0.699 ✅ KEPT**
+      Result: 0.750 → 0.699, /a/trojca.html stays rank 1 and /a/duchswiety.html
+      IMPROVES from rank 3 (0.615) to rank 2 (0.669). The reword cost nothing.
+    rejected:
+      - {path: "/a/jezusislam.html", rank: 3, score: 0.662, why: "credited to case 7. It does carry a 'if there is only one God, how can Jesus be God?' section, so this is a genuinely close call — but its subject is the Muslim objection set, and the suite keeps one document to one case."}
+      - {path: "/a/szukanieboga.html", rank: 4, score: 0.601, why: "credited to case 9."}
+      - {path: "/a/katolik.html",    rank: 5, score: 0.573, why: "Catholic vs Christian — a denominational question."}
+      - {path: "/a/jak-osobiscie-poznac-Boga.html", rank: 6, score: 0.570, why: "boilerplate — the Four Spiritual Laws video."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 28 credits · 28 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Topics: all ten of the §0.7 menu, none dropped
+#
+# ENGINE CHECK (.tmp-diag/phase5-pl-check.ts)
+#   |                          | round 1 | round 2 |
+#   |--------------------------|--------:|--------:|
+#   | paraphrase smells (≥0.75)|       1 |   **0** |
+#   | credits not in top 10    |       0 |   **0** |
+#   | unresolved titles        |       0 |       0 |
+#   | max top score            |   0.750 |   0.743 |
+#   | min top score            |   0.500 |   0.661 |
+#   Three questions reworded. ONE for the smell (trinity). TWO for FRAGILITY:
+#   `mysleniezyczeniowe` had its three apologetics credits stranded at ranks 8/9/10,
+#   and `cisza` was too SHORT to beat the boilerplate tails (0.500 → 0.706).
+#
+# MECHANICAL CHECKS
+#   28/28 credited titles resolve to exactly one document (guardrail #8 §3)
+#   28/28 credited documents have language = 'pl'; 0 null (guardrail #3a)
+#   Corpus: 77 documents, 0 null-language, 0 duplicate titles, ASCII paths
+#
+# 🔴 THREE TITLE TRAPS ON THIS ONE SOURCE — the highest count of the campaign so far
+#   1. /a/gdzie.html  "Where is God?"  — is the flatland/invisible-God article
+#      (know-god), NOT the suffering article. /a/tragedia.html, whose title is nearly
+#      identical, IS the suffering one. Judging by title inverts them.
+#   2. /a/koronawirus.html  "Coronavirus" — is a general ANXIETY article by Marilyn
+#      Adamson. A title-only reviewer discards the source's rank-2 anxiety document.
+#   3. /a/nieprzebaczenie.html  "Why doesn't God forgive everyone?" — title AND opening
+#      frame religious pluralism; the body answers "why couldn't God just overlook sin?"
+#      It is the second-best atonement document in the source.
+#   Bonus: /a/kto.html and /a/kto2.html are titled "Who" and "Who 2" and carry no
+#   information whatsoever. /a/kto2.html is credited at rank 2 for the know-god case.
+#
+# 🔴 THE BOILERPLATE-TAIL TRAP (§0.9) FIRED HARD — `espl-newcomer-krzyz` is the cleanest
+#   specimen yet: EIGHT of ten hits are gospel-summary or invitation-prayer chunks,
+#   including a 24k-char MARRIAGE-ADVICE article at rank 9 (0.676) for an atonement
+#   question. Verified against the closing chunks of the Polish articles.
+#   NEW OBSERVATION: the tail also wins by DEFAULT against short questions — see the
+#   `cisza` reword, where a 13-word question put three tails above the correct article.
+#
+# ⚠️ ONE CONTENT GAP — `bible-trust`. `everystudent-pl` has NO standalone Bible-
+#   reliability article. A full-text search of all 77 documents for transmission
+#   vocabulary returns exactly one hit: /a/jezusislam.html. The topic is answerable, but
+#   only through the Islam/tahrif article, which is the shape §0.7 recorded for `kk`,
+#   `th` and `zh-cn`. Fourth source with that shape; first with nothing else at all.
+#
+# 🟢 POLISH IS A SECOND CONTROL FOR THE RUSSIAN ATONEMENT GAP. `esru-newcomer-krest`
+#   misses because `everystudent-ru` has no article whose subject is the cross.
+#   Bulgarian has one (rank 3). Polish has one (/a/dlaczego-umarl.html) at RANK 1, 0.743,
+#   above eight boilerplate tails. Three sources, two with the article and both ranking
+#   it first. The Russian expected miss is corpus composition, now confirmed twice.
+#
+# 🔵 FOR THE OPERATOR — decisions needed
+#   1. evidence_tier: `llm-translated` proposed. No human Polish reader was involved.
+#   2. Case 1 rejects /a/natury.html (r4) and /a/wszechswiat.html (r7) — real evidence
+#      articles that answer a NARROWER question (design, cosmology) than the asker's
+#      wish-fulfilment charge. Crediting them would also raise the question of the five
+#      other evidence articles (/a/prawdziwy.html DNA, /a/stworzyl.html, and the
+#      Nicość→Coś→Kto→Kto 2 series) that do NOT retrieve — which would manufacture
+#      guaranteed misses. Flagging the judgement rather than hiding it.
+#   3. Case 7 (`bible-trust`) rests on ONE document and that document is about Islam.
+#      Keep as the honest measurement of the gap, or drop the topic and ship 9 cases?
+#      Recommendation: KEEP — a suite that reports a real gap is worth more than one
+#      that hides it, and the case still returns its credit at rank 1.

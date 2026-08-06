@@ -1,0 +1,326 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-ta` (Tamil, ungalthervuenna.com, 31 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 31 ÷ 8 = 3.9 → floored at 4 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the §0.7 table for a 4-case suite.
+# Questions authored IN TAMIL, not translated from the English topic menu (§0.6).
+#
+# ═══ CORPUS SHAPE — read this before judging any hit ═══
+#   31 documents, ALL under `/a/*.html`. There is NO `/story/` tree.
+#   Length: 3,023 – 30,920 chars, mean 12.7k. **0 documents under 1,200 chars** —
+#     failure mode #2 (pure-tail documents) CANNOT fire on this source. There is
+#     nothing to mistake for a topic hit.
+#   Null-language documents: 0 of 31 (guardrail #3a). Duplicate paths: 0. Duplicate titles: 0.
+#
+#   ⚠️ TESTIMONY SHARE ≈ 13% (4 of 31), DERIVED FROM OPENINGS, NOT FROM PATHS.
+#   Path-counting reads this source as 0% testimony because there is no `/story/`
+#   namespace — exactly the `uk`/`bn` trap the brief warns about. Reading the
+#   openings, four documents are first-person accounts carrying the shared
+#   invitation-prayer tail:
+#       /a/sawyer.html  (20.9k) Steve Sawyer, HIV diagnosis → hope
+#       /a/source.html  (16.5k) Josh McDowell, "I wanted to be the happiest man alive"
+#       /a/wolves.html  (20.0k) a young man's 10 reasons he waited for marriage (dating)
+#       /a/toxic.html   (15.4k) Jenny McConnell, freedom from pornography
+#
+#   🔴 THE TAIL IS VERIFIED, NOT ASSUMED. The last chunk of `/a/wolves.html` reads
+#   "…என் பாவங்களை நீர் சிலுவையில் சுமந்ததற்க்காக உமக்கு நன்றி… என் வாழ்க்கையில் நீர் என்
+#   ஆண்டவரும் இரட்சகருமாக வாரும்" — "thank you for bearing my sins on the cross…
+#   come into my life as my Lord and Saviour." That is the estate invitation prayer,
+#   in its own chunk, on the dating article the brief names as a confirmed repeat
+#   carrier across languages. `/a/sawyer.html` carries the same block.
+#
+#   🔑 THIS SOURCE'S ONE TAIL MAGNET IS `/a/jesusislam.html` (26.3k), not a testimony.
+#   Discovery surfaced it for SIX of the ten topics — know-god, suffering, anxiety,
+#   jesus-death, bible-trust, trinity. It earns two of those (bible-trust, and the
+#   incarnation objection under trinity); the other four are tail and gospel-summary
+#   matches. Runners-up: `/a/finding.html` (5 topics), `/a/isthere.html`,
+#   `/a/prayers.html`, `/a/connecting.html` (4 each).
+#
+# ═══ 🆕 A BRIEFED EXPECTATION THAT DID NOT HOLD ═══
+#   The task brief predicted navigation/breadcrumb chrome ahead of each article body,
+#   from the Rule-1e `"html"` container fallback (Lithuanian found it mildly useful).
+#   **There is none on `ta`.** The first chunk of every document read starts at the H1:
+#   `/a/greatest.html` chunk 1 begins "என் வாழ்வின் நோக்கம் என்ன?" with no menu, no
+#   breadcrumb, no shelf labels. The fallback landed on clean article bodies here, so
+#   the publisher's own shelving is NOT recoverable from `ta` the way it was from `lt`.
+#
+# ═══ DISCOVERY ═══ .tmp-diag/phase5-partb-discover.ts everystudent-ta ta
+#   → 25 distinct candidate documents of 31, all ten topics returning something.
+#   All 31 documents were then read from the database (title + opening ~900 chars)
+#   before anything was credited — guardrail #5.
+#
+# ═══ 🔴 SIX TOPICS DROPPED, AND THE ANSWER DOCUMENT FOR EACH ═══
+#   At 4 cases, six of the ten §0.7 topics go. Only ONE is a real content gap; the
+#   other five are dropped for suite size or persona balance and their answer
+#   documents are named here so the operator can see exactly what is being left
+#   unmeasured.
+#
+#   | topic       | answer document(s) this source DOES carry            | why dropped |
+#   |-------------|------------------------------------------------------|-------------|
+#   | suffering   | /a/tragedy.html (13.9k, "Where is God in the midst of tragedy?", Marilyn Adamson) + /a/why.html (10.3k, "Why is life so hard?" — divorce, the girl abducted from our street, a relative's cancer) + /a/whyworship.html (3.0k, "Why worship a God who allows child rape?") | THE BEST-CARRIED DROPPED TOPIC — three genuine articles. Dropped only because both skeptic slots went to topics with a stronger Tamil-specific signal. If the operator wants a 5th case, this is the one to add. |
+#   | bible-trust | /a/bible.html (30.9k, the source's LONGEST document — who wrote the Bible, 40 authors over 1500 years, archaeology, textual transmission) + /a/jesusislam.html (26.3k, question 1 IS the tahrif question: "வேதாகமமானது அதனுடைய மூல அசல் தன்மையில் இருந்து மாற்றப்பட்டுள்ளதா?") | Well carried, dropped for size. See the AUDIENCE finding below — this is the topic the task brief asked me to check. |
+#   | trinity     | /a/trinity.html (3.9k, "Can you explain the Trinity?" — the three-dimensions analogy) + /a/hspirit.html (4.3k, "Who is the Holy Spirit?" — "not an uncertain, imperceptible spirit, nor impersonal; he is a person") | Well carried, dropped for size; only one newcomer slot and know-god has the richer shelf. |
+#   | prayer      | /a/prayers.html (11.2k, "Does God answer our prayers?" — told by a former atheist watching a praying friend week after week) | Carried, but `prayer` is the BELIEVER topic and a 4-case suite has ZERO believer slots (§0.7 table). Dropped by arithmetic, not by content. |
+#   | anxiety     | /a/finding.html (18.0k, "A life of peace of mind in an unstable world" — "whatever your future holds, you can have a settled mind and hope") | 🔴 THINNEST NON-GAP. This source has NO article whose subject is anxiety. It has no coronavirus article and no chakra/occult article — the two documents §0.12 records as the systematic anxiety carriers elsewhere DO NOT EXIST on `ta`. One peace article carries the whole topic. A case here would be 1 credit against 9 tail hits. |
+#   | jesus-death | 🔴 **NONE. GENUINE CONTENT GAP.** | There is no "why did Jesus have to die?" article in these 31 documents. Discovery for this topic returned SIX documents and every one is a tail or gospel-summary match: /a/jesusislam.html 0.581 (its Q4 asks *whether* Jesus died — historicity, not accomplishment), /a/personally.html 0.578 (the Four Spiritual Laws page), /a/sawyer.html 0.562, /a/wolves.html 0.544, /a/finding.html 0.540, /a/whypick.html 0.500. `jesus-death` is the single topic on this source that has NO valid answer key, so no case was manufactured (§0.7). This is the same corpus-composition finding already settled for `ru`, `zh-cn` and `mn` — recorded and not re-opened. |
+#
+# ═══ 🔑 THE AUDIENCE PREDICTION THE TASK BRIEF ASKED ME TO TEST ═══
+#   Tamil readers span Hindu-majority Tamil Nadu and Buddhist/Hindu Sri Lanka, so the
+#   naive prediction is a Hindu/Buddhist shelf and no Islam shelf. **This source
+#   carries BOTH, and the Islam article is the bigger investment.**
+#     Hindu/Buddhist shelf: /a/connecting.html (19.1k) names இந்து மதம் (Hinduism),
+#       புத்த மதம் (Buddhism), புதிய யுகம் (New Age), இஸ்லாம் and Christianity and
+#       compares what each teaches about God; /a/religions.html (3.5k) is the short
+#       Jesus-versus-world-religions piece.
+#     Islam shelf: /a/jesusislam.html, 26.3k — the SECOND-LARGEST document in the
+#       whole source, six questions, opening with the tahrif question.
+#   So `bible-trust` on `ta` is routed through BOTH a dedicated Bible-history article
+#   AND the Islam article, exactly the `ja`/`zh`/`kk`/`th`/`bg` publishing pattern —
+#   on a source whose readers are overwhelmingly not Muslim. This is the fifth
+#   confirmation that the *tahrif* overlap is about ESTATE PUBLISHING, not audience.
+#   Audience has now failed to predict publishing on `ta` as it did elsewhere.
+#
+# ═══ ENGINE-CHECK ROUND LOG ═══ .tmp-diag/phase5-check.ts ta ta
+#   Round 1: **0 paraphrase smells** (max top score 0.683) · **3 of 10 credits not in
+#            top 10** · 10 credits. Three of the four questions were defective and all
+#            three defects were REACH defects, one per failure mode:
+#              case 1 (0.642) — failure mode #5, emotional framing. Rank 1 was the
+#                peace-of-mind article; the science article missed entirely.
+#              case 2 (0.594) — a question with no religious content in it at all.
+#                RANK 1 WAS THE HIV TESTIMONY; the short world-religions article missed.
+#              case 4 (0.517) — a NEW variant of failure mode #4: the word "nothing"
+#                pulled three parts of the cosmological chain into ranks 2, 3 and 4.
+#   Round 2: **0 paraphrase smells** (max top score 0.729) · **1 credit not in top 10**
+#            (/a/who.html on case 1 — DROPPED after the round, reasoning in the case).
+#            All three rewords landed: 0.642→0.729, 0.594→0.709, 0.517→0.679, and every
+#            reworded case moved a credit to rank 1.
+#   Final (--update): 4 cases · 9 credits · 0 smells · 0 credits outside the top 10.
+#
+#   ⓘ THE 0.75 SMELL LINE WAS NEVER APPROACHED ON `ta` — the highest score across both
+#   rounds and all four questions is 0.729, and round 1 topped out at 0.683. Every round
+#   went to REACH. This is the Persian/`uk` shape (§0.12 + the `uk` finding B): on this
+#   source a low top score carried no information about question quality, and round 1
+#   proved it — case 4 scored 0.517, returned BOTH its credits, and was still wrong.
+#
+# ═══ MECHANICAL CHECKS — run inside the check script so they cannot be skipped ═══
+#   Guardrail #8 §3: all credited paths resolve to EXACTLY ONE document — 9/9 final
+#                    (10/10 in rounds 1 and 2, before /a/who.html was dropped).
+#   Guardrail #3a:   no credited document has a null language — 9/9.
+#   Failure mode #2: no credit is under 1,200 chars (the smallest is 3,486).
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Tamil. This is a
+# fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esta-skeptic-aadhaaram" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "கடவுள் நம்பிக்கை என்பது எந்த ஆதாரமும் இல்லாத ஒன்று என்று என் நண்பர்கள் சொல்கிறார்கள். அறிவியல் ரீதியாகவோ பகுத்தறிவு ரீதியாகவோ கடவுள் இருக்கிறார் என்பதற்குத் திடமான காரணங்கள் ஏதாவது உண்டா?"
+    en: "My friends say belief in God is something with no evidence at all. Are there any solid reasons, on scientific or rational grounds, that God exists?"
+    credits:
+      - { path: "/a/isthere.html", en: "'Is there a God?' — Marilyn Adamson, 19.4k, the source's flagship apologetics article. Opens by offering evidence WITHOUT pressure: 'not \"you just have to believe, that's all\"', then six straightforward reasons. Answers the fact-versus-feeling half of the question head-on.", rank: 1, score: 0.729 }
+      - { path: "/a/Godreal.html", en: "'Is God real?' — 5.8k, the SCIENCE article. Antony Flew, the British philosopher and leading spokesman for atheism, concluding that 'the only explanation for the origin of life is a supreme intelligence', then DNA as a complex computer program. This is the source's factual-evidence document.", rank: 4, score: 0.582 }
+    reworded: |
+      ⚠️ REWORDED ONCE, AND IT IS THE CLEANEST DEMONSTRATION OF FAILURE MODE #5 IN
+      THIS SUITE — emotional framing retrieves emotional documents.
+      v1: "…கடவுள் நம்பிக்கை என்பது மனதுக்கு ஆறுதல் தரும் ஒரு கற்பனை மட்டும்தான்…
+           அதற்குப் பின்னால் திடமான ஏதாவது இருக்கிறதா, இல்லை வெறும் உணர்வு மட்டும்தானா?"
+           ("…belief in God is just a fantasy that COMFORTS THE MIND… is there anything
+           solid behind it, or only a feeling?")
+           → top 0.642, no smell, but only 1 of 3 credits returned. The comfort clause
+           dragged the entire top 10 into emotional documents: RANK 1 was
+           /a/finding.html (peace of mind), rank 3 /a/prayers.html, rank 4
+           /a/tragedy.html, and ranks 6–8 were the HIV testimony, the dating article
+           and the sex-and-intimacy article — three invitation-prayer tail carriers.
+           The science article missed entirely.
+      v2 (kept): deletes the comfort clause and asks for GROUNDS — "on scientific or
+           rational grounds, are there solid reasons that God exists?"
+           → **0.642 → 0.729, isthere.html 2 → 1, and /a/Godreal.html went from MISSING
+           to rank 5 in round 2 and rank 4 in the final run.** §0.12 records the same
+           edit on another source moving 0.583 → 0.704 and 2/4 → 4/4. Second
+           confirmation, different language, same size of effect.
+           ⓘ /a/Godreal.html sits in a tie cluster at 0.582 with /a/whypick.html and
+           /a/whatlike.html and moved 5 → 4 between two identical runs. Do not read a
+           future rank change there as an engine change; §0.10 recorded the same
+           tie-reorder flapping on `esru-newcomer-krest`.
+    dropped_after_engine_check:
+      - path: "/a/who.html"
+        why: >-
+          'Who' (8.8k) is part 3 of this source's four-part cosmological chain (/a/nothing.html → /a/something.html → /a/who.html → /a/who2.html) and it argues that the Eternal Something must be ONE rather than many. I credited it for two full rounds as a second ground for God's existence and it did not return in the top 10 in either. I DROPPED it rather than keeping it as a miss, because on re-reading the engine is right: the question asks whether there is anything solid behind belief, and this document does not argue that anything exists — it argues about the NUMBER of eternal somethings, having already assumed the previous two parts. It is retrievable on this source (rank 10 on case 3, rank 7 on case 4 in round 1), so this is not a reach defect. Note also that Tamil numbers the chain the same way Hungarian does — personhood and attributes land in part 4, /a/who2.html, which IS credited to case 3 — but per §0.12 that was VERIFIED here by reading the body, not assumed from `hu`, because `mk` puts the same conclusion in part 3.
+    top_score: 0.729
+
+  # ── 2 ─────────────────────────────────────── skeptic · THE TAMIL-SPECIFIC CASE
+  - id: "esta-skeptic-koyil" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "நான் வளர்ந்தது ஒரு இந்து மத குடும்பத்தில். ஒவ்வொரு மதமும் கடவுளைப் பற்றி ஏதோ ஒன்றைச் சொல்கிறது, எல்லா மதங்களும் ஒரே மலையை அடையும் வெவ்வேறு பாதைகள் என்று பலரும் சொல்கிறார்கள். கிறிஸ்தவம் கடவுளைப் பற்றிச் சொல்வது உண்மையிலேயே வேறுபட்டதா?"
+    en: "I grew up in a Hindu family. Every religion says something about God, and many people say all religions are just different paths up the same mountain. Is what Christianity says about God actually different?"
+    credits:
+      - { path: "/a/connecting.html", en: "'Divine connection' (19.1k, Marilyn Adamson) — the estate's world-religions article under a localised slug. 'Here we will look at the world's major religions — Hinduism, New Age, Buddhism, Islam and Christianity' and what each teaches about God, then how Jesus' teaching differs. Twin of the Hungarian /a/istenkereses.html, the German /artikel/hochsten.html and the French /a/205divin.html.", rank: 1, score: 0.709 }
+      - { path: "/a/religions.html", en: "'What is the difference between Jesus and the world religions?' (3.5k) — the short companion piece. Its argument: 'unlike other religions you do not have to go searching for God; in Jesus God came searching for us.'", rank: 2, score: 0.641 }
+    reworded: |
+      🔴 REWORDED ONCE, AND THE REWORD RAN THE OPPOSITE DIRECTION TO `hu` — READ THIS
+      BEFORE COPYING THE HUNGARIAN LESSON ONTO ANOTHER SOURCE.
+      §0.12 records `hu` scoring 0.813, the worst smell of batch 1, by LISTING
+      "Hinduism, Buddhism and Islam" in the question — because that reproduces
+      /a/connecting.html's own subtitle, which lists them in that same order in Tamil
+      too ("இந்து மார்க்கம், புத்த மார்க்கம், இஸ்லாமிய மார்க்கம், கிறிஸ்தவ மார்க்கம்
+      மற்றும் புதிய யுகம்"). So I drafted v1 naming NO religion at all:
+      v1: "என் வீட்டில் எல்லாரும் கோவிலுக்குப் போகிறார்கள், அலுவலகத்தில் ஒரு கிறிஸ்தவ
+           நண்பர்… ஏன் ஒருவர் சொல்வது மற்றவரை விட சரியாக இருக்க வேண்டும்?"
+           ("At home everyone goes to the temple, at the office I have a Christian
+           friend… why should one be more right than the other?")
+           → top 0.594. **RANK 1 WAS /a/sawyer.html, the HIV testimony** — a pure
+           invitation-prayer tail match. /a/connecting.html fell to rank 5 and
+           /a/religions.html missed the top 10 entirely. A question purely about
+           CERTAINTY, with no religious content to match, is a tail magnet: ranks 1 and
+           3 were both first-person testimonies.
+      v2 (kept): names Hinduism once, as the asker's own upbringing, adds the
+           "all paths up the same mountain" objection, and asks specifically what
+           Christianity says ABOUT GOD — which is what /a/connecting.html compares.
+           → **0.594 → 0.709, connecting.html 5 → 1, religions.html MISSING → rank 2.**
+      🔑 THE REFINEMENT: `hu`'s smell came from reproducing the article's LIST, not from
+      naming a religion. Naming ONE religion, as the asker's own background, is safe and
+      is what carries reach. Stripping all religious content to avoid the smell cost
+      both credits and handed rank 1 to a testimony. Do not over-apply the `hu` rule.
+
+      ⓘ Failure mode #4 (incidental colour) did not fire on either version: "கோவில்"
+      (temple) in v1 pulled no temple-specific document into the top 10 — it pulled
+      nothing at all, which was the problem.
+    top_score: 0.709
+
+  # ── 3 ────────────────────────────────── newcomer 🔴 TITLE TRAP #1, VERIFIED HERE
+  - id: "esta-newcomer-sakthi" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "கடவுள் என்று யாராவது சொன்னால் எனக்கு எங்கோ இருக்கும் ஒரு மங்கலான சக்தி மட்டுமே நினைவுக்கு வருகிறது. அவர் ஒரு நபரா, அவரைப் பற்றி எதையாவது தெளிவாகச் சொல்ல முடியுமா?"
+    en: "When somebody says 'God', all that comes to my mind is some hazy force somewhere. Is he a person, and can anything definite be said about him?"
+    credits:
+      - { path: "/a/whypick.html", en: "🔴 TITLE TRAP #1, CONFIRMED ON THIS SOURCE. Titled 'மிக பொ௫த்தமான தேவனை கண்டடைவது' — 'Finding the most suitable God' — which reads as a choose-your-religion piece. The BODY is the six-attributes what-is-God-like article: 'the qualities below are the qualities Scripture says God has… #1: a God greater than us… he knows everything, he is almighty, he has always existed, he sustains everything.' 17.4k chars. §0.12 records this trap for `bg` `tr` `fa` `pt` `cs`; per the Romanian and German warnings I verified it on `ta` by reading rather than crediting on precedent — and here it DOES hold.", rank: 1, score: 0.683 }
+      - { path: "/a/whatlike.html", en: "'Who is God?' (4.4k) — the HONEST twin. Subtitle: 'Who is God? What is he like? God's six attributes' and then the enumerated list: he is knowable, he is approachable… This source carries BOTH the trap-titled version and a plainly-titled version of the same six attributes, which no sibling in the campaign has been recorded doing.", rank: 3, score: 0.645 }
+      - { path: "/a/who2.html", en: "'Who 2' (11.5k) — part 4 and the last of the cosmological series, and the part that answers the 'is he a person' half: 'God is invisible… no one has ever seen God… God is spirit', alongside the eternal/first-and-last attributes. VERIFIED as part 4 by reading its own opening ('this is the follow-up to the article Who, the last article in the series'), not assumed from Hungarian — §0.12 records that `mk` puts the personhood conclusion in part 3.", rank: 2, score: 0.65 }
+    note: |
+      ⓘ THE FOUR-PART CHAIN ON `ta`, for anyone judging this source later:
+      /a/nothing.html "Was there ever nothing?" (5.8k) → /a/something.html "Something"
+      (8.9k) → /a/who.html "Who" (8.8k) → /a/who2.html "Who 2" (11.5k). Sequential,
+      contentless titles, no duplicate title (unlike `mk`, which gave two parts the
+      same name). Only part 4 is credited anywhere in this suite, and only because its
+      body was read.
+    top_score: 0.683
+
+  # ── 4 ─────────────────────────────────────────────────────────────────  seeker
+  - id: "esta-seeker-migiyathu" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "காலையில் எழுந்து வேலைக்குப் போவது, திரும்பி வந்து தூங்குவது — ஒவ்வொரு நாளும் இப்படியே ஓடிக்கொண்டிருக்கிறது. இதெல்லாம் எதற்காக, என் வாழ்க்கைக்கு ஒரு நோக்கம் இருக்கிறதா என்றே தெரியவில்லை."
+    en: "Getting up in the morning, going to work, coming back and sleeping — every day just runs on like this. I do not know what it is all for, or whether my life has any purpose."
+    credits:
+      - { path: "/a/greatest.html", en: "'What is my purpose in life?' (3.7k) — the hammer parable told in full: a hammer made to drive nails, sitting unused in the toolbox, feeling that something is wrong without knowing what. The estate's purpose article; Tamil twin of the Hungarian /a/celom.html.", rank: 1, score: 0.679 }
+      - { path: "/a/source.html", en: "'The root cause of a changed life' (16.5k, Josh McDowell) — 'Have you ever said I hate my life? I wanted to be the happiest man in the world, I wanted a meaningful life, I was looking for answers to: Who am I? Why am I in this world? Where am I going?' Twin of the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Hungarian /a/forrasa.html, credited for this same question shape in all three.", rank: 2, score: 0.638 }
+    reworded: |
+      🆕 REWORDED ONCE — AND THE DEFECT IS A NEW VARIANT OF FAILURE MODE #4 THAT NO
+      SOURCE IN THE CAMPAIGN HAS RECORDED. The lexical artifact came from an ABSTRACT
+      word, not from incidental colour.
+      v1: "…இரவில் படுக்கும்போது இன்றைக்கு எதுவுமே மிஞ்சவில்லை என்று தோன்றுகிறது…"
+           ("…at night when I lie down it feels like NOTHING at all was left of today…")
+           → top 0.517 — the lowest score anywhere in this suite — and look at what came
+           back: rank 2 /a/something.html ("ஏதாவது"), rank 3 /a/who2.html, rank 4
+           /a/nothing.html ("எதுவும் இல்லை என்று எப்பொளுதாவது இருந்திருக்கிறதா?"),
+           rank 7 /a/who.html. **Three of the four parts of the COSMOLOGICAL chain,
+           plus its conclusion, retrieved for a question about an empty daily routine** —
+           because "எதுவுமே" (nothing) is the exact word those articles are built on.
+           A metaphysical argument about whether NOTHING ever existed was matched to a
+           man saying his day amounted to nothing. Both credits still returned (ranks 1
+           and 5) so this case would have PASSED — failure mode #6 exactly.
+      v2 (kept): drops the word "nothing" and states the routine concretely instead
+           (get up, go to work, come back, sleep), then asks about purpose.
+           → **0.517 → 0.679, greatest.html 5 → 1.** The cosmological chain collapsed
+           out of the top 10 apart from /a/nothing.html clinging to rank 10.
+      🔑 FOR THE NEXT DRAFTER: failure mode #4 is recorded as "keep incidental NOUNS out
+      of questions" (Japanese, "over drinks"). This source shows the same defect from an
+      ordinary abstract quantifier. On any estate carrying the Nothing→Something→Who
+      series, the word "nothing" is a reserved term.
+    note: |
+      🔴 FIFTH LANGUAGE, SAME MISFIRE — the estate DATING article on the emptiness question.
+      §0.12 records /a/blues.html misfiring on this topic in `es` `ru` `hu` `bn`. Tamil has
+      no /a/blues.html, but the discovery pass put `/a/wolves.html` — "ஓநாய்களுடன் காதல்",
+      a young man's ten reasons for waiting until marriage, 20.0k chars — at rank 3 for
+      this topic, above two of the four other candidates, and it holds RANK 5 in the final
+      settled question. It is the article whose closing chunk I quoted in the header as the
+      verified invitation prayer. The specific document differs; the defect is identical,
+      and it is now five languages. This is the clearest evidence on `ta` for the brief's
+      CORRECTED failure-mode-#1 rule: what carries the defect is the invitation-prayer
+      chunk SHAPE, wherever it is filed — here on a dating article, in `es`/`ru`/`hu`/`bn`
+      on a drinking-and-despair testimony.
+    top_score: 0.679
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 9 credits · 9 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 four-case row exactly.
+# Topics used: god-exists · religions · know-god · purpose.
+# Topics dropped: suffering · bible-trust · trinity · prayer · anxiety · jesus-death —
+#   answer documents named for all six in the header table. Only `jesus-death` is a
+#   real content gap.
+# Paraphrase smells: 0 across both rounds. Max top score 0.729; round 1 max was 0.683.
+# Credits not in the top 10: 0. One credit (/a/who.html) dropped after round 2.
+# Every case has a credit at rank 1. Three of four questions were reworded once.
+# evidence_tier: llm-translated
+#
+# 🆕 THE NEW FINDING THIS SOURCE CONTRIBUTES — "nothing" is a reserved word.
+#   Failure mode #4 is on record as "keep incidental NOUNS out of questions" (Japanese,
+#   "over drinks", pulled an alcohol article). `ta` produced the same defect from an
+#   ordinary abstract quantifier: a purpose question containing "எதுவுமே மிஞ்சவில்லை"
+#   ("nothing at all was left") retrieved /a/something.html, /a/who2.html, /a/nothing.html
+#   and /a/who.html into ranks 2, 3, 4 and 7 — the metaphysical Nothing→Something→Who
+#   series answering a man whose day amounted to nothing. It scored 0.517 and returned
+#   BOTH its credits, so it would have shipped. Any estate carrying that four-part series
+#   should treat "nothing" as a reserved term in a question.
+#
+# 🔑 A REFINEMENT TO THE HUNGARIAN world-religions LESSON, and it matters for the other
+#   28 sources. §0.12 tells drafters that listing "Hinduism, Buddhism and Islam" caused
+#   `hu`'s 0.813 smell. Applying that literally — writing a religions question that names
+#   no religion at all — FAILED here: 0.594, rank 1 the HIV testimony, one credit missing.
+#   The smell came from reproducing the article's own LIST, not from naming a religion.
+#   Naming ONE religion as the asker's own background is safe and is what carries reach.
+#
+# 🔴 TITLE TRAP #1 HOLDS ON `ta`, AND THE SOURCE PUBLISHES BOTH HALVES OF IT.
+#   /a/whypick.html ("Finding the most suitable God") is the six-attributes
+#   what-is-God-like article, exactly as §0.12 predicts for `bg` `tr` `fa` `pt` `cs`.
+#   Unlike every source recorded so far, `ta` ALSO carries /a/whatlike.html, a 4.4k
+#   article with the same six attributes under an honest title. Both are credited to
+#   case 3 and both return (ranks 1 and 4). A title-only reviewer would credit the
+#   small honest one and discard the 17.4k one — losing four times the text.
+#
+# 🔑 THE TAIL MAGNET ON `ta` IS AN ARTICLE, NOT A TESTIMONY. At ~13% testimony this
+#   source sits between `bn` (15%) and the 0% sources, and the brief's corrected rule
+#   is what fits: `/a/jesusislam.html` (26.3k) surfaced for SIX of the ten discovery
+#   topics and earns only two of them. In the final suite it does not reach the top 10
+#   of any of the four cases — because none of the four topics is one it plausibly
+#   answers. Whoever adds a bible-trust or trinity case must expect it at rank 1–2.
+#
+# 🔴 `jesus-death` IS A CLEAN CORPUS GAP, AND IT IS THE PROOF OF FAILURE MODE #1.
+#   Discovery for that topic returned six documents at 0.500–0.581 and every single one
+#   is a tail or gospel-summary match — the Islam article's historicity question, the
+#   Four Spiritual Laws page, the HIV testimony, the dating article, the peace article
+#   and the six-attributes article. A drafter working from scores alone would have seen
+#   a healthy-looking 0.581 top hit and written a case with no valid answer key. Failure
+#   mode #6 in its purest form: the numbers looked fine, the documents did not.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. **If a 5th case is wanted, make it `suffering`** (skeptic): /a/tragedy.html +
+#      /a/why.html + /a/whyworship.html are three genuine articles and it is the
+#      best-carried of the six dropped topics. That would make the split skeptic 3 ·
+#      newcomer 1 · seeker 1, off the §0.7 table — which is why I did not do it.
+#   3. `/a/who.html` on case 1 — I DROPPED it (reasoning in the case). The operator may
+#      restore it as a deliberate kept miss if a record of the cosmological chain
+#      failing to retrieve is wanted.
+#   4. `anxiety` is not a gap but it is close to one: `/a/finding.html` is the only
+#      document on this source that answers it, and `ta` has neither the coronavirus
+#      article nor the chakra article that carry the topic elsewhere. If the campaign
+#      wants anxiety measured in every language, `ta` will be a 1-credit case.

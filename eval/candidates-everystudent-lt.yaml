@@ -1,0 +1,437 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-lt` (49 documents).
+# Campaign #111, batch 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 49 ÷ 8 = 6.1 → 6 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 2 · seeker 1 · believer 1 — the 6-case row of the §0.7 table.
+# Questions authored IN LITHUANIAN, not translated from the English menu (§0.6).
+#
+# ── CORPUS SHAPE — read this before judging any hit ───────────────────────────
+#   49 documents. 48 are `/a/*.html` articles; 1 is `/m/istorija.html`.
+#   ⚠️ THERE IS NO `/story/` NAMESPACE ON THIS SOURCE. The estate's personal
+#   testimonies are collected into ONE 20.1k / 15-chunk page, `/m/istorija.html`
+#   ("Pakeisti gyvenimai" — Marta's, Laurynas's, Judita's, Irena's and Vladas's
+#   stories end to end). Testimony share by DOCUMENT count is 1/49 = 2%, the
+#   lowest measured in the campaign so far; by CHUNK count it is 15/~260 ≈ 6%.
+#   🟢 §0.12's prediction that boilerplate-tail severity TRACKS the testimony
+#   share is confirmed in the low direction here: across all six cases,
+#   `/m/istorija.html` appears in the top 10 exactly TWICE (rank 8 and rank 6)
+#   and never above rank 6. Compare `hu` at 24% testimony, where one `/story/`
+#   page took ranks 1, 2 and 3 of a single case. The tail is present on `lt`
+#   (see cases 4 and 6) — it is just weaker, because it has 1 document to ride
+#   on instead of 20.
+#   Null-language documents: 0 of 49 (guardrail #3a — nothing excluded).
+#   Duplicate titles: 0. Duplicate paths: 0. Documents under 1,200 chars: 0 —
+#   the smallest is /a/laimingas.html at 1,988. NO PURE-TAIL DOCUMENTS (#2).
+#
+# ── ⚠️ EXTRACTION NOTE (rule-1e "html" container fallback) ────────────────────
+#   This source was extracted with the `"html"` container fallback rather than a
+#   `.contentpadding` selector, so most openings begin with the site's breadcrumb
+#   category word — "Dievo pažinimas" (knowing God), "Dievo egzistavimas" (God's
+#   existence), "Klausimai apie gyvenimą" (questions about life), "DUK" (=FAQ),
+#   "Santykiai" (relationships). CHECKED ALL 49: that is one or two words of nav
+#   chrome and every document's real body starts immediately after it. **No `lt`
+#   document is mostly menu text, and none was mistaken for a tail on that basis.**
+#   The chrome is in fact mildly USEFUL evidence — it exposes the publisher's own
+#   shelving, and that is how the four-part cosmological series (all four filed
+#   under "Dievo egzistavimas") was identified despite contentless titles.
+#
+# ── DISCOVERY ─────────────────────────────────────────────────────────────────
+#   .tmp-diag/phase5-partb-discover.ts everystudent-lt lt
+#   → 34 distinct candidate documents of 49; all ten topics surfaced something.
+#   Every one of the 49 documents was then read from the database (title +
+#   opening ~900 chars + char length) before anything was credited — guardrail
+#   #5, and specifically because of the boilerplate-tail trap recorded in §0.9.
+#
+# ── ENGINE-CHECK ROUND LOG (guardrail #8 §2) — .tmp-diag/phase5-check.ts lt lt ─
+#   Round 1: 0 smells · 2 credits not returned · max top score 0.744 · 14 credits
+#            🔴 BUT THE ROUND WAS NOT CLEAN — failure mode #6 exactly. Two
+#            questions FAILED WITHOUT SMELLING, and only reading which documents
+#            came back showed it:
+#            • case 1 hit FAILURE MODE #5 (emotional framing). "savęs
+#              apgaudinėjimas" + "laikosi tik ant jausmo" (self-deception / rests
+#              on feeling alone) put the ANXIETY article at rank 1, the HIV
+#              testimony at rank 4 and the child-rape article at rank 5, while
+#              BOTH scientific-evidence documents fell out of the top 10.
+#            • case 3 hit FAILURE MODE #4 (lexical artifact). "kažkokia visatos
+#              jėga" (some force of the universe) put the WORLD-RELIGIONS article
+#              at rank 1 — it is the document that discusses New Age "cosmic
+#              consciousness". Incidental colour, exactly the `ja` "over drinks"
+#              shape.
+#   Round 2: 0 smells · 0 credits not returned · max 0.744 · 14 credits.
+#            Both rewords worked: case 1 recovered 2/4 → 4/4, case 3 moved the
+#            title-trap document /a/kas2.html from rank 4 to rank 1 and evicted
+#            the world-religions article entirely.
+#   Round 3: 0 smells · 0 credits not returned · max top score **0.744** · 15 credits.
+#            Case 1 sharpened once more onto origin-of-life/universe grounds and
+#            /a/visata.html added as a fifth credit: 4/4 at ranks 2,5,8,9 →
+#            **5/5 at ranks 2,3,5,6,7**. FINAL.
+#
+#   MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#     Guardrail #8 §3: all 15 credited paths resolve to EXACTLY ONE document — 15/15.
+#     Guardrail #3a:   no credited document has a null language — 15/15.
+#   No document is credited to more than one case (15 credits, 15 distinct documents).
+#
+# ⓘ THE 0.75 SMELL LINE WAS NEVER APPROACHED ON THIS SOURCE. The highest top score
+#   over three rounds and 18 probe queries is 0.744 (case 6). `lt` behaves like
+#   `fa` in §0.12 — the ceiling is low, so every round went to REACH, not to smell.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Lithuanian). This is
+# a fact about the REVIEWER, not the language — if anyone on the team reads Lithuanian
+# and can sanity-check the glosses, it should be `human-verified`. OPERATOR TO CONFIRM.
+#
+# ── TOPICS DROPPED, AND WHY ───────────────────────────────────────────────────
+#   Six cases from a ten-topic menu means four drops. Only ONE is a content gap;
+#   the other three are forced by the persona quota and are recorded in full so
+#   the operator can swap them in if he wants a larger `lt` suite.
+#
+#   1. `jesus-death` (newcomer) — 🔴 GENUINE CONTENT GAP. `everystudent-lt` has NO
+#      article whose subject is what Jesus' death accomplished. Discovery is
+#      unambiguous — the English probe's top six own-source hits were
+#      /a/islamas.html (0.563, the tahrif FAQ), /a/tragedija.html (0.519),
+#      /a/sawyer.html (0.509), /a/religiju.html (0.506), /a/vilkais.html (0.503,
+#      DATING ADVICE FOR GUYS) and /a/vedyboms.html (0.502, MARRIAGE ADVICE).
+#      Four of the six are pure boilerplate-tail matches; the marriage article
+#      matched on the tail sentence "the penalty is death… eternal separation
+#      from God". Lithuanian joins `ru`, `zh-cn` and `mn` as a source without an
+#      atonement article. Per §0.12 the atonement gap is SETTLED and is not
+#      re-opened here; no case was manufactured. The nearest thing `lt` has is
+#      /a/rysys.html (3.5k, "Pažinti Dievą asmeniškai" — the Four Spiritual
+#      Laws), which is the tail itself, not an article about it.
+#   2. `suffering` (skeptic) — WELL CARRIED; dropped on the persona quota only.
+#      /a/tragedija.html (12.3k, Marilyn Adamson, "Kur yra Dievas, kai įvyksta
+#      tragedija?"), /a/kodel.html (8.1k, "Kodėl gyvenimas yra toks sunkus?" —
+#      opens on terror attacks, sex slavery and racism, then "your parents
+#      divorce, the girl next door is abducted, a relative gets cancer") and
+#      /a/siaubingiems.html (4.8k, the child-rape objection) are three clean
+#      answer documents. All three already appear high in this suite's rejects.
+#      Would make a strong 7th case.
+#   3. `religions` (skeptic) — WELL CARRIED; dropped on the persona quota only.
+#      /a/religijose.html IS the estate's /a/205 world-religions article under a
+#      localised title ("Ryšys su Aukščiausiuoju"; subtitle "Induizmo dievai,
+#      budizmas, krikščionybė, islamas, naujasis amžius - ar jie visi vienodi?"),
+#      the twin of `de` /artikel/hochsten.html, `sw` /a/kuunganishwa.html, `hu`
+#      /a/istenkereses.html and `fr` /a/205divin.html. Add /a/religiju.html and
+#      the blind-men-and-elephant allegory /a/dramblys.html. Strong 8th case.
+#   4. `purpose` (seeker) — WELL CARRIED; dropped on the persona quota only (one
+#      seeker slot, given to `anxiety` — see case 5). /a/tikslas.html (the hammer
+#      parable) and /a/pakeisto.html (Josh McDowell, "Kas aš esu? Kodėl aš
+#      gyvenu? Kur aš einu?") both answer it directly and surfaced at 0.564 /
+#      0.514 in discovery.
+
+cases:
+
+  # ── 1 ────────────────────── skeptic ⚠ SEE THE UNMOVABLE RANK-1 INTRUDER
+  - id: "eslt-skeptic-apgaudinejimas" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Draugai sako, kad tikėjimas Dievu tėra svajonė, kurią žmonės patys sau susigalvojo. Ar yra kokių nors apčiuopiamų dalykų – kad ir mokslo atradimų apie gyvybės ir visatos atsiradimą – kuriais tas tikėjimas remiasi, ar iš tiesų viskas tik prasimanyta?"
+    en: "My friends say that believing in God is just a dream people made up for themselves. Are there any tangible things — scientific discoveries about the origin of life and of the universe, for instance — that this belief rests on, or is it really all just made up?"
+    credits:
+      - { path: "/a/visata.html", en: "'Ar Dievas sukūrė visatą?' (8.8k) — the Big Bang and the beginning of the universe, via Hubble's 1920s observation: 'our existence was started by something beyond time, space or matter… the realisation that our universe did not exist forever and had a beginning raises enormous challenges for scientists who do not believe in a Creator.'", rank: 2, score: 0.653 }
+      - { path: "/a/egzistuoja.html", en: "'Ar Dievas yra?' — the source's flagship apologetics article (17.6k, Marilyn Adamson): 'six clear arguments confirming God's existence… no telling you \"you just have to believe\"'. The Lithuanian twin of `hu` /a/letezik.html and `es` /articulos/existe.html.", rank: 3, score: 0.637 }
+      - { path: "/a/tikras.html", en: "'Ar Dievas yra tikras?' (5.2k) — the DNA article: the British philosopher Antony Flew, a leading spokesman for atheism, concluding in a December 2004 filmed interview that 'a higher intelligence is the only suitable explanation for the origin of life and the complexity of nature', then DNA as a written computer program. The Lithuanian twin of `hu` /a/dns.html — which in that suite was the credit that would NOT return; here it returns at rank 5.", rank: 5, score: 0.63 }
+      - { path: "/a/kritikus.html", en: "'Ar krikščionybė išstovės prieš XXI a. kritikus?' (16.0k) — Josh McDowell on three false views of Christianity, and MISCONCEPTION #1 IS THIS QUESTION: 'Aklas tikėjimas' (blind faith). ⚠ NEAR-TITLE-TRAP: the title reads like a culture-war piece about critics; the body is a faith-versus-evidence argument.", rank: 6, score: 0.628 }
+      - { path: "/a/gamtos.html", en: "'Gamtos dėsnių sugluminti mokslininkai' (7.8k) — why the laws of physics are constant everywhere, quoting the cosmologist Sean Carroll and James Trefil's universality principle. A second scientific-grounds document, distinct from the DNA one.", rank: 7, score: 0.626 }
+    the_finding: |
+      🔴 A NEW SHAPE OF THE REVERSE TITLE TRAP: the same document intrudes on a
+      SECOND, UNRELATED topic — and it cannot be reworded away.
+
+      `/a/koronaviruso.html` is rank 1 for this evidence question in ALL THREE
+      rounds (0.687 → 0.690 → 0.665) even though it is the source's ANXIETY
+      article and is credited as such on case 5. Two rewords of this question,
+      moving it from emotional framing to grounds to origin-of-life specifics,
+      changed the credits' ranks completely and never touched rank 1.
+
+      I READ THE CHUNKS TO FIND OUT WHY, rather than assume. The Lithuanian
+      coronavirus article embeds Marilyn Adamson's own conversion account, and
+      that account is apologetics:
+        • "Studijavau tokius didžiuosius protus, kaip Sartras, Platonas,
+           Sokratas, Dostojevskis, Nyčė, Hjumas ir kiti. Galiausiai priėjau prie
+           išvados, kad vien filosofijos nepakanka…"
+           (I studied great minds — Sartre, Plato, Socrates, Dostoevsky,
+           Nietzsche, Hume — and concluded philosophy alone is not enough)
+        • "Daugelis žmonių čia sudeda viltis į mokslą…"  (many people put their
+           hopes in science here)
+        • "gyvybė Žemėje tiesiog negalėjo atsirasti atsitiktinai. Ir štai aš
+           pakviečiau Dievą į savo gyvenimą…"
+           (life on Earth simply could not have arisen by chance — so I invited
+           God into my life)
+      So the anxiety article genuinely contains the source's philosophy-,
+      science- and origin-of-life vocabulary in three separate chunks. This is a
+      CORPUS FACT, not a question defect, and it is worth recording as a distinct
+      trap from §0.12 #3: a reverse-title-trap document that is also a
+      CROSS-TOPIC intruder. Rejected here, credited on case 5 where its subject is.
+
+      Effect on this case: credits at ranks 2,3,5,6,7 — coverage 5/5, recall@3
+      2/5, precision@1 0. Do not read the 0 precision@1 as a broken question.
+    reworded: |
+      ⚠️ REWORDED TWICE, and round 1 is the clean specimen of FAILURE MODE #5.
+      v1: "…tikėjimas Dievu tėra savęs apgaudinėjimas… ar viskas laikosi tik ant
+           jausmo?" ("…just self-deception… or does it all rest on feeling
+           alone?")
+           → top 0.687, NO SMELL, and only 2 of 4 credits returned. The
+           self-deception/feeling framing dragged the top 10 into emotional
+           documents: rank 4 /a/sawyer.html (HIV testimony), rank 5
+           /a/siaubingiems.html (child rape), rank 9 /a/ramybe.html (peace of
+           mind), rank 10 /a/rysys.html (the Four Spiritual Laws tail). BOTH
+           scientific-evidence articles fell out. Identical to the `tr`/`hu`/`pt`
+           finding: ask for GROUNDS, not about feelings.
+      v2: "…apčiuopiamų dalykų – mokslo atradimų, protu patikrinamų svarstymų…"
+           → top 0.690, no smell, 4 of 4 returned at ranks 2,5,8,9.
+      v3 (kept): names what the grounds would be about — the origin of life and
+           of the universe — which is what the source's evidence shelf actually
+           argues from. → top 0.665, no smell, **5 of 5 at ranks 2,3,5,6,7**.
+    rejected:
+      - { path: "/a/koronaviruso.html", rank: 1, why: "RANK 1 AND REJECTED in all three rounds — the anxiety article, credited to case 5. See the_finding above for the verified reason." }
+      - { path: "/a/dramblys.html", rank: 4, why: "'Ar Dievas yra dramblys?' — the blind-men-and-the-elephant allegory. Its subject is religious pluralism ('all religions describe God equally well'), not whether there are grounds for believing at all. Belongs to the dropped `religions` topic." }
+      - { path: "/a/nerodo.html", rank: 8, why: "'Kodėl Dievas nerodo įspūdingų stebuklų ir neįrodo pats savęs?' — a different objection: God's reticence, not the evidence question. Same call `hu` made on its twin /a/csodat.html." }
+      - { path: "/a/kritikus2.html", rank: 9, why: "part 2 of the McDowell series — misconceptions 4–6, which are about the historical Jesus and the resurrection, not about scientific or philosophical grounds. Its part 1 IS credited." }
+      - { path: "/a/tragedija.html", rank: 10, why: "the suffering article — a tail-adjacent match on 'why we can trust God'." }
+    top_score: 0.664
+
+  # ── 2 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eslt-skeptic-rankrastis" # topic: bible-trust
+    persona: skeptic
+    topic: bible-trust
+    q: "Man Biblija – tiesiog senovinė knyga, kurią rašė ir šimtmečiais ranka perrašinėjo žmonės. Kuo ji skiriasi nuo bet kurio kito antikos rankraščio? Kodėl kas nors ja turėtų remtis labiau nei kitais senais tekstais?"
+    en: "To me the Bible is just an ancient book that people wrote and recopied by hand over centuries. What makes it different from any other manuscript from antiquity? Why should anyone rely on it more than on other old texts?"
+    credits:
+      - { path: "/a/biblija.html", en: "'Kodėl tu gali tikėti Biblija?' — the source's longest article (26.5k, 17 chunks). Its opening enumerates exactly this: ancient history supports the Bible's accuracy as a historical document, the gospels give multiple reliable accounts, archaeology supports the biblical narratives, and 'textual research confirms that the books of the Bible have not been changed since they were first written down'. The chunk that matched in discovery is the manuscript-transmission passage — translations made from the original Greek, Hebrew and Aramaic source texts, resting on thousands of ancient manuscripts.", rank: 1, score: 0.733 }
+      - { path: "/a/islamas.html", en: "'Jėzus ir islamas' (20.3k) — six questions, and QUESTION 1 IS THIS ONE: 'Ar originali Biblijos versija buvo pakeista?' It answers that the Qur'an itself never claims the Bible was altered but honours the Torah, the Zabur and the Injil, and that Islam began in the 7th century, 600 years after Christ. The tahrif overlap already on record for `zh` `kk` `th` `bg` `hu` `ja` — §0.12: this is about PUBLISHING, not audience.", rank: 2, score: 0.713 }
+    note: |
+      ⓘ NO REWORD NEEDED — 0.733 at rank 1 and rank 2 on the first attempt, and
+      that is because the shape was borrowed from `hu`, which needed THREE goes.
+      `hu` smelled at 0.755 and then WORSE at 0.787 asking "is the text still the
+      same as the original?", because on a source where two documents both open
+      with that question, paraphrasing away from one lands on the other. `lt` has
+      the same two documents (/a/biblija.html opens "How can we know that what is
+      written in the Bible is true?", /a/islamas.html Q1 is "was the original
+      version of the Bible changed?"). Starting from `hu`'s fixed shape — change
+      the question from "is it unchanged?" to "what makes it different from any
+      other old book?" — Lithuanian landed clean first time. The §0.12 lesson
+      transferred exactly as `hu`'s trinity lesson transferred from `ru`/`bg`.
+    rejected:
+      - { path: "/a/kritikus2.html", rank: 3, why: "misconception #4, 'the historical Jesus is unknowable'. Close, and rejected on the text: its subject is whether historical method can reach Jesus, not whether the manuscript text is what was written. A boundary reject — see the REVIEWER note in the summary." }
+      - { path: "/a/religiju.html", rank: 4, why: "how Jesus differs from other world religions — belongs to the dropped `religions` topic" }
+      - { path: "/a/gyveno.html", rank: 5, why: "'Kaip žinoti, ar Jėzus kažkada iš tikrųjų gyveno žemėje?' (2.6k) — Tacitus and Josephus as extra-biblical witnesses. Its subject is whether JESUS existed, not whether the BIBLE's text is reliable. A boundary reject — see the REVIEWER note in the summary." }
+      - { path: "/a/kritikus.html", rank: 6, why: "credited to case 1" }
+      - { path: "/a/kas2.html", rank: 7, why: "credited to case 3" }
+      - { path: "/m/istorija.html", rank: 8, why: "the testimony collection — a tail match, and one of only two appearances it makes anywhere in this suite" }
+    top_score: 0.733
+
+  # ── 3 ───────────────────────── newcomer 🔴 TWO TITLE TRAPS IN ONE CASE
+  - id: "eslt-newcomer-migla" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "Kai kas nors sako „Dievas“, man galvoje iškyla nebent kažkokia migla kažkur aukštai. Ar apie Jį apskritai galima kalbėti kaip apie asmenį – ar įmanoma pasakyti, kokio Jis būdo ir kaip Jis nusiteikęs žmonių atžvilgiu?"
+    en: "When someone says 'God', all that comes into my head is some kind of haze somewhere up high. Can one speak of him as a person at all — is it possible to say what his character is and how he is disposed towards people?"
+    credits:
+      - { path: "/a/kas2.html", en: "'Kas2' (9.8k). 🔴 TITLE TRAP — the title is literally 'Who2' and names no subject whatsoever. This is part 4 of a four-part cosmological argument, and it is the part where the Eternal Someone is argued to be a PERSON rather than a machine: 'Amžinasis Kažkas nėra mechanizmas, kuris buvo kontroliuojamas ar užprogramuotas kitos išorinės jėgos.' Answers the 'or is he just a force' half directly. Same document family as `hu` /a/kicsoda2.html. It is RANK 1 for this question — a title-only reviewer would have discarded the best document in the source.", rank: 1, score: 0.696 }
+      - { path: "/a/kasyra.html", en: "'Koks yra Dievas?' (4.0k) — 'Is he abstract and intangible? Or can he be known? SIX TRAITS OF GOD'S PERSONALITY': he is knowable, he is approachable, and 'we do not have to pull ourselves together and change first'. This is the estate's what-is-God-like article — the Lithuanian twin of `ru` /a/ktoeto.html, `hu` /a/milyen.html and `bg` 'Защо можем да разчитаме на Бог?'.", rank: 2, score: 0.691 }
+      - { path: "/a/tikejimas.html", en: "'Ne aklas tikėjimas' (18.9k, Paul E. Little). 🔴 SECOND TITLE TRAP, in the opposite direction — 'Not blind faith' reads as an evidence/apologetics piece and a reviewer would file it under case 1. Its opening move is a what-is-God-like argument: 'We must know what he is like and what his attitude towards us is. Suppose we know that he exists — but what is he like? Like Adolf Hitler: capricious, vindictive, prejudiced and cruel? What a terrible picture of God that would be!' It then answers the question by pointing at Jesus. ⚠ BOUNDARY CREDIT — see boundary_credit below.", rank: 10, score: 0.599 }
+    boundary_credit: |
+      ⚠️ `/a/tikejimas.html` IS A BOUNDARY CREDIT AND ITS RANK WILL FLAP.
+      Round 1 rank 9 (0.619), round 2 rank 10 (0.600), round 3 rank 10 (0.599).
+      It sits on the k=10 edge, so a future run may show it in or out and that is
+      tie-reordering, not a change in the engine — §0.10 recorded the same
+      behaviour on `esru-newcomer-krest` and §0.12 on `eshu-skeptic-vagyalom`.
+
+      The case FOR crediting it: the question asks whether anything concrete can
+      be said about God's character and his attitude to people, and this document
+      opens by posing that exact question and answering it. The case AGAINST: its
+      declared subtitle is "Kas yra Jėzus? Ar Jis buvo Dievo Sūnus?" — its
+      subject is Jesus' identity, and what-is-God-like is its framing move.
+      I KEPT it, because the estate's answer to "what is God like" genuinely is
+      "look at Jesus", and dropping it would hide that. OPERATOR MAY DROP — the
+      case scores 3/3 with it and 2/2 without, so dropping costs nothing but the
+      information.
+    reworded: |
+      ⚠️ REWORDED ONCE — FAILURE MODE #4, lexical artifact from incidental colour.
+      v1: "…Ar krikščionys Jį apskritai laiko asmeniu, turinčiu charakterį, ar
+           tiesiog kažkokia VISATOS JĖGA?" ("…or just some force of the universe?")
+           → top 0.696, NO SMELL, all 3 credits returned — and it was still wrong.
+           Rank 1 was /a/religijose.html, the WORLD-RELIGIONS article, because
+           that is the document that discusses New Age "kosminė sąmonė" (cosmic
+           consciousness). "Force of the universe" was scene-setting, exactly the
+           `ja` "over drinks" shape, and it fetched the New Age comparison.
+      v2 (kept): drops the "force of the universe" phrase and asks instead what
+           his character is and how he is disposed towards people.
+           → the world-religions article left the top 10 ENTIRELY, and
+           /a/kas2.html went rank 4 → **rank 1**.
+    rejected:
+      - { path: "/a/islamas.html", rank: 3, why: "its chunk enumerating 'God is eternal, God is holy, God is truth, God is now' reads like a what-is-God-like passage, but the document is the six-question Islam FAQ. Credited to case 2. Same call `hu` made." }
+      - { path: "/a/tragedija.html", rank: 4, why: "the suffering article — matched on 'why we can trust God', which is about God's reliability in crisis" }
+      - { path: "/a/taiparne.html", rank: 5, why: "'Taip ar ne?' — another contentless title, and this one is NOT a trap: read, it is about the most important DECISION a person makes, and it opens on salmon swimming upstream versus a graduate choosing New York or Cleveland. Not a what-is-God-like article." }
+      - { path: "/a/malda.html", rank: 6, why: "credited to case 6" }
+      - { path: "/a/rysys.html", rank: 7, why: "'Pažinti Dievą asmeniškai' — the Four Spiritual Laws page. THIS IS THE TAIL ITSELF, and it is here on its own merits rather than as a stray match. Not credited: it is a 'begin a relationship' page, not a description of God's character." }
+      - { path: "/a/dvasia.html", rank: 8, why: "credited to case 4" }
+      - { path: "/a/trejybe.html", rank: 9, why: "credited to case 4" }
+    top_score: 0.696
+
+  # ── 4 ──────────────────────── newcomer 🔴 THE BOILERPLATE TAIL SHOWS HERE
+  - id: "eslt-newcomer-trys" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "Bažnyčioje vienu metu kreipiamasi į Jėzų, paskui į Tėvą, paskui į Šventąją Dvasią. Tai krikščionys garbina kelis dievus, ar aš kažko nesuprantu?"
+    en: "At church they address Jesus at one moment, then the Father, then the Holy Spirit. So do Christians worship several gods, or is there something I am not understanding?"
+    credits:
+      - { path: "/a/trejybe.html", en: "'Ar galite paaiškinti Trejybę?' (4.5k) — the three-dimensions analogy and the 1×1×1=1 formulation, explicitly 'the Bible writes clearly about God the Son, God the Father and God the Holy Spirit, but stresses that there is only ONE GOD'.", rank: 1, score: 0.707 }
+      - { path: "/a/dvasia.html", en: "'Kas yra Šventoji Dvasia?' (3.6k) — 'The Holy Spirit is not a vague, invisible shadow or an impersonal force. He is a real person, equal in every respect to God the Father and God the Son. He is the third person of the Trinity.' Answers the one-versus-three question from the member a newcomer is least likely to have any picture of.", rank: 3, score: 0.655 }
+    note: |
+      ⓘ NO REWORD NEEDED, and that is because of the shape inherited from `ru`,
+      `bg` and `hu`. All three smelled on this topic when the question was stated
+      as the doctrinal formula (`ru` 0.807, `bg` 0.756) and all three fixed it by
+      reframing it as something a newcomer NOTICES IN A SERVICE. Starting from
+      the fixed shape, Lithuanian landed at 0.707 rank 1 first time. Fourth
+      source, fourth confirmation that the §0.10/§0.11 lesson transfers.
+
+      🔴 THIS IS ALSO WHERE THE BOILERPLATE TAIL SHOWS ON `lt`. For a question
+      about the Trinity, the top 10 contains the HIV testimony (rank 5), the
+      SEX-AND-INTIMACY article (rank 6), the PEACE-OF-MIND article (rank 8) and
+      DATING ADVICE FOR GUYS (rank 10, /a/vilkais.html, 18.3k). Those four are
+      matched on the shared gospel-summary-and-invitation-prayer chunk, verified
+      present on this source. The tail exists here exactly as §0.9 describes — it
+      just cannot reach rank 1 or 2, because `lt` has one testimony document
+      instead of twenty.
+    rejected:
+      - { path: "/a/islamas.html", rank: 2, why: "RANK 2 AND REJECTED — its Q3 is 'Ar nešventvagiška sakyti, kad Dievas turi Sūnų?' (is it not blasphemy to say God has a Son?), which is the Islamic objection to the incarnation, not the one-versus-three question. Credited to case 2. Same call `hu` made on its own /a/iszlam.html." }
+      - { path: "/a/religijose.html", rank: 4, why: "the world-religions article — belongs to the dropped `religions` topic" }
+      - { path: "/a/sawyer.html", rank: 5, why: "HIV testimony — tail match" }
+      - { path: "/a/intymumo.html", rank: 6, why: "'Sekso ir intymumo paieškos' at rank 6 for a Trinity question — a textbook tail match" }
+      - { path: "/a/religiju.html", rank: 7, why: "how Jesus differs from other world religions — the dropped `religions` topic" }
+      - { path: "/a/ramybe.html", rank: 8, why: "credited to case 5" }
+      - { path: "/a/kritikus.html", rank: 9, why: "credited to case 1" }
+      - { path: "/a/vilkais.html", rank: 10, why: "'Romanai su vilkais (vaikinams)' — dating and sex advice for young men, at rank 10 for a Trinity question. The plainest tail match in the suite." }
+    top_score: 0.707
+
+  # ── 5 ────────────────────────────── seeker 🔴 REVERSE TITLE TRAP HERE
+  - id: "eslt-seeker-nerimas" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Beveik visą laiką jaučiu vidinį nerimą, net kai gyvenime niekas konkrečiai nesiklosto blogai. Ar Dievas šitam kažką siūlo, ar su tuo tiesiog reikia gyventi?"
+    en: "I feel an inner anxiety almost all the time, even when nothing in life is specifically going badly. Does God offer anything for this, or does one just have to live with it?"
+    credits:
+      - { path: "/a/ramybe.html", en: "'Minčių ramybė nestabiliame pasaulyje' (13.9k) — 'whatever the future holds, there is a way to stay calm and confident'. The peace-of-mind article; the Lithuanian twin of `hu` /a/beke.html.", rank: 1, score: 0.7 }
+      - { path: "/a/koronaviruso.html", en: "'Nerimo įveikimas koronaviruso siautėjimo metu' (12.2k, Marilyn Adamson, translated by Rūta Rušinskienė). 🔴 REVERSE TITLE TRAP — the title reads as a dated 2020 pandemic notice a reviewer would strike out on sight. Its SECOND paragraph broadens and never goes back: 'you can of course feel anxiety about some other threat too. Every day we meet the most varied stress-causing things, and the list is endless — climate change, wars, government missteps, poverty, sexual violence, slavery, natural disasters, personal financial difficulties, illness, job security, strained relationships, various addictions.' It also names clinical anxiety explicitly and tells the reader not to be afraid to see a specialist. This IS the source's general anxiety article. Seventh source, same trap (`hu` `pl` `sq` `tr` `pt` `es`).", rank: 3, score: 0.688 }
+    note: |
+      ⓘ CONTENT OBSERVATION, NOT A GAP. `everystudent-lt` has NO article whose
+      title is anxiety in the abstract — the topic is carried by a peace-of-mind
+      article and a pandemic-framed general-anxiety article. It has no chakra /
+      New Age anxiety testimony (`ru` `hu` `tr` `pt` `es` do). The topic is
+      covered; the shelf is shaped differently. Worth knowing before comparing
+      `lt`'s numbers with those sources'.
+    rejected:
+      - { path: "/a/tragedija.html", rank: 2, why: "RANK 2 AND REJECTED — 'Kur yra Dievas, kai įvyksta tragedija?' Its subject is crisis, disaster and terrorist attacks, not anxiety with nothing objectively wrong. Same call `hu` made on /a/faj.html and `ru` on /a/gdebog.html." }
+      - { path: "/a/malda.html", rank: 4, why: "credited to case 6" }
+      - { path: "/a/kodel.html", rank: 5, why: "'Kodėl gyvenimas yra toks sunkus?' — the suffering article, belongs to the dropped `suffering` topic" }
+      - { path: "/a/pakeisto.html", rank: 6, why: "Josh McDowell's changed-life account — belongs to the dropped `purpose` topic" }
+      - { path: "/a/siaubingiems.html", rank: 7, why: "the child-rape objection — the dropped `suffering` topic" }
+      - { path: "/a/susidurimas.html", rank: 8, why: "'Susidūrimas su tuo, kas neišvengiama' — facing death and what comes after. A specific fear, not chronic anxiety." }
+    top_score: 0.7
+
+  # ── 6 ──────────────────────────────────────────────────────────────── believer
+  - id: "eslt-believer-tyla" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "Jau kelis mėnesius meldžiuosi dėl to paties dalyko, o atsakymo kaip nėra, taip nėra. Gal aš kažką darau ne taip?"
+    en: "I have been praying about the same thing for several months now, and there is still no answer at all. Am I perhaps doing something wrong?"
+    credits:
+      - { path: "/a/malda.html", en: "'Kaip melstis? Kas yra malda?' (9.0k, Marilyn Adamson) — 'Does God hear our prayers? What does it mean to God to answer our prayers?' Told by a former atheist who watched a praying friend week after week ('after a while the word \"coincidence\" starts to sound like a very weak argument'), and it carries a dedicated UNANSWERED-PRAYER section: 'O kaip yra su neatsakytomis maldomis? Akivaizdu, jog žmonės serga, netgi miršta…'. The Lithuanian twin of `es` /articulos/oraciones.html, `ru` /a/molitvi.html, `bg` 'Отговаря ли Бог на молитвите ни?' and `hu` /a/imadsagra.html.", rank: 1, score: 0.744 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-lt` carries
+      exactly one prayer article, and this case is the suite's highest-scoring
+      question (0.744) with that article at rank 1.
+
+      🔴 AND IT IS THE SUITE'S SECOND TAIL SPECIMEN. Ranks 2–10 are: the HIV
+      testimony, MARRIAGE ADVICE (rank 3, /a/vedyboms.html), the coronavirus
+      article, SEX AND INTIMACY (rank 5), the testimony collection, peace of
+      mind, Josh McDowell's changed life, the suffering article, and ALCOHOL AS A
+      SUBSTITUTE FOR FRIENDSHIP (rank 10, /a/numalsink.html). Nine boilerplate-tail
+      and adjacent matches; nothing else on this source answers unanswered prayer.
+      `hu`, `bg` and `ru` all credit exactly one document here too, and `hu` found
+      the identical marriage article at rank 7. This is the §0.7 believer-thinness
+      finding showing up in the corpus rather than in the persona split.
+    rejected:
+      - { path: "/a/sawyer.html", rank: 2, why: "HIV testimony — tail match" }
+      - { path: "/a/vedyboms.html", rank: 3, why: "'Ar yra vilties ilgalaikėms vedyboms?' — marriage advice at rank 3 for a prayer question. Pure tail match, and the plainest illustration of the defect in this suite." }
+      - { path: "/a/koronaviruso.html", rank: 4, why: "credited to case 5" }
+      - { path: "/a/intymumo.html", rank: 5, why: "sex and intimacy — tail match" }
+      - { path: "/m/istorija.html", rank: 6, why: "the testimony collection — tail match, and its second and last appearance in this suite" }
+      - { path: "/a/numalsink.html", rank: 10, why: "'Numalšink savo troškulį' — alcohol as a substitute for close friendship, at rank 10 for a prayer question. Tail match." }
+    top_score: 0.744
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 6 cases · 15 credits · 15 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 2 · seeker 1 · believer 1 — matches the §0.7 6-case row
+# Topics used: god-exists · bible-trust · know-god · trinity · anxiety · prayer
+# Topics dropped: jesus-death (CONTENT GAP) · suffering, religions, purpose (persona quota)
+# Paraphrase smells: 0 in every round. Max top score across 18 probe queries: 0.744.
+# Credits that do not retrieve: 0.
+# evidence_tier: llm-translated
+#
+# 🔴 A NEW VARIANT OF THE TITLE TRAP, AND IT IS THE FINDING OF THIS SOURCE.
+#   `/a/koronaviruso.html` is BOTH the §0.12 reverse trap (a pandemic title over
+#   the source's general anxiety article, seventh source running) AND a
+#   CROSS-TOPIC INTRUDER that could not be reworded away: it was rank 1 for the
+#   god-exists question in all three rounds. The reason was read, not guessed —
+#   the article embeds Marilyn Adamson's conversion account, which cites Sartre,
+#   Plato, Socrates, Dostoevsky, Nietzsche and Hume, discusses people putting
+#   their hopes in science, and concludes "life on Earth simply could not have
+#   arisen by chance". An anxiety article that carries the source's apologetics
+#   vocabulary in three of its eight chunks. Expect this wherever the estate's
+#   coronavirus article is a first-person Adamson piece.
+#
+# 🔴 THREE MORE TITLE TRAPS, TWO OF THEM SYSTEMATIC, ONE NEW.
+#   1. `/a/kas2.html` — titled "Kas2" ("Who2"), naming no subject at all, IS the
+#      personhood article and is RANK 1 for the what-is-God-like question. It is
+#      part 4 of the four-part cosmological series §0.12 lists for `hu` `pl` `mn`
+#      `sk` `pt` `es` `fa` `cs`; `lt` has all four — /a/tustuma.html ("Was there
+#      ever nothing?") → /a/kazkas.html ("Something") → /a/kas.html ("Who") →
+#      /a/kas2.html ("Who2"). NINTH source, same series, same unjudgeable titles.
+#   2. `/a/tikejimas.html` — titled "Ne aklas tikėjimas" ("Not blind faith"),
+#      which reads as an evidence piece. Its opening is a what-is-God-like
+#      argument (the Adolf Hitler passage). A reviewer would file it under the
+#      wrong case on the title alone.
+#   3. ⓘ ONE NON-TRAP, recorded so nobody chases it: `/a/taiparne.html` ("Taip ar
+#      ne?" — "Yes or no?") looks like a fourth contentless title but is not part
+#      of the series. Read, it is about decision-making. Correctly not credited.
+#
+# 🟢 THE TESTIMONY-SHARE PREDICTION FROM §0.12 HELD, AT THE LOW END.
+#   §0.12 says boilerplate-tail severity tracks the testimony share. `everystudent-lt`
+#   has the LOWEST testimony share measured — 1 document of 49 (2%), because this
+#   source collects all its personal stories into a single `/m/istorija.html`
+#   page instead of a `/story/` namespace. Result: `/m/istorija.html` appears in
+#   the top 10 exactly twice across six cases, at ranks 8 and 6, and never higher.
+#   Compare `hu` at 24%, where `/story/Atti.html` alone appeared in the top 10 of
+#   five of ten cases and took ranks 1, 2 and 3 of one of them. The tail is still
+#   here — marriage advice at rank 3 of the prayer case, dating advice at rank 10
+#   of the Trinity case — it just never displaces an answer. `lt` is the low-end
+#   control for the §0.12 severity claim and it comes out in the predicted direction.
+#
+# 🔴 CONTENT GAP: NO ATONEMENT ARTICLE. `everystudent-lt` joins `ru`, `zh-cn` and
+#   `mn`. Discovery's `jesus-death` probe returned the Islam FAQ, the suffering
+#   article, the HIV testimony, the world-religions FAQ, DATING ADVICE and
+#   MARRIAGE ADVICE — four of six pure tail matches. §0.12 declares the atonement
+#   gap settled after eight confirmations; this is corpus composition, it is
+#   recorded, and no case was manufactured. `jesus-death` was dropped.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/tikejimas.html` on case 3 — KEEP (recommended; it is the estate's
+#      "what is God like → look at Jesus" move) or DROP. It sits at rank 10 and
+#      WILL flap between 3/3 and 2/3 between runs. Reasoning is in the case's
+#      `boundary_credit` block.
+#   3. Two boundary REJECTS on case 2, both defensible the other way:
+#      `/a/kritikus2.html` (rank 3, "the historical Jesus is unknowable") and
+#      `/a/gyveno.html` (rank 5, Tacitus and Josephus). I rejected both because
+#      their subject is JESUS' historicity, not the BIBLE's textual reliability,
+#      and the case already scores 2/2 at ranks 1 and 2. Crediting either would
+#      widen the topic to "can we trust the records at all".
+#   4. Three well-carried topics were dropped ONLY to hold the 6-case persona
+#      quota — `suffering`, `religions`, `purpose`. Each has 2–3 clean answer
+#      documents already named above. If the operator wants `lt` at 9 cases
+#      instead of 6, those three are ready to draft and would need one
+#      engine-check round each.

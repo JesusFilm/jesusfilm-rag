@@ -1,0 +1,382 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-my` (31 documents, Burmese).
+# Campaign #111, BATCH 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 31 ÷ 8 = 3.9 → floored at 4 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — the §0.7 four-case split exactly.
+# Questions authored IN BURMESE, not translated from the English menu (§0.6).
+#
+# ⚠️ DO NOT READ CHARACTER COUNTS AS ARTICLE DEPTH ON THIS SOURCE. Burmese does not
+# put spaces between words the way Latin scripts do, so a Burmese article's char count
+# runs high relative to how much it actually says. `/a/whocreated.html` at 2,806 chars
+# is a two-chunk page, not a substantial essay.
+#
+# ── CORPUS SHAPE ─────────────────────────────────────────────────────────────
+#   31 documents, ALL under `/a/`. No `/story/` tree exists on this source.
+#   Mean 12.8k chars; largest `/a/whowas.html` 33.6k, smallest `/a/happy.html` 2.8k.
+#   Null-language documents: 0 of 31 (guardrail #3a — nothing excluded).
+#   Duplicate titles: 0. Duplicate paths: 0. Under-1,200-char documents: 0.
+#   → FAILURE MODE #2 (pure-tail documents) CANNOT FIRE HERE. Nothing is short enough.
+#
+#   🔴 TESTIMONY SHARE — derived from the OPENINGS, never from the path (the `uk`
+#   finding). Path-counting reads this source as 0% testimony because there is no
+#   `/story/` tree. That is WRONG. Five of the 31 documents are first-person accounts
+#   carrying the shared gospel-summary-and-invitation tail:
+#     /a/sawyer.html   22.3k  Steve Sawyer, life after death
+#     /a/source.html   17.2k  Josh McDowell, "I hate my life"
+#     /a/wolves.html   21.2k  an anonymous young man on dating and waiting for marriage
+#     /a/quench.html   14.0k  Judy Clark, the drinking-and-partying piece
+#     /a/toxic.html    15.8k  Jim McConnell, porn addiction
+#   ≈16% testimony, filed entirely under `/a/`. Third source (after `uk` and `bn`)
+#   where the estate publishes testimony outside `/story/`. And it BITES: `/a/source.html`
+#   is rank 1 or 2 in three of the four cases here.
+#
+# ── DISCOVERY ────────────────────────────────────────────────────────────────
+#   .tmp-diag/phase5-partb-discover.ts everystudent-my my
+#   → 29 distinct candidate documents of 31; all ten topics surfaced something.
+#   Every one of the 31 documents was then read from the database (title + opening
+#   ~900 chars) before anything was credited — guardrail #5. `/a/personally.html` was
+#   read IN FULL (all 7 chunks) before the call on case 1; see that case.
+#
+#   🔑 THE ONE MAGNET (failure mode #1, the 0%-by-path pattern): `/a/whypick.html`
+#   surfaced in EIGHT of the ten discovery topics — god-exists, know-god, suffering,
+#   purpose, anxiety, jesus-death, religions AND trinity. `/a/isthere.html` in seven.
+#   Unlike `mk` and `et`, this source's magnet is not a prayer page or a conversion
+#   story: it is a 19.4k enumerated-attributes ARTICLE that legitimately answers ONE
+#   topic (know-god, where it is credited) and is a tail match everywhere else.
+#
+# ── ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-check.ts my my ──
+#   Round 1: 0 paraphrase smells · 3 credits not returned · max top score 0.733 · 10 credits
+#   Round 2: 0 paraphrase smells · 2 credits not returned · max top score 0.733 · 10 credits
+#   Round 3: 0 paraphrase smells · 2 credits not returned · max top score 0.733 · 11 credits
+#            — both remaining misses are DELIBERATE keeps, documented on their cases.
+#
+#   ⓘ THIS SOURCE NEVER CAME NEAR THE 0.75 SMELL LINE — top score 0.733 across three
+#   rounds and every question, and that 0.733 belongs to an UNCREDITED hit, not to a
+#   credit. Calibrate like Persian (§0.12): 0.75 was not reachable here, so every round
+#   went to REACH. Two rounds of rewording bought +1 returned credit and cost no smell.
+#
+#   Round 1 → 2 diagnosis, worth keeping: case 2 was a textbook FAILURE MODE #5.
+#   Its v1 asked whether there is anything "you can lean on that is not a feeling"
+#   (ကိုယ့်ကိုယ်ကို နှစ်သိမ့်နေတဲ့ / မှီခိုအားထား — self-comfort, lean on). That crutch framing
+#   put SEVEN emotional-support documents above every apologetics article: ranks 1–8
+#   were tragedy, coronavirus, sawyer, prayers, source, purpose, quench, finding, and
+#   the flagship /a/isthere.html scraped in at rank 9. Deleting the comfort words and
+#   naming scientists and philosophers instead took it to rank 1 + rank 3 in one round.
+#   Fourth source to reproduce §0.12's "ask for GROUNDS, not for comfort" result.
+#
+# ── MECHANICAL CHECKS — both green, run inside the check script ──────────────
+#   Guardrail #8 §3: all 11 credited paths resolve to EXACTLY ONE document — 11/11.
+#   Guardrail #3a:   no credited document has a null language — 11/11.
+#   No credited document is under 1,200 chars (nothing on this source is).
+#
+# ── TOPICS DROPPED, AND THE DOCUMENT THAT WOULD HAVE ANSWERED EACH ───────────
+#   Six of the ten §0.7 topics are dropped purely because 31 documents buys 4 cases.
+#   FIVE of the six have a perfectly good answer document — this is a SIZING cut, not
+#   a content gap. The sixth is a real gap. Named so a later expansion can pick them up:
+#
+#   | topic       | persona  | answer document that exists | why dropped |
+#   |-------------|----------|-----------------------------|-------------|
+#   | suffering   | skeptic  | /a/why.html (11.1k, "Why is life so hard?" — cancer, earthquakes, a relative's cancer, the girl next door abducted) AND /a/tragedy.html (15.0k, "Where is God when tragedy strikes?") | sizing only. Discovery scored these 0.645 / 0.629 — the strongest pair in the whole discovery pass. This is the topic to add FIRST if the operator wants a fifth case. |
+#   | purpose     | seeker   | /a/purpose.html (4.3k, the hammer parable) AND /a/source.html (17.2k, Josh McDowell, "have you ever said 'I hate my life'?") | sizing; lost the single seeker slot to `anxiety`, which verifies the coronavirus reverse trap |
+#   | jesus-death | newcomer | /a/whydid.html (9.4k, "Why did Jesus die?" — a DEDICATED atonement article) | sizing; lost the single newcomer slot to `know-god`, which verifies a systematic title trap. ⓘ FOR THE ESTATE LEDGER: `my` HAS an atonement article, so it sits with the 8-of-11 majority, not with `ru`/`zh-cn`/`mn`. The atonement gap stays settled. |
+#   | bible-trust | skeptic  | /a/bible.html (29.3k, "The history of the Bible — who wrote the Bible?") | sizing; see the Islam finding below |
+#   | prayer      | believer | /a/prayers.html (12.2k, "Does God answer our prayers?" — a former atheist watching a praying friend week after week) | the §0.7 four-case split allots believer ZERO. Not a corpus judgement — this source carries the prayer article, and it is strong enough to be rank 1 of the anxiety case. |
+#   | trinity     | newcomer | ⛔ NONE — see below | genuine content gap |
+#
+#   🔴 `trinity` IS A REAL CONTENT GAP ON THIS SOURCE. There is no Trinity article and
+#   no Holy Spirit article. `/a/faith.html` (24.2k, Paul E. Little) and
+#   `/a/whodoyousay.html` (6.9k) both argue Jesus' DEITY — did he claim to be God —
+#   which is a different question from one-versus-three. Discovery confirms it: the
+#   trinity probe returned only /a/connecting.html 0.504, /a/whypick.html 0.484,
+#   /a/source.html 0.473, /a/where.html 0.455 — four tail matches, no answer, and the
+#   lowest top score of any topic on this source. Even at 10 cases this topic could
+#   not have been authored honestly here.
+#
+#   🔴 `bible-trust` IS ANSWERED HEAD-ON, NOT THROUGH AN ISLAM ARTICLE — VERIFIED,
+#   NOT ASSUMED. The brief flagged that Thailand (Buddhist-majority, like Myanmar)
+#   routes scripture reliability through its "Jesus and Islam" article.
+#   `everystudent-my` HAS NO ISLAM ARTICLE AT ALL — not under any localised title, and
+#   nothing in the 31 openings touches tahrif. Its bible-trust probe returned
+#   /a/bible.html at 0.710 — the single highest discovery score on this source — and
+#   then nothing else above 0.453. `/a/bible.html` handles transmission directly
+#   ("historians and archaeologists repeatedly confirm the Bible's authenticity";
+#   40 authors over 1,500 years carrying one unchanged message). Myanmar patterns with
+#   Iran and Czechia, not with Japan. Buddhist-majority does NOT predict the routing.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Burmese). This is a
+# fact about the REVIEWER, not the language. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ───────── skeptic 🔴 TWO TITLE TRAPS + THE MOST INTERESTING MISS IN THE SUITE
+  - id: "esmy-skeptic-batha" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "အိမ်မှာ ဗုဒ္ဓဘာသာနဲ့ ကြီးပြင်းလာခဲ့ပြီး ကုသိုလ်ကောင်းမှုပြုရင် အကျိုးရမယ်လို့ ငယ်ငယ်ကတည်းက သင်ခဲ့ရပါတယ်။ ခရစ်ယာန်တွေကတော့ အဲဒီလိုမဟုတ်ဘူးလို့ ပြောကြပါတယ်။ သူတို့နဲ့ ကျွန်တော်တို့ကြားက အခြေခံအကျဆုံးကွာခြားချက်က ဘာလဲ?"
+    en: "I grew up in a Buddhist home and was taught from childhood that if you make merit you get the benefit of it. Christians say it does not work that way. What is the most basic difference between them and us?"
+    credits:
+      - { path: "/a/connecting.html", en: "🔴 TITLE TRAP. Title reads 'Connecting with God' (ဘုရားနှင့်ဆက်သွယ်ခြင်း) — a generic begin-here page. The subtitle is 'The world's major religions and their beliefs about God — Hinduism, Buddhism, Islam, Christianity and New Age', by Marilyn Adamson, and the body states the differences flatly: 'Buddhists say there is no deity. New Age followers believe they themselves are God. Muslims believe in a mighty but unknowable God. Christians believe in one God who is loving and approachable.' This is the estate's /a/205 world-religions article under a localised slug — the exact document §0.7 records an earlier pass MISREADING by title. 20.0k chars.", rank: 3, score: 0.648 }
+      - { path: "/a/reincarnation.html", en: "'Reincarnation, karma and life after death' (Douglas Groothuis, PhD, 4.6k). 'Do you have a choice about what happens when you die? Is reincarnation real? Is there life after death? What about the merit of past lives? Reincarnation gives people hope — if we cannot get it right in this life we get another chance.' Then the Christian answer. This is the document that engages the QUESTION'S OWN PREMISE (merit earns a better next life) rather than surveying religions from outside. ⚠ BOUNDARY CREDIT — see the reviewer note at the foot of this file.", rank: 4, score: 0.617 }
+      - { path: "/a/personally.html", en: "🔴 TRANSLATION-MANUFACTURED TRAP + 🔴 DELIBERATE KEPT MISS. The slug /a/personally.html is the estate's Four-Spiritual-Laws 'Knowing God Personally' page in every other language of this campaign. In Burmese it carries a LOCALLY WRITTEN Buddhist-context apologetic. Read in full before crediting; see the kept_miss block below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 `/a/personally.html` DOES NOT RETURN IN THE TOP 10 FOR EITHER QUESTION SHAPE,
+      AND IT IS KEPT DELIBERATELY (guardrail #8 §2). This is the most informative single
+      result on this source.
+
+      WHAT THE DOCUMENT IS. All 7 chunks were read from the database rather than judged
+      from the opening, because the slug promised the Four Spiritual Laws and the title
+      promised something else. The title is 'တရားသဘော ဘုရားသဘော' — "the nature of the
+      dhamma, the nature of God" — and the whole 8.0k document is a sustained
+      Buddhism-versus-Christianity contrast written in Buddhist vocabulary:
+
+        "You may think God and dhamma are the same. But let me tell you there are
+         opposing aspects."
+        "The dhamma is like an X-ray. An X-ray can show what is wrong inside a patient
+         but it cannot cure his disease. The dhamma can show the sin inside you but it
+         cannot settle the price your sin must be paid for."
+        "The dhamma demands; God pays."   "The dhamma has no mettā; God has mettā."
+        "The dhamma is not alive; God is alive."
+        And the close: "Jesus has already laid down his life on the cross for the whole
+         karmic debt (ဝဋ်ကြွေး) of your past, has made the merit and shared it out
+         (အမျှပေးဝေ) for you… if you can say sādhu to that in faith, release from
+         saṃsāra (သံသရာမှ လွတ်ခြင်း)…"
+
+      WHY IT IS KEPT, NOT DROPPED. This is the ONE document on the entire source written
+      specifically to answer a Buddhist reader's comparison question, and it is the exact
+      question this case asks. Dropping it would be dishonest — the engine is not right
+      here, it is missing the best-targeted document in the corpus.
+
+      WHAT IT MEASURES — and this is the finding. The question uses the document's own
+      merit vocabulary (ကုသိုလ်ကောင်းမှုပြု). It still misses, TWICE, on two different
+      question shapes. Meanwhile at rank 1 sits `/a/source.html` — Josh McDowell's
+      personal testimony, matched on its "religion is people carving their own way to God
+      by good works; Christian faith is God coming to people" passage — and at rank 2
+      `/a/sawyer.html`, another testimony. ⚠ THIRD LANGUAGE, SAME MISFIRE: `hu` rejected
+      `/a/forrasa.html` at rank 3 for this same topic on this same passage, and `ru`
+      before it. Two testimonies outrank the source's one purpose-built answer.
+
+      This case will score coverage 2/3, on purpose. Same treatment as `eshu-skeptic-vagyalom`
+      and `esbg-skeptic-katastrofa`.
+    reworded: |
+      ⚠️ REWORDED ONCE, and the reword did NOT rescue the kept miss — worth recording so
+      nobody spends a fourth round on it.
+      v1: "…ငယ်ငယ်ကတည်းက ဘုရားဖူးသွား၊ တရားထိုင်လာခဲ့ကြတာပါ။ ခရစ်ယာန်တွေယုံကြည်တဲ့အရာက
+           အဲဒါနဲ့ တကယ်ရော ဘယ်လိုကွာခြားသွားလို့လဲ?" ("…we have gone to the pagoda and sat
+           in meditation since I was small. How is what Christians believe any different?")
+           → top 0.673, no smell, `/a/connecting.html` rank 2, `/a/personally.html` missed.
+           Note this version contained the word တရား (dhamma/meditation), which is
+           `/a/personally.html`'s own organising term, and STILL missed it. The vocabulary
+           alone does not retrieve the document.
+      v2 (kept): moves the objection off "how is Christianity different from what I do"
+           and onto the MERIT premise — you make merit, you get the benefit — which is
+           what both `/a/reincarnation.html` and `/a/personally.html` actually engage.
+           → top 0.652. `/a/reincarnation.html` entered the top 10 at rank 4 (it was
+           absent in v1 and absent from the entire English discovery pass) and is now
+           credited. `/a/connecting.html` slipped 2 → 3. `/a/personally.html` still absent.
+           Net +1 returned credit, no smell cost.
+    rejected:
+      - { path: "/a/source.html", rank: 1, why: "RANK 1 AND REJECTED — Josh McDowell's changed-life testimony, matched on its religion-versus-relationship passage. Same call as the Hungarian /a/forrasa.html and the Russian /a/istochnik.html. Its subject is one man's search for meaning; it is credited to no case here because `purpose` was dropped for sizing." }
+      - { path: "/a/sawyer.html", rank: 2, why: "RANK 2 AND REJECTED — Steve Sawyer's testimony, 'How can you have life after death?' It matched the afterlife half of the question's premise. A first-person account carrying the tail; its subject is how he personally kept hope." }
+      - { path: "/a/isthere.html", rank: 5, why: "credited to case 2. Its matching chunk is the 'all of them called themselves religious teachers or prophets; none claimed to be God — Jesus did' passage, which is a Jesus-uniqueness argument inside a god-exists article." }
+      - { path: "/a/tragedy.html", rank: 6, why: "'Where is God when tragedy strikes?' — the suffering article. Tail match; the suffering topic was dropped for sizing." }
+      - { path: "/a/wolves.html", rank: 7, why: "the DATING article, at rank 7 for a Buddhism-versus-Christianity question. A textbook boilerplate-tail match, and the estate's confirmed repeat tail-carrier (§0.12: a dating article, a marriage article, the Four Spiritual Laws)." }
+      - { path: "/a/whydid.html", rank: 8, why: "the atonement article — a real document, but its subject is what Jesus' death accomplished, not how the two faiths differ. The `jesus-death` topic was dropped for sizing." }
+      - { path: "/a/whodoyousay.html", rank: 9, why: "'Did Jesus say he was God?' — Jesus' deity, a different question." }
+      - { path: "/a/intimacy.html", rank: 10, why: "'Looking for sex and intimacy — what is love?' at rank 10 for a world-religions question. Tail match." }
+    top_score: 0.652
+
+  # ── 2 ───────────────── skeptic 🔴 FAILURE MODE #5 CAUGHT AND FIXED IN ROUND 2
+  - id: "esmy-skeptic-htoutkhan" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "သူငယ်ချင်းတွေက ဘုရားယုံကြည်တာဟာ လိုချင်လို့ ထင်ယောင်ထင်မှားဖြစ်နေတာပဲလို့ ပြောကြပါတယ်။ သိပ္ပံပညာရှင်တွေနဲ့ အတွေးအခေါ်ပညာရှင်တွေဘက်ကနေ ဒီကိစ္စအပေါ် တကယ်ရော ဘာများပြောစရာရှိပါသလဲ?"
+    en: "My friends say believing in God is just wishful thinking, seeing what you want to see. From the side of scientists and philosophers, is there really anything to say about it?"
+    credits:
+      - { path: "/a/isthere.html", en: "'Does God exist? Six clear reasons to believe God is really there' (Marilyn Adamson, 21.7k) — the source's flagship apologetics article. Opens by refusing the pressure move: 'This is not arm-twisting. I am not saying just believe. Let me plainly state some reasons God exists.' Answers the wishful-thinking objection head-on.", rank: 1, score: 0.639 }
+      - { path: "/a/prove.html", en: "'Can you prove God exists?' (Gregory E. Ganssle, PhD, 3.3k) — 'Ever since Kant's Critique of Pure Reason many have asserted it is impossible to prove God exists… If someone says you cannot prove God exists, ask how they know you cannot.' Its chunk argues that neither can you prove the universe did not appear five minutes ago, nor that the people around you have minds. The PHILOSOPHERS half of the question.", rank: 3, score: 0.622 }
+      - { path: "/a/Godreal.html", en: "'Is God real?' (6.8k) — the SCIENTIFIC-EVIDENCE article. Antony Flew, a leading spokesman for atheism, in a December 2004 interview: 'a super-intelligence is the only good explanation for the origin of life and the complexity of nature', then DNA as a written computer program. Did NOT surface in the English discovery pass at all; found only by reading the openings. Burmese twin of the Hungarian /a/dns.html. 🔴 KEPT DELIBERATELY — see below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 `/a/Godreal.html` DOES NOT RETURN, AND IT IS KEPT (guardrail #8 §2).
+      The question explicitly names scientists. This document IS the science answer on
+      this source — the only one; nothing else in the 31 openings cites a scientist,
+      an experiment or DNA. Dropping it would paper over the gap.
+
+      What it measures: for a question that asks what SCIENCE says, the engine returns
+      `/a/source.html` (Josh McDowell's testimony) at rank 2 / 0.638, `/a/sawyer.html`
+      (Steve Sawyer's testimony) at rank 4 / 0.591 and `/a/quench.html` (the
+      drinking-and-partying piece) at rank 8 / 0.538 — three first-person accounts —
+      while the science article never appears. This is the SAME finding `hu` recorded
+      on `/a/dns.html`, on a source with no `/story/` tree at all. Second language,
+      same result: testimony outranks the science article for an evidence question.
+      This case will score coverage 2/3, on purpose.
+
+      ⚠️ NO FURTHER REWORD WAS ATTEMPTED, and the reason is worth keeping: this case's
+      two returning credits pull in OPPOSITE directions from the missing one.
+      `/a/prove.html` is epistemology (can anything be proved?) and `/a/Godreal.html` is
+      empirical (what does DNA show?). Leaning the question harder toward origin-of-life
+      would trade rank 3 for a different rank 3, not add one. The operator may disagree
+      and ask for the swap; I judged 2/3 with the flagship and the philosophy piece
+      better than 2/3 with the flagship and the science piece.
+    reworded: |
+      ⚠️ REWORDED ONCE, and this is the clearest FAILURE MODE #5 specimen in batch 2.
+      v1: "…ကိုယ့်ကိုယ်ကို နှစ်သိမ့်နေတဲ့ စိတ်ခံစားချက်သက်သက်ပဲ… တကယ်မှီခိုအားထားလို့ရတဲ့
+           အခြေခံတစ်ခုခုရော ရှိပါသလား?" ("…nothing but an emotion, comforting yourself.
+           Is there anything you can actually lean on?")
+           → top 0.622, no smell, and only 1 of 3 credits returned — at RANK 9.
+           The self-comfort framing put eight emotional-support documents above every
+           apologetics article on the source: ranks 1–8 were tragedy, coronavirus,
+           sawyer, prayers, source, purpose, quench, finding. Exactly §0.12's finding
+           that framing faith as a crutch retrieves crutch documents.
+      v2 (kept): keeps the menu's wishful-thinking objection, deletes every comfort word,
+           and asks what SCIENTISTS AND PHILOSOPHERS have to say.
+           → **0.622 → 0.639**, still no smell, and `/a/isthere.html` went 9 → **1**
+           while `/a/prove.html` came in from outside the top 10 to **3**.
+           Reach and smell moved TOGETHER here because the edit changed which objection
+           the question makes, not merely its wording — the `uk` refinement, confirmed.
+    rejected:
+      - { path: "/a/source.html", rank: 2, why: "RANK 2 AND REJECTED — Josh McDowell testimony. See the kept_miss above: this is the document that outranks the science article." }
+      - { path: "/a/sawyer.html", rank: 4, why: "Steve Sawyer testimony, tail match" }
+      - { path: "/a/faith.html", rank: 5, why: "'Who is Jesus? Is Jesus God? — look at the evidence' (Paul E. Little, 24.2k). It genuinely argues from evidence, but its subject is Jesus' DEITY, not whether God exists. Same call `hu` made on /a/hiten.html." }
+      - { path: "/a/coronavirus.html", rank: 6, why: "credited to case 4" }
+      - { path: "/a/prayers.html", rank: 7, why: "the prayer article — this source's second magnet. Tail match here." }
+      - { path: "/a/quench.html", rank: 8, why: "'Quench your real thirst' — Judy Clark's account of drinking and partying and the craving for real friendship behind it. Burmese twin of the Hungarian /a/szomjadat.html and the estate's /a/blues.html family. A first-person account, matched on the tail." }
+      - { path: "/a/whypick.html", rank: 9, why: "credited to case 3. This is the source's magnet showing up where it always does." }
+      - { path: "/a/connecting.html", rank: 10, why: "credited to case 1" }
+    top_score: 0.639
+
+  # ── 3 ────────────────── newcomer 🔴 SYSTEMATIC TITLE TRAP #1, VERIFIED — 3/3
+  - id: "esmy-newcomer-weewar" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "“ဘုရားသခင်” လို့ပြောလိုက်တာနဲ့ ကျွန်မစိတ်ထဲမှာ ဘယ်နေရာမှာမှန်းမသိတဲ့ ဝေဝါးတဲ့တန်ခိုးတစ်ခုလောက်ပဲ ပေါ်လာပါတယ်။ သူ့ကို ဘယ်လိုပုံဖော်ရမလဲဆိုတာ ဘာမှမသိပါဘူး။"
+    en: "The moment someone says 'God', all that comes into my mind is a vague sort of power somewhere I could not place. I have no idea how to picture him at all."
+    credits:
+      - { path: "/a/where.html", en: "'Where is God?' (4.3k) — the INVISIBILITY article. Two flat people drawn on a sheet of paper have height and width but no depth; the paper is their whole world; touch it with a fingertip and all they can see is the tip. 'We live inside four dimensions — height, width, depth, time — and God is beyond them.' A title-only reviewer files this under 'God's whereabouts'; its actual subject is why an invisible God is not therefore a vague force, which is precisely the asker's objection. ⚠ BOUNDARY CREDIT — see the reviewer note.", rank: 1, score: 0.661 }
+      - { path: "/a/whatlike.html", en: "'Who is God?' (4.6k) — subtitled 'The six attributes of God' and enumerated as such. 'We can know the God who created this universe of vast scale and intricate detail… he has always wanted us to know him, not merely to know about him but to be intimately acquainted with him.' The short-form what-is-God-like article.", rank: 2, score: 0.656 }
+      - { path: "/a/whypick.html", en: "🔴 SYSTEMATIC TITLE TRAP #1, VERIFIED ON THIS SOURCE. Titled 'Seeking the ideal God' (စံဖြစ်သောဘုရားကို ရှာဖွေခြင်း) — which reads like a conversion narrative, not a doctrinal article. The body is the six-attributes enumeration: 'Most of us picture an ideal God in our minds. God must be powerful, must understand us, must care… 1. A God greater than us.' This IS the estate's why-can-we-rely-on-the-God-of-the-Bible piece (§0.12: `bg` `tr` `fa` `pt` `cs`), and 19.4k chars of it. Unlike Romanian and German, Burmese DID keep the trap — so the trap is per-site, and here it is present.", rank: 3, score: 0.638 }
+    note: |
+      🟢 THE ONLY CASE IN THIS SUITE THAT NEEDED NO REWORD — 3 of 3 credits at ranks
+      1, 2 and 3 on the first round, top score 0.661, no smell. The §0.7 `know-god`
+      variant-B shape transferred to Burmese unchanged.
+
+      ⓘ THIS SOURCE HAS TWO SEPARATE SIX-ATTRIBUTES ARTICLES and both are credited:
+      `/a/whatlike.html` (4.6k, honest title) and `/a/whypick.html` (19.4k, trap title).
+      They are the estate's short and long forms of the same enumeration, not duplicates
+      of each other, and no other source in the campaign has been recorded carrying both.
+      If the operator considers this double-counting the same argument, `/a/whatlike.html`
+      is the one to keep — it is the plainer article and it is not the magnet.
+    rejected:
+      - { path: "/a/isthere.html", rank: 4, why: "credited to case 2 — a god-exists article, not a what-is-God-like one" }
+      - { path: "/a/coronavirus.html", rank: 5, why: "credited to case 4" }
+      - { path: "/a/tragedy.html", rank: 6, why: "the suffering article — its opening does ask 'Who is God?' as a rhetorical lead-in, which is what matched, but its subject is where God is in catastrophe" }
+      - { path: "/a/finding.html", rank: 7, why: "credited to case 4" }
+      - { path: "/a/prayers.html", rank: 8, why: "the prayer article, tail match" }
+      - { path: "/a/wolves.html", rank: 9, why: "the DATING article at rank 9 for a what-is-God-like question. Tail match, second appearance in this suite." }
+      - { path: "/a/whodoyousay.html", rank: 10, why: "'Did Jesus say he was God?' — Jesus' deity claims, a different question" }
+    top_score: 0.661
+
+  # ── 4 ──────────────────── seeker 🔴 REVERSE TITLE TRAP, VERIFIED — 2/2
+  - id: "esmy-seeker-sohyeen" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "ဘာအရေးကြီးကိစ္စမှ မရှိတဲ့အချိန်မှာတောင် ကျွန်မရင်ထဲမှာ စိုးရိမ်ပူပန်နေရပါတယ်။ ဘုရားသခင်က ဒီလိုအတွက်ရော တစ်ခုခုပေးနိုင်ပါသလား?"
+    en: "Even at times when nothing important is going on, my chest is full of worry. Does God have anything to give for something like this?"
+    credits:
+      - { path: "/a/coronavirus.html", en: "🔴 REVERSE TITLE TRAP, VERIFIED ON THIS SOURCE. The title is 'Coronavirus (COVID-19)' — a dated 2020 notice any title-only reviewer strikes out. The subtitle already broadens it ('how to handle anxiety, stress or any kind of grief and live at peace'), and the body's third paragraph leaves the pandemic behind for good: 'In any case you may be feeling anxiety about other threats. Every day we meet all sorts of causes of stress: violence, climate change, racial discrimination, wars, failures of government, poverty, sexual abuse, human trafficking…' 14.9k chars by Marilyn Adamson, and it is this source's general ANXIETY article. Confirms the §0.12 systematic trap on a source where the sibling German has no such article at all.", rank: 2, score: 0.67 }
+      - { path: "/a/finding.html", en: "'A settled mind in an unsettled world' (18.4k) — 'Whatever the future holds, you can have peace of mind without worry and fear. Whatever is happening in the world or in our own lives, is there anywhere peace can be found?' The source's peace-of-mind article. Burmese twin of the Hungarian /a/beke.html.", rank: 5, score: 0.646 }
+    the_finding: |
+      🔴 THIS SOURCE'S ANXIETY CASE REPRODUCES THE `mk` RESULT EXACTLY: THE PRAYER
+      ARTICLE IS RANK 1.
+
+        rank 1  0.733  /a/prayers.html      ← the prayer article, REJECTED
+        rank 2  0.670  /a/coronavirus.html  ← the anxiety article, credited
+        rank 3  0.659  /a/tragedy.html
+        rank 4  0.656  /a/why.html
+        rank 5  0.646  /a/finding.html      ← the peace article, credited
+
+      `/a/prayers.html` wins because one of its chunks is a genuine anxiety passage —
+      "God tells us to hand our worries over to him… 'Cast all your anxiety on him,
+      because he cares for you'" — but the DOCUMENT's subject is whether God answers
+      prayer, told by a former atheist watching a praying friend week after week. It is
+      the `mk` `/a/molitvi306.html` shape on a second source, and it is why §0.12's
+      corrected rule matters: this source has no `/story/` tree, so a path-based
+      testimony estimate would have called it safe.
+
+      0.733 is also the highest score anywhere in this suite, and it belongs to a
+      REJECTED hit. §0.12 failure mode #6, demonstrated: the top score tells you nothing
+      about whether the right document came back.
+    rejected:
+      - { path: "/a/prayers.html", rank: 1, why: "RANK 1 AND REJECTED — see the_finding above. Its subject is answered prayer; it is the dropped `prayer` topic's answer document, not this one's." }
+      - { path: "/a/tragedy.html", rank: 3, why: "'Where is God when tragedy strikes?' — its subject is catastrophe and whether God can be depended on in it, not anxiety with nothing objectively wrong. Same call `hu` made on /a/faj.html." }
+      - { path: "/a/why.html", rank: 4, why: "'Why is life so hard?' — the suffering article. Its closing does quote 'Peace I leave with you', which is what matched, but its subject is why hardship exists." }
+      - { path: "/a/purpose.html", rank: 6, why: "the hammer-parable purpose article — the dropped `purpose` topic's answer document" }
+      - { path: "/a/sawyer.html", rank: 7, why: "Steve Sawyer testimony, tail match" }
+    top_score: 0.733
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 11 credits · 11 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 four-case split
+# Paraphrase smells: 0 in all three rounds. Max top score 0.733, and it belongs to a
+#   REJECTED hit (`/a/prayers.html` on the anxiety case), not to any credit.
+# Credits that do not retrieve: 2 — `/a/personally.html` (case 1) and `/a/Godreal.html`
+#   (case 2). BOTH kept deliberately, both documented. Expected coverage 9/11.
+# evidence_tier: llm-translated
+#
+# 🔴 FOUR TITLE TRAPS ON A 31-DOCUMENT SOURCE. Titles remain unusable as evidence.
+#   1. `/a/connecting.html` — "Connecting with God" IS the world-religions comparison.
+#      The precise document §0.7 records an earlier pass misreading by title.
+#   2. `/a/whypick.html` — "Seeking the ideal God" IS the six-attributes article
+#      (systematic trap #1, present here, absent in `ro` and `de`).
+#   3. `/a/coronavirus.html` — an expired pandemic notice by its title; the source's
+#      general anxiety article by its body (the reverse trap).
+#   4. `/a/personally.html` — 🆕 THE STRONGEST TRANSLATION-MANUFACTURED TRAP FOUND SO
+#      FAR, and it beats the `mk` specimen. Everywhere else in this campaign that slug
+#      is the Four Spiritual Laws. In Burmese it is a locally authored
+#      dhamma-versus-God apologetic that presents the atonement as merit-transfer and
+#      release from saṃsāra ("Jesus has already made the merit and shared it out for
+#      you… say sādhu to it in faith"). No sibling's shelf predicts it, the English
+#      original does not contain it, and the slug actively lies about it. This is not a
+#      translation of the estate's page — it is a different article under the same URL.
+#
+# 🔴 THE BOILERPLATE TAIL IS PRESENT AND SEVERE DESPITE 0% `/story/`. This source has no
+#   `/story/` tree, so path-counting reads it as 0% testimony — the `uk` trap. Reading
+#   the openings gives ≈16% (5 of 31), all filed under `/a/`. The consequence is
+#   measured, not assumed: `/a/source.html` (Josh McDowell) is rank 1 for the religions
+#   case and rank 2 for the god-exists case, `/a/sawyer.html` is rank 2 and rank 4, and
+#   in BOTH cases these testimonies outrank the purpose-built answer document that this
+#   suite credits and the engine misses. `/a/wolves.html` (dating) appears at rank 7 for
+#   a Buddhism question and rank 9 for a what-is-God-like question — the estate's
+#   confirmed dating-article tail-carrier, third campaign appearance.
+#
+# 🟢 BUDDHIST-MAJORITY DOES NOT PREDICT THE `bible-trust` ROUTING. Thailand routes
+#   scripture reliability through its Islam article; Myanmar has NO Islam article and
+#   answers it head-on with /a/bible.html at 0.710, the highest discovery score on the
+#   source. §0.12's rule that this is about PUBLISHING, not audience, holds.
+#
+# ⚠️ FOR THE REVIEWER — five things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#      If anyone on the team reads Burmese it should be `human-verified`.
+#   2. `/a/personally.html` on case 1 — KEEP (recommended) or DROP. It is the only
+#      document on the source written for a Buddhist reader's comparison question, it
+#      never retrieves, and recording that is the point. Costs 1 coverage point.
+#   3. `/a/Godreal.html` on case 2 — KEEP (recommended) or DROP. Same shape as the
+#      `hu` `/a/dns.html` decision, and the operator resolved that one as KEEP.
+#      Costs 1 coverage point.
+#   4. `/a/reincarnation.html` on case 1 — BOUNDARY CREDIT. It answers the question's
+#      merit-and-next-life premise directly and returns at rank 4, but it is a
+#      single-doctrine article rather than a religions comparison. Drop it and the case
+#      is 1/2 on `/a/connecting.html` alone.
+#   5. `/a/where.html` on case 3 — BOUNDARY CREDIT, and it is rank 1 at 0.661. Its
+#      subject is God's invisibility and how a being beyond our dimensions makes himself
+#      seen, which is what "a vague power somewhere" objects to. A stricter reviewer
+#      would call it a where-is-God article and cut it, leaving the case 2/2 on the two
+#      six-attributes articles.
+#
+# ⓘ SIZING, NOT CONTENT. Six topics are dropped because 31 documents buys 4 cases.
+#   FIVE of the six have a good answer document sitting unused (named in the header
+#   table above); only `trinity` is a genuine gap. If the operator wants a fifth case,
+#   `suffering` is the one to add — /a/why.html and /a/tragedy.html scored 0.645 and
+#   0.629 in discovery, the strongest untouched pair on the source.

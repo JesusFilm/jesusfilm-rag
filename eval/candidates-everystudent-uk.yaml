@@ -1,0 +1,351 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-uk` (47 documents, svitstudentiv.com).
+# Campaign #111, BATCH 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 47 ÷ 8 = 5.9 → 5 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the 5-case row of §0.7.
+# Questions authored IN UKRAINIAN, not translated from the English topic menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   47 documents, ALL under `/a/*.html`. There is no `/story/` tree on this source at all,
+#   so the path-based testimony share is 0% — but that number is misleading and must not be
+#   compared with `hu`'s 24% as if it meant the same thing. ELEVEN of the 47 (23%) are
+#   first-person testimony published as `/a/` articles: /a/ateyistka.html (atheist),
+#   /a/zminenoho.html (Josh McDowell), /a/nadiyeyu.html (Steve Sawyer, HIV),
+#   /a/zalezhnist.html (heroin), /a/vovkamy.html (dating), /a/krasy.html (fashion model),
+#   /a/rozladiv.html (eating disorders), /a/sprahu.html (drinking), /a/otruynyy.html (porn),
+#   /a/blyzkosti.html (sex/intimacy), /a/spravzhnye.html (three fulfilment stories).
+#   The tail risk is the same as `hu`; only the URL shape differs.
+#   ⚠️ Any tooling that estimates testimony share by counting `/story/` paths will read
+#   this source as 0% and under-predict the tail. It is 23%.
+#
+#   HAZARD REPORT (from .tmp-diag/phase5-openings.ts, all three green):
+#     duplicate paths       0 — every path resolves to exactly one document
+#     null-language docs    0 of 47 (guardrail #3a — nothing excluded)
+#     duplicate titles      0 (the hazard that bit `bg` and `ja` does not exist here)
+#     under 1,200 chars     0 — this source has NO pure-tail documents (failure mode #2).
+#                           The smallest is /a/stvoryv.html at 1,910 chars ("Who created
+#                           God?"), which is a real argument, not a video promo.
+#
+#   ACQUISITION NOTE: this source came in by SEED crawl (no sitemap) and was extracted with
+#   the rule-1e `"html"` container fallback, so documents carry more site chrome than
+#   `.contentpadding` sources. In practice the openings read clean — the article title,
+#   subtitle and byline lead every document — so the extra chrome did not obstruct judging.
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-uk uk
+#   → 36 distinct candidate documents of 47. All ten topics surfaced something, but see
+#     the `jesus-death` gap below — surfacing something is not the same as carrying it.
+#   Every one of the 47 documents was then read from the database (title + opening ~900
+#   chars + char length) before anything was credited — guardrail #5.
+#
+# 🔴 SCORE CALIBRATION — AND A DISCOVERY-PASS ARTEFACT WORTH CARRYING TO OTHER SOURCES.
+#   The discovery pass runs the ten topic questions IN ENGLISH. On `uk` its single highest
+#   score across all ten was **0.667** and seven of the ten topped out below 0.62, which
+#   reads like the Persian "0.75 is unreachable here" shape from §0.12. **That reading
+#   would have been wrong.** The same topics asked IN UKRAINIAN scored up to **0.748** —
+#   round 1 of case 1 landed 0.002 under the smell line.
+#   ⚠️ ENGLISH PROBE SCORES UNDER-PREDICT IN-LANGUAGE SCORES BY ROUGHLY 0.08 ON THIS
+#   SOURCE. Do not use the discovery pass to decide that a source has smell headroom.
+#   Discovery answers "which documents exist for this topic"; only the in-language check
+#   answers "is this question too close to an article".
+#
+# ENGINE-CHECKED TWICE — .tmp-diag/phase5-check.ts uk uk
+#   Round 1: 0 paraphrase smells (max top **0.748**) · **2** credits not in top 10 · 16 credits
+#   Round 2: 0 paraphrase smells (max top **0.741**) · **0** credits not in top 10 · 16 credits
+#   Only case 1 changed between the rounds; cases 2–5 were clean on the first pass and were
+#   not touched. Round 1's case-1 question was BOTH the near-smell and the reach failure at
+#   once — see its `reworded` block, which is the §0.12 failure-mode-#5 trade in miniature.
+#
+# MECHANICAL CHECKS — run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 16 credited paths resolve to EXACTLY ONE document — 16/16.
+#   Guardrail #3a:   no credited document has a null language — 16/16.
+#   Failure mode #2: no credited document is under 1,200 chars — smallest credit is
+#                    /a/spravzhniy.html at 4,441 chars. This source has no pure tails.
+#
+# 🔴 TOPICS DROPPED — five of the ten, and they are NOT all dropped for the same reason.
+#
+#   1. `jesus-death` — DROPPED AS A GENUINE CONTENT GAP. `everystudent-uk` has NO article
+#      whose subject is what the cross accomplished. The discovery pass for this topic
+#      returned, in order: /a/islamu.html 0.582 (the Islam article, whose Q4 is the
+#      HISTORICITY question "did Jesus die on the cross?" — not what the death achieved),
+#      /a/osobysto.html 0.537 (the Four Spiritual Laws page — Law 3 states the atonement in
+#      two sentences inside a "begin a relationship" page, which is exactly the page the
+#      shared invitation-prayer chunk buries), then /a/lykho.html, /a/nadiyeyu.html,
+#      /a/vira.html and /a/relihiyamy.html — a disaster article, an HIV testimony, a
+#      Jesus-deity article and a 2.6k religions comparison, all matched on their tails.
+#      🟢 THIS IS THE SAME SHAPE AS `everystudent-ru` (§0.10), AND IT IS EXPECTED.
+#      §0.12 settled the atonement gap as corpus composition over eleven sources; `uk` is
+#      a fourth source with the gap and it is recorded here, not re-litigated. Authoring a
+#      case here would have manufactured one with no valid answer key (guardrail #3a).
+#
+#   2. `bible-trust`, `religions`, `trinity`, `anxiety` — DROPPED FOR SLOT COUNT ONLY.
+#      All four are genuinely carried and all four would make valid cases. The suite is
+#      capped at 5 by the 47-document sizing rule, and the persona table gives 2 skeptic
+#      slots for four skeptic-persona topics. Where they would go if the suite is ever
+#      widened, with the discovery evidence:
+#        bible-trust → /a/bibliya.html (23.6k, the LONGEST article in the source; its
+#                      section 2 is literally "Has the Bible's text changed, or do we hold
+#                      the original writing?") + /a/islamu.html (25.5k; its question 1 IS
+#                      the tahrif question). Discovery: islamu 0.637, bibliya 0.595.
+#                      ⚠️ Note the ORDER — the Islam article outscores the dedicated Bible
+#                      article here, the §0.12 tahrif pattern showing up again.
+#        religions   → /a/yednannya.html (14.6k, the estate's /a/205 world-religions piece
+#                      under a localised slug: "Hinduism, New Age, Buddhism, Islam,
+#                      Christianity") + /a/relihiyamy.html (2.6k, the short comparison).
+#                      Discovery: 0.619 / 0.571.
+#        trinity     → /a/triytsyu.html (the 1×1×1=1 article) + /a/dukh.html ("the Holy
+#                      Spirit is not a hazy substance or an impersonal force… the third
+#                      person of the Trinity"). Discovery: triytsyu 0.667, the HIGHEST
+#                      score of any probe on this source.
+#        anxiety     → /a/myr.html only (13.5k, "Peace of mind in an unstable world").
+#                      ⚠️ This is the THINNEST topic on the source and the one I would drop
+#                      even at 6 cases. Unlike `hu`/`ru`/`pt`/`es`, `uk` has NO coronavirus
+#                      article and NO chakra article — the two documents that carry this
+#                      topic everywhere else in the estate are simply not published here.
+#                      Ranks 2–4 of the anxiety probe were a grief article, the prayer
+#                      article and a "why is the world so hard" article. One credit, and a
+#                      weak shelf behind it.
+#
+# evidence_tier: proposed `llm-translated` — I do not read Ukrainian natively and no
+# reviewer has been named who does. This is a fact about the REVIEWER, not the language:
+# if anyone on the team reads Ukrainian (or Russian well enough to check Ukrainian) and can
+# sanity-check the five questions and eighteen glosses, it should be `human-verified`.
+# OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────── skeptic · REWORDED ONCE
+  - id: "esuk-skeptic-nauka"            # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Мої друзі впевнені, що віра в Бога тримається лише на вихованні та емоціях, а наука вже давно пояснює світ і без Нього. Чи є взагалі що на це відповісти?"
+    en: "My friends are sure that belief in God rests only on upbringing and emotion, and that science has long since explained the world without him too. Is there anything at all to say in reply?"
+    credits:
+      - { path: "/a/isnuye.html", en: "'Does God exist?' — Marilyn Adamson's six-arguments article, 15.7k chars and the source's flagship apologetics piece. Its own opening is the question asked here: 'Have you ever wanted to hear hard, convincing evidence for God's existence? No excuses. No \"you just have to believe\".' Then the complexity of the planet, the universe's design, the moral sense.", rank: 4, score: 0.645 }
+      - { path: "/a/spravzhniy.html", en: "'Is God real?' — the DNA-code article. Antony Flew, 'a committed atheist' who took part in every kind of debate, concluding on television in December 2004 that 'a supreme Intelligence is the only rational explanation for the origin of life and the complexity of nature'. Then DNA laid out as a four-letter computer program. This is the source's SCIENTIFIC-EVIDENCE document and it answers the 'is there anything solid' half directly.", rank: 5, score: 0.641 }
+      - { path: "/a/ateyistka.html", en: "'How an atheist found God' — Marilyn Adamson's own account: 'I could not simply believe. There are people who believe in God but nobody knows why. God was obviously an invention… there was no objective evidence.' She then works through the evidence rather than a feeling. Answers the fact-versus-feeling framing head-on, the same way `hu` /a/ateista.html does.", rank: 2, score: 0.668 }
+      - { path: "/a/vsesvit.html", en: "'Did God create the universe?' — the cosmological-beginning article: Hubble, the recession of the galaxies, the Big Bang as a single beginning of matter, space and time, and why a universe with a beginning is a problem for atheist scientists.", rank: 1, score: 0.696 }
+      - { path: "/a/pantelyku.html", en: "'The laws of nature have baffled scientists' — why the universe obeys unvarying law everywhere (Sean Carroll and James Trefil's 'principle of universality' are both quoted), and why scientists tend to pass over that fact. A fourth, distinct evidential argument — order, not complexity or origin.", rank: 3, score: 0.664 }
+    reworded: |
+      ⚠️ REWORDED ONCE, and this single case is the whole §0.12 failure-mode-#5 lesson in
+      one measurement — the near-smell and the reach failure had the SAME cause.
+      v1: "Мої друзі вважають, що віра в Бога — це просто самозаспокоєння, а не щось
+           обґрунтоване. Чи є за цим взагалі якісь тверді підстави, чи це справді лише
+           питання почуттів?"
+          ("…just self-comfort rather than anything grounded. Is there any solid basis
+           behind it at all, or is it really only a matter of feelings?")
+          → top **0.748** — 0.002 under the smell line, and 2 of 5 credits missing.
+          Two things went wrong together:
+            (a) "тверді підстави" (solid grounds) nearly restates /a/isnuye.html's own
+                opening line, "Чи хотілося тобі бодай раз почути тверді переконливі докази
+                про існування Бога?" ("Have you ever wanted to hear hard, convincing
+                evidence for God's existence?"). That is what put the score at 0.748.
+            (b) "самозаспокоєння" (self-comfort) + "питання почуттів" (a matter of
+                feelings) is emotional framing, and it retrieved emotional documents:
+                /a/myr.html (peace of mind) at RANK 2, /a/lykho.html (disaster) at 5 and
+                /a/dali.html (bereavement) at 6 — while BOTH cosmology articles
+                (/a/vsesvit.html at rank 10, /a/pantelyku.html outside) and the DNA
+                article (/a/spravzhniy.html, outside) lost their slots.
+      v2 (kept): replaces the feelings framing with the objection an actual sceptic makes
+          — that faith is upbringing plus emotion and that science has already explained
+          the world without God — and drops the "solid grounds" phrasing entirely.
+          → **top 0.748 → 0.695, and 3 of 5 → 5 of 5 credits, at ranks 1, 2, 3, 4 and 5.**
+          Both problems were fixed by the same edit, which is not what §0.12 predicts
+          ("reach and smell pull in opposite directions"). They pull in opposite
+          directions when the fix is a paraphrase. They pull TOGETHER when the fix is a
+          change of the objection being made.
+    rejected:
+      - { path: "/a/myr.html", rank: 6, why: "'Peace of mind in an unstable world' — was RANK 2 for v1 of this question and fell to 6 once the emotional framing came out. Its subject is peace under changing circumstances, not evidence." }
+      - { path: "/a/yednannya.html", rank: 7, why: "the world-religions comparison — matched on its 'what can a person get from this religion' framing. Would be credited to a `religions` case if the suite were widened." }
+      - { path: "/a/chomu.html", rank: 8, why: "'Why is it so hard to live in this world?' — credited to case 2" }
+      - { path: "/a/chudo.html", rank: 9, why: "'Why doesn't God perform some miracle and prove to everyone that he exists?' — CLOSE, and rejected on its text. Its subject is God's reticence (Philip Yancey on why God leaves room for unbelief), not whether there is evidence. Same call the Hungarian suite made on /a/csodat.html." }
+      - { path: "/a/pravdyvoho.html", rank: 10, why: "credited to case 3" }
+    top_score: 0.696
+
+  # ── 2 ────────────────────────────────────────────────────────────────── skeptic
+  - id: "esuk-skeptic-avariya" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "Торік мій друг загинув в аварії. Відтоді мені ніхто так і не пояснив, як це взагалі поєднується з добрим Богом, який нібито все тримає під контролем."
+    en: "Last year my friend died in a crash. Since then nobody has actually explained to me how that fits together at all with a good God who supposedly holds everything under control."
+    credits:
+      - { path: "/a/lykho.html", en: "'Where is God when disaster comes?' — Marilyn Adamson, 10.7k. 'How far can we rely on God, knowing that he is with us? Is he really the one we can turn to in any situation, in disaster as well as in calm?' The Ukrainian twin of the Russian /a/gdebog.html and the Hungarian /a/faj.html, both credited for this same question shape.", rank: 1, score: 0.741 }
+      - { path: "/a/chomu.html", en: "'Why is it so hard to live in this world?' — the theodicy article. Its opening names the rampage of violence, hatred, ISIS atrocities, sexual slavery, murder and poverty, then narrows to the personal: 'Our parents divorce. The girl next door is abducted. A relative is diagnosed with cancer.' Closest of the five to the asker's own situation.", rank: 4, score: 0.68 }
+      - { path: "/a/rezhyser.html", en: "'Is God the director of the world?' — the free-will argument, framed as an analogy about film directors: 'people say \"I do not believe in God because there is evil in the world\", but that argument already concedes that a good world is possible.' Answers the 'good God who holds everything under control' half specifically — i.e. the control premise, not the grief.", rank: 7, score: 0.657 }
+      - { path: "/a/dali.html", en: "'How do you go on?' — written directly at someone recovering from a disaster or the loss of a friend or relative, 5.2k. It is unusual and worth noting: it opens by REFUSING the why-question — 'Will you find an explanation from God for why this happened? Probably not… \"Why?\" is not the apt question to put to God here' — and answers what God is like instead. The best fit to 'nobody has explained it to me'.", rank: 2, score: 0.733 }
+    rejected:
+      - { path: "/a/pravdyvoho.html", rank: 3, why: "RANK 3 AND REJECTED — the what-is-God-like article. Its section on God's character does speak to 'is he good', but the document is not about suffering. Credited to case 3." }
+      - { path: "/a/nadiyeyu.html", rank: 5, why: "Steve Sawyer's HIV testimony — how he personally kept hope after his diagnosis, not why a good God allows it. Same call as the Russian /a/steysi1.html and the Hungarian /a/sawyer.html." }
+      - { path: "/a/poklonyatysya.html", rank: 6, why: "the child-rape article — see the note below; rejected deliberately, not by oversight." }
+      - { path: "/a/ateyistka.html", rank: 8, why: "credited to case 1" }
+      - { path: "/a/myr.html", rank: 9, why: "peace of mind — a tail-adjacent match" }
+      - { path: "/a/isnuye.html", rank: 10, why: "credited to case 1" }
+    rejected_note: |
+      ⓘ /a/poklonyatysya.html ("How can you worship a God who allows a child to be raped?",
+      3.3k) is the source's fifth suffering document and it is a real one — the author's
+      own close relative's child was raped, and the answer is the free-will theodicy under
+      that weight. It was NOT credited, and the call is deliberate rather than close: its
+      subject is deliberate human evil, and the asker's friend died in an ACCIDENT, where
+      no human chose anything. Crediting it would measure the engine's ability to conflate
+      two different problems of evil. It returns in the top 10 anyway (see the check log)
+      and is correctly ranked below all four credits.
+    top_score: 0.741
+
+  # ── 3 ────────────────────────────────────── newcomer 🔴 TITLE TRAP + SERIES TRAP
+  - id: "esuk-newcomer-tumanna-enerhiya" # topic: know-god
+    persona: newcomer
+    topic: know-god
+    q: "Коли при мені кажуть «Бог», у мене в голові виникає лише якась туманна енергія десь угорі. Він взагалі особа, з якою можна мати справу, чи радше сила?"
+    en: "When people say 'God' around me, all that comes into my head is some hazy energy somewhere up there. Is he even a person you can deal with, or rather a force?"
+    credits:
+      - { path: "/a/khto.html", en: "'Who is God?' — 'Who is God? What is he like? SIX CHARACTER TRAITS of God': he is someone who can be KNOWN, he is approachable ('you do not need to know the right words, know theology, or be sinless'), and so on. This is the estate's six-attributes what-is-God-like article, the twin of the Russian /a/ktoeto.html and the Hungarian /a/milyen.html. 3.3k — short, but it is the article, not a promo.", rank: 4, score: 0.654 }
+      - { path: "/a/pravdyvoho.html", en: "🔴 TITLE TRAP. Titled 'In search of the true God', which reads like a conversion or a seeking story. It is not: the body is an ENUMERATED LIST of God's attributes — '#1: A God greater than us', and onward — 13.2k of it, the long-form companion to /a/khto.html. This is the same trap §0.12 lists as systematic ('Why can we rely on the God of the Bible?' → the six-attributes article, seen in bg tr fa pt cs). Fifth-plus source, same trap, localised title.", rank: 1, score: 0.682 }
+      - { path: "/a/khtos2.html", en: "'Someone 2' — part 4 of the cosmological series, and the part where the Eternal Something is argued to be a PERSON rather than a machine, and where God's invisibility and omnipresence are handled ('dwelling in unapproachable light, whom no one has seen'; 'where can I go from your Spirit?'). Answers the 'is he even a person, or rather a force' question literally. See the note.", rank: 2, score: 0.677 }
+    rejected:
+      - { path: "/a/lykho.html", rank: 2, why: "RANK 2 AND REJECTED — 'Where is God when disaster comes?' Its opening does ask 'Who is God? He is the Creator of the universe who wants us to know him', which is why it matches, but the document's subject is crisis. Credited to case 2." }
+      - { path: "/a/ateyistka.html", rank: 5, why: "credited to case 1" }
+      - { path: "/a/isnuye.html", rank: 6, why: "credited to case 1 — whether God exists is a different question from what he is like" }
+      - { path: "/a/molytvy.html", rank: 7, why: "credited to case 5" }
+      - { path: "/a/yednannya.html", rank: 8, why: "the world-religions comparison — it does describe each religion's picture of God, but as a contrast between systems, not as an answer to what God is like" }
+      - { path: "/a/sprahu.html", rank: 9, why: "'Quench your real thirst' — a DRINKING testimony (runaways in Colorado, the party circuit) at rank 9 for a what-is-God-like question. A pure boilerplate-tail match; this document's tail is quoted in the SUMMARY." }
+      - { path: "/a/osobysto.html", rank: 10, why: "'Knowing God personally' — the Four Spiritual Laws page. The /a/personally.html shape from §0.9: a 'begin here' page whose invitation tail matches everything." }
+    note: |
+      ⓘ FOUR DOCUMENTS ON THIS SOURCE ARE UNJUDGEABLE BY TITLE BY CONSTRUCTION, and it is
+      the same four-part chain §0.12 lists as systematic (`hu` `pl` `mn` `sk` `pt` `es`
+      `fa` `cs` — now `uk` too):
+        /a/nichoho.html  "Чи було колись Нічого?"  ("Was there ever Nothing?")   4,740 ch
+        /a/shchos.html   "Щось"                     ("Something")                7,402 ch
+        /a/khtos.html    "Хтось"                    ("Someone")                  6,395 ch
+        /a/khtos2.html   "Хтось 2"                  ("Someone 2")                9,212 ch
+      Only the last is credited, and only because its body was read. Note also that the
+      three earlier parts are NOT credited to case 1 (god-exists) even though they are a
+      cosmological argument: /a/khtos.html's subject is whether the Eternal Something is
+      one or many, and crediting the chain there would credit the same argument twice.
+    top_score: 0.682
+
+  # ── 4 ─────────────────────────────── seeker ⚠ SEE THE KEPT MISS
+  - id: "esuk-seeker-nichoho-ne-zalyshylosya" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "Кожен мій день минає однаково, і ввечері я лягаю спати з відчуттям, що від нього нічого не залишилося. Заради чого я взагалі все це роблю?"
+    en: "Every day of mine passes the same way, and in the evening I go to bed feeling that nothing remained of it. What am I even doing all this for?"
+    credits:
+      - { path: "/a/sens.html", en: "'What is the meaning of life?' — the hammer parable told at length: a hammer made to drive nails, left in the workshop, then used to break firewood, then to true a wheel — enjoying each and still empty, because none of it is what it was made for. The estate's purpose article.", rank: 1, score: 0.621 }
+      - { path: "/a/spravzhnye.html", en: "'Real Life' — Marilyn Adamson's three accounts of people who reached the summit and were still empty: 'Perhaps you have heard of the man whose life goal was to climb a certain peak, and when he finally got up it he felt a great disappointment. It is like a footballer falling into depression because he won the Super Bowl.' The exact shape of the question.", rank: 3, score: 0.579 }
+      - { path: "/a/zminenoho.html", en: "'The source of a changed life' (Josh McDowell) — 'I was looking for answers to the questions: Who am I? Why am I here? Where am I going?' 12.4k. The Ukrainian twin of the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Hungarian /a/forrasa.html, all credited for this same question.", rank: 2, score: 0.59 }
+    rejected_note: |
+      ⓘ THIS IS THE CLEANEST CASE IN THE SUITE — 3 of 3 at ranks 1, 2 and 3, first try,
+      no reword. What is worth recording is what sits BELOW it, because it is the estate's
+      known emptiness misfire showing up in a fifth language:
+        rank 4  0.558  /a/vovkamy.html    a dating/sexual-history testimony
+        rank 5  0.548  /a/krasy.html      a fashion model on lasting beauty and self-esteem
+        rank 9  0.507  /a/zalezhnist.html a heroin-addiction testimony
+      §0.12 recorded the Spanish /articulos/blues.html, the Russian /a/sigaretoy.html and
+      the Hungarian /a/blues.html all retrieving for the EMPTINESS question rather than a
+      depression one. `uk` publishes no "ninth-floor blues" article, and the slot is taken
+      by its two nearest equivalents instead. Four sources, one quirk — and it does not
+      cost this case anything, because all three real credits outrank all of them.
+      /a/krasy.html is REJECTED on the same call the Russian /a/krasoti.html and the
+      Hungarian /a/szepseg.html got: its subject is self-worth built on appearance.
+    top_score: 0.621
+
+  # ── 5 ──────────────────────────────────────────────────────────────── believer
+  - id: "esuk-believer-tysha" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "Я вже місяцями прошу Бога про одне й те саме, а у відповідь — тиша. Може, я щось роблю не так?"
+    en: "For months now I have been asking God for the same thing, and in reply — silence. Maybe I am doing something wrong?"
+    credits:
+      - { path: "/a/molytvy.html", en: "'Does God answer our prayers?' — Marilyn Adamson, 8.5k, told from her own atheist period watching a praying friend week after week until 'coincidence' and 'chance' stopped sounding plausible. Crucially it carries a section headed 'Prayers that remain \"unanswered\"' — 'of course people fall ill, even die; money problems are real' — which is the asker's exact situation. The Ukrainian twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html, the Bulgarian and the Hungarian /a/imadsagra.html, all credited for this same shape.", rank: 1, score: 0.715 }
+    rejected:
+      - { path: "/a/ateyistka.html", rank: 2, why: "the atheist's conversion account — its later section does list how God answers her, which is why it matches, but the document is a testimony. Credited to case 1." }
+      - { path: "/a/sprahu.html", rank: 3, why: "the drinking testimony — a tail match; the chunk that matched IS the invitation prayer" }
+      - { path: "/a/dali.html", rank: 4, why: "credited to case 2" }
+      - { path: "/a/pravdyvoho.html", rank: 5, why: "credited to case 3" }
+      - { path: "/a/myr.html", rank: 6, why: "peace of mind" }
+      - { path: "/a/nadiyeyu.html", rank: 7, why: "HIV testimony, tail match" }
+      - { path: "/a/lykho.html", rank: 8, why: "credited to case 2" }
+      - { path: "/a/shlyub.html", rank: 9, why: "🔴 'Is there hope for a lasting marriage?' — 17.4k of marriage advice at RANK 9 for a question about unanswered prayer. A pure boilerplate-tail match and the plainest single illustration of the defect in this suite. The Hungarian suite recorded the SAME article (/a/hazassagra.html) at rank 7 for its own prayer question. Two languages, one article, one defect." }
+      - { path: "/a/yednannya.html", rank: 10, why: "the world-religions comparison, tail match" }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-uk` carries exactly
+      one prayer article. All nine other slots in the top 10 are listed above and not one of
+      them is about unanswered prayer — they are the atheist testimony, the drinking
+      testimony, the bereavement article, the what-is-God-like article, the peace article,
+      the HIV testimony, the disaster article, MARRIAGE ADVICE and the world-religions
+      comparison. Same shape as `ru`, `bg` and `hu`, all of which also credit exactly one
+      document here. This is the §0.7 believer-thinness finding showing up in the corpus
+      rather than in the persona split.
+    top_score: 0.715
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 5 cases · 16 credits · 16 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7 5-case row
+# Topics used:    god-exists · suffering · know-god · purpose · prayer
+# Topics dropped: jesus-death (GENUINE CONTENT GAP) · bible-trust · religions · trinity ·
+#                 anxiety (all four carried; dropped for slot count — see the header)
+# Paraphrase smells: 0 in both rounds. Max top score 0.741 (round 1 reached 0.748).
+# Credits that do not retrieve: **0** — all 16 return in the top 10. Round-2 ranks:
+#   case 1  ranks 1,2,3,4,5   case 2  ranks 1,2,4,7   case 3  ranks 1,2,4
+#   case 4  ranks 1,2,3       case 5  rank 1
+#   All five cases hold rank 1 with a credited document; case 3's rank 1 is the title-trap
+#   article. There is no deliberate kept miss in this suite and none was needed.
+#   ⓘ Two credits FLAPPED by one rank between the round-2 run and the --update run
+#   (/a/khtos2.html 3→2, /a/spravzhniy.html and /a/ateyistka.html by ±0.001 in score).
+#   That is the run-to-run tie reordering §0.6 documents, not a change. The written-back
+#   numbers are from the --update run.
+# evidence_tier: llm-translated (OPERATOR TO CONFIRM)
+#
+# 🔴 THE TESTIMONY SHARE IS 23%, NOT 0%, AND NOTHING IN THE PATHS SAYS SO.
+#   This is the one finding from `uk` that generalises. `hu`'s 24% tail severity was
+#   diagnosed by counting `/story/` paths. `everystudent-uk` has no `/story/` tree — every
+#   one of its 47 documents is `/a/*.html` — yet eleven of them are first-person testimony
+#   carrying the shared invitation-prayer tail. The tail was VERIFIED, not assumed:
+#   /a/sprahu.html (a drinking testimony) closes with "...Forgive me that I did not come to
+#   you. Thank you that you love me and want to know me. I believe in Jesus' sacrifice for
+#   my sins, which removed every barrier between us. Amen." — and it surfaced in the
+#   discovery pass for god-exists, suffering, anxiety AND prayer. Any tail-severity
+#   estimate for this estate must be made from document CONTENT, not from URL prefixes.
+#
+# 🔴 TWO TITLE TRAPS, BOTH ALREADY ON THE §0.12 SYSTEMATIC LIST.
+#   1. /a/pravdyvoho.html — "У пошуках правдивого Бога" ("In search of the true God"),
+#      which reads as a seeking story, IS the long-form what-is-God-like article, an
+#      enumerated list of God's attributes running to 13.2k chars. Credited to case 3.
+#   2. /a/nichoho.html → /a/shchos.html → /a/khtos.html → /a/khtos2.html — the four-part
+#      cosmological chain with contentless sequential titles ("Was there ever Nothing?" →
+#      "Something" → "Someone" → "Someone 2"). Only the last is credited, on its body.
+#   No REVERSE trap on this source, and that is a fact worth recording: `uk` publishes
+#   neither the coronavirus article nor the chakra article that produced the reverse traps
+#   on `hu` `pl` `sq` `tr` `pt` `es` `ru`. It also has no anxiety article as a result.
+#
+# 🟢 UKRAINIAN IS A FOURTH CONFIRMATION OF THE ATONEMENT GAP, AND IT IS EXPECTED.
+#   §0.12 settled it: 8 of 11 batch-1 sources carry a dedicated "why did Jesus die?"
+#   article; `ru`, `zh-cn` and `mn` do not. `uk` does not either. The task brief flagged
+#   this as the thing to check on this source and the answer is NO — the topic is taught
+#   inside /a/osobysto.html (Four Spiritual Laws, Law 3) and /a/islamu.html (as a
+#   historicity question), which is precisely the `ru` shape. Recorded as corpus
+#   composition and NOT re-opened. No case was manufactured for it.
+#
+# 🟡 THE ENGLISH DISCOVERY PASS UNDER-PREDICTS IN-LANGUAGE SCORES BY ~0.08 HERE.
+#   Its ten English probes topped out at 0.667 and I nearly concluded from that that `uk`
+#   was a Persian-shaped source with no smell headroom. The in-language check immediately
+#   produced 0.748. If any other batch-2 agent reasons about smell headroom from discovery
+#   scores, that reasoning is unsound — discovery tells you which documents EXIST, and only
+#   the in-language check tells you whether a question is too close to one of them.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language. If
+#      someone on the team reads Ukrainian, this should be `human-verified`. Ukrainian is
+#      close enough to Russian that a Russian reader could sanity-check most of it, and the
+#      `ru` suite (§0.10) is already approved — so this may be cheaper to verify than the
+#      other batch-2 languages.
+#   2. /a/poklonyatysya.html on case 2 — I did NOT credit it (deliberate human evil vs an
+#      accident; reasoning in the case's `rejected_note`). It returns at rank 6 either way.
+#      Crediting it would take case 2 to five credits and the suite to 17.
+#   3. Case 1 carries FIVE credits, more than any other case here, because `uk` publishes
+#      four separate evidential arguments (six-reasons, DNA, Big Bang, laws of nature) plus
+#      the atheist's account. All five return at ranks 1–5, so the density is earned rather
+#      than padded — but a reviewer who prefers even weighting across cases could drop
+#      /a/pantelyku.html (rank 3, the laws-of-nature argument) as the most specialised.

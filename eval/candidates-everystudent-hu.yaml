@@ -1,0 +1,421 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-hu` (83 documents).
+# Campaign #111, tier A. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 83 ÷ 8 = 10.4, capped at 10 → 10 cases (§0.7 rule).
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7 exactly.
+# Topics: all ten of the §0.7 approved menu, one case each.
+# Questions authored IN HUNGARIAN, not translated from the English menu (§0.6).
+#
+# CORPUS SHAPE — read this before judging any hit
+#   83 documents = 63 `/a/*.html` articles + 20 `/story/*.html` personal testimonies.
+#   ⚠️ 24% of this source is TESTIMONY. That is a much higher share than `ru` or `bg`,
+#   and it shows: `/story/Atti.html` alone appears in the top 10 of FIVE of the ten
+#   cases, and no case credits a single `/story/` document. See the SUMMARY.
+#   Null-language documents: 0 of 83 (guardrail #3a — nothing excluded).
+#   Duplicate titles: 0 (the hazard that bit `bg` does not exist here).
+#
+# DISCOVERY: .tmp-diag/phase5-partb-discover.ts everystudent-hu hu
+#   → 53 distinct candidate documents of 83, all ten topics covered.
+# Every one of the 63 articles was then read from the database (title + opening
+# ~900 chars) before anything was credited — guardrail #5, and specifically because
+# of the boilerplate-tail trap recorded in §0.9. Judging by title would have been
+# wrong in BOTH directions on this source; see the two traps below.
+#
+# ENGINE-CHECKED THREE TIMES (guardrail #8 §2) — .tmp-diag/phase5-hu-check.ts
+#   Round 1: 2 paraphrase smells · 7 credits not returned · 30 credits
+#   Round 2: 2 paraphrase smells · 0 credits not returned · 27 credits
+#   Round 3: **0 paraphrase smells** (max top score 0.744) · **1 credit not returned**
+#            — and that one is a DELIBERATE keep, see `vagyalom` below.
+#   Round 2 is why there were three rounds: fixing case 1's REACH over-corrected it
+#   into a 0.832 restatement. Reach and smell pull in opposite directions and one
+#   round cannot settle both.
+#
+# MECHANICAL CHECKS — both green, run inside the check script so they cannot be skipped
+#   Guardrail #8 §3: all 27 credited paths resolve to EXACTLY ONE document — 27/27.
+#   Guardrail #3a:   no credited document has a null language — 27/27.
+#
+# ⚠️ ONE DELIBERATE DEVIATION FROM THE `bg` CHECK SCRIPT, AND WHY.
+#   `phase5-bg-check.ts` declares credits by TITLE and resolves them to paths, because
+#   `bg`'s paths are 150–250 char percent-encoded Cyrillic. everystudent-hu is the
+#   OPPOSITE shape: paths are short plain ASCII (`/a/letezik.html`) while the TITLES
+#   carry Hungarian curly quotes („ ”), en dashes (–) and long accented strings. Here
+#   the title is the transcription risk, so credits are declared by PATH and titles are
+#   resolved from the database. The safety property the `bg` rule exists for is kept and
+#   strengthened: the script asserts every key resolves to exactly one non-null-language
+#   document and fails loudly otherwise.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Hungarian). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Hungarian and
+# can sanity-check the translations, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────── skeptic ⚠ SEE THE KEPT MISS
+  - id: "eshu-skeptic-vagyalom"               # topic: god-exists
+    persona: skeptic
+    q: "A barátaim szerint az istenhit csak vágyálom. Van bármi tényleges, ami alátámasztja, vagy tényleg csak érzés az egész?"
+    en: "My friends think believing in God is just wishful thinking. Is there anything factual that backs it up, or is the whole thing really just a feeling?"
+    top_score: 0.744                          # clear of 0.75
+    credits:
+      - {path: "/a/ateista.html",     rank: 1, score: 0.744, en: "How an atheist found God — Marilyn Adamson: 'I methodically examined five OBJECTIVE reasons for believing God exists… I realised my belief was not emotional.' Answers the 'just a feeling' half of the question head-on."}
+      - {path: "/a/bizonyitani.html", rank: 2, score: 0.720, en: "Can you prove God exists? — Gregory Ganssle, PhD, on why 'you can't prove it' is itself a dogma"}
+      - {path: "/a/utmutato.html",    rank: 4, score: 0.704, en: "A guide to finding faith — written at the agnostic who would rather not look"}
+      - {path: "/a/letezik.html",     rank: 6, score: 0.697, en: "Does God exist? Six arguments that he does (Marilyn Adamson) — the source's flagship apologetics article, 23.5k chars, argued as courtroom evidence"}
+      - {path: "/a/dns.html",         rank: "NOT IN TOP 10", en: "Does God exist? What does our DNA say about it? — Antony Flew's reversal, DNA as a written program. 🔴 KEPT DELIBERATELY, see below."}
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/a/dns.html` is the source's SCIENTIFIC-EVIDENCE article — the British philosopher
+      Antony Flew, a leading spokesman for atheism, concluding that "the only acceptable
+      explanation for the origin of life is some kind of superior intelligence", then DNA
+      as a written computer program. The question explicitly asks whether there is anything
+      FACTUAL. This document is the factual answer. On reflection it does not answer a
+      different question, so DROPPING it would be dishonest — I KEPT it.
+
+      What it measures: for a question that asks for facts, the engine returns
+      `/story/Agi.html` at rank 3 (0.715), `/a/sawyer.html` at rank 7 (0.693) and
+      `/a/blues.html` at rank 8 (0.692) — three personal testimonies — ahead of the
+      science article. This case will score coverage 4/5, on purpose. It is the same
+      treatment `esbg-skeptic-katastrofa` got in §0.11.
+
+      ⚠️ It is a BOUNDARY credit and its result will flap. In round 2 it returned at
+      rank 9 / 0.724; the round-3 reword pushed it just outside k=10. Do not read a
+      future 5/5 or 4/5 as a change in the engine — §0.10 recorded the same tie-reorder
+      flapping on `esru-newcomer-krest`.
+    reworded: |
+      ⚠️ REWORDED TWICE — this case cost more work than the other nine combined, and the
+      reason is worth keeping: REACH and SMELL pull in opposite directions.
+      v1: "…csak vágyálom azoknak, akik nem bírják el a valóságot."
+          ("…wishful thinking for people who can't cope with reality")
+          → top 0.651, no smell, but only 1 of 5 credits returned. The "can't cope with
+          reality" clause dragged the whole top 10 into emotional-coping and meaning
+          documents — rank 1 was `/a/blues.html`, the DEPRESSION testimony. All four
+          apologetics articles missed. A question-design defect, not a corpus defect.
+      v2: "…van egyáltalán tárgyilagos érv amellett, hogy Isten létezik?"
+          ("…is there any objective argument at all that God exists?")
+          → top 0.832 🔴 PARAPHRASE SMELL, 5 of 5 credits returned at ranks 1,2,3,6,9.
+          It restates BOTH `/a/bizonyitani.html`'s title ("Can you prove God exists?")
+          and `/a/letezik.html`'s. Fixing reach broke smell.
+      v3 (kept): drops the coping clause, keeps the menu's "wishful thinking", and asks
+          for fact-versus-feeling instead of for an argument that God exists.
+          → **0.744, clear of 0.75, 4 of 5 credits returned.** The cost is `/a/dns.html`.
+    rejected:
+      - {path: "/story/Agi.html",   rank: 3, why: "personal testimony — and the clearest specimen on this source of testimonies outranking argument"}
+      - {path: "/a/csodat.html",    rank: 5, why: "why God does not perform a stunning miracle — a different objection (credited to no case; it is about God's reticence, not about evidence)"}
+      - {path: "/a/sawyer.html",    rank: 7, why: "Steve Sawyer's HIV testimony — hope under a terminal diagnosis"}
+      - {path: "/a/blues.html",     rank: 8, why: "'Ninth-floor blues' — addiction, emotional pain, suicidal thoughts. Was RANK 1 for v1 of this question. See the SUMMARY: third language in which this same article misfires."}
+      - {path: "/a/kapcsolat.html", rank: 9, why: "what a relationship with God means — a boilerplate-adjacent 'begin here' page"}
+      - {path: "/a/forrasa.html",   rank: 10, why: "Josh McDowell testimony — credited to case 4, where its subject (the search for meaning) actually lies"}
+
+  # ── 2 ──────────────────────────────────────────── newcomer 🔴 TITLE TRAP HERE
+  - id: "eshu-newcomer-milyen"                # topic: know-god
+    persona: newcomer
+    q: "Ha valaki azt mondja, hogy „Isten”, nekem valami ködös energia jut eszembe valahol fent. Ő egyáltalán személy?"
+    en: "When someone says 'God', what comes to my mind is some hazy energy somewhere up there. Is he even a person?"
+    top_score: 0.710
+    credits:
+      - {path: "/a/tokeletes.html", rank: 1, score: 0.710, en: "Seeking — and finding — the 'perfect God'. 🔴 TITLE TRAP: the title ('Keresni – és megtalálni') names no subject at all. The body is an enumerated list of God's attributes — '1. The perfect God — a God greater than us…' — i.e. this IS the what-is-God-like article. A title-based reviewer files it under conversion. Fourth source, fourth title trap."}
+      - {path: "/a/milyen.html",    rank: 2, score: 0.654, en: "What might God be like? — 'Who is God? What is he like? SIX PERSONALITY TRAITS characteristic of God': knowable, approachable… The Hungarian twin of the Russian /a/ktoeto.html and the Bulgarian 'Защо можем да разчитаме на Бог?'"}
+      - {path: "/a/kicsoda2.html",  rank: 4, score: 0.649, en: "Who 2. — part 4 of the cosmological series; this is where the 'Eternal Someone' is argued to be a PERSON and not a machine, and where God's invisibility is handled ('God is spirit… the invisible God'). Answers 'is he even a person' directly."}
+    rejected:
+      - {path: "/a/no.html",     rank: 3, why: "'Could God be a woman?' — its subject is God's GENDER and how he chose to reveal himself, not whether he is personal. Close, and rejected on the text."}
+      - {path: "/a/kicsoda.html", rank: 5, why: "'Who' — part 3 of the same series, but its subject is whether the Eternal Something is ONE or MANY, which is a god-exists question. The personhood conclusion is in Who 2, which IS credited. Crediting both would credit the argument twice."}
+      - {path: "/a/iszlam.html", rank: 6, why: "Jesus and Islam — credited to case 7"}
+      - {path: "/a/faj.html",    rank: 7, why: "where is God when it hurts — credited to case 3"}
+      - {path: "/story/Davidski.html", rank: 9, why: "personal testimony"}
+      - {path: "/story/Agi.html",      rank: 10, why: "personal testimony"}
+    note: |
+      ⓘ FOUR DOCUMENTS ON THIS SOURCE ARE UNJUDGEABLE BY TITLE BY CONSTRUCTION.
+      `/a/semmi.html` ("Was there ever nothing?") → `/a/valami.html` ("Something") →
+      `/a/kicsoda.html` ("Who") → `/a/kicsoda2.html` ("Who 2.") are a FOUR-PART
+      cosmological argument published as separate documents with sequential titles that
+      name no subject. Only the last one is credited, and only because its body was read.
+
+  # ── 3 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eshu-skeptic-baleset"                # topic: suffering
+    persona: skeptic
+    q: "Tavaly meghalt egy barátom egy balesetben. Azóta sem tudom összerakni magamban, hogy ez hogyan fér össze egy jóságos Istennel."
+    en: "A friend of mine died in an accident last year. I still cannot square that in my own head with a good God."
+    top_score: 0.726
+    credits:
+      - {path: "/a/miert.html",  rank: 1, score: 0.726, en: "Why is life so hard? — 'Why does someone get cancer? Why do earthquakes destroy whole cities?' Then: the girl next door is abducted, a relative gets cancer. The closest match to the asker's situation."}
+      - {path: "/a/szornyu.html", rank: 3, score: 0.706, en: "Why worship a God who allows terrible things? — framed around a child being raped and around war"}
+      - {path: "/a/jo.html",     rank: 4, score: 0.700, en: "Is God really good? — a 1.5k video transcript: 'If he is, why is there so much suffering and evil?' The free-will theodicy, square circles and all. Hungarian twin of the Bulgarian 'Добър ли е Бог?' and the Chinese /a/isgodgood.html, which was RANK 1 for the Chinese version of this question in Part A."}
+      - {path: "/a/faj.html",    rank: 7, score: 0.694, en: "Where is God when it really hurts? (Marilyn Adamson) — 14.8k chars; 'disasters and free will' is its own section"}
+    rejected:
+      - {path: "/a/sawyer.html",     rank: 2, why: "RANK 2 AND REJECTED — Steve Sawyer's HIV testimony. Its subject is how he personally kept hope, not why a good God allows it. Same call as the Russian /a/steysi1.html."}
+      - {path: "/a/ateista.html",    rank: 5, why: "atheist's conversion testimony — credited to case 1"}
+      - {path: "/a/koronavirus.html", rank: 6, why: "the anxiety article — credited to case 5"}
+      - {path: "/a/emberek.html",    rank: 8, why: "'Can good people go to hell?' — judgment, a different question. NOTE: unlike everystudent-es (§0.9), this source DOES carry a hell article; it simply is not the answer here."}
+      - {path: "/a/tokeletes.html",  rank: 9, why: "the know-god article — credited to case 2"}
+      - {path: "/story/Atti.html",   rank: 10, why: "personal testimony"}
+    dropped_after_engine_check:
+      - {path: "/a/isten-segitsege.html", why: "'God's help in hard times' — a 6.4k VIDEO TRANSCRIPT of /a/faj.html (14.8k), which is already credited; the two openings are near-identical ('When tragedy strikes we often ask: God, where are you?'). It fell outside the top 10. Crediting a document and its own abridged video twin measures the same text twice and inflates the denominator. Dropped rather than credited-and-missed."}
+
+  # ── 4 ───────────────────────────────────────────────────────────────── seeker
+  - id: "eshu-seeker-uresen"                  # topic: purpose
+    persona: seeker
+    q: "Minden napom ugyanúgy telik, és este azzal fekszem le, hogy semmi nem maradt belőle. Mi értelme az egésznek?"
+    en: "Every day of mine passes the same way, and at night I go to bed feeling nothing remained of it. What is the point of any of it?"
+    top_score: 0.660
+    credits:
+      - {path: "/a/celom.html",    rank: 1, score: 0.660, en: "What is my purpose in life? — the hammer parable, told at length"}
+      - {path: "/a/valddi.html",   rank: 2, score: 0.636, en: "Real life — three people who reached the summit and were still empty (the mountaineer, the Champions League winner, the graduate)"}
+      - {path: "/a/forrasa.html",  rank: 5, score: 0.593, en: "The source of a changed life (Josh McDowell) — 'Who am I? Why am I here? Where is my life going?' Hungarian twin of the Spanish /articulos/lafuente.html, the Russian /a/istochnik.html and the Bulgarian 'Казвали ли сте си някога „мразя живота си“?', all credited for this same question shape"}
+      - {path: "/a/filozofia.html", rank: 7, score: 0.582, en: "The value of philosophy — 'Why are we here? What is our purpose? What brings fulfilment, what gives life meaning?' (Socrates, Plato, Peter Kreeft)"}
+    rejected:
+      - {path: "/story/Aron.html",   rank: 3, why: "personal testimony. Its closing block LINKS to 'Mi a célom az életben?' — link furniture, not an answer."}
+      - {path: "/a/blues.html",      rank: 4, why: "'Ninth-floor blues' — addiction, emotional pain, suicidal thoughts. ⚠ THIRD LANGUAGE, SAME MISFIRE: the Spanish /articulos/blues.html and the Russian /a/sigaretoy.html both retrieved for the EMPTINESS question rather than a depression one. Now Hungarian. Three sources, one quirk."}
+      - {path: "/a/szepseg.html",    rank: 6, why: "a fashion model on lasting beauty and self-esteem. Same call as the Russian /a/krasoti.html."}
+      - {path: "/story/Balint.html", rank: 8, why: "personal testimony"}
+      - {path: "/a/csakra.html",     rank: 9, why: "anxiety — credited to case 5"}
+      - {path: "/a/ateista.html",    rank: 10, why: "credited to case 1"}
+    dropped_after_engine_check:
+      - {path: "/a/szomjadat.html", why: "'Quench your real thirst' — the title reads like a meaning article and the discovery pass surfaced it, but the body is about binge DRINKING with mates and the craving for real friendship behind it. Its subject is not life purpose. It fell outside the top 10 and, on reading, correctly so. Dropped."}
+
+  # ── 5 ───────────────────────────────────── seeker 🔴 REVERSE TITLE TRAP HERE
+  - id: "eshu-seeker-szorongas"               # topic: anxiety
+    persona: seeker
+    q: "Szinte állandóan szorongok, akkor is, amikor épp semmi konkrét bajom nincs. Kínál erre a hit bármit is?"
+    en: "I am anxious almost constantly, even when nothing specific is actually wrong. Does faith offer anything at all for that?"
+    top_score: 0.677
+    credits:
+      - {path: "/a/koronavirus.html", rank: 1, score: 0.677, en: "Coronavirus — what do we do with our fears? (Marilyn Adamson). 🔴 REVERSE TITLE TRAP: the TITLE is 'Fear of coronavirus', which reads as a dated 2020 piece a reviewer would strike out. The BODY broadens in its third paragraph and never goes back: 'perhaps other things are what really worry you… terrorism, climate change, racism, war, poverty, harassment, trafficking, natural disasters, money troubles, illness, job insecurity, difficult relationships, addictions.' 19.6k chars and it is this source's general ANXIETY article."}
+      - {path: "/a/beke.html",        rank: 2, score: 0.645, en: "Peace of mind in an uncertain world — 'whatever the future holds, it is possible to live without worry and fear'"}
+      - {path: "/a/csakra.html",      rank: 3, score: 0.630, en: "Anxiety and chakra healing — Rachel Fatyanov, who was lonely, depressed and increasingly anxious, went through Buddhism/Zen, yoga, New Age and occult practice, horoscopes, mediums, palm readers, crystal-energy healing and a ~USD200 course, and what she found instead. ⚠ A TITLE-ONLY reviewer rejects this as New Age content. Its subject IS chronic anxiety. Hungarian twin of the Russian /a/chakr.html, credited there for this same question."}
+    the_finding: |
+      🟢 THIS CASE IS THE CLEANEST DEMONSTRATION IN THE CAMPAIGN THAT TITLES ARE UNUSABLE.
+      Its rank-1 and rank-3 credits are BOTH documents a title-only reviewer would strike:
+      one looks like an expired pandemic notice, the other looks like New Age promotion.
+      Read, they are the two best anxiety documents in the source. Meanwhile the two
+      rank-1 hits REJECTED elsewhere in this suite (`/a/forrasa.html` for the cross,
+      `/story/Agi.html` for evidence) are documents a title-only reviewer would credit.
+      Both directions, same source. Golden guardrail #5, demonstrated four ways.
+    rejected:
+      - {path: "/a/faj.html",       rank: 4, why: "where is God when it hurts — its subject is crisis and tragedy, not anxiety with nothing objectively wrong. Credited to case 3. Same call as the Russian /a/gdebog.html."}
+      - {path: "/a/imadsagra.html", rank: 5, why: "prayer — credited to case 8"}
+      - {path: "/a/kapcsolat.html", rank: 6, why: "its opening lists freedom 'from worry, aimlessness, fear' but its subject is what a relationship with God IS"}
+      - {path: "/a/utmutato.html",  rank: 7, why: "credited to case 1"}
+      - {path: "/a/miert.html",     rank: 8, why: "credited to case 3"}
+      - {path: "/a/isten-segitsege.html", rank: 9, why: "crisis help — the video twin of /a/faj.html, dropped from case 3 for the same reason"}
+      - {path: "/story/Petra.html", rank: 10, why: "personal testimony"}
+    note: |
+      ⓘ CONTENT OBSERVATION, NOT A GAP. Unlike `bg` (which has a dedicated 11.6k
+      'How do we deal with anxiety?' by Marilyn Adamson), `everystudent-hu` has NO article
+      whose TITLE is anxiety. It answers the topic through a peace article, a
+      pandemic-framed article and a testimony. The topic is covered; the shelf is shaped
+      differently. Worth knowing before comparing the two sources' numbers.
+
+  # ── 6 ──────────────────────────── newcomer 🔴 BOILERPLATE-TAIL TRAP, FULL FORCE
+  - id: "eshu-newcomer-kereszt"               # topic: jesus-death
+    persona: newcomer
+    q: "A keresztény ismerőseim úgy beszélnek a keresztről, mintha az mindent megváltoztatott volna. Nekem viszont csak egy kivégzés, ami kétezer éve történt."
+    en: "The Christians I know talk about the cross as if it changed everything. To me it is just an execution that happened two thousand years ago."
+    top_score: 0.710
+    credits:
+      - {path: "/a/meghalni.html", rank: 5, score: 0.686, en: "Why did Jesus have to die? — 'What are Jesus' death and resurrection, the crucifixion, actually about?' A DEDICATED atonement article, 17.0k chars, working through the Passover lamb, the substitution and 'the Lamb of God who takes away the sin of the world'."}
+    the_finding: |
+      🔴 THE BOILERPLATE-TAIL TRAP FIRES HERE HARDER THAN ON ANY SOURCE SO FAR.
+      The top FOUR hits are all rejected on their text, and the one document whose
+      SUBJECT is what the cross accomplished sits at rank 5:
+
+        rank 1  0.710  /a/forrasa.html     Josh McDowell's testimony + gospel tail
+        rank 2  0.700  /story/Atti.html    personal testimony + gospel tail
+        rank 3  0.699  /story/Petra.html   personal testimony + gospel tail
+        rank 4  0.690  /a/hiten.html       is Jesus God? — his DEITY, not the cross
+        rank 5  0.686  /a/meghalni.html    ← THE ANSWER
+        …
+        rank 8  0.669  /a/marcia.html      an astrology/occult conversion testimony
+
+      The tail is verified present on this source, not assumed: `/a/farkasokkal.html`
+      (why my dating habits changed) closes with "…come into my life as Saviour and Lord"
+      and `/a/mergezo.html` (toxic porn) closes with "Thank you for the forgiveness and
+      for entering my life now." Both are the same invitation prayer, and each is its own
+      chunk. Fourth source, fourth confirmation of §0.9.
+
+      🟢 BUT HUNGARIAN PATTERNS WITH BULGARIAN, NOT RUSSIAN — and this matters.
+      `esru-newcomer-krest` credits two documents and NEITHER retrieves, because
+      `everystudent-ru` has no article whose subject is the atonement. Hungarian HAS one,
+      it retrieves, and the case scores 1/1. §0.11 called Bulgarian "the control that
+      isolates the Russian gap"; Hungarian is the second control, and it comes out the
+      same way. State this whenever the Russian expected-miss comes up: THREE sources now
+      say the Russian result is corpus composition, not a systemic retrieval defect.
+    rejected:
+      - {path: "/a/forrasa.html",   rank: 1, why: "RANK 1 AND REJECTED — Josh McDowell's changed-life testimony with a gospel tail. Credited to case 4, where its actual subject lies."}
+      - {path: "/story/Atti.html",  rank: 2, why: "RANK 2 AND REJECTED — personal testimony, matched on its tail"}
+      - {path: "/story/Petra.html", rank: 3, why: "RANK 3 AND REJECTED — personal testimony, matched on its tail"}
+      - {path: "/a/hiten.html",     rank: 4, why: "'Who is Jesus — is Jesus God — look at the evidence' (Paul E. Little, 23.0k). Its subject is Jesus' DEITY: did he ever claim to be God. That is a different question from what his death accomplished."}
+      - {path: "/a/szornyu.html",   rank: 6, why: "credited to case 3"}
+      - {path: "/a/iszlam.html",    rank: 7, why: "credited to case 7. Its Q4/Q5 do ask 'did Jesus die on the cross?', but that is a historicity question inside a tahrif article."}
+      - {path: "/a/marcia.html",    rank: 8, why: "Marcia Montenegro's astrology-and-occult conversion testimony"}
+      - {path: "/a/isten-segitsege.html", rank: 9, why: "crisis-help video, tail match"}
+      - {path: "/a/sawyer.html",    rank: 10, why: "HIV testimony, tail match"}
+    dropped_after_engine_check:
+      - path: "/a/bizni.html"
+        why: >
+          "What does it mean to 'trust' Jesus?" (3.3k) — it states the atonement plainly
+          ("we need forgiveness of our sins and to understand that Jesus died for them;
+          his death on the cross is the only way to forgiveness"), and it is the exact
+          Hungarian twin of the Russian /a/dovyeryat.html, which IS credited in the `ru`
+          suite for this topic. I dropped it here on the same reasoning the Bulgarian
+          suite used: its SUBJECT is what trusting Christ means — a 'begin a relationship'
+          page — not what the cross accomplished, and it missed the top 10. Hungarian,
+          unlike Russian, has a dedicated atonement article to credit instead, so keeping
+          this one would add a known miss without measuring anything Russian does not
+          already measure. OPERATOR MAY OVERRIDE: crediting it would make this case a
+          second Russian-shaped probe. I judged one such probe in the campaign is enough.
+
+  # ── 7 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eshu-skeptic-masolat"                # topic: bible-trust
+    persona: skeptic
+    q: "Hittanórán azt mondták, a Biblia Istentől van, de nekem attól még egy könyv, amit emberek írtak és emberek másoltak évszázadokon át. Mitől lenne ez más, mint bármelyik régi irat?"
+    en: "In religious-education class they said the Bible is from God, but to me it is still a book written by people and copied by people over centuries. What makes it any different from any other ancient document?"
+    top_score: 0.709
+    credits:
+      - {path: "/a/biblianak.html", rank: 1, score: 0.709, en: "The history of the Bible — who wrote the Bible (31.3k, the source's longest article). Opens 'Can we believe the Bible? How do we know the Bible we use today is reliable?' and answers on transmission specifically: 'textual criticism also confirms that the books of the Bible have not changed since they were first written down', plus ancient historiography and archaeology."}
+      - {path: "/a/iszlam.html",    rank: 2, score: 0.697, en: "Jesus and Islam (25.1k) — six questions, and question 1 IS this one: 'Has the Bible changed from the original? Or was it rewritten over time?' It answers that the Qur'an itself does not claim the Bible was altered. This is the tahrif (scripture-corruption) overlap already on record for `zh`, `kk`, `th` and `bg` in §0.7 — not an error."}
+    reworded: |
+      ⚠️ REWORDED TWICE — and round 2 got WORSE, which is worth recording.
+      v1: "A Bibliát évszázadokon át kézzel másolták. Honnan tudhatnám, hogy a mai szöveg
+           ugyanaz, mint az eredeti?" → top 0.755 🔴 SMELL. It restates /a/iszlam.html's
+           question 1 nearly verbatim ("Megváltozott-e a Biblia az eredetihez képest?").
+      v2: "…Miért gondolja bárki, hogy két évezred alatt nem torzult el?"
+           → top 0.787 🔴 SMELL, WORSE. Dropping 'the original' moved the match onto
+           /a/biblianak.html's own opening line instead. On a source where two documents
+           both open with this question, paraphrasing away from one lands on the other.
+      v3 (kept): changes the question SHAPE — from "is it unchanged?" to "what makes it
+           different from any other old book?", set in a lived scene (a school RE class).
+           → **0.755 → 0.787 → 0.709.** Both credits kept, now ranks 1 and 2.
+    rejected:
+      - {path: "/a/reinkarnaciorol.html", rank: 3, why: "'What does the Bible say about reincarnation?' — matched on 'the Bible says', a different subject"}
+      - {path: "/a/tokeletes.html",  rank: 4, why: "credited to case 2"}
+      - {path: "/story/Atti.html",   rank: 5, why: "personal testimony"}
+      - {path: "/story/Roland.html", rank: 6, why: "personal testimony"}
+      - {path: "/a/blues.html",      rank: 7, why: "depression testimony"}
+
+  # ── 8 ──────────────────────────────────────────────────────────────── believer
+  - id: "eshu-believer-csend"                 # topic: prayer
+    persona: believer
+    q: "Hónapok óta ugyanazért imádkozom, és csak csend a válasz. Rosszul csinálok valamit?"
+    en: "I have been praying for the same thing for months and all I get back is silence. Am I doing something wrong?"
+    top_score: 0.713
+    credits:
+      - {path: "/a/imadsagra.html", rank: 1, score: 0.713, en: "Does God answer prayer? — 'What does it take for God to answer our prayers?' Told by a former atheist watching a praying friend week after week. Hungarian twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html and the Bulgarian 'Отговаря ли Бог на молитвите ни?', all credited for this exact shape."}
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-hu` carries exactly
+      one prayer article. Ranks 2–10 are an HIV testimony, an atheist's testimony, a
+      personal story, the six-reasons apologetics article, the faith guide, a MARRIAGE
+      article (rank 7, 0.574), the pain article, the Four-Spiritual-Laws video and the
+      relationship article — i.e. nine boilerplate-tail and adjacent matches. Nothing else
+      on this source answers unanswered prayer. Same shape as `bg` and `ru`, both of which
+      also credit exactly one document here. This is the §0.7 believer-thinness finding
+      showing up in the corpus rather than in the persona split.
+    rejected:
+      - {path: "/a/sawyer.html",     rank: 2, why: "HIV testimony"}
+      - {path: "/a/ateista.html",    rank: 3, why: "credited to case 1"}
+      - {path: "/a/hazassagra.html", rank: 7, why: "'Is there hope for a lasting marriage?' — at rank 7 for a prayer question. A pure tail match, and the plainest illustration of the defect in this suite."}
+      - {path: "/a/isten-szemelyes-megismerese.html", rank: 9, why: "the Four Spiritual Laws video — exactly the /a/personally.html shape from Part A"}
+
+  # ── 9 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "eshu-skeptic-ugyanaz"                # topic: religions
+    persona: skeptic
+    q: "A kollégáim között van muszlim és buddhista is, és mindegyik ugyanolyan meggyőződéssel beszél a saját hitéről, mint a keresztény ismerőseim. Miért lenne bármelyiküknek jobban igaza?"
+    en: "Among my colleagues there is a Muslim and a Buddhist, and each speaks about their own faith with as much conviction as my Christian acquaintances do. Why would any one of them be more right than the others?"
+    top_score: 0.734
+    credits:
+      - {path: "/a/istenkereses.html", rank: 1, score: 0.734, en: "The ways of seeking God (Marilyn Adamson, 19.8k) — 'How do the major religions view God: Hinduism, Buddhism, Islam, Christianity and the New Age movement?' Then the differences plainly: 'Hindus acknowledge a series of gods and goddesses. Buddhists say there is no deity. New Age followers say they are God. Muslims believe in a mighty but unknowable God. Christians say God is loving…' This is the estate's /a/205 world-religions piece under a localised slug — same article as the German /artikel/hochsten.html, the Swahili /a/kuunganishwa.html and the French /a/205divin.html (§0.7)."}
+      - {path: "/a/kulonbseg.html",    rank: 2, score: 0.683, en: "What is the difference between Christianity and other world religions? — 'other religions reach one-sidedly toward their god, while in Christ God stoops down to us'"}
+    reworded: |
+      ⚠️ REWORDED ONCE, and it was the largest single smell in the suite.
+      v1: "Nekem a hinduizmus, a buddhizmus és az iszlám ugyanolyan nagy állításokat tesz,
+           mint a kereszténység. Miért pont ez utóbbi lenne más?"
+           → top 0.813 🔴 PARAPHRASE SMELL — the worst score in the whole draft. It
+           reproduces /a/istenkereses.html's own subtitle, which lists those religions in
+           that order. Guardrail #1 verbatim: it restated an article.
+      v2 (kept): puts the same objection in the asker's workplace and drops the list.
+           → **0.813 → 0.734.** Both credits kept, still ranks 1 and 2.
+    rejected:
+      - {path: "/a/forrasa.html",  rank: 3, why: "its 'Christianity is not a religion' passage matches, but the document is a testimony — credited to case 4"}
+      - {path: "/a/bizonyitani.html", rank: 4, why: "credited to case 1"}
+      - {path: "/a/iszlam.html",   rank: 6, why: "credited to case 7. It is explicitly NOT a comparison — its own preamble says 'there will be no contrasts, nor criticism of any kind of any religion.'"}
+      - {path: "/a/katolikus.html", rank: "outside", why: "Catholic vs Christian — an INTRA-Christian question. Same call as the Russian /a/katolikom.html."}
+      - {path: "/a/melegek.html",  rank: 9, why: "'Gays, lesbians, bisexuals and God's love' — at rank 9 for a world-religions question. A textbook boilerplate-tail match, and the same document family (§0.9's /a/gaylesbian.html) that produced the original finding in Chinese."}
+      - {path: "/story/Roland.html", rank: 5, why: "personal testimony"}
+      - {path: "/story/Lilla.html",  rank: 7, why: "personal testimony — it does open 'Is Christianity a religion or a relationship?', but it is one person's story"}
+      - {path: "/a/marcia.html",     rank: 8, why: "occult/astrology conversion testimony"}
+
+  # ── 10 ───────────────────────────────────────────────────────────── newcomer
+  - id: "eshu-newcomer-harman"                # topic: trinity
+    persona: newcomer
+    q: "A templomban hol Jézushoz, hol az Atyához, hol a Szentlélekhez szólnak. Akkor a keresztények most több istent imádnak?"
+    en: "At church they address Jesus, then the Father, then the Holy Spirit. So do Christians worship more than one God?"
+    top_score: 0.708
+    credits:
+      - {path: "/a/szentharomsagot.html", rank: 1, score: 0.708, en: "Can you explain the 'Trinity'? — the three-dimensions analogy and the 1×1×1=1 formulation, explicitly 'the Bible speaks clearly of God the Son, God the Father and God the Spirit, and stresses there is only ONE God'"}
+      - {path: "/a/szentlelek.html",      rank: 2, score: 0.655, en: "Who is the Holy Spirit? — 'not a hazy otherworldly shadow, nor an impersonal force. He is a person, equal in every respect to God the Father and God the Son. He is the third person of the Trinity.'"}
+    note: |
+      ⓘ NO REWORD NEEDED, and that is because of the shape borrowed from `ru` and `bg`.
+      Both of those suites hit a smell on this topic when the question was stated as the
+      doctrinal formula (`ru` 0.807, `bg` 0.756) and both fixed it by reframing it as
+      something a newcomer NOTICES IN A SERVICE. Starting from the fixed shape, Hungarian
+      landed at 0.708 rank 1 first time. The §0.10/§0.11 lesson transferred.
+    rejected:
+      - {path: "/a/iszlam.html",    rank: 3, why: "its Q3 is 'is it not blasphemy to say God has a Son?' — the Islamic objection to the incarnation, not the one-versus-three question. Credited to case 7."}
+      - {path: "/a/istenkereses.html", rank: 4, why: "credited to case 9"}
+      - {path: "/a/isten-szemelyes-megismerese.html", rank: 5, why: "the Four Spiritual Laws video — tail match"}
+      - {path: "/a/meghalni.html",  rank: 6, why: "credited to case 6"}
+      - {path: "/a/intimitas.html", rank: 8, why: "'The desire for sex and intimacy — what is love?' at rank 8 for a Trinity question. Tail match."}
+      - {path: "/a/hazassagra.html", rank: 10, why: "marriage, at rank 10 for a Trinity question. Tail match."}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 10 cases · 27 credits · 27 distinct documents (no document credited twice)
+# Personas: skeptic 4 · newcomer 3 · seeker 2 · believer 1 — matches §0.7
+# Paraphrase smells: 0 (max top score 0.744). Round 1 had 2, round 2 had 2 (one of them
+#   NEW, caused by fixing a reach failure). Three questions were reworded; one was
+#   reworded twice.
+# Credits that do not retrieve: 1 (`/a/dns.html` on `vagyalom`), kept deliberately.
+# evidence_tier: llm-translated
+#
+# 🔴 FOURTH SOURCE, FOURTH TITLE TRAP — and this one is the reverse of the previous three.
+#   `/a/tokeletes.html` — titled "Keresni – és megtalálni" ("Seeking — and finding"),
+#   naming no subject at all — IS the what-is-God-like article, and it is rank 1 for that
+#   question at 0.710. Add to it four documents that CANNOT be judged by title by
+#   construction: `/a/semmi.html` ("Was there ever nothing?") → `/a/valami.html`
+#   ("Something") → `/a/kicsoda.html` ("Who") → `/a/kicsoda2.html` ("Who 2.") are a
+#   four-part cosmological argument published as separate documents with sequential
+#   titles. Titles remain unusable as evidence on this estate.
+#
+# 🔴 THE BOILERPLATE-TAIL TRAP IS AT ITS WORST HERE, and this source shows why: 20 of the
+#   83 documents (24%) are `/story/` personal testimonies, every one of which carries the
+#   shared gospel-summary-and-invitation-prayer tail as its own chunk. `/story/Atti.html`
+#   alone appears in the top 10 of FIVE of the ten cases. No `/story/` document is
+#   credited anywhere in this suite — not by policy, but because on reading, none of them
+#   answers a question; they are matched on the template. The `jesus-death` case is the
+#   specimen: ranks 1, 2 and 3 are all tail matches and the dedicated atonement article is
+#   rank 5. The tail was verified, not assumed — `/a/farkasokkal.html` (dating) and
+#   `/a/mergezo.html` (porn) both close with the identical invitation prayer.
+#
+# 🟢 HUNGARIAN IS THE SECOND CONTROL FOR THE RUSSIAN GAP, and it agrees with Bulgarian.
+#   `esru-newcomer-krest` cannot retrieve its credits because `everystudent-ru` has no
+#   article whose subject is the atonement. Hungarian has one — /a/meghalni.html, 17.0k
+#   chars — and `eshu-newcomer-kereszt` returns it at rank 5, coverage 1/1. Three sources,
+#   same estate, same embedder, same topic menu: the Russian result is corpus composition,
+#   not a systemic retrieval defect.
+#
+# ⓘ NO CONTENT GAP. All ten §0.7 topics are genuinely answerable from this source; no
+#   case had to be dropped or manufactured. Two topics are thinner than `bg`: prayer has
+#   exactly one article, and there is no article whose title is anxiety (the topic is
+#   carried by a peace article, a pandemic-framed general-anxiety article and a
+#   testimony). Both are covered, and both are recorded above.
+#
+# ⚠️ FOR THE REVIEWER — three things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#   2. `/a/dns.html` on case 1 — KEEP (recommended, records testimonies outranking the
+#      science article for a question that asks for facts) or DROP. It is a boundary
+#      credit and will flap between 4/5 and 5/5 between runs; §0.10 recorded the same
+#      behaviour on `esru-newcomer-krest`.
+#   3. `/a/bizni.html` on case 6 — I dropped it; the operator may credit it to make this
+#      a second Russian-shaped probe. My reasoning for one probe being enough is in the
+#      case's `dropped_after_engine_check` block.

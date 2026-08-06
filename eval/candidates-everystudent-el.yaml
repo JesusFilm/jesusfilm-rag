@@ -1,0 +1,403 @@
+# Phase 5 PART B — golden suite DRAFT for `everystudent-el` (everystudent.gr, 32 documents).
+# Campaign #111, tier A, BATCH 2. Working record — NOTHING here has been written to
+# eval/qa-golden.yaml. Guardrail #4 gates that on an explicit operator approval turn.
+#
+# Sizing: 32 ÷ 8 = 4 → 4 cases (§0.7 rule).
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 four-case row exactly
+#   (believer 0 at this size, which is what forces `prayer` out; see DROPPED below).
+# Questions authored IN GREEK, not translated from the English topic menu (§0.6).
+#
+# ── CORPUS SHAPE — read this before judging any hit ──────────────────────────────
+#   32 documents, ALL under `/a/*.shtml`. There is NO `/story/` tree on this source.
+#   Mean 11.9k chars. Nothing under 1,200 chars → **failure mode #2 (pure-tail
+#   documents) cannot fire here.** 0 under-1,200 documents, confirmed by the script.
+#   Null-language documents: 0 of 32 (guardrail #3a — nothing excluded).
+#   Duplicate paths: 0.
+#
+#   ⚠️ TESTIMONY SHARE ≈ 28% (9 of 32), and a PATH-BASED COUNT READS IT AS 0%.
+#   This is the `uk` finding from the brief, reproduced exactly: no `/story/`
+#   namespace exists, yet nine documents are first-person accounts carrying the
+#   shared invitation-prayer tail as their own chunk. Derived from the OPENINGS,
+#   never from the path:
+#     /a/acceptance.shtml  Susan Broadwell — her own eating disorder
+#     /a/sawyer.shtml      Steve Sawyer — haemophilia, HIV, terminal
+#     /a/wolves.shtml      anonymous — ten reasons I waited until marriage
+#     /a/reallife.shtml    three first-person accounts
+#     /a/source.shtml      Josh McDowell — "I wanted to be happy… so I quit religion"
+#     /a/quench.shtml      Judy Clark — drinking as a substitute for closeness
+#     /a/beauty.shtml      Laura Kraus Calenberg — magazine-cover model
+#     /a/loveorlust.shtml  Duncan Moore — atheist family, changed his mind at university
+#     /a/toxic.shtml       Gene McConnell — porn addiction, part narrative
+#
+#   🔑 THE ONE TAIL MAGNET ON THIS SOURCE IS `/a/source.shtml` — the Greek Josh
+#   McDowell article, the exact twin of `et /a/elumuutuste.html` and `hu
+#   /a/forrasa.html`. Discovery surfaced it for THREE unrelated topics (purpose,
+#   religions, trinity). `/a/sawyer.shtml` is the second carrier (suffering,
+#   jesus-death, religions) and `/a/personally.shtml` (the Four Spiritual Laws page)
+#   the third. Expect all three anywhere; none is credited anywhere in this suite.
+#
+# ── SOURCE QUIRKS (already handled at ingest, recorded for the reader) ───────────
+#   `everystudent.gr` puts its article body in `#content4` — an ID, not a class —
+#   and publishes `http://` sitemap URLs. Both are recorded in the slice doc
+#   (§ lines 2804, 2921). The openings prove extraction worked: every document has a
+#   real title and a real body, no 0-char pages, no boilerplate-only pages. Nothing
+#   to do; if openings had looked wrong, that is where to look first.
+#
+# ── DISCOVERY ────────────────────────────────────────────────────────────────────
+#   .tmp-diag/phase5-partb-discover.ts everystudent-el el
+#   → 25 distinct candidate documents of 32; all ten topics returned something.
+#   Max discovery score 0.653 (trinity). Per the brief's `uk` finding B, the English
+#   discovery pass under-predicts the in-language score by ~0.08, so 0.653 was read
+#   as "expect ~0.73 in Greek, watch the Trinity case for smell" — and that is what
+#   happened (see round log).
+#   Every one of the 32 documents was then read from the database (title + opening
+#   ~900 chars) before anything was credited — guardrail #5.
+#
+# ── ENGINE-CHECK ROUND LOG (guardrail #8 §2) — .tmp-diag/phase5-check.ts el el ────
+#   Round 1: 0 smells · 2 credits not in top 10 · max top score 0.720 · 8 credits
+#   Round 2: 0 smells · 2 credits not in top 10 · max top score 0.721 · 8 credits
+#   Round 3: 0 smells · **1** credit not in top 10 · max top score 0.721 · 7 credits
+#            — and that one is a DELIBERATE keep, see `kept_miss` on case 1.
+#
+#   🟢 THREE OF FOUR CASES WERE CLEAN FROM ROUND 1 and never changed. All three rounds
+#   were spent on case 1 (`god-exists`), which was reworded twice. **No paraphrase
+#   smell was ever produced on this source** — the highest score across all three
+#   rounds and all four cases is 0.721, comfortably under the 0.75 line. In the final
+#   round EVERY case returns its primary answer document at RANK 1.
+#
+#   ⓘ On the brief's `uk` finding B (English discovery under-predicts in-language by
+#   ~0.08): it held here almost exactly. Discovery's trinity probe was 0.653; the
+#   in-language question came back 0.720. Discovery's religions probe was 0.601; the
+#   in-language question came back 0.682. Do not reason about smell headroom from
+#   discovery — but the ~0.08 offset is now a third data point.
+#
+# ── MECHANICAL CHECKS ────────────────────────────────────────────────────────────
+#   Guardrail #8 §3: all 7 credited paths resolve to EXACTLY ONE document — 7/7.
+#   Guardrail #3a:   no credited document has a null language — 7/7.
+#   No credited document is under 1,200 chars (the script warns; it did not fire —
+#   the smallest credit is /a/trinity.shtml at 3,569 chars).
+#
+# ── 🔴 SIX TOPICS DROPPED, AND THE DOCUMENT THAT WOULD HAVE ANSWERED EACH ────────
+#   At four cases, six of the ten §0.7 topics come off. Naming the answer document
+#   for each is the point: five of the six are dropped for SIZING, not for absence.
+#
+#   1. `bible-trust`  → /a/bible.shtml — "Γιατί μπορείς να Εμπιστεύεσαι τη Βίβλο;"
+#      (30.9k, 20 chunks, the LARGEST document in the source). Answers transmission
+#      head-on: "οι μεταφράσεις έγιναν απευθείας από τις πρωτότυπες πηγές…
+#      Ελληνικά, Εβραϊκά και Αραμαϊκά". Discovery returned it and NOTHING ELSE for
+#      this topic — the cleanest single-document topic on the source, and dropped
+#      only because a 1/1 uncontested case measures less than the four kept.
+#      ⓘ The estate's usual tahrif overlap does NOT apply here: `everystudent-el`
+#      has no Islam article at all (same as `fa` and `cs`, per the brief).
+#   2. `prayer`       → /a/prayers.shtml — "Απαντάει ο Θεός στις προσευχές μας;"
+#      (10.7k). It even has the unanswered-prayer section the topic asks for
+#      ("Τι γίνεται με τις αναπάντητες προσευχές;"). FORCED OUT BY THE PERSONA
+#      TABLE: `prayer` is the believer topic and the four-case row is believer 0.
+#   3. `suffering`    → /a/tragedy.shtml — "Πού είναι ο Θεός μέσα στην τραγωδία;"
+#      (14.4k), with the free-will theodicy stated in the body ("μας έδωσε την
+#      ελεύθερη βούληση… Όμως Θεέ, πως επιτρέπεις να συμβαίνουν καταστροφές;").
+#      Secondary: /a/inevitable.shtml (facing death, 4.3k).
+#   4. `purpose`      → /a/reallife.shtml — "Αληθινή ζωή" (17.0k): "Τρεις άνθρωποι
+#      διηγούνται πού βρήκαν πληρότητα, αποδοχή και σκοπό στη ζωή τους", opening on
+#      the mountaineer who summited and felt nothing. Secondary: /a/source.shtml
+#      (Josh McDowell — but that is the tail magnet, see above).
+#   5. `know-god`     → /a/whatlike.shtml — "Ποιος είναι ο Θεός;" (4.4k): "Έξι
+#      χαρακτηριστικά της προσωπικότητας του Θεού". Secondary: /a/who2.shtml (the
+#      personhood conclusion of the cosmological chain) and /a/faith.shtml.
+#      🟢 TITLE-TRAP NON-EVENT WORTH RECORDING: the brief warns that the
+#      six-attributes article usually hides under "Why can we rely on / choose the
+#      God of the Bible?" (`bg` `tr` `fa` `pt` `cs`). **Greek titles it honestly** —
+#      "Ποιος είναι ο Θεός;" — exactly like German. Third data point that this trap
+#      is a per-site publishing choice, not an estate constant.
+#   6. `jesus-death`  → 🔴 **NO DOCUMENT. GENUINE CONTENT GAP.** This is the only
+#      one of the six dropped for absence rather than sizing. `everystudent-el` has
+#      NO dedicated "why did Jesus die?" article. Discovery's six hits were
+#      /a/faith.shtml (Jesus' DEITY, Paul Little), /a/connecting.shtml (one
+#      paragraph inside the world-religions comparison), /a/difference.shtml
+#      (intra-Christian), /a/reallife.shtml, /a/personally.shtml (Four Spiritual
+#      Laws) and /a/sawyer.shtml (testimony) — i.e. the atonement is stated only
+#      inside gospel-summary passages, never as an article's subject.
+#      Per the brief: 8 of 11 batch-1 sources have one; `ru`, `zh-cn`, `mn` do not.
+#      **Greek is the fourth source with the gap.** Recorded as corpus composition
+#      and NOT re-opened. Manufacturing a case here would have credited a tail.
+#
+# ── 🟢 THE GREEK-SPECIFIC QUESTION THE BRIEF ASKED ME TO SETTLE ──────────────────
+#   Greece is ~90% Orthodox, and Romanian (also Orthodox-majority) turned out to
+#   publish an "Orthodox vs Christian" comparison that is INTRA-Christian and
+#   therefore not the §0.7 `religions` topic. **Greek does the same thing, and the
+#   Greek version names Orthodoxy explicitly in its own title:**
+#     /a/difference.shtml (3.0k) — "Μπορεί να ονομάζεσαι Καθολικός, Ορθόδοξος,
+#     Διαμαρτυρόμενος και να μην είσαι πραγματικός χριστιανός;"
+#     ("Can you be called Catholic, Orthodox, Protestant and not be a real
+#      Christian?") Its Q is "Υπάρχει διαφορά στο να είσαι Καθολικός και στο να
+#      είσαι Χριστιανός;" — denominations versus a personal relationship.
+#   It is INTRA-CHRISTIAN and is credited to NOTHING in this suite. The `religions`
+#   key is /a/connecting.shtml + /a/elephant.shtml only. Same call as `ro`; same
+#   call as `hu` made on /a/katolikus.html and `ru` on /a/katolikom.html.
+#   ⚠️ Note it still retrieves: discovery put it in the top set for `suffering`,
+#   `jesus-death` and `trinity`. It is a live distractor, just not an answer.
+#
+# ── ⚠️ THE DUPLICATE-TITLE HAZARD IS REAL ON THIS SOURCE ─────────────────────────
+#   TWO DIFFERENT documents are both titled exactly "Ποιος":
+#     /a/who.shtml  (7.4k, part 3) — is the Eternal Something one or many? quality
+#                    versus quantity.
+#     /a/who2.shtml (11.2k, part 4) — the Eternal Something is a PERSON, not a
+#                    machine; spirit, omnipresence.
+#   This is the trap that bit Japanese in batch 1: crediting by title here is a coin
+#   flip between two documents with different subjects. **All credits in this file
+#   are declared by PATH.** The full chain is /a/nothing.shtml ("Υπήρχε ποτέ
+#   τίποτα;") → /a/something.shtml ("Κάτι") → /a/who.shtml ("Ποιος") →
+#   /a/who2.shtml ("Ποιος") — the four-part cosmological argument, and per the brief
+#   there is NO safe cross-source rule about which part to credit, so each was read.
+#
+# evidence_tier: proposed `llm-translated` (nobody available reads Greek). This is a
+# fact about the REVIEWER, not the language — if anyone on the team reads Greek and
+# can sanity-check the translations, it should be `human-verified`. OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esel-skeptic-euseveia" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "Οι φίλοι μου λένε ότι η πίστη στον Θεό είναι ευσεβής πόθος. Εμένα με απασχολεί αν στέκει κάποιο σοβαρό επιχείρημα από κάτω — για παράδειγμα, από πού προέκυψαν όλα όσα υπάρχουν, αν όχι από κάποιον. Ή μήπως το δεχόμαστε απλώς επειδή έτσι μας το παρέδωσαν;"
+    en: "My friends say that believing in God is wishful thinking. What concerns me is whether any serious argument stands underneath it — for example, where everything that exists came from, if not from someone. Or do we just accept it because that is how it was handed down to us?"
+    credits:
+      - { path: "/a/isthere.shtml", en: "'Υπάρχει Θεός;' (18.6k) — Marilyn Adamson's flagship apologetics article. Opens by refusing to push ('Χωρίς να σου λέει ότι: Πρέπει να πιστέψεις') and then argues from the fine-tuning of the earth, DNA and the workings of the human mind. This is the source's answer to 'is there any serious argument'.", rank: 1, score: 0.683 }
+      - { path: "/a/nothing.shtml", en: "'Υπήρχε ποτέ τίποτα;' (6.0k) — part 1 of the four-part cosmological chain, subtitled as a thought-journey on the beginning of time, the origin of the universe and 'το ερώτημα του ευφυούς σχεδίου' (the question of intelligent design). Argues that Absolute Nothing never existed, therefore something eternal always has. The source's reasoned, non-emotional grounds for God. 🔴 KEPT DELIBERATELY, see below.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/a/nothing.shtml` is the entry point of `everystudent-el`'s four-part
+      cosmological argument — /a/nothing.shtml → /a/something.shtml → /a/who.shtml →
+      /a/who2.shtml. Its own subtitle names "την αρχή του χρόνου, την καταγωγή του
+      σύμπαντος και το ερώτημα του ευφυούς σχεδίου" (the beginning of time, the origin
+      of the universe, and the question of intelligent design). The question asks, in
+      as many words, where everything that exists came from if not from someone. This
+      document IS that argument, so dropping it would be dishonest — I KEPT it.
+
+      WHAT IT MEASURES, and it is a corpus finding, not a question defect. THREE
+      different framings of the same question were tried and NOT ONE of the four parts
+      of the chain reached the top 10 for any of them:
+        v1  "is there anything tangible, or is it only a matter of feeling?"  → none
+        v2  "are there historical or scientific facts that support it?"        → none
+        v3  "where did everything that exists come from, if not from someone?" → none
+      The chain is not globally invisible — /a/who2.shtml does retrieve, at rank 9 on
+      the TRINITY case (0.559) and in discovery for know-god (0.465). It is invisible
+      specifically to god-exists framings. The reason is legible in the openings: the
+      four parts are written as an abstract thought experiment (a sealed, windowless
+      room the size of a football pitch; ten tennis balls) under titles that name no
+      subject at all, and the word "Θεός" barely appears until part 4. The estate
+      published its strongest formal argument for God in a form the retriever cannot
+      connect to anyone asking for one.
+
+      ⚠️ This case will therefore score coverage 1/2 on purpose. Same treatment as
+      `/a/dns.html` on `eshu-skeptic-vagyalom` and `esbg-skeptic-katastrofa`.
+    reworded: |
+      ⚠️ REWORDED TWICE — all three engine-check rounds were spent on this one case.
+      v1: "…Υπάρχει κάτι χειροπιαστό από πίσω, ή στο τέλος είναι μόνο θέμα
+           συναισθήματος;" ("…is there anything tangible behind it, or is it in the end
+           only a matter of feeling?")
+           → top 0.708, no smell, but 1 of 3 credits returned and the shape of the
+           failure was textbook FAILURE MODE #5: `/a/search.shtml` ("Sex and the search
+           for intimacy") came back at RANK 3 and `/a/finding.shtml` (inner peace) at
+           rank 5, for a question about evidence. Naming "συναίσθημα" (feeling) dragged
+           the whole top 10 toward the emotional-need articles. The brief's fix —
+           ask for GROUNDS, not about feelings — is exactly right.
+      v2: "…υπάρχουν ιστορικά ή επιστημονικά δεδομένα που να τη στηρίζουν…"
+           ("…are there historical or scientific facts that support it…")
+           → top 0.693, /a/isthere.shtml up to rank 1, but a NEW artifact appeared:
+           `/a/bible.shtml` jumped to RANK 2 (0.683). The single word "ιστορικά"
+           (historical) pulled the Bible-transmission article — FAILURE MODE #4, an
+           incidental adjective behaving like scene-setting colour. Still 1 of 3.
+      v3 (kept): drops "ιστορικά", keeps the grounds framing, and points the example at
+           the origin of everything — which is what the cosmological chain argues.
+           → **0.708 → 0.693 → 0.683.** /a/bible.shtml fell to rank 9 and
+           /a/isthere.shtml held rank 1. The chain still did not come.
+
+      🔴 AND `/a/faith.shtml` WAS DROPPED HERE — see `dropped_after_engine_check`.
+    dropped_after_engine_check:
+      - path: "/a/faith.shtml"
+        why: >
+          "Πέρα από την Τυφλή Πίστη" (23.4k, Paul E. Little) — credited in rounds 1 and 2 and dropped after round 2. Its opening genuinely reads like an evidence-for-God article ("Οφείλουμε να ερευνήσουμε την ιστορία για να ανακαλύψουμε αν υπάρχει κάποιο στοιχείο που να αποκαλύπτει το Θεό") and its title is the objection itself — beyond BLIND faith. But the sentence after that is the tell: "Πριν από περίπου 2000 χρόνια… γεννήθηκε ένα παιδί μέσα σε μια φάτνη." The subject of the document is JESUS' identity and deity, argued as historical evidence. It is the Greek twin of `hu` /a/hiten.html, which the Hungarian suite rejected from its evidence case on the same reasoning. It missed the top 10 in both rounds and, on re-reading the body rather than the opening, the engine is right. THE ENGINE IS RIGHT — DROPPED, not kept. ⓘ It is also the closest thing this source has to an atonement article, which is why the `jesus-death` topic had to be dropped for absence; see the header.
+    rejected:
+      - { path: "/a/miracles2.shtml", rank: 2, why: "RANK 2 AND REJECTED (0.675), and it was RANK 1 in round 1 — 'Γιατί ο Θεός δεν κάνει ένα μεγάλο θαύμα για να αποδείξει τον εαυτό του;' Its subject is God's RETICENCE (why he does not compel belief; Philip Yancey on free will), a different objection from 'what grounds are there'. Its own body defers the evidence elsewhere — 'κάποια παρουσιάζονται στην ενότητα Η Ύπαρξη του Θεού' — i.e. it is a signpost to /a/isthere.shtml, not an answer. Same call `hu` made on /a/csodat.html." }
+      - { path: "/a/search.shtml", rank: 3, why: "'Το Σεξ και η αναζήτηση της Οικειότητας' at RANK 3 for a question about grounds for believing in God. A pure boilerplate-tail match, and it survived all three rewordings (rank 3 → 4 → 3), so it is not an artifact of the v1 emotional framing. This is the estate's confirmed repeat tail-carrier family." }
+      - { path: "/a/prayers.shtml", rank: 4, why: "the prayer article — tail-adjacent; its closing section is the gospel summary" }
+      - { path: "/a/sawyer.shtml", rank: 5, why: "Steve Sawyer's HIV testimony — carrier #2 of the invitation-prayer tail on this source" }
+      - { path: "/a/tragedy.shtml", rank: 6, why: "the suffering article — a dropped topic, not the answer here" }
+      - { path: "/a/wolves.shtml", rank: 7, why: "'Ειδύλλια με τους Λύκους' — ten reasons I waited until marriage to have sex, at RANK 7 for an evidence question. This is the estate-wide DATING article the brief names as a confirmed repeat tail-carrier across languages. Greek confirms it." }
+      - { path: "/a/punish.shtml", rank: 8, why: "'Πώς μπορεί ένας Θεός αγάπης να στέλνει ανθρώπους στην κόλαση;' — hell/judgment, a different objection" }
+      - { path: "/a/bible.shtml", rank: 9, why: "the Bible-reliability article — was RANK 2 in round 2 on the word 'ιστορικά'; dropping that word sent it to rank 9. Credited to no case (bible-trust is a dropped topic)." }
+      - { path: "/a/source.shtml", rank: 10, why: "Josh McDowell — THE tail magnet on this source. It appears in the top 10 of ALL FOUR cases; see the SUMMARY." }
+    top_score: 0.683
+
+  # ── 2 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esel-skeptic-sinadelfoi" # topic: religions
+    persona: skeptic
+    topic: religions
+    q: "Στη δουλειά έχω συναδέλφους μουσουλμάνους και έναν που ασχολείται με τον βουδισμό, και ο καθένας τους μιλάει για την πίστη του με την ίδια σιγουριά που μιλάνε και οι χριστιανοί γνωστοί μου. Γιατί να θεωρήσω ότι ο ένας έχει περισσότερο δίκιο από τον άλλον;"
+    en: "At work I have Muslim colleagues and one who is into Buddhism, and each of them speaks about his faith with the same certainty as the Christians I know. Why should I take it that one of them is more right than another?"
+    credits:
+      - { path: "/a/connecting.shtml", en: "'Η Σύνδεση με το Θείο' (18.8k, Marilyn Adamson) — this is the estate's /a/205 world-religions article under a localised slug (twin of `de` /artikel/hochsten.html, `sw` /a/kuunganishwa.html, `fr` /a/205divin.html, `hu` /a/istenkereses.html). It states the differences flatly: 'Οι Ινδουιστές αναγνωρίζουν μια πλειάδα θεών… Οι Βουδιστές λένε πως δεν υπάρχει Θεός… Οι μουσουλμάνοι…'", rank: 1, score: 0.682 }
+      - { path: "/a/elephant.shtml", en: "'Οι Τυφλοί Άνδρες και ο Ελέφαντας' (4.2k, adapted from David A. Horner) — takes the blind-men-and-the-elephant analogy, the standard argument that all religions are equally valid descriptions of God, and dismantles it. Answers the 'why would one be more right' half directly.", rank: 2, score: 0.615 }
+    note: |
+      🟢 NO REWORD NEEDED, AND THAT IS BECAUSE OF `hu`'s RECORDED MISTAKE.
+      The Hungarian suite's v1 for this topic scored 0.813 — the worst smell in the
+      whole campaign — because it listed "Hinduism, Buddhism and Islam" in the order
+      /a/istenkereses.html's own subtitle lists them. `/a/connecting.shtml` carries the
+      identical subtitle in Greek ("Μια ματιά στον Ινδουισμό, το Βουδισμό, τον
+      Ισλαμισμό, το Χριστιανισμό και τη Νέα Εποχή"), so the same trap was live here.
+      Starting from Hungarian's FIXED shape — the objection put in the asker's workplace,
+      the list dropped, only two traditions named and not in the article's order —
+      Greek landed at 0.682 rank 1 first time. The §0.11/§0.12 lesson transferred.
+    rejected:
+      - { path: "/a/difference.shtml", rank: 7, why: "🔴 THE ORTHODOX CHECK THE BRIEF ASKED FOR, ANSWERED. 'Μπορεί να ονομάζεσαι Καθολικός, Ορθόδοξος, Διαμαρτυρόμενος και να μην είσαι πραγματικός χριστιανός;' — in a ~90% Orthodox country the site publishes a denominations article that names Orthodoxy in its own title, and it is INTRA-CHRISTIAN: its question is 'Υπάρχει διαφορά στο να είσαι Καθολικός και στο να είσαι Χριστιανός;' and its answer is about a personal relationship versus church membership. NOT the §0.7 `religions` topic. Same call as `ro`, `hu` (/a/katolikus.html) and `ru` (/a/katolikom.html). It is a live distractor — it also reaches rank 4 on the trinity case — but it answers nothing in this suite." }
+      - { path: "/a/source.shtml", rank: 3, why: "Josh McDowell — the tail magnet. Its 'I quit religion' passage matches a religions question lexically; the document is a testimony." }
+      - { path: "/a/sawyer.shtml", rank: 4, why: "HIV testimony — tail match. The matching chunk is literally the invitation prayer ('Κύριε Ιησού, σε χρειάζομαι…')." }
+      - { path: "/a/isthere.shtml", rank: 5, why: "credited to case 1" }
+      - { path: "/a/bible.shtml", rank: 6, why: "Bible reliability — a dropped topic, not a comparison of religions" }
+      - { path: "/a/miracles2.shtml", rank: 8, why: "God's reticence — rejected from case 1 for the same reason" }
+      - { path: "/a/faith.shtml", rank: 9, why: "Jesus' deity — dropped from case 1 after round 2" }
+      - { path: "/a/prayers.shtml", rank: 10, why: "the prayer article — a dropped topic" }
+    top_score: 0.682
+
+  # ── 3 ────────────────────────────────────────────────────────────── newcomer
+  - id: "esel-newcomer-treis" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "Οι χριστιανοί γνωστοί μου άλλοτε προσεύχονται στον Ιησού και άλλοτε στον Πατέρα, και μιλάνε και για το Άγιο Πνεύμα σαν να είναι κάποιος. Πώς δεν καταλήγουν τελικά να λατρεύουν τρεις;"
+    en: "The Christians I know sometimes pray to Jesus and sometimes to the Father, and they also talk about the Holy Spirit as if he were somebody. How do they not end up worshipping three after all?"
+    credits:
+      - { path: "/a/trinity.shtml", en: "'Μπορείς να εξηγήσεις την Τριαδικότητα;' (3.6k) — the dedicated article. States exactly the newcomer's puzzle and answers it: the Bible speaks of God the Father, God the Son and God the Holy Spirit while presenting plainly that there is only one God; then the H2O and egg analogies and why they fall short.", rank: 1, score: 0.721 }
+      - { path: "/a/hspirit.shtml", en: "'Ποιος είναι το Άγιο Πνεύμα;' (4.0k) — answers the 'as if he were somebody' half: 'Το Άγιο Πνεύμα δεν είναι μια απροσδιόριστη, αιθέρια σκιά, ούτε μια απρόσωπη δύναμη. Είναι ένα πρόσωπο ισάξιο από κάθε άποψη με τον Θεό Πατέρα και τον Θεό Υιό. Είναι το τρίτο πρόσωπο…'", rank: 2, score: 0.658 }
+    note: |
+      🟢 THE BEST CASE IN THE SUITE, AND IT NEEDED NO REWORD. 0.721 at rank 1, ranks 1
+      and 2 both credited, and the gap to rank 3 is 0.072 — the widest separation
+      between the answer set and the noise anywhere in this file.
+      It reuses the `ru`/`bg`/`hu` fixed shape: state the puzzle as something a newcomer
+      NOTICES about Christians, never as the doctrinal formula. `ru` hit 0.807 and `bg`
+      0.756 by asking about the doctrine directly; `/a/trinity.shtml`'s own opening
+      question is "Τι μπορούμε να πούμε για το δόγμα της Τριαδικότητας, της Αγίας
+      Τριάδας;", so asking that in Greek would have restated it verbatim.
+      ⚠️ Note what is NOT in the question: no liturgical formula. An earlier draft used
+      "στο όνομα του Πατρός, του Υιού και του Αγίου Πνεύματος" — the phrase every Greek
+      hears weekly — and it was rejected before checking because /a/trinity.shtml's body
+      names the same three in the same order. Cultural realism is not worth a smell.
+    rejected:
+      - { path: "/a/sawyer.shtml", rank: 3, why: "HIV testimony at rank 3 for a Trinity question — a pure tail match, and the second-highest-ranked tail hit in the suite" }
+      - { path: "/a/difference.shtml", rank: 4, why: "the Catholic/Orthodox/Protestant article — matches on naming denominations, but its subject is church membership versus personal relationship. Rejected on the same reading as case 2." }
+      - { path: "/a/connecting.shtml", rank: 5, why: "credited to case 2. Its Christianity section does say 'πίστη στον…', which is the match." }
+      - { path: "/a/source.shtml", rank: 6, why: "Josh McDowell — the tail magnet, present in all four cases" }
+      - { path: "/a/prayers.shtml", rank: 7, why: "the prayer article — a dropped topic" }
+      - { path: "/a/faith.shtml", rank: 8, why: "Jesus' deity — genuinely adjacent (whether Jesus is the Son of God) but its question is Jesus' identity, not one-versus-three. Dropped from case 1 as well." }
+      - { path: "/a/who2.shtml", rank: 9, why: "⚠️ 'Ποιος' — part 4 of the cosmological chain, and THE ONLY APPEARANCE OF ANY PART OF THAT CHAIN ANYWHERE IN THIS SUITE (0.559). It argues the Eternal Something is a PERSON and handles God as spirit and omnipresent, which is why a Trinity question touches it. Not the answer to one-versus-three. Its relevance here is that it proves the chain is retrievable in principle — see case 1's kept_miss." }
+      - { path: "/a/personally.shtml", rank: 10, why: "the Four Spiritual Laws page — the estate's confirmed repeat tail-carrier, exactly the /a/personally.html shape from Part A. Tail carrier #3 on this source." }
+    top_score: 0.721
+
+  # ── 4 ──────────────────────────────────────────────────────────────── seeker
+  - id: "esel-seeker-anchos" # topic: anxiety
+    persona: seeker
+    topic: anxiety
+    q: "Εδώ και καιρό νιώθω άγχος σχεδόν συνέχεια, ακόμα κι όταν αντικειμενικά δεν συμβαίνει τίποτα κακό στη ζωή μου. Έχει να μου προσφέρει κάτι πραγματικά η πίστη γι' αυτό, ή είναι κάτι που το λύνεις μόνος σου;"
+    en: "For a while now I have felt anxious almost constantly, even when objectively nothing bad is happening in my life. Does faith actually have anything to offer me for that, or is it something you sort out on your own?"
+    credits:
+      - { path: "/a/finding.shtml", en: "'Εσωτερική Ειρήνη σε έναν Ασταθή Κόσμο' (16.0k) — the source's anxiety article. Its own subtitle names the condition: 'Πώς μπορείς να αποφύγεις την ανησυχία και το άγχος…' It then argues from God's unchangingness ('Ο κόσμος γύρω μας αλλάζει διαρκώς, ο Θεός όμως δεν αλλάζει') and handles the crutch objection head-on ('Αν και κάποιες φορές θεωρούμε ότι ο Θεός είναι δεκανίκι…').", rank: 1, score: 0.684 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER, NOT A THIN ONE. `everystudent-el` carries
+      exactly one article whose subject is anxiety. It is at rank 1 (0.684), first
+      round, no reword. The next nine hits are the tragedy article, the prayer article,
+      the eating-disorder article, and six tail matches.
+      ⚠️ NOTE THE ONE THING THE QUESTION DOES THAT MATTERS: it says the anxiety persists
+      "ακόμα κι όταν αντικειμενικά δεν συμβαίνει τίποτα κακό" (even when objectively
+      nothing bad is happening). /a/finding.shtml's own subtitle is about anxiety "σε
+      αβέβαιες περιστάσεις" (in uncertain circumstances). Without that contrast the
+      question would have restated the subtitle; with it, the score sits at 0.684.
+    rejected:
+      - { path: "/a/tragedy.shtml", rank: 2, why: "RANK 2 AND REJECTED (0.666) — 'Πού είναι ο Θεός μέσα στην τραγωδία;' Its subject is crisis, disaster and grief; the question explicitly says nothing bad is happening. Same call `hu` made on /a/faj.html and `ru` on /a/gdebog.html. This is a boundary rejection — see the reviewer notes." }
+      - { path: "/a/prayers.shtml", rank: 3, why: "the prayer article at 0.665, one thousandth behind the tragedy article. Its final section is about bringing worries to God, which is the match; its subject is whether and how God answers prayer." }
+      - { path: "/a/acceptance.shtml", rank: 4, why: "⚠️ 'Ανακούφιση από διαταραγμένη διατροφή' — the eating-disorder article, at rank 4 for a general-anxiety question. Worth flagging next to the `mk` finding in the brief: `mk /a/sindrom508.html` is the SAME estate article and its Macedonian translator rendered 'eating disorder' as 'анксиозен синдром' (anxiety syndrome), manufacturing a title trap. **Greek did NOT do that** — the Greek title says 'διαταραγμένη διατροφή' (disordered eating) honestly, so the trap does not exist here. The article still retrieves for anxiety, which is a property of its CONTENT (25.9k of first-person distress), not of any title." }
+      - { path: "/a/source.shtml", rank: 5, why: "Josh McDowell — the tail magnet, present in all four cases" }
+      - { path: "/a/sawyer.shtml", rank: 6, why: "HIV testimony — tail match" }
+      - { path: "/a/connecting.shtml", rank: 7, why: "credited to case 2" }
+      - { path: "/a/search.shtml", rank: 8, why: "'Sex and the search for intimacy' at rank 8 for an anxiety question — tail match, the same document that reached rank 3 on case 1" }
+      - { path: "/a/wolves.shtml", rank: 9, why: "the DATING article at rank 9 for an anxiety question. Second case in this suite where it surfaces. The brief names dating as a confirmed estate-wide repeat tail-carrier; Greek confirms it twice." }
+      - { path: "/a/bible.shtml", rank: 10, why: "Bible reliability at rank 10 for an anxiety question — pure tail match" }
+    top_score: 0.684
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 4 cases · 7 credits · 7 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 — matches the §0.7 four-case row
+# Topics used:    god-exists · religions · trinity · anxiety
+# Topics dropped: bible-trust · prayer · suffering · purpose · know-god (SIZING —
+#   the answering document is named for each in the header) and jesus-death (ABSENCE)
+# Paraphrase smells: 0, in every round. Max top score across the whole suite: 0.721.
+# Credits that do not retrieve: 1 (`/a/nothing.shtml` on case 1), kept deliberately.
+# Credits dropped after checking: 1 (`/a/faith.shtml` on case 1).
+# In the final round EVERY case returns its primary answer document at RANK 1.
+# evidence_tier: llm-translated
+#
+# 🔴 THE TESTIMONY SHARE IS ~28% AND A PATH COUNT READS IT AS ZERO.
+#   `everystudent-el` has no `/story/` tree — every one of its 32 documents is under
+#   `/a/`. Nine of them are first-person accounts carrying the shared
+#   invitation-prayer tail. This is the `uk` finding reproduced on a second source,
+#   and it is now two-for-two: **path prefixes cannot be used to estimate the
+#   testimony share on this estate.**
+#
+# 🔴 ONE DOCUMENT ABSORBS THE TAIL LOAD, EXACTLY AS THE BRIEF PREDICTS.
+#   `/a/source.shtml` — the Greek Josh McDowell article — is in the top 10 of ALL FOUR
+#   cases (ranks 10, 3, 6, 5), credited to none. It is the twin of `et`
+#   /a/elumuutuste.html (4 of 5 cases) and `hu` /a/forrasa.html. `/a/sawyer.shtml`
+#   (HIV testimony) is also in all four (ranks 5, 4, 3, 6). `/a/personally.shtml`
+#   (Four Spiritual Laws) and `/a/wolves.shtml` (dating) each appear twice.
+#   ⓘ The corrected §0.12 rule holds here: at 28% testimony there are MANY carriers,
+#   and none of them wins rank 1 anywhere in this suite. The highest a tail carrier
+#   reached is rank 2 (`/a/miracles2.shtml`, and that is an argument article, not a
+#   testimony). Greek is a well-behaved source by batch-2 standards.
+#
+# 🔴 FAILURE MODE #2 CANNOT FIRE HERE. Zero documents under 1,200 chars; the smallest
+#   is /a/heaven2.shtml at 2,021. There are no pure-tail video-promo pages on this
+#   source, so no credit could accidentally land on one.
+#
+# ⚠️ THE DUPLICATE-TITLE HAZARD IS LIVE: /a/who.shtml and /a/who2.shtml are BOTH
+#   titled exactly "Ποιος" and have different subjects (one-or-many versus
+#   personhood). Crediting by title on this source is a coin flip. Every credit here
+#   is a path. This is the second source after Japanese to carry the hazard.
+#
+# 🔴 CONTENT GAP — ONE, AND IT IS REAL: `jesus-death`. `everystudent-el` has NO
+#   dedicated "why did Jesus die?" article. The atonement appears only inside
+#   gospel-summary passages of other documents (/a/connecting.shtml,
+#   /a/personally.shtml, /a/difference.shtml, /a/sawyer.shtml). Greek is the FOURTH
+#   source with this gap after `ru`, `zh-cn` and `mn`. Recorded as corpus composition
+#   per the brief and NOT re-opened. A case here would have credited a tail.
+#   ⓘ Also absent: any Islam article. So the estate's usual `bible-trust`/tahrif
+#   overlap does not exist on this source — same shape as `fa` and `cs`.
+#
+# 🟢 TITLE TRAPS: TWO EXPECTED, NEITHER FIRED, AND THAT IS THE FINDING.
+#   1. The six-attributes what-is-God-like article is NOT hidden under "Why can we
+#      rely on the God of the Bible?" here. It is /a/whatlike.shtml, titled "Ποιος
+#      είναι ο Θεός;" — honest, like German. Third data point that this is a per-site
+#      publishing choice, not an estate constant.
+#   2. The eating-disorder article is NOT retitled with the Greek word for anxiety.
+#      /a/acceptance.shtml says "διαταραγμένη διατροφή" plainly. The Macedonian
+#      translator's "анксиозен синдром" mistranslation has no Greek counterpart.
+#   The trap that DOES exist here is the contentless four-part chain (see above) plus
+#   the duplicate "Ποιος" title. Both are structural, not translation artifacts.
+#
+# ⚠️ FOR THE REVIEWER — four things to decide
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the language.
+#      If anyone on the team reads Greek, this should be `human-verified`.
+#   2. `/a/nothing.shtml` on case 1 — KEEP (recommended; it records that the source's
+#      only formal argument for God is unreachable by anyone asking for one) or DROP.
+#      Three framings failed to retrieve it, so it will not flap; it is a stable miss.
+#   3. `/a/tragedy.shtml` on case 4 — REJECTED at rank 2 (0.666), one thousandth ahead
+#      of /a/prayers.shtml. It is the closest boundary call in the suite. If the
+#      operator reads the anxiety topic as including crisis-driven fear, it is a
+#      credit. I read the question's "nothing bad is happening" as excluding it, which
+#      is the call `hu` and `ru` both made on the same estate article.
+#   4. WHICH SIX TOPICS CAME OFF. Five were dropped for sizing and each has a named,
+#      readable answer document in the header — `bible-trust` in particular is the
+#      single cleanest topic on the source (/a/bible.shtml, 30.9k, the only hit in
+#      discovery). If the operator would rather this suite were five or six cases, the
+#      order I would add them back in is: bible-trust, then suffering, then purpose.

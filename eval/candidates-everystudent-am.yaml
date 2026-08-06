@@ -1,0 +1,486 @@
+# PHASE 5 PART B — golden suite DRAFT for `everystudent-am` (41 documents,
+# habeshastudent.com). Campaign #111, BATCH 2. Working record — NOTHING here has
+# been written to eval/qa-golden.yaml. Guardrail #4 gates that on an explicit
+# operator approval turn that has not happened.
+#
+# Sizing: 41 ÷ 8 = 5.1 → 5 cases.
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches the §0.7
+#   5-case row exactly.
+# Questions authored IN AMHARIC, not translated from the English topic menu (§0.6).
+#
+# ══ 🔴 BUCKET-POLLUTION CHECK — CLEARED ═════════════════════════════════════
+#   Until 2026-07-31 the `am` bucket held these 41 Amharic documents PLUS 14
+#   Tigrinya documents from `everystudent-ti` (tinyld reads Tigrinya as Amharic at
+#   confidence 1.00). The openings hazard report was run FIRST and confirms the
+#   sweep held: **41 documents, all `everystudent-am`, all `lang am`, 0 nulls,
+#   0 duplicate paths.** Every one of the 41 openings was read; all 41 are
+#   Amharic (Ge'ez script, Amharic morphology). No Tigrinya document is present
+#   and none is credited. Any `am` retrieval number dated before 2026-07-31 is
+#   invalid and none was used here.
+#
+# ══ CORPUS SHAPE — read this before judging any hit ═════════════════════════
+#   41 documents, ALL under `/a/*.html`. **There is no `/story/` prefix on this
+#   source at all**, so the §0.12 "testimony share" metric cannot be computed by
+#   path. Read by opening, 5 of 41 (12%) are first-person conversion/struggle
+#   testimonies published as articles: `/a/radical.html` (a radical Muslim),
+#   `/a/nightclub.html` (Kamal K.), `/a/addiction.html` (drugs),
+#   `/a/struggling.html` (a student's porn addiction), `/a/stress.html` (campus).
+#   That is roughly HALF the Hungarian share (24%), and the boilerplate tail is
+#   correspondingly milder here — see the ENGINE-CHECK log.
+#
+#   ⚠️ THE DOMINANT SHELF IS SEX AND RELATIONSHIPS, NOT APOLOGETICS.
+#   12 of 41 documents (29%) sit under the category header `ወሲብ እና የፍቅር ግንኙነት`
+#   ("Sex and romantic relationships"): /a/toxic.html /a/marriage.html
+#   /a/wolves.html /a/masturbation.html /a/intimacy.html /a/gl.html /a/sex2.html
+#   /a/hateporn.html /a/struggling.html /a/sex.html /a/marriage2.html
+#   /a/women.html. This is the largest single category on the source and it is
+#   the pool every boilerplate-tail match is drawn from. Expect marriage and
+#   dating articles in the top 10 of unrelated questions.
+#
+#   PURE-TAIL DOCUMENT (failure mode #2), 1 of 41 — **NEVER CREDIT**:
+#     953 chars  /a/plates.html  "ወራጅ ሳህኖች" (Falling Plates) — a 3:59 video
+#     transcript that is only the gospel summary in Christ's voice plus the
+#     invitation. The title names no subject; a title-only reviewer cannot see
+#     what it is.
+#   Boilerplate-adjacent, also never credited:
+#     3754 chars /a/personally.html — the Four Spiritual Laws tract, the
+#     `/a/personally.html` shape recorded in Part A.
+#
+# ══ 🔴 HAZARDS THE OPENINGS REPORT FOUND ════════════════════════════════════
+#   1 DUPLICATE TITLE naming two DIFFERENT documents — the exact trap that bit
+#   Japanese in batch 1:
+#     "ወሲብና የፍቅር ጓደኛ ፍለጋ"  →  /a/intimacy.html   AND   /a/gl.html
+#   `/a/intimacy.html` (9,569) genuinely IS "Sex and looking for a partner"
+#   (Richard Purnell). `/a/gl.html` (9,333) carries that title in the database
+#   but its BODY is "ግብረ-ሰዶማውያን፣ ሌዝቢያን እና የእግዚአብሔር ፍቅር" — Marilyn Adamson's
+#   "Gays, lesbians and God's love". **Crediting by title on this source is a
+#   coin flip.** All credits below are declared by PATH.
+#
+# ══ DISCOVERY ═══════════════════════════════════════════════════════════════
+#   .tmp-diag/phase5-partb-discover.ts everystudent-am am
+#   → 30 distinct candidate documents of 41. All ten §0.7 topics reached at
+#     least one own-source document, so nothing had to be dropped for lack of
+#     an answer key. Five topics were dropped for BUDGET; see below.
+#   Every one of the 41 documents was then read from the database (title +
+#   character length + opening ~900 chars) before anything was credited —
+#   guardrail #5. Titles were used as evidence for nothing.
+#
+# ══ TOPICS USED (5) AND DROPPED (5) ═════════════════════════════════════════
+#   USED:     god-exists (skeptic) · suffering (skeptic) · purpose (seeker) ·
+#             trinity (newcomer) · prayer (believer)
+#   The five kept topics are the five with MORE THAN ONE dedicated document, so
+#   each case measures a choice rather than a coin flip. Reasons for the drops:
+#
+#   ✗ know-god     — CARRIED BUT THIN. `/a/whois.html` (2,234 chars, 2 chunks)
+#                    is the six-attributes article ("እግዚአብሔር ማነው? ምን ይመስላል?
+#                    ስድስት የእግዚአብሔር ባሕርያት"). It is the ONLY document on the
+#                    source whose subject is God's character, and in discovery it
+#                    topped out at 0.460 with `/a/prayers.html` 0.003 behind it
+#                    at 0.457 — i.e. the correct answer barely out-ranks a tail.
+#                    Dropped first: weakest signal-to-noise of the ten.
+#   ✗ anxiety      — CARRIED. `/a/coronavirus.html` (8,150) is the REVERSE TITLE
+#                    TRAP already recorded for `hu` `pl` `sq` `tr` `pt` `es`:
+#                    titled "የኮሮናቫይረስ ጭንቀት" (Coronavirus anxiety), its third
+#                    paragraph broadens permanently — "terrorism, climate change,
+#                    racism, war, government collapse, poverty, sexual violence,
+#                    slavery, natural disasters, personal finances, illness, job
+#                    loss, harmful relationships, addiction" — and it is this
+#                    source's general anxiety article. `/a/stress.html` (2,465)
+#                    is a campus-stress testimony. Both real; dropped because
+#                    `purpose` has two dedicated ARTICLES and this topic has one
+#                    article plus one testimony, and because the coronavirus trap
+#                    is already confirmed six times over.
+#   ✗ jesus-death  — CARRIED, AND THIS SETTLES THE ATONEMENT QUESTION FOR `am`
+#                    WITHOUT NEEDING A CASE. `/a/whydid.html` (4,294 chars, 3
+#                    chunks) "ኢየሱስ ለምን ሞተ?" is a DEDICATED atonement article —
+#                    "ኢየሱስ ስለምን ሞተ? (የኢየሱስ መሞት ፋይዳው ምንድን ነው?) ስለእኛስ መሞት ለምን
+#                    አስፈለገው?" It came back at **0.545 rank 1** for the English
+#                    jesus-death probe in discovery. So `am` belongs with the 8
+#                    batch-1 sources that HAVE one, not with `ru`/`zh-cn`/`mn`.
+#                    Recorded as corpus composition per §0.12; not re-opened.
+#                    Dropped only because the 5-case budget forced a choice and
+#                    a single-credit case measures less than a two-credit one.
+#   ✗ bible-trust  — CARRIED BY EXACTLY ONE DOCUMENT. `/a/bible.html` (15,706
+#                    chars, 9 chunks — the source's longest article) "መጽሐፍ ቅዱስን
+#                    ለምን ልመን?" answers transmission head-on. It was the ONLY
+#                    own-source hit in the topK 20 for this topic. Note for the
+#                    estate record: **`everystudent-am` has NO Islam article.**
+#                    `/a/radical.html` is a Pakistani ex-Muslim's testimony, not
+#                    a tahrif/scripture-corruption piece, so the `bible-trust`→
+#                    Islam routing seen in `ja` `zh` `kk` `th` `bg` does not
+#                    exist here. Amharic patterns with Iran and Czechia.
+#   ✗ religions    — CARRIED, WEAKEST ARTICLE ON THE MENU. `/a/religions.html`
+#                    (2,788 chars, 2 chunks) is a five-bullet list of how Jesus
+#                    differs from other religions. **`everystudent-am` does NOT
+#                    carry the estate's `/a/205` world-religions comparison** —
+#                    there is no Hinduism/Buddhism/Islam/New Age article of the
+#                    `hochsten` · `kuunganishwa` · `205divin` · `istenkereses`
+#                    family. A case here would ask about four religions and be
+#                    answered by a page that names none of them. Dropped.
+#
+#   🟢 NET: no topic was dropped because the source cannot answer it. All ten
+#      are answerable. Five were dropped to fit 41 ÷ 8.
+#
+# ══ ENGINE-CHECK LOG (guardrail #8 §2) — .tmp-diag/phase5-check.ts am am ═════
+#   (filled in below the SUMMARY once the rounds have run)
+#
+# evidence_tier: proposed `llm-translated` — nobody available reads Amharic. This
+# is a fact about the REVIEWER, not about the language. If anyone on the team
+# reads Amharic and can sanity-check the glosses, it should be `human-verified`.
+# OPERATOR TO CONFIRM.
+
+cases:
+
+  # ── 1 ─────────────────────────────────────────────────────────────── skeptic
+  - id: "esam-skeptic-minot" # topic: god-exists
+    persona: skeptic
+    topic: god-exists
+    q: "ጓደኞቼ ሁሉ በእግዚአብሔር ማመን ምንም መሠረት የሌለው ነገር ነው ይሉኛል። እኔ ግን እግዚአብሔር በእርግጥ አለ ወይ የሚለውን ጥያቄ ሰው ራሱ አስቦና መርምሮ ሊደርስበት የሚችል ጠንካራ ምክንያት ካለ ማወቅ እፈልጋለሁ።"
+    en: "All my friends tell me that believing in God has no foundation at all. But I want to know whether the question of whether God really exists has a strong reason behind it that a person could arrive at by thinking and examining for himself."
+    credits:
+      - { path: "/a/prove.html", en: "'የእግዚአብሔርን መኖር ለማረጋገጥ ትችላለህ?' — Gregory E. Ganssle PhD on why 'you cannot prove God exists' is itself an unevidenced dogma (dogma is his word: 'ይህ ማስረጃ የማይገኝለት አቋም(dogma) የምሁራን ባሕል እየሆነ ነው'). Answers the 'it is only a feeling' half directly.", rank: 1, score: 0.745 }
+      - { path: "/a/isthere.html", en: "'እግዚአብሔር አለ ?' — Marilyn Adamson's six direct reasons, 11,010 chars, this source's flagship apologetics article. Opens by separating evidence from willingness ('someone opposed to God's existence will not be convinced by any reason, like a man who will not accept that anyone walked on the moon') and then runs the design argument through the earth's size, gravity and atmosphere.", rank: 2, score: 0.708 }
+      - { path: "/a/created.html", en: "'እግዚአብሔርን ማን ፈጠረው?' ('Who created God?') — the cosmological argument in 1,323 chars: everything that begins to exist has a cause; scientists once held the steady-state theory but cosmological evidence now dates the universe to the Big Bang, so it had a single beginning and something outside it caused it; God is in a different category, self-existent and not dependent. Answers the 'who made God then?' rebuttal that follows the first reason a skeptic is given, so it is part of the same grounds-for-belief answer, not a separate topic.", rank: 5, score: 0.666 }
+    reworded: |
+      ⚠️ REWORDED FOUR TIMES — this case cost more than the other four combined,
+      and the reason is a finding about this source, not about the question.
+
+      v1: "…ሰው ራሱን ለማጽናናት የፈጠረው ምኞት ነው… ከስሜትና ከልማድ ውጭ የቆመ ነገር ካለ…"
+          ("…a wish people invented to COMFORT THEMSELVES… anything standing
+          apart from feeling and HABIT")
+          → top 0.611. `/a/prove.html` MISSED ENTIRELY, `/a/isthere.html` rank 6,
+          and **8 of the top 10 were the sex-and-relationships shelf**: rank 1
+          /a/masturbation.html, rank 2 /a/marriage.html, rank 3 /a/addiction.html,
+          rank 4 /a/wolves.html, rank 8 /a/toxic.html.
+          🔴 ROOT CAUSE, AND IT IS NEW: on a source that is 29% sexual ethics and
+          addiction, the words **"ራሱን ለማጽናናት" (to comfort oneself) and "ልማድ"
+          (habit)** are not neutral — they map straight onto the compulsion shelf,
+          because "ሱስ" (addiction) and self-comfort are that shelf's whole subject.
+          This is §0.12 failure mode #4 (lexical artifact) and #5 (emotional
+          framing) firing together, and the trigger words are ones the English
+          topic menu itself suggests. **Any source with a large sexual-ethics
+          shelf should treat "comfort", "habit" and "crutch" as poisoned.**
+      v2: "…ሰው ራሱ አስቦና መርምሮ ሊደርስበት የሚችል ጠንካራ ምክንያት ካለ…" (a strong reason a
+          person can reach by thinking and examining)
+          → top 0.648. `/a/prove.html` climbed to rank 2 — Ganssle's article IS
+          about whether reasons can be given — but `/a/isthere.html` fell out and
+          6 of 10 were still the sex shelf (marriage rank 1, intimacy rank 3).
+          Half-fixed: the philosophical article came in, the empirical one left.
+      v3: "…ይህ ሁሉ ፍጥረት በአጋጣሚ የተገኘ ሆኖ አይሰማኝም። ከስሜት ባለፈ የሚጨበጥ ማስረጃ አለ ወይ?"
+          (a design-argument framing: this creation does not feel accidental)
+          → top 0.553 🔻 WORSE THAN EITHER. `/a/prove.html` out, `/a/isthere.html`
+          only rank 5, and **/a/intimacy.html was rank 1 for a design argument**.
+          Lowering the score did not clean the top 10 — it did the opposite.
+          🔑 THIS IS THE SHARPEST DEMONSTRATION OF FAILURE MODE #6 IN THE SUITE:
+          v3 scores 0.553 and v4 scores 0.745, and the LOW-scoring question is
+          the bad one. A low top score is not evidence of a good question.
+      v4 (KEPT): names the existence question explicitly and keeps v2's
+          "reach it by examining" clause.
+          → **0.745, both credits at ranks 1 and 2, and the sex shelf is
+          completely gone from the top 10** — ranks 3–10 are tragedy, why,
+          created, prayers, coronavirus, director, personally, whois, i.e. eight
+          God-subject documents.
+      v5 (tested and rejected): dropped the existence clause for "…ወይስ ሁሉም ነገር
+          በእምነት ብቻ ነው የሚያዘው?" ("…or does the whole thing rest on faith alone?")
+          → top 0.701, a much safer margin, but `/a/prove.html` rank 1,
+          `/a/isthere.html` slipped to rank 4, **`/a/created.html` fell out
+          entirely**, and /a/intimacy.html (rank 6) and /a/masturbation.html
+          (rank 9) came back. Traded one credit and a clean top 10 for 0.044 of
+          headroom. **v4 kept.**
+    note: |
+      ⚠️ FOR THE REVIEWER — 0.745 IS A THIN MARGIN AND IS FLAGGED DELIBERATELY.
+      It clears the mechanical 0.75 line by 0.005. The question does contain the
+      clause "እግዚአብሔር በእርግጥ አለ ወይ" ("does God really exist"), which is close to
+      `/a/isthere.html`'s title "እግዚአብሔር አለ ?" — but it is a subordinate clause
+      inside a 30-word question, not the question itself, and the top score is
+      against `/a/prove.html`, whose title ("Can you PROVE God's existence?") the
+      question does not restate. Precedent: `eshu-skeptic-vagyalom` shipped at
+      0.744. The v5 A/B above is the evidence that buying more margin here costs
+      a credit and re-admits the tail shelf. **Operator may prefer v5; the exact
+      text and its cost are recorded above so the swap is a one-line edit.**
+    top_score: 0.745
+
+  # ── 2 ─────────────────────────────────────────── skeptic 🔴 TITLE TRAP HERE
+  - id: "esam-skeptic-adega" # topic: suffering
+    persona: skeptic
+    topic: suffering
+    q: "ባለፈው ዓመት የቅርብ ጓደኛዬ በአደጋ ሞተ። ሰዎች እግዚአብሔር ቸርና ፍቅር ነው ይላሉ፤ እኔ ግን ያንን ከሆነው ነገር ጋር ማስማማት አልቻልኩም። ለምን እንዲህ እንዲሆን ፈቀደ?"
+    en: "Last year a close friend of mine died in an accident. People say God is kind and loving; but I have not managed to reconcile that with what happened. Why did he allow it to happen this way?"
+    credits:
+      - { path: "/a/why.html", en: "'ሕይወት ለምን እንዲህ ከባድ ሆነ?' — 'Why do people suffer from cancer? Why do earthquakes wipe out cities?' then the concrete cases: our parents divorce, a girl is raped by a bully, a relative gets cancer. The closest document on the source to the asker's actual situation.", rank: 3, score: 0.658 }
+      - { path: "/a/tragedy.html", en: "'በጭንቅ ስንከበብ እግዚአብሔር ወዴት ነው?' (Marilyn Adamson, 8,180) — 'Have you ever asked, God, where are you?' Explicitly says knowing God does not exempt anyone from hardship ('ይህ ማለት ግን እግዚአብሔርን የሚያውቁ አስቸጋሪ ወቅቶች አይደርሱባቸውም ማለት አይደለም። በፍጹም።') and works through a terrorist attack killing believers alongside everyone else.", rank: 6, score: 0.654 }
+      - { path: "/a/director.html", en: "🔴 TITLE TRAP. Titled 'እግዚአብሔር ብቁ ዳይሬክተር ነውን?' — 'Is God a competent DIRECTOR?', a film-director analogy that names no subject a reviewer would recognise. The body is this source's THEODICY article: it opens 'ለምንድነው ከክፋትና ከሥቃይ ነፃ የሆነች ዓለም የማትኖረን?' ('Why don't we have a world free of evil and suffering?') and argues that saying 'this world is terrible, so I do not believe in God' presupposes a better world one has no naturalistic account of. A title-only reviewer files this under film criticism. 🔴 KEPT DELIBERATELY THOUGH IT DOES NOT RETURN — see kept_miss.", rank: NOT IN TOP 10 }
+    kept_miss: |
+      🔴 THE ONE CREDIT THAT DOES NOT RETURN, AND WHY IT IS KEPT (guardrail #8 §2).
+      `/a/director.html` is the ONLY philosophical theodicy on `everystudent-am`
+      and its first line of body text is literally the question this case asks:
+      "ለምንድነው ከክፋትና ከሥቃይ ነፃ የሆነች ዓለም የማትኖረን?" — "Why don't we have a world free
+      of evil and suffering?" On reflection it does not answer a different
+      question, so dropping it would be dishonest. I KEPT it.
+
+      🔑 WHAT IT MEASURES, AND WHY THIS ONE IS WORTH THE COVERAGE COST. The
+      document is not weakly retrieved — it is retrieved CONFIDENTLY, for the
+      wrong questions. Measured across this suite's own rounds:
+
+        purpose      question → rank 2, 0.600   (and rank 1, 0.597, in round 1)
+        god-exists   question → rank 3, 0.643   (rank 8, 0.644, in round 4)
+        suffering    question → OUTSIDE THE TOP 10, every round
+
+      The one topic whose opening sentence it reproduces is the one topic that
+      cannot reach it. The cause is visible in the text: the article spends its
+      length on the film-director analogy, on whether a better world is possible
+      and on evolution — abstract argument — while the SUFFERING question is a
+      bereavement, and the two pastoral articles that do return (`/a/why.html`
+      rank 3, `/a/tragedy.html` rank 6) are written in the register of grief.
+      Meanwhile rank 1 for this bereavement question is `/a/coronavirus.html`
+      (0.706), the ANXIETY article, and rank 4 is `/a/whydid.html` (0.655), the
+      ATONEMENT article. This case will score coverage 2/3, on purpose. Same
+      treatment as `eshu-skeptic-vagyalom` and `esbg-skeptic-katastrofa`.
+
+      ⚠️ NOT RE-WORDED TOWARDS IT, DELIBERATELY. Making the question abstract
+      enough to reach `/a/director.html` would have to drop the dead friend, and
+      §0.10's `hu` round-2 lesson is that over-correcting one credit costs the
+      case: `/a/isthere.html` is already at rank 2 (0.668) for this question, so
+      any move toward abstraction hands the case to the god-exists shelf.
+    note: |
+      ⚠️ FAILURE MODE #4 GUARDED. The §0.7 scaffold says "died in an accident".
+      The Amharic keeps "አደጋ" (accident) but deliberately does NOT say "መኪና"
+      (car) — the Japanese finding was that incidental scene-setting nouns pull
+      lexical matches, and `/a/addiction.html` on this source contains an
+      extended late-night driving-and-police scene that "car" would reach for.
+    rejected:
+      - { path: "/a/coronavirus.html", rank: 1, why: "RANK 1 AND REJECTED — the REVERSE TITLE TRAP article ('Coronavirus anxiety'), which is genuinely this source's general ANXIETY piece. Its subject is how to live without fear, not why a good God permits a death. Same call as the Hungarian /a/koronavirus.html at rank 6 of its suffering case." }
+      - { path: "/a/isthere.html", rank: 2, why: "RANK 2 AND REJECTED — the six-reasons apologetics article, credited to case 1. It argues that God exists, not why he allows what he allows." }
+      - { path: "/a/whydid.html", rank: 4, why: "the dedicated atonement article — a boilerplate-adjacent match on a bereavement question. Its subject is what Jesus' death accomplished." }
+      - { path: "/a/prayers.html", rank: 5, why: "the prayer article — credited to case 5. This source's promiscuous document; see case 5's note." }
+      - { path: "/a/gl.html", rank: 7, why: "'Gays, lesbians and God's love' at rank 7 for a bereavement question — a textbook boilerplate-tail match, and note it carries /a/intimacy.html's TITLE in the database (see the header hazard block)." }
+      - { path: "/a/reallife.html", rank: 8, why: "credited to case 3" }
+      - { path: "/a/intimacy.html", rank: 9, why: "'Sex and looking for a partner' at rank 9 for a bereavement question. Tail match." }
+      - { path: "/a/purpose.html", rank: 10, why: "credited to case 3" }
+    top_score: 0.706
+
+  # ── 3 ──────────────────────────────────────────────────────────────── seeker
+  - id: "esam-seeker-dekme" # topic: purpose
+    persona: seeker
+    topic: purpose
+    q: "ቀኑን ሙሉ ደክሜ ውዬ ማታ ስተኛ ያሳለፍኩት ሁሉ ወደ ምንም ያልደረሰ ይመስለኛል። ለመሆኑ እኔ በዚህ ዓለም ላይ ያለሁት ለምንድነው? ሕይወቴ የሚያመራበት ቦታ አለ?"
+    en: "I work hard all day, and at night when I lie down it seems to me that everything I spent came to nothing. So then — why am I in this world at all? Is there anywhere my life is heading?"
+    credits:
+      - { path: "/a/reallife.html", en: "'ሊሞላ ያልቻለው የሕይወት ቋት' ('The cup of life that could not be filled') — three people who reached the summit and were still empty: the mountaineer whose life goal was the climb and who was hollow at the top, the footballer who lifted the championship trophy and was still empty, and the graduating student. The Amharic twin of the Hungarian /a/valddi.html and the Spanish 'Real life', both credited for this same question shape.", rank: 5, score: 0.587 }
+      - { path: "/a/purpose.html", en: "'የሕይወቴ ዓላማ ምንድነው?' — the hammer parable told at length: a hammer made to drive nails, shut in a toolbox, then used to lop branches and to shim a table leg, and dissatisfied every time because none of it is what it was made for.", rank: 4, score: 0.589 }
+    reworded: |
+      ⚠️ REWORDED ONCE, for a clean lexical artifact worth recording.
+      v1 ended "…እኔ በዚህ ዓለም ላይ ለምን **ተፈጠርኩ**?" ("why was I CREATED in this
+      world?"). Both credits returned (ranks 4 and 7) but the top three were
+      `/a/director.html` (0.597), `/a/why.html` (0.588) and — rank 3 —
+      **`/a/sixdays.html` (0.582), "Did God create the world in six days?"**, a
+      young-earth-vs-science FAQ with nothing to say about a person's purpose.
+      The Amharic verb ተፈጠርኩ ("I was created") shares its root with ፈጠረ /
+      ፍጥረት (to create / creation), so the creation-science article was pulled by
+      morphology alone. §0.12 failure mode #4, in a form that only appears in a
+      root-and-pattern language: the trigger is not a noun the author chose for
+      colour, it is the ONLY natural verb for the idea.
+      v2 (kept): "…እኔ በዚህ ዓለም ላይ **ያለሁት** ለምንድነው? ሕይወቴ የሚያመራበት ቦታ አለ?"
+          ("…why am I HERE in this world? Is there anywhere my life is heading?")
+          → `/a/sixdays.html` gone from the top 10 entirely; both credits held
+          and tightened to ranks 4 and 5.
+    rejected:
+      - { path: "/a/why.html", rank: 1, why: "RANK 1 AND REJECTED — 'Why did life become so hard?', credited to case 2. Its subject is suffering, and it reaches this question through its shared 'what is life actually for' opening." }
+      - { path: "/a/director.html", rank: 2, why: "the theodicy article — rank 2 here and OUTSIDE the top 10 for the suffering question it was written for. This is the evidence for case 2's kept_miss." }
+      - { path: "/a/throne.html", rank: 3, why: "'ነፃ ፈቃድ አለኝ?' ('Do I have free will?') — Descartes' cogito, the self as an island, the will as a throne to be handed over. Its subject is the will and surrender, not what a life is for. A near-miss that reads like a purpose article by title." }
+      - { path: "/a/tragedy.html", rank: 6, why: "credited to case 2" }
+      - { path: "/a/addiction.html", rank: 7, why: "a drug-addiction testimony — matched on its emptiness opening, not on purpose" }
+      - { path: "/a/coronavirus.html", rank: 8, why: "the anxiety article" }
+      - { path: "/a/gl.html", rank: 9, why: "'Gays, lesbians and God's love' — tail match" }
+      - { path: "/a/isthere.html", rank: 10, why: "credited to case 1" }
+    top_score: 0.601
+
+  # ── 4 ────────────────────────────────────────────────────────────── newcomer
+  - id: "esam-newcomer-sost" # topic: trinity
+    persona: newcomer
+    topic: trinity
+    q: "ወደ ቤተ ክርስቲያን ስሄድ አንዴ ወደ አብ፣ አንዴ ወደ ኢየሱስ፣ አንዴ ደግሞ ወደ መንፈስ ቅዱስ ሲጸልዩ እሰማለሁ። ታዲያ ክርስቲያኖች ሦስት አማልክትን ነው የሚያመልኩት?"
+    en: "When I go to church I hear them praying now to the Father, now to Jesus, now to the Holy Spirit. So are Christians worshipping three gods?"
+    credits:
+      - { path: "/a/trinity1.html", en: "'ስላሴን ልታብራራ ትችላለህን?' — the three-dimensions analogy and the explicit formulation '1+1+1=3 አይነት አይደለም። 1X1X1=3 ነው' (a typo for =1 in the source text), plus the water/ice/steam and eggshell/yolk/white analogies. States the constraint plainly: the Bible speaks of God the Son, God the Father and God the Spirit but insists there is only ONE God.", rank: 5, score: 0.577 }
+      - { path: "/a/trinity2.html", en: "'ስላሴ' — the same doctrine argued from the Apostles' Creed's three sections and from Matthew 28:19 ('baptising them in the name of the Father and of the Son and of the Holy Spirit'), i.e. the liturgical route rather than the analogy route. Directly matches an asker whose question comes from what he HEARD in a service.", rank: 1, score: 0.641 }
+    note: |
+      ⓘ QUESTION SHAPE BORROWED FROM `ru`/`bg`/`hu`, NOT INVENTED. Both `ru`
+      (0.807) and `bg` (0.756) hit a paraphrase smell on this topic when the
+      question was stated as the doctrinal formula, and both fixed it by
+      reframing it as something a newcomer NOTICES IN A SERVICE; `hu` started
+      from the fixed shape and landed 0.708 rank 1 first time. This question
+      therefore never contains the word ስላሴ (Trinity) — which is the title of
+      BOTH credits — and describes hearing three addressees in prayer instead.
+      Amharic landed 0.641 with both credits at ranks 1 and 5 on the FIRST round
+      and was never reworded. Fourth source, same transfer.
+    rejected:
+      - { path: "/a/personally.html", rank: 2, why: "RANK 2 AND REJECTED — the Four Spiritual Laws tract, the /a/personally.html shape from Part A. A pure boilerplate match: this is the estate's begin-a-relationship page, and it appears in the top 10 of three of this suite's five cases." }
+      - { path: "/a/religions.html", rank: 3, why: "'What is the difference between Jesus and other religions?' — its point 2 is that Jesus claimed to be God, which is adjacent to the question, but its subject is inter-religious comparison. It was the dropped `religions` topic's only article." }
+      - { path: "/a/marriage.html", rank: 4, why: "'Is there hope for a marriage about to break up?' at RANK 4 for a Trinity question — the plainest boilerplate-tail specimen in this suite, and drawn from the 29% sex-and-relationships shelf." }
+      - { path: "/a/tragedy.html", rank: 6, why: "credited to case 2" }
+      - { path: "/a/christmas.html", rank: 7, why: "'እግዚአብሔር ከእኛ ጋር' ('God with us') — a Christmas/incarnation piece. Adjacent to the Son's deity but its subject is the nativity feast and Santa Claus displacing Christ from it." }
+      - { path: "/a/whydid.html", rank: 8, why: "the atonement article — the one the dropped `jesus-death` topic would have credited" }
+      - { path: "/a/struggling.html", rank: 9, why: "a student's porn-addiction testimony, at rank 9 for a Trinity question. Tail match." }
+      - { path: "/a/radical.html", rank: 10, why: "a Pakistani ex-Muslim's testimony. Its subject includes the Islamic objection to God having a Son, which is adjacent — but it is one person's story, and the question is about how three addressees are one God." }
+    top_score: 0.641
+
+  # ── 5 ────────────────────────────────────────────────────────────── believer
+  - id: "esam-believer-tsetsta" # topic: prayer
+    persona: believer
+    topic: prayer
+    q: "ስለ አንድ ጉዳይ ለወራት ስጸልይ ቆይቻለሁ፤ ግን እስካሁን ምንም ምላሽ አላገኘሁም። እግዚአብሔር ጸሎቴን ይሰማል ወይ? ካልሰማ ደግሞ ለምንድነው?"
+    en: "I have been praying about one matter for months, but so far I have received no answer at all. Does God hear my prayer? And if he does not, why not?"
+    credits:
+      - { path: "/a/prayers.html", en: "'እግዚአብሔር ፀሎት ይመልሳልን?' (Marilyn Adamson) — told by a former atheist watching a praying friend week after week, and it carries a section headed 'ያልተመለሰ ፀሎቶቻችን' ('our UNANSWERED prayers'), which is the asker's exact situation. The Amharic twin of the Spanish /articulos/oraciones.html, the Russian /a/molitvi.html, the Hungarian /a/imadsagra.html and the Bulgarian prayer article, all credited for this same shape.", rank: 1, score: 0.653 }
+    note: |
+      ⓘ ONE CREDIT IS THE HONEST ANSWER. `everystudent-am` carries exactly one
+      prayer article — same as `hu`, `bg` and `ru`, all of which also credit
+      exactly one document here. This is the §0.7 believer-thinness finding
+      showing up in the corpus rather than in the persona split.
+
+      ⚠️ `/a/prayers.html` IS THIS SOURCE'S PROMISCUOUS DOCUMENT. Discovery
+      surfaced it in FIVE of the ten topics — god-exists (0.482), know-god
+      (0.457), suffering (0.533), anxiety (0.560) and prayer (0.475) — and in
+      three of those five it out-ranked the topic's own dedicated article. It is
+      only 5,228 chars over 3 chunks, and the chunk doing the work in the other
+      four topics is its gospel-summary tail ("God so loved the world that he
+      gave his one and only Son… if God did not spare his own Son, how will he
+      not also give us all things?"). It is `everystudent-am`'s equivalent of
+      the Hungarian `/story/Atti.html`, and it is the reason the `know-god` and
+      `anxiety` topics were dropped rather than the `prayer` one: this is the
+      single case where its retrieval is CORRECT.
+    reworded: |
+      ⚠️ REWORDED ONCE, and this is the suite's second new lexical finding.
+      v1: "…ጸጥታ ብቻ ነው። እኔ **የተሳሳትኩት** ነገር አለ?" — the §0.7 scaffold's closing
+          question, "Am I doing something WRONG?"
+          → top 0.502, `/a/prayers.html` **MISSED ENTIRELY**, and the top 10 was
+          the sex-and-relationships shelf end to end: rank 1 /a/sex2.html ('Who
+          makes the sex rules?'), 2 /a/wolves.html, 3 /a/toxic.html,
+          4 /a/masturbation.html, 5 /a/marriage.html, 6 /a/sex.html
+          ('Is premarital sex WRONG?'), 7 /a/intimacy.html, 8 /a/addiction.html.
+          🔴 ROOT CAUSE: "am I doing something wrong?" is a MORAL-WRONGDOING
+          question, and on `everystudent-am` the entire moral-wrongdoing shelf is
+          sexual ethics — `/a/sex.html`'s title is literally "ቅድመ ጋብቻ ወሲብ ስህተት
+          ነውን?" ("Is premarital sex WRONG?"), the same word (ስህተት / ተሳሳትኩ) the
+          question used. The believer's self-blame framing, which is the most
+          natural way to ask this, is the single worst phrasing available here.
+      v2 (kept): drops the self-blame clause and asks whether God hears and, if
+          not, why — keeping the prayer vocabulary dense (ስጸልይ, ጸሎቴን, ምላሽ).
+          → **0.502 → 0.653, `/a/prayers.html` from MISSING to RANK 1**, and all
+          eight sex-shelf documents cleared from the top 4. The largest single
+          repair in the suite.
+      🔑 GENERALISABLE: this and case 1's v1 are the same finding from two
+      directions. On a source with a dominant sexual-ethics shelf, the ordinary
+      pastoral vocabulary of guilt, habit, self-comfort and "am I doing something
+      wrong" is a retrieval trap. Three of the five §0.7 scaffolds contain one of
+      those phrases in English.
+    rejected:
+      - { path: "/a/coronavirus.html", rank: 2, why: "the anxiety article — matched on the distress register of unanswered prayer, not on prayer" }
+      - { path: "/a/why.html", rank: 3, why: "credited to case 2" }
+      - { path: "/a/tragedy.html", rank: 4, why: "credited to case 2. Its 'God, where are you?' opening is close to this question's register, and it is the nearest thing to a legitimate second credit — see the reviewer note in the SUMMARY." }
+      - { path: "/a/intimacy.html", rank: 5, why: "'Sex and looking for a partner' at rank 5 for a prayer question. Tail match, and a residue of the v1 defect above." }
+      - { path: "/a/addiction.html", rank: 6, why: "drug-addiction testimony, tail match" }
+      - { path: "/a/wolves.html", rank: 7, why: "'Why my view of dating changed' at rank 7 for a prayer question. Tail match." }
+      - { path: "/a/gl.html", rank: 8, why: "tail match" }
+      - { path: "/a/marriage.html", rank: 9, why: "marriage advice at rank 9 for a prayer question — the same defect the Hungarian suite recorded at rank 7 of ITS prayer case, on a different source and a different language" }
+      - { path: "/a/purpose.html", rank: 10, why: "credited to case 3" }
+    top_score: 0.653
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────────────────────
+# 5 cases · 11 credits · 11 distinct documents (no document credited twice)
+# Personas: skeptic 2 · newcomer 1 · seeker 1 · believer 1 — matches §0.7's 5-case row
+# Paraphrase smells: 0 in every round. Max top score 0.745.
+# Credits that do not retrieve: 1 (`/a/director.html` on `adega`), kept deliberately.
+# evidence_tier: llm-translated
+#
+# ══ ENGINE-CHECK LOG — 5 rounds (guardrail #8 §2) ═══════════════════════════
+#   .tmp-diag/phase5-check.ts am am
+#   Round 1: 0 smells · 3 credits not in top 10 · max 0.706 · 10 credits
+#   Round 2: 0 smells · 2 credits not in top 10 · max 0.706 · 10 credits
+#            (prayer repaired: MISSING → rank 1. god-exists see-sawed: `prove`
+#             came in at rank 2, `isthere` fell out.)
+#   Round 3: 0 smells · 2 credits not in top 10 · max 0.553 🔻 REGRESSION,
+#            god-exists v3 abandoned
+#   Round 4: 0 smells · 1 credit not in top 10 · max 0.745 · 11 credits
+#            (god-exists v4: both credits ranks 1–2, `/a/created.html` added)
+#   Round 5: A/B of god-exists v5 · max 0.701 but 2 of 3 credits and the tail
+#            shelf returned → **v4 retained**; v5's text is recorded in case 1.
+#   FINAL:   0 smells · 1 credit not in top 10 (the deliberate keep) · max 0.745
+#
+# ══ MECHANICAL CHECKS — both green, run inside the check script ═════════════
+#   Guardrail #8 §3: all 11 credited paths resolve to EXACTLY ONE document — 11/11.
+#   Guardrail #3a:   no credited document has a null language — 11/11.
+#   No credited document is under 1,200 chars (smallest credit: /a/created.html,
+#   1,323 — flagged here because it is the closest to the pure-tail line, and it
+#   was read in full before crediting; it is a cosmological argument, not a tail).
+#
+# ══ 🔴 THE FINDING THIS SOURCE CONTRIBUTES ══════════════════════════════════
+#   **A DOMINANT SEXUAL-ETHICS SHELF POISONS THE ORDINARY VOCABULARY OF THE
+#   TOPIC MENU.** `everystudent-am` has no `/story/` documents at all, so by the
+#   §0.12 testimony-share metric it should be a LOW boilerplate-tail risk — and
+#   that prediction is wrong. 12 of its 41 documents (29%) are sexual ethics,
+#   marriage and addiction, and that shelf, not testimony, is what floods the
+#   top 10. Two independent questions were destroyed by it before being fixed:
+#
+#     case 1 v1  "ራሱን ለማጽናናት" (to comfort oneself) + "ልማድ" (habit)
+#                → 8 of the top 10 were the sex/addiction shelf; both credits lost
+#     case 5 v1  "የተሳሳትኩት ነገር አለ?" (am I doing something wrong?)
+#                → ALL of the top 8 were that shelf; the credit was lost
+#                → the rank-6 hit was /a/sex.html, titled "Is premarital sex
+#                  WRONG?", i.e. matched on the very word ስህተት/ተሳሳትኩ
+#
+#   Both phrasings come straight from the §0.7 English scaffolds ("wishful
+#   thinking… comfort", "Am I doing something wrong?"). **The recommendation for
+#   the remaining suites: before writing questions, check the source's LARGEST
+#   CATEGORY, not just its testimony share, and treat that category's vocabulary
+#   as poisoned.** Testimony share predicts tails; category dominance predicts
+#   which words cannot be used.
+#
+# ══ 🔴 TITLE TRAPS FOUND (3) ════════════════════════════════════════════════
+#   1. `/a/director.html` — "እግዚአብሔር ብቁ ዳይሬክተር ነውን?" ("Is God a competent
+#      DIRECTOR?"). A film-director analogy naming no subject; it is the source's
+#      only philosophical THEODICY, opening "Why don't we have a world free of
+#      evil and suffering?" A title-only reviewer files it under film criticism.
+#   2. `/a/gl.html` — carries the title "ወሲብና የፍቅር ጓደኛ ፍለጋ" ("Sex and looking
+#      for a partner") in the database, which is ALSO `/a/intimacy.html`'s title.
+#      Its body is Marilyn Adamson's "Gays, lesbians and God's love". This is the
+#      duplicate-title trap Japanese found in batch 1, reproduced exactly:
+#      crediting by title here is a coin flip between two different documents.
+#   3. `/a/coronavirus.html` — "የኮሮናቫይረስ ጭንቀት". The REVERSE trap, now confirmed
+#      on a seventh source (`hu` `pl` `sq` `tr` `pt` `es` + `am`): it reads as an
+#      expired 2020 notice and IS the general anxiety article. It was rank 1 for
+#      the suffering question at 0.706 — the highest score in the whole suite.
+#   Plus one PURE-TAIL document, `/a/plates.html` (953 chars, "Falling Plates"),
+#   never credited.
+#
+# ⓘ NO CONTENT GAP FORCED ANY DROP. All ten §0.7 topics are answerable from this
+#   source. Five were dropped to fit 41 ÷ 8 = 5; the reasoning for each is in the
+#   header. The two facts worth carrying to the estate record are: (a) `am` HAS a
+#   dedicated atonement article, `/a/whydid.html`, which returned rank 1 at 0.545
+#   for the English jesus-death probe — so it joins the 8 sources that have one,
+#   not `ru`/`zh-cn`/`mn`; and (b) `am` has NO Islam article and NO `/a/205`
+#   world-religions comparison, so it patterns with Iran and Czechia on
+#   `bible-trust` and is the thinnest source yet on `religions`.
+#
+# ══ ⚠️ FOR THE REVIEWER — four things to decide ═════════════════════════════
+#   1. `evidence_tier: llm-translated`. A fact about the reviewer, not the
+#      language. If anyone on the team reads Amharic, this should be
+#      `human-verified` — and Amharic is the one language in this batch where a
+#      reader is plausibly reachable through the Ethiopian field team.
+#   2. **Case 1 tops out at 0.745, five thousandths under the smell line.** Both
+#      credits sit at ranks 1 and 2 and the tail shelf is fully cleared. The
+#      tested alternative (v5, text recorded in the case) buys 0.044 of margin
+#      and costs one credit plus two tail documents back in the top 10. Keep v4
+#      (recommended) or swap to v5 — it is a one-line edit.
+#   3. **`/a/director.html` on case 2 — KEEP (recommended) or DROP.** It is the
+#      source's only theodicy and its opening line is the question; it retrieves
+#      confidently for `purpose` (rank 2) and `god-exists` (rank 3) and never for
+#      `suffering`. Keeping it makes the case 2/3 on purpose and records a
+#      specific, reproducible mis-file. Dropping it makes the suite 10/10.
+#   4. **Case 5 has one credit; `/a/tragedy.html` at rank 4 is the boundary.**
+#      It is credited to case 2. Its "God, where are you?" register genuinely
+#      overlaps unanswered prayer. I did not double-credit it — no document is
+#      credited twice anywhere in this suite — but the operator may prefer to.

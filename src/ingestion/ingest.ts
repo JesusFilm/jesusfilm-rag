@@ -23,6 +23,8 @@ import { getSource, type SourceEntry } from "@/registry/index.js";
 import { normalizeDocument } from "./normalize.js";
 import { chunkDocument } from "./chunk.js";
 
+const MAX_INGEST_CONCURRENCY = 4;
+
 export interface IngestDeps {
   reader: RawDocumentReader;
   embedder: Embedder;
@@ -72,6 +74,12 @@ export interface IngestOptions {
   onProgress?: (line: string) => void;
 }
 
+interface IngestResult {
+  status: IngestStatus;
+  chunks: number;
+  warning?: string;
+}
+
 function sourceRecordOf(entry: SourceEntry): SourceRecord {
   return {
     key: entry.key,
@@ -93,7 +101,7 @@ async function ingestDocument(
   entry: SourceEntry,
   raw: PendingRawDocument,
   flags: { force: boolean; forceAll: boolean },
-): Promise<{ status: IngestStatus; chunks: number; warning?: string }> {
+): Promise<IngestResult> {
   const norm = normalizeDocument(entry, {
     url: raw.url,
     canonicalUrl: raw.canonicalUrl,
@@ -142,6 +150,32 @@ async function ingestDocument(
   return { status: existing ? "updated" : "inserted", chunks: chunks.length, warning };
 }
 
+/** Fold one completed row into the shared summary and operator progress stream. */
+function recordResult(
+  summary: IngestSummary,
+  raw: PendingRawDocument,
+  result: IngestResult,
+  onProgress?: (line: string) => void,
+): void {
+  if (result.status === "inserted") summary.inserted++;
+  else if (result.status === "updated") summary.updated++;
+  else if (result.status === "unchanged") summary.unchanged++;
+  else summary.skipped++;
+  summary.chunksWritten += result.chunks;
+  if (result.warning) onProgress?.(`  ⚠ ${raw.url} — ${result.warning}`);
+  onProgress?.(`  ✓ ${raw.url} — ${result.status} (${result.chunks} chunks)`);
+}
+
+/** Enforce the operational cap at the context boundary, not only in CLI parsing. */
+function validateConcurrency(value: number): void {
+  if (!Number.isSafeInteger(value) || value < 1 || value > MAX_INGEST_CONCURRENCY) {
+    throw new Error(
+      `ingestPending: concurrency must be a safe integer from 1 to ` +
+        `${MAX_INGEST_CONCURRENCY}, got ${value}`,
+    );
+  }
+}
+
 /** Drain all pending staging rows (optionally scoped) through ingestDocument. */
 export async function ingestPending(
   deps: IngestDeps,
@@ -164,9 +198,7 @@ export async function ingestPending(
     chunksWritten: 0,
   };
   const concurrency = opts.concurrency ?? 1;
-  if (!Number.isInteger(concurrency) || concurrency < 1) {
-    throw new Error(`ingestPending: concurrency must be a positive integer, got ${concurrency}`);
-  }
+  validateConcurrency(concurrency);
 
   // Resolve registry entries and group duplicate corpus identities before any
   // concurrent work. raw_documents deliberately has no canonical-url unique
@@ -198,9 +230,10 @@ export async function ingestPending(
 
   const queue = [...jobs.values()];
   let next = 0;
+  let failed = false;
   let firstError: unknown;
   const worker = async (): Promise<void> => {
-    while (firstError === undefined) {
+    while (!failed) {
       const index = next++;
       if (index >= queue.length) return;
       const { entry, raws } = queue[index];
@@ -208,28 +241,24 @@ export async function ingestPending(
         // Duplicate canonical identities remain sequential inside one job.
         for (const raw of raws) {
           summary.attempted++;
-          const { status, chunks, warning } = await ingestDocument(deps, entry, raw, {
+          const result = await ingestDocument(deps, entry, raw, {
             force,
             forceAll,
           });
-          if (status === "inserted") summary.inserted++;
-          else if (status === "updated") summary.updated++;
-          else if (status === "unchanged") summary.unchanged++;
-          else summary.skipped++;
-          summary.chunksWritten += chunks;
-
           await deps.reader.markIngested([raw.id]);
-          if (warning) opts.onProgress?.(`  ⚠ ${raw.url} — ${warning}`);
-          opts.onProgress?.(`  ✓ ${raw.url} — ${status} (${chunks} chunks)`);
+          recordResult(summary, raw, result, opts.onProgress);
         }
       } catch (error) {
-        firstError ??= error;
+        if (!failed) {
+          failed = true;
+          firstError = error;
+        }
       }
     }
   };
 
   await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker));
-  if (firstError !== undefined) throw firstError;
+  if (failed) throw firstError;
 
   return summary;
 }

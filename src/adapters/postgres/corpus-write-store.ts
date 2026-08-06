@@ -138,6 +138,7 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
       // inserting the fresh set, all inside this transaction.
       await tx.delete(chunks).where(eq(chunks.documentId, documentRow.id));
 
+      if (embedded.length === 0) return;
       const chunkRows = await tx
         .insert(chunks)
         .values(

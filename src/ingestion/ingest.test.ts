@@ -291,6 +291,7 @@ describe("ingestPending", () => {
     expect(reader.isIngested("running")).toBe(true);
     expect(reader.isIngested("not-started")).toBe(false);
   });
+
 });
 
 describe("ingestPending language detection (#74)", () => {

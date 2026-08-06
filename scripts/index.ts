@@ -18,6 +18,7 @@
 import "@/env.js";
 import { wire } from "@/main.js";
 import { ingestPending, type IngestSummary } from "@/ingestion/index.js";
+import { parseIngestConcurrency } from "./lib/ingest-concurrency.js";
 
 interface Args {
   source?: string;
@@ -30,7 +31,6 @@ interface Args {
 function parseArgs(argv: string[]): Args {
   const s = argv.indexOf("--source");
   const l = argv.indexOf("--limit");
-  const c = argv.indexOf("--concurrency");
   let limit: number | undefined;
   if (l >= 0) {
     // Must be a positive integer: 0 would silently drain nothing, a negative or
@@ -42,11 +42,9 @@ function parseArgs(argv: string[]): Args {
     }
     limit = n;
   }
-  const concurrency = c >= 0 ? Number(argv[c + 1]) : 4;
-  if (!Number.isInteger(concurrency) || concurrency <= 0) {
-    console.error(
-      `error: --concurrency must be a positive integer, got "${argv[c + 1] ?? ""}"`,
-    );
+  const { concurrency, error } = parseIngestConcurrency(argv);
+  if (error) {
+    console.error(`error: ${error}`);
     process.exit(2);
   }
   const forceAll = argv.includes("--force-all");

@@ -98,6 +98,12 @@ const envSchema = z.object({
   // QUERY_EMBED_MAX_ATTEMPTS and docs/ops/embed-retry-policy.md. Consumed by
   // the document embedder (main.ts).
   EMBED_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
+  // CORPUS embedding only: per-attempt timeout in ms. Document ingestion has
+  // no request/response latency SLA, and bounded document concurrency means a
+  // healthy capacity-limited gateway may legitimately queue one batch behind
+  // others. Keep a finite ceiling for dead connections, but do not apply the
+  // adapter's short interactive default to this batch workload.
+  EMBED_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
   // QUERY embedding only (a /v1/search or CLI query embedding the user's query
   // text at request time): total attempts before retrieval fails. Default 2
   // (1 try + 1 quick retry) — the consumer calling /v1/search has typically

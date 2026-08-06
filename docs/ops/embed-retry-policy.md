@@ -32,10 +32,10 @@ retry for a request whose caller was already gone.
 | | Corpus / documents (ingest) | Query (retrieval) |
 |---|---|---|
 | Runs during | `pnpm index`, `pnpm index:production` | `/v1/search` (`pnpm serve`), `pnpm query`, `pnpm retrieve:production`, `pnpm eval`, `pnpm eval:production` |
-| Per-attempt timeout | 30s (adapter default, not env-tunable) | `QUERY_EMBED_TIMEOUT_MS`, default **4s** |
+| Per-attempt timeout | `EMBED_TIMEOUT_MS`, default **120s** | `QUERY_EMBED_TIMEOUT_MS`, default **4s** |
 | Attempts (try + retries) | `EMBED_MAX_ATTEMPTS`, default **10** | `QUERY_EMBED_MAX_ATTEMPTS`, default **2** |
 | Backoff between attempts | 500ms → 1s → 2s → 4s → 8s → 8s … (doubles, capped at 8s); ~47.5s cumulative across 9 retries | 250ms before the single retry |
-| Worst case per call | ≈ 5.8 min per batch (10 × 30s timeouts + 47.5s backoff) | ≈ **8.25s** (4s + 250ms + 4s) |
+| Worst case per call | ≈ 20.8 min per batch (10 × 120s timeouts + 47.5s backoff) | ≈ **8.25s** (4s + 250ms + 4s) |
 | On exhaustion | The index run fails; re-run resumes (model-aware gate skips finished docs) | The search throws; `/v1/search` returns a contract-shaped `{"error":"internal"}` 500 |
 | Retry log line | `  ⟳ corpus embed attempt 2/10 failed (http_503); retrying in 1000ms` | `[retrieval] event=query_embed_retry attempt=1/2 reason=timeout delay_ms=250` |
 
@@ -95,3 +95,7 @@ nothing schedules it.
   default.
 - Raise `EMBED_MAX_ATTEMPTS` per ingest run when OpenRouter is having a rough
   day (see [prod-ingest.md](./prod-ingest.md)).
+- `EMBED_TIMEOUT_MS` is deliberately longer than the query timeout: concurrent
+  corpus batches may queue behind one another at a capacity-limited gateway,
+  and ingestion has no interactive latency SLA. A timeout should identify a
+  stuck request, not turn healthy queueing into duplicate retries.

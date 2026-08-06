@@ -20,6 +20,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 process.env.DATABASE_URL ??= "postgres://unused:unused@localhost:5432/unused";
 process.env.OPENROUTER_API_KEY ??= "test-key";
 delete process.env.EMBED_MAX_ATTEMPTS;
+delete process.env.EMBED_TIMEOUT_MS;
 delete process.env.QUERY_EMBED_MAX_ATTEMPTS;
 delete process.env.QUERY_EMBED_TIMEOUT_MS;
 

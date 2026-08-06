@@ -220,6 +220,10 @@ would mean opening a PR per ingest run. Prod ingest state lives in git history
   request-time query embedding (every `/v1/search`) runs a separate fast-fail
   policy (`QUERY_EMBED_MAX_ATTEMPTS`, default 2) — both policies side by side in
   [embed-retry-policy.md](./embed-retry-policy.md).
+  Corpus attempts use `EMBED_TIMEOUT_MS` (default 120 seconds). This is longer
+  than the adapter's general default because document concurrency can queue a
+  healthy request behind other batches; the timeout remains finite to recover
+  from a genuinely stuck connection.
 - **Wrong environment.** The script's redacted-host preview is your last line
   of defence. If the host looks wrong, answer `N`. Never put prod values into
   `.env`/`.env.local` — the unsuffixed scripts will use them silently.

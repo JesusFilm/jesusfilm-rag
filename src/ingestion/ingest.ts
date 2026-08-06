@@ -5,6 +5,7 @@
  * chunk → embed → idempotent `replaceDocument` (delete-then-insert, one tx).
  * upsertSource runs once per source before its first document. Each consumed
  * staging row is marked ingested so a re-run drains only new/changed pages.
+ * Bounded concurrency and duplicate-identity ordering are governed by ADR-0017.
  *
  * All I/O is via injected ports (RawDocumentReader, Embedder, CorpusWriteStore);
  * the registry (pure data) supplies each source's crawl/defaults. No adapter is
@@ -21,6 +22,8 @@ import type {
 import { getSource, type SourceEntry } from "@/registry/index.js";
 import { normalizeDocument } from "./normalize.js";
 import { chunkDocument } from "./chunk.js";
+
+const MAX_INGEST_CONCURRENCY = 4;
 
 export interface IngestDeps {
   reader: RawDocumentReader;
@@ -48,6 +51,8 @@ export interface IngestSummary {
 export interface IngestOptions {
   sourceKey?: string;
   limit?: number;
+  /** Maximum distinct documents processed at once. Default 1 preserves legacy behavior. */
+  concurrency?: number;
   /**
    * Re-index from the raw snapshot: re-drain already-ingested rows AND re-embed
    * a document whose content is unchanged **when it isn't already on the target
@@ -67,6 +72,12 @@ export interface IngestOptions {
    */
   forceAll?: boolean;
   onProgress?: (line: string) => void;
+}
+
+interface IngestResult {
+  status: IngestStatus;
+  chunks: number;
+  warning?: string;
 }
 
 function sourceRecordOf(entry: SourceEntry): SourceRecord {
@@ -90,7 +101,7 @@ async function ingestDocument(
   entry: SourceEntry,
   raw: PendingRawDocument,
   flags: { force: boolean; forceAll: boolean },
-): Promise<{ status: IngestStatus; chunks: number; warning?: string }> {
+): Promise<IngestResult> {
   const norm = normalizeDocument(entry, {
     url: raw.url,
     canonicalUrl: raw.canonicalUrl,
@@ -139,6 +150,32 @@ async function ingestDocument(
   return { status: existing ? "updated" : "inserted", chunks: chunks.length, warning };
 }
 
+/** Fold one completed row into the shared summary and operator progress stream. */
+function recordResult(
+  summary: IngestSummary,
+  raw: PendingRawDocument,
+  result: IngestResult,
+  onProgress?: (line: string) => void,
+): void {
+  if (result.status === "inserted") summary.inserted++;
+  else if (result.status === "updated") summary.updated++;
+  else if (result.status === "unchanged") summary.unchanged++;
+  else summary.skipped++;
+  summary.chunksWritten += result.chunks;
+  if (result.warning) onProgress?.(`  ⚠ ${raw.url} — ${result.warning}`);
+  onProgress?.(`  ✓ ${raw.url} — ${result.status} (${result.chunks} chunks)`);
+}
+
+/** Enforce the operational cap at the context boundary, not only in CLI parsing. */
+function validateConcurrency(value: number): void {
+  if (!Number.isSafeInteger(value) || value < 1 || value > MAX_INGEST_CONCURRENCY) {
+    throw new Error(
+      `ingestPending: concurrency must be a safe integer from 1 to ` +
+        `${MAX_INGEST_CONCURRENCY}, got ${value}`,
+    );
+  }
+}
+
 /** Drain all pending staging rows (optionally scoped) through ingestDocument. */
 export async function ingestPending(
   deps: IngestDeps,
@@ -160,33 +197,68 @@ export async function ingestPending(
     unknownSource: 0,
     chunksWritten: 0,
   };
-  const upserted = new Set<string>();
+  const concurrency = opts.concurrency ?? 1;
+  validateConcurrency(concurrency);
 
+  // Resolve registry entries and group duplicate corpus identities before any
+  // concurrent work. raw_documents deliberately has no canonical-url unique
+  // constraint; rows targeting the same corpus document must retain input order
+  // or concurrent replace transactions could make the final version timing-dependent.
+  const jobs = new Map<string, { entry: SourceEntry; raws: PendingRawDocument[] }>();
+  const entries = new Map<string, SourceEntry>();
   for (const raw of pending) {
-    summary.attempted++;
     const entry = getSource(raw.sourceKey);
     if (!entry) {
       // Leave the row un-marked: a later registry fix can pick it up.
+      summary.attempted++;
       summary.unknownSource++;
       opts.onProgress?.(`  ⤫ ${raw.url} — unknown source '${raw.sourceKey}'`);
       continue;
     }
-    if (!upserted.has(entry.key)) {
-      await deps.writer.upsertSource(sourceRecordOf(entry));
-      upserted.add(entry.key);
-    }
-
-    const { status, chunks, warning } = await ingestDocument(deps, entry, raw, { force, forceAll });
-    if (status === "inserted") summary.inserted++;
-    else if (status === "updated") summary.updated++;
-    else if (status === "unchanged") summary.unchanged++;
-    else summary.skipped++;
-    summary.chunksWritten += chunks;
-
-    await deps.reader.markIngested([raw.id]);
-    if (warning) opts.onProgress?.(`  ⚠ ${raw.url} — ${warning}`);
-    opts.onProgress?.(`  ✓ ${raw.url} — ${status} (${chunks} chunks)`);
+    entries.set(entry.key, entry);
+    const key = `${entry.key}\0${raw.canonicalUrl}`;
+    const job = jobs.get(key);
+    if (job) job.raws.push(raw);
+    else jobs.set(key, { entry, raws: [raw] });
   }
+
+  // Establish every source before releasing document workers. This preserves
+  // the old upsert-once-before-first-document invariant without a check/set race.
+  for (const entry of entries.values()) {
+    await deps.writer.upsertSource(sourceRecordOf(entry));
+  }
+
+  const queue = [...jobs.values()];
+  let next = 0;
+  let failed = false;
+  let firstError: unknown;
+  const worker = async (): Promise<void> => {
+    while (!failed) {
+      const index = next++;
+      if (index >= queue.length) return;
+      const { entry, raws } = queue[index];
+      try {
+        // Duplicate canonical identities remain sequential inside one job.
+        for (const raw of raws) {
+          summary.attempted++;
+          const result = await ingestDocument(deps, entry, raw, {
+            force,
+            forceAll,
+          });
+          await deps.reader.markIngested([raw.id]);
+          recordResult(summary, raw, result, opts.onProgress);
+        }
+      } catch (error) {
+        if (!failed) {
+          failed = true;
+          firstError = error;
+        }
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker));
+  if (failed) throw firstError;
 
   return summary;
 }

@@ -7,6 +7,7 @@
  *
  *   pnpm index:production --source <key>
  *   pnpm index:production --source <key> --limit 10
+ *   pnpm index:production --source <key> --concurrency 4 # default 4
  *   pnpm index:production --source <key> --force       # re-embed (resumable — skips
  *                                                      #   docs already on the target model)
  *   pnpm index:production --source <key> --force-all   # re-embed EVERY doc (chunker change)
@@ -20,6 +21,7 @@ import {
 interface Args {
   source?: string;
   limit?: number;
+  concurrency: number;
   force: boolean;
   forceAll: boolean;
 }
@@ -27,6 +29,7 @@ interface Args {
 function parseArgs(argv: string[]): Args {
   const s = argv.indexOf("--source");
   const l = argv.indexOf("--limit");
+  const c = argv.indexOf("--concurrency");
   let limit: number | undefined;
   if (l >= 0) {
     const n = Number(argv[l + 1]);
@@ -38,10 +41,18 @@ function parseArgs(argv: string[]): Args {
     }
     limit = n;
   }
+  const concurrency = c >= 0 ? Number(argv[c + 1]) : 4;
+  if (!Number.isInteger(concurrency) || concurrency <= 0) {
+    console.error(
+      `error: --concurrency must be a positive integer, got "${argv[c + 1] ?? ""}"`,
+    );
+    process.exit(2);
+  }
   const forceAll = argv.includes("--force-all");
   return {
     source: s >= 0 ? argv[s + 1] : undefined,
     limit,
+    concurrency,
     force: argv.includes("--force") || forceAll, // --force-all implies --force
     forceAll,
   };
@@ -73,6 +84,7 @@ async function main(): Promise<void> {
       "This will drain pending raw_documents → normalize → chunk → EMBED →",
       "write documents/chunks/chunk_embeddings into the PRODUCTION corpus.",
       `Scope: ${scope}${args.limit ? `, limit ${args.limit}` : ""}`,
+      `Concurrency: ${args.concurrency} document(s)`,
       `Re-embed: ${reembedMode(args)}`,
       "",
       "Embeddings cost real money on the prompted OPENROUTER_API_KEY.",
@@ -80,6 +92,7 @@ async function main(): Promise<void> {
     summary: () => [
       `  scope:           ${scope}`,
       `  limit:           ${args.limit ?? "(none)"}`,
+      `  concurrency:     ${args.concurrency}`,
       `  re-embed:        ${reembedMode(args)}`,
     ],
     writeOp: true, // embeds + writes prod corpus — non-interactive needs JFRAG_ALLOW_PROD_WRITE=1
@@ -100,6 +113,7 @@ async function main(): Promise<void> {
       `\n▶ indexing pending raw_documents` +
         (args.source ? ` for ${args.source}` : " (all sources)") +
         (args.limit != null ? `, limit ${args.limit}` : "") +
+        `, concurrency ${args.concurrency}` +
         (args.forceAll ? ", force-all" : args.force ? ", force" : ""),
     );
     const summary = await ingestPending(
@@ -111,6 +125,7 @@ async function main(): Promise<void> {
       {
         sourceKey: args.source,
         limit: args.limit,
+        concurrency: args.concurrency,
         force: args.force,
         forceAll: args.forceAll,
         onProgress: (line) => console.log(line),

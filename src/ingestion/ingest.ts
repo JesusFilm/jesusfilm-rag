@@ -49,6 +49,8 @@ export interface IngestSummary {
 export interface IngestOptions {
   sourceKey?: string;
   limit?: number;
+  /** Maximum distinct documents processed at once. Default 1 preserves legacy behavior. */
+  concurrency?: number;
   /**
    * Re-index from the raw snapshot: re-drain already-ingested rows AND re-embed
    * a document whose content is unchanged **when it isn't already on the target
@@ -161,33 +163,73 @@ export async function ingestPending(
     unknownSource: 0,
     chunksWritten: 0,
   };
-  const upserted = new Set<string>();
+  const concurrency = opts.concurrency ?? 1;
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new Error(`ingestPending: concurrency must be a positive integer, got ${concurrency}`);
+  }
 
+  // Resolve registry entries and group duplicate corpus identities before any
+  // concurrent work. raw_documents deliberately has no canonical-url unique
+  // constraint; rows targeting the same corpus document must retain input order
+  // or concurrent replace transactions could make the final version timing-dependent.
+  const jobs = new Map<string, { entry: SourceEntry; raws: PendingRawDocument[] }>();
+  const entries = new Map<string, SourceEntry>();
   for (const raw of pending) {
-    summary.attempted++;
     const entry = getSource(raw.sourceKey);
     if (!entry) {
       // Leave the row un-marked: a later registry fix can pick it up.
+      summary.attempted++;
       summary.unknownSource++;
       opts.onProgress?.(`  ⤫ ${raw.url} — unknown source '${raw.sourceKey}'`);
       continue;
     }
-    if (!upserted.has(entry.key)) {
-      await deps.writer.upsertSource(sourceRecordOf(entry));
-      upserted.add(entry.key);
-    }
-
-    const { status, chunks, warning } = await ingestDocument(deps, entry, raw, { force, forceAll });
-    if (status === "inserted") summary.inserted++;
-    else if (status === "updated") summary.updated++;
-    else if (status === "unchanged") summary.unchanged++;
-    else summary.skipped++;
-    summary.chunksWritten += chunks;
-
-    await deps.reader.markIngested([raw.id]);
-    if (warning) opts.onProgress?.(`  ⚠ ${raw.url} — ${warning}`);
-    opts.onProgress?.(`  ✓ ${raw.url} — ${status} (${chunks} chunks)`);
+    entries.set(entry.key, entry);
+    const key = `${entry.key}\0${raw.canonicalUrl}`;
+    const job = jobs.get(key);
+    if (job) job.raws.push(raw);
+    else jobs.set(key, { entry, raws: [raw] });
   }
+
+  // Establish every source before releasing document workers. This preserves
+  // the old upsert-once-before-first-document invariant without a check/set race.
+  for (const entry of entries.values()) {
+    await deps.writer.upsertSource(sourceRecordOf(entry));
+  }
+
+  const queue = [...jobs.values()];
+  let next = 0;
+  let firstError: unknown;
+  const worker = async (): Promise<void> => {
+    while (firstError === undefined) {
+      const index = next++;
+      if (index >= queue.length) return;
+      const { entry, raws } = queue[index];
+      try {
+        // Duplicate canonical identities remain sequential inside one job.
+        for (const raw of raws) {
+          summary.attempted++;
+          const { status, chunks, warning } = await ingestDocument(deps, entry, raw, {
+            force,
+            forceAll,
+          });
+          if (status === "inserted") summary.inserted++;
+          else if (status === "updated") summary.updated++;
+          else if (status === "unchanged") summary.unchanged++;
+          else summary.skipped++;
+          summary.chunksWritten += chunks;
+
+          await deps.reader.markIngested([raw.id]);
+          if (warning) opts.onProgress?.(`  ⚠ ${raw.url} — ${warning}`);
+          opts.onProgress?.(`  ✓ ${raw.url} — ${status} (${chunks} chunks)`);
+        }
+      } catch (error) {
+        firstError ??= error;
+      }
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker));
+  if (firstError !== undefined) throw firstError;
 
   return summary;
 }

@@ -9,7 +9,14 @@
  * (too-thin, unknown source).
  */
 import { describe, expect, it } from "vitest";
-import type { PendingRawDocument } from "@/contracts/index.js";
+import type {
+  CorpusWriteStore,
+  Embedder,
+  EmbeddedChunk,
+  NormalizedDocument,
+  PendingRawDocument,
+  SourceRecord,
+} from "@/contracts/index.js";
 import {
   FakeCorpusWriteStore,
   FakeEmbedder,
@@ -178,6 +185,111 @@ describe("ingestPending", () => {
     expect(summary).toMatchObject({ attempted: 1, unknownSource: 1, inserted: 0 });
     expect(d.writer.allDocuments()).toHaveLength(0);
     expect(d.reader.isIngested("x")).toBe(false);
+  });
+
+  it("bounds concurrent documents and upserts the source before releasing workers", async () => {
+    const reader = new FakeRawDocumentReader(
+      Array.from({ length: 8 }, (_, i) => pending({ id: `concurrent-${i}` })),
+    );
+    const inner = new FakeCorpusWriteStore();
+    let sourceReady = false;
+    let upserts = 0;
+    const writer: CorpusWriteStore = {
+      async upsertSource(source: SourceRecord) {
+        upserts++;
+        const id = await inner.upsertSource(source);
+        sourceReady = true;
+        return id;
+      },
+      getDedup: (sourceKey, canonicalUrl) => inner.getDedup(sourceKey, canonicalUrl),
+      replaceDocument: (doc, chunks) => {
+        expect(sourceReady).toBe(true);
+        return inner.replaceDocument(doc, chunks);
+      },
+    };
+    let active = 0;
+    let peak = 0;
+    const fake = new FakeEmbedder({ dimensions: 16 });
+    const embedder: Embedder = {
+      model: fake.model,
+      dimensions: fake.dimensions,
+      embedQuery: (text) => fake.embedQuery(text),
+      async embed(texts) {
+        active++;
+        peak = Math.max(peak, active);
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        const result = await fake.embed(texts);
+        active--;
+        return result;
+      },
+    };
+
+    await ingestPending({ reader, writer, embedder }, { concurrency: 3 });
+
+    expect(peak).toBe(3);
+    expect(upserts).toBe(1);
+    expect(reader.ingestedCount()).toBe(8);
+  });
+
+  it("serializes duplicate canonical identities while processing distinct documents concurrently", async () => {
+    const sameUrl = "https://www.startingwithgod.com/same-concurrent.html";
+    const reader = new FakeRawDocumentReader([
+      pending({ id: "same-v1", canonicalUrl: sameUrl, url: sameUrl, rawContent: body("v1") }),
+      pending({ id: "other" }),
+      pending({ id: "same-v2", canonicalUrl: sameUrl, url: sameUrl, rawContent: body("v2") }),
+    ]);
+    const inner = new FakeCorpusWriteStore();
+    const activeByDocument = new Set<string>();
+    let distinctOverlap = false;
+    const writer: CorpusWriteStore = {
+      upsertSource: (source) => inner.upsertSource(source),
+      getDedup: (sourceKey, canonicalUrl) => inner.getDedup(sourceKey, canonicalUrl),
+      async replaceDocument(doc: NormalizedDocument, chunks: EmbeddedChunk[]) {
+        expect(activeByDocument.has(doc.canonicalUrl)).toBe(false);
+        activeByDocument.add(doc.canonicalUrl);
+        distinctOverlap ||= activeByDocument.size > 1;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        await inner.replaceDocument(doc, chunks);
+        activeByDocument.delete(doc.canonicalUrl);
+      },
+    };
+
+    const summary = await ingestPending(
+      { reader, writer, embedder: new FakeEmbedder({ dimensions: 16 }) },
+      { concurrency: 3 },
+    );
+
+    expect(summary).toMatchObject({ attempted: 3, inserted: 2, updated: 1 });
+    expect(distinctOverlap).toBe(true);
+    expect(inner.getDocument(KEY, sameUrl)?.doc.content).toContain("v2 paragraph");
+  });
+
+  it("stops scheduling after a worker failure but drains already-running work", async () => {
+    const reader = new FakeRawDocumentReader([
+      pending({ id: "fail", rawContent: body("FAIL") }),
+      pending({ id: "running" }),
+      pending({ id: "not-started" }),
+    ]);
+    const writer = new FakeCorpusWriteStore();
+    const fake = new FakeEmbedder({ dimensions: 16 });
+    const embedder: Embedder = {
+      model: fake.model,
+      dimensions: fake.dimensions,
+      embedQuery: (text) => fake.embedQuery(text),
+      async embed(texts) {
+        if (texts.some((text) => text.includes("FAIL"))) throw new Error("controlled failure");
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        return fake.embed(texts);
+      },
+    };
+
+    await expect(ingestPending({ reader, writer, embedder }, { concurrency: 2 })).rejects.toThrow(
+      "controlled failure",
+    );
+
+    expect(reader.isIngested("fail")).toBe(false);
+    expect(reader.isIngested("running")).toBe(true);
+    expect(reader.isIngested("not-started")).toBe(false);
   });
 });
 

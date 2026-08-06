@@ -138,10 +138,10 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
       // inserting the fresh set, all inside this transaction.
       await tx.delete(chunks).where(eq(chunks.documentId, documentRow.id));
 
-      for (const c of embedded) {
-        const [chunkRow] = await tx
-          .insert(chunks)
-          .values({
+      const chunkRows = await tx
+        .insert(chunks)
+        .values(
+          embedded.map((c) => ({
             documentId: documentRow.id,
             sourceId: src.id,
             ord: c.ord,
@@ -150,15 +150,18 @@ export class PostgresCorpusWriteStore implements CorpusWriteStore {
             charEnd: c.charEnd,
             tokenCount: c.tokenCount,
             tags: c.tags,
-          })
-          .returning({ id: chunks.id });
-        await tx.insert(chunkEmbeddings).values({
-          chunkId: chunkRow.id,
+          })),
+        )
+        .returning({ id: chunks.id, ord: chunks.ord });
+      const chunkIdsByOrd = new Map(chunkRows.map((row) => [row.ord, row.id]));
+      await tx.insert(chunkEmbeddings).values(
+        embedded.map((c) => ({
+          chunkId: chunkIdsByOrd.get(c.ord) as string,
           // halfvec has no ORM type — bind the literal and cast (ADR-0003).
           embedding: sql`${toVectorLiteral(c.embedding)}::halfvec`,
           embeddingModel: c.embeddingModel,
-        });
-      }
+        })),
+      );
     });
   }
 }

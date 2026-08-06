@@ -4,6 +4,7 @@
  *   pnpm index                              # drain all pending raw_documents
  *   pnpm index --source starting-with-god   # only this source's pending rows
  *   pnpm index --limit 10                    # cap rows this run
+ *   pnpm index --concurrency 4               # bounded parallel documents (default 4)
  *   pnpm index --force                       # re-embed (resumable): re-drain already-
  *                                            #   ingested rows AND re-embed docs NOT yet on
  *                                            #   the target model (skip ones already on it)
@@ -21,6 +22,7 @@ import { ingestPending, type IngestSummary } from "@/ingestion/index.js";
 interface Args {
   source?: string;
   limit?: number;
+  concurrency: number;
   force: boolean;
   forceAll: boolean;
 }
@@ -28,6 +30,7 @@ interface Args {
 function parseArgs(argv: string[]): Args {
   const s = argv.indexOf("--source");
   const l = argv.indexOf("--limit");
+  const c = argv.indexOf("--concurrency");
   let limit: number | undefined;
   if (l >= 0) {
     // Must be a positive integer: 0 would silently drain nothing, a negative or
@@ -39,10 +42,18 @@ function parseArgs(argv: string[]): Args {
     }
     limit = n;
   }
+  const concurrency = c >= 0 ? Number(argv[c + 1]) : 4;
+  if (!Number.isInteger(concurrency) || concurrency <= 0) {
+    console.error(
+      `error: --concurrency must be a positive integer, got "${argv[c + 1] ?? ""}"`,
+    );
+    process.exit(2);
+  }
   const forceAll = argv.includes("--force-all");
   return {
     source: s >= 0 ? argv[s + 1] : undefined,
     limit,
+    concurrency,
     force: argv.includes("--force") || forceAll, // --force-all implies --force
     forceAll,
   };
@@ -58,14 +69,15 @@ function report(s: IngestSummary): void {
 }
 
 async function main(): Promise<void> {
-  const { source, limit, force, forceAll } = parseArgs(process.argv.slice(2));
+  const { source, limit, concurrency, force, forceAll } = parseArgs(process.argv.slice(2));
 
   const wiring = wire();
   try {
     console.log(
       `\n▶ indexing pending raw_documents` +
         (source ? ` for ${source}` : " (all sources)") +
-        (limit != null ? `, limit ${limit}` : "") +
+      (limit != null ? `, limit ${limit}` : "") +
+      `, concurrency ${concurrency}` +
         (forceAll ? ", force-all" : force ? ", force" : ""),
     );
     const summary = await ingestPending(
@@ -74,7 +86,14 @@ async function main(): Promise<void> {
         embedder: wiring.embedder,
         writer: wiring.corpusWriteStore,
       },
-      { sourceKey: source, limit, force, forceAll, onProgress: (line) => console.log(line) },
+      {
+        sourceKey: source,
+        limit,
+        concurrency,
+        force,
+        forceAll,
+        onProgress: (line) => console.log(line),
+      },
     );
     report(summary);
   } finally {

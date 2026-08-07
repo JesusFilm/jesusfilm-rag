@@ -563,7 +563,7 @@
       "evaluate": false,
       "embedded_doc_count": 0,
       "row_status": "deferred",
-      "note": "Deferred 2026-07-29 pending a reachability decision. studentskikutak.com DNS-blackholes to 203.0.113.250 (TEST-NET-3) from the dev network via port-53 interception; public DoH (Cloudflare + Google) returns the true 50.28.103.165, and the entry's live-extraction gate passed offline against curl-fetched bytes (19,095/4,733/21,022 chars). The registry entry is correct and wired — what is unresolved is whether a host our own network filters should be listed as a retrieval source. Tracked in a GitHub issue; do NOT work around it with /etc/hosts."
+      "note": "Deferred pending a reachability decision. The registry entry is correct and ready; decide whether to list this retrieval source after the reachability review. Tracked in #129."
     },
     {
       "source": "EveryStudent — Slovak (EveryStudent.sk)",
@@ -1019,7 +1019,7 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 121,
+      "docs_in_prod": 127,
       "missing": null
     },
     {
@@ -1044,7 +1044,7 @@
           "detail": "≤15k"
         }
       ],
-      "docs_in_prod": 108,
+      "docs_in_prod": 117,
       "missing": "English flagship behind a Cloudflare JS managed challenge (homepage 200 is a false positive) — unblock via Firecrawl, jfa's reviewed-archive scripts (its proven path; it never beat the wall either), or a Cru IP allowlist. The 51 sibling language domains are largely NOT walled (jfa canary fetched 46/46 with plain HTTP)."
     },
     {
@@ -1062,7 +1062,7 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 94,
+      "docs_in_prod": 95,
       "missing": null
     },
     {
@@ -1081,6 +1081,24 @@
         }
       ],
       "docs_in_prod": 84,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Slovak (EveryStudent.sk)",
+      "key": "everystudent-sk",
+      "host": "everystudent.sk",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "sk",
+          "language": "sk",
+          "state": "evaluated",
+          "embedded_doc_count": 66,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 83,
       "missing": null
     },
     {
@@ -1116,7 +1134,7 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 81,
+      "docs_in_prod": 82,
       "missing": null
     },
     {
@@ -1156,21 +1174,53 @@
       "missing": null
     },
     {
-      "source": "EveryStudent — Czech (everystudent.cz)",
-      "key": "everystudent-cs",
-      "host": "www.everystudent.cz",
+      "source": "EveryStudent — Albanian (Pyetjet e Jetës)",
+      "key": "everystudent-sq",
+      "host": "www.pyetjetejetes.com",
+      "state": "ingested",
+      "group": "production",
+      "languages": [
+        {
+          "label": "nl",
+          "language": "nl",
+          "state": "ingested",
+          "embedded_doc_count": 37,
+          "detail": null
+        },
+        {
+          "label": "sq",
+          "language": "sq",
+          "state": "acquired",
+          "embedded_doc_count": null,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 76,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Persian/Farsi (everypersianstudent.com)",
+      "key": "everystudent-fa",
+      "host": "www.everypersianstudent.com",
       "state": "evaluated",
       "group": "production",
       "languages": [
         {
-          "label": "cs",
-          "language": "cs",
+          "label": "ar",
+          "language": "ar",
+          "state": "ingested",
+          "embedded_doc_count": 26,
+          "detail": null
+        },
+        {
+          "label": "fa",
+          "language": "fa",
           "state": "evaluated",
-          "embedded_doc_count": 73,
+          "embedded_doc_count": 2,
           "detail": null
         }
       ],
-      "docs_in_prod": 73,
+      "docs_in_prod": 75,
       "missing": null
     },
     {
@@ -1188,7 +1238,43 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 73,
+      "docs_in_prod": 75,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Spanish (cadaestudiante.com)",
+      "key": "everystudent-es",
+      "host": "www.cadaestudiante.com",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "es",
+          "language": "es",
+          "state": "evaluated",
+          "embedded_doc_count": 68,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 75,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Czech (everystudent.cz)",
+      "key": "everystudent-cs",
+      "host": "www.everystudent.cz",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "cs",
+          "language": "cs",
+          "state": "evaluated",
+          "embedded_doc_count": 73,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 74,
       "missing": null
     },
     {
@@ -1210,35 +1296,17 @@
       "missing": null
     },
     {
-      "source": "EveryStudent — Spanish (cadaestudiante.com)",
-      "key": "everystudent-es",
-      "host": "www.cadaestudiante.com",
+      "source": "EveryStudent — Arabic (everyarabstudent.com)",
+      "key": "everystudent-ar",
+      "host": "www.everyarabstudent.com",
       "state": "evaluated",
       "group": "production",
       "languages": [
         {
-          "label": "es",
-          "language": "es",
+          "label": "ar",
+          "language": "ar",
           "state": "evaluated",
-          "embedded_doc_count": 68,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 68,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Vietnamese (EveryVietStudent.com)",
-      "key": "everystudent-vi",
-      "host": "www.everyvietstudent.com",
-      "state": "evaluated",
-      "group": "production",
-      "languages": [
-        {
-          "label": "vi",
-          "language": "vi",
-          "state": "evaluated",
-          "embedded_doc_count": 67,
+          "embedded_doc_count": 65,
           "detail": null
         }
       ],
@@ -1260,43 +1328,25 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 66,
+      "docs_in_prod": 67,
       "missing": null
     },
     {
-      "source": "EveryStudent — Slovak (EveryStudent.sk)",
-      "key": "everystudent-sk",
-      "host": "everystudent.sk",
+      "source": "EveryStudent — Vietnamese (EveryVietStudent.com)",
+      "key": "everystudent-vi",
+      "host": "www.everyvietstudent.com",
       "state": "evaluated",
       "group": "production",
       "languages": [
         {
-          "label": "sk",
-          "language": "sk",
+          "label": "vi",
+          "language": "vi",
           "state": "evaluated",
-          "embedded_doc_count": 66,
+          "embedded_doc_count": 67,
           "detail": null
         }
       ],
-      "docs_in_prod": 66,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Arabic (everyarabstudent.com)",
-      "key": "everystudent-ar",
-      "host": "www.everyarabstudent.com",
-      "state": "evaluated",
-      "group": "production",
-      "languages": [
-        {
-          "label": "ar",
-          "language": "ar",
-          "state": "evaluated",
-          "embedded_doc_count": 65,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 65,
+      "docs_in_prod": 67,
       "missing": null
     },
     {
@@ -1332,7 +1382,32 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 54,
+      "docs_in_prod": 57,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Malay (PersoalanHidup.com)",
+      "key": "everystudent-ms",
+      "host": "www.persoalanhidup.com",
+      "state": "ingested",
+      "group": "production",
+      "languages": [
+        {
+          "label": "id",
+          "language": "id",
+          "state": "ingested",
+          "embedded_doc_count": 47,
+          "detail": null
+        },
+        {
+          "label": "ms",
+          "language": "ms",
+          "state": "acquired",
+          "embedded_doc_count": null,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 52,
       "missing": null
     },
     {
@@ -1390,31 +1465,6 @@
       "missing": null
     },
     {
-      "source": "EveryStudent — Malay (PersoalanHidup.com)",
-      "key": "everystudent-ms",
-      "host": "www.persoalanhidup.com",
-      "state": "ingested",
-      "group": "production",
-      "languages": [
-        {
-          "label": "id",
-          "language": "id",
-          "state": "ingested",
-          "embedded_doc_count": 47,
-          "detail": null
-        },
-        {
-          "label": "ms",
-          "language": "ms",
-          "state": "acquired",
-          "embedded_doc_count": null,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 47,
-      "missing": null
-    },
-    {
       "source": "EveryStudent — Ukrainian (svitstudentiv.com)",
       "key": "everystudent-uk",
       "host": "www.svitstudentiv.com",
@@ -1444,6 +1494,24 @@
           "language": "zh",
           "state": "evaluated",
           "embedded_doc_count": 46,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 46,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Estonian (TudengiElu)",
+      "key": "everystudent-et",
+      "host": "www.tudengielu.net",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "et",
+          "language": "et",
+          "state": "evaluated",
+          "embedded_doc_count": 39,
           "detail": null
         }
       ],
@@ -1505,6 +1573,31 @@
       "missing": null
     },
     {
+      "source": "EveryStudent — Croatian (vrlovazno.com)",
+      "key": "everystudent-hr",
+      "host": "www.vrlovazno.com",
+      "state": "ingested",
+      "group": "production",
+      "languages": [
+        {
+          "label": "sr",
+          "language": "sr",
+          "state": "ingested",
+          "embedded_doc_count": 30,
+          "detail": null
+        },
+        {
+          "label": "hr",
+          "language": "hr",
+          "state": "acquired",
+          "embedded_doc_count": null,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 41,
+      "missing": null
+    },
+    {
       "source": "Starting With God",
       "key": "starting-with-god",
       "host": "www.startingwithgod.com",
@@ -1530,46 +1623,21 @@
       "missing": "31 sibling language domains (jfa manifest) not started — each is a different CMS, so per-source selector recon is the real cost (#43)."
     },
     {
-      "source": "EveryStudent — Estonian (TudengiElu)",
-      "key": "everystudent-et",
-      "host": "www.tudengielu.net",
+      "source": "EveryStudent — Italian (OgniStudente.com)",
+      "key": "everystudent-it",
+      "host": "www.ognistudente.com",
       "state": "evaluated",
       "group": "production",
       "languages": [
         {
-          "label": "et",
-          "language": "et",
+          "label": "it",
+          "language": "it",
           "state": "evaluated",
-          "embedded_doc_count": 39,
+          "embedded_doc_count": 36,
           "detail": null
         }
       ],
-      "docs_in_prod": 39,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Albanian (Pyetjet e Jetës)",
-      "key": "everystudent-sq",
-      "host": "www.pyetjetejetes.com",
-      "state": "ingested",
-      "group": "production",
-      "languages": [
-        {
-          "label": "nl",
-          "language": "nl",
-          "state": "ingested",
-          "embedded_doc_count": 37,
-          "detail": null
-        },
-        {
-          "label": "sq",
-          "language": "sq",
-          "state": "acquired",
-          "embedded_doc_count": null,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 37,
+      "docs_in_prod": 38,
       "missing": null
     },
     {
@@ -1588,24 +1656,6 @@
         }
       ],
       "docs_in_prod": 37,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Italian (OgniStudente.com)",
-      "key": "everystudent-it",
-      "host": "www.ognistudente.com",
-      "state": "evaluated",
-      "group": "production",
-      "languages": [
-        {
-          "label": "it",
-          "language": "it",
-          "state": "evaluated",
-          "embedded_doc_count": 36,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 36,
       "missing": null
     },
     {
@@ -1677,7 +1727,7 @@
           "detail": null
         }
       ],
-      "docs_in_prod": 31,
+      "docs_in_prod": 32,
       "missing": null
     },
     {
@@ -1692,31 +1742,6 @@
           "language": "my",
           "state": "evaluated",
           "embedded_doc_count": 30,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 30,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Croatian (vrlovazno.com)",
-      "key": "everystudent-hr",
-      "host": "www.vrlovazno.com",
-      "state": "ingested",
-      "group": "production",
-      "languages": [
-        {
-          "label": "sr",
-          "language": "sr",
-          "state": "ingested",
-          "embedded_doc_count": 30,
-          "detail": null
-        },
-        {
-          "label": "hr",
-          "language": "hr",
-          "state": "acquired",
-          "embedded_doc_count": null,
           "detail": null
         }
       ],
@@ -1760,28 +1785,28 @@
       "missing": null
     },
     {
-      "source": "EveryStudent — Persian/Farsi (everypersianstudent.com)",
-      "key": "everystudent-fa",
-      "host": "www.everypersianstudent.com",
-      "state": "evaluated",
+      "source": "EveryStudent — Slovenian (VsakStudent.com)",
+      "key": "everystudent-sl",
+      "host": "www.vsakstudent.com",
+      "state": "ingested",
       "group": "production",
       "languages": [
         {
-          "label": "ar",
-          "language": "ar",
+          "label": "sr",
+          "language": "sr",
           "state": "ingested",
-          "embedded_doc_count": 26,
+          "embedded_doc_count": 6,
           "detail": null
         },
         {
-          "label": "fa",
-          "language": "fa",
-          "state": "evaluated",
-          "embedded_doc_count": 2,
+          "label": "sl",
+          "language": "sl",
+          "state": "acquired",
+          "embedded_doc_count": null,
           "detail": null
         }
       ],
-      "docs_in_prod": 28,
+      "docs_in_prod": 23,
       "missing": null
     },
     {
@@ -1810,6 +1835,31 @@
       "missing": null
     },
     {
+      "source": "EveryStudent — Oromo (EveryBarataa.com)",
+      "key": "everystudent-om",
+      "host": "www.everybarataa.com",
+      "state": "ingested",
+      "group": "production",
+      "languages": [
+        {
+          "label": "ber",
+          "language": "ber",
+          "state": "ingested",
+          "embedded_doc_count": 1,
+          "detail": null
+        },
+        {
+          "label": "om",
+          "language": "om",
+          "state": "acquired",
+          "embedded_doc_count": null,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 18,
+      "missing": null
+    },
+    {
       "source": "EveryStudent — Kazakh (Shakirtter.com)",
       "key": "everystudent-kk",
       "host": "www.shakirtter.com",
@@ -1825,6 +1875,24 @@
         }
       ],
       "docs_in_prod": 17,
+      "missing": null
+    },
+    {
+      "source": "EveryStudent — Georgian (KoveliStudenti.com)",
+      "key": "everystudent-ka",
+      "host": "www.kovelistudenti.com",
+      "state": "ingested",
+      "group": "production",
+      "languages": [
+        {
+          "label": "ka",
+          "language": "ka",
+          "state": "acquired",
+          "embedded_doc_count": null,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 16,
       "missing": null
     },
     {
@@ -1853,28 +1921,21 @@
       "missing": null
     },
     {
-      "source": "EveryStudent — Slovenian (VsakStudent.com)",
-      "key": "everystudent-sl",
-      "host": "www.vsakstudent.com",
+      "source": "EveryStudent — Swahili (LipoTumaini.com)",
+      "key": "everystudent-sw",
+      "host": "www.lipotumaini.com",
       "state": "ingested",
       "group": "production",
       "languages": [
         {
-          "label": "sr",
-          "language": "sr",
-          "state": "ingested",
-          "embedded_doc_count": 6,
-          "detail": null
-        },
-        {
-          "label": "sl",
-          "language": "sl",
+          "label": "sw",
+          "language": "sw",
           "state": "acquired",
           "embedded_doc_count": null,
           "detail": null
         }
       ],
-      "docs_in_prod": 6,
+      "docs_in_prod": 13,
       "missing": null
     },
     {
@@ -1893,49 +1954,6 @@
         }
       ],
       "docs_in_prod": 5,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Oromo (EveryBarataa.com)",
-      "key": "everystudent-om",
-      "host": "www.everybarataa.com",
-      "state": "ingested",
-      "group": "production",
-      "languages": [
-        {
-          "label": "ber",
-          "language": "ber",
-          "state": "ingested",
-          "embedded_doc_count": 1,
-          "detail": null
-        },
-        {
-          "label": "om",
-          "language": "om",
-          "state": "acquired",
-          "embedded_doc_count": null,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 1,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Georgian (KoveliStudenti.com)",
-      "key": "everystudent-ka",
-      "host": "www.kovelistudenti.com",
-      "state": "acquired",
-      "group": "pipeline",
-      "languages": [
-        {
-          "label": "ka",
-          "language": "ka",
-          "state": "acquired",
-          "embedded_doc_count": null,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 0,
       "missing": null
     },
     {
@@ -1967,24 +1985,6 @@
           "label": "sr",
           "language": "sr",
           "state": "proposed",
-          "embedded_doc_count": null,
-          "detail": null
-        }
-      ],
-      "docs_in_prod": 0,
-      "missing": null
-    },
-    {
-      "source": "EveryStudent — Swahili (LipoTumaini.com)",
-      "key": "everystudent-sw",
-      "host": "www.lipotumaini.com",
-      "state": "acquired",
-      "group": "pipeline",
-      "languages": [
-        {
-          "label": "sw",
-          "language": "sw",
-          "state": "acquired",
           "embedded_doc_count": null,
           "detail": null
         }

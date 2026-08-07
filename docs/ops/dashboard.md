@@ -41,8 +41,9 @@ acquire/ingest/evaluate flags or stage — a null-language row is a *count*, not
 
 Two consequences make the page honest:
 
-- The unclassified count is **folded into the headline "embedded documents" stat**,
-  so that figure is the true index size (per-language rows + unclassified), not an
+- The unclassified count is **folded into each source row's document total and the
+  headline "embedded documents" stat**, so those figures are the true index size
+  (detected-language rows + unclassified), not an
   under-count.
 - A language-detection regression — a source suddenly accruing null-language docs —
   becomes **visible on the page** instead of something you only catch by querying

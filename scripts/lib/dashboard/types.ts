@@ -177,6 +177,8 @@ export const compiledSourceRowSchema = z
     state: z.enum(["evaluated", "ingested", "acquired", "blocked", "not-started"]),
     group: z.enum(["production", "blocked", "pipeline"]),
     languages: z.array(compiledChipSchema),
+    // All embedded documents for this source, including null-language rows.
+    // The separate unclassified table is a diagnostic subset, not an addend.
     docs_in_prod: z.number().int().nonnegative(),
     missing: z.string().nullable(),
   })

@@ -180,6 +180,53 @@ describe("source_rows — one row per source with language chips", () => {
     expect(sourceRow("cru").state).toBe("evaluated");
     expect(sourceRow("thelife-fr").state).toBe("acquired");
   });
+
+  it("counts unclassified live documents in the source total without creating a language chip", () => {
+    const data = buildCompiledData({
+      prod: {
+        ...prod,
+        unclassified: [{ key: "cru", name: "Cru", host: "www.cru.org", embedded_doc_count: 190 }],
+      },
+      yaml,
+      registry,
+      sourceMap,
+      generatedAt: "2026-07-16",
+    });
+    const cru = data.source_rows.find((row) => row.key === "cru");
+
+    expect(cru?.docs_in_prod).toBe(2634);
+    expect(cru?.group).toBe("production");
+    expect(cru?.languages.map((chip) => chip.label)).toEqual(["en", "es", "fr"]);
+    expect(data.unclassified).toHaveLength(1);
+  });
+
+  it("shows a source with only unclassified live documents as ingested production", () => {
+    const data = buildCompiledData({
+      prod: {
+        ...prod,
+        unclassified: [
+          { key: "everystudent", name: "EveryStudent", host: "www.everystudent.com", embedded_doc_count: 7 },
+        ],
+      },
+      yaml,
+      registry,
+      sourceMap,
+      generatedAt: "2026-07-16",
+    });
+    const unclassifiedOnly = data.source_rows.find((row) => row.key === "everystudent");
+
+    expect(unclassifiedOnly).toMatchObject({
+      source: "EveryStudent",
+      host: "www.everystudent.com",
+      state: "ingested",
+      group: "production",
+      docs_in_prod: 7,
+    });
+    expect(unclassifiedOnly?.languages.map((chip) => [chip.label, chip.state])).toEqual([
+      ["en", "blocked"],
+      ["51 sibling domains", "proposed"],
+    ]);
+  });
 });
 
 describe("documented — proposed / retired sources from source-map.yaml", () => {

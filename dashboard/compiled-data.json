@@ -67,9 +67,9 @@
       "host": "www.pyetjetejetes.com",
       "language": "sq",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 39,
       "row_status": "done",
       "note": null
     },
@@ -153,7 +153,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 121,
+      "embedded_doc_count": 127,
       "row_status": "done",
       "note": null
     },
@@ -175,9 +175,9 @@
       "host": "www.vrlovazno.com",
       "language": "hr",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 11,
       "row_status": "done",
       "note": null
     },
@@ -201,7 +201,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 73,
+      "embedded_doc_count": 74,
       "row_status": "done",
       "note": null
     },
@@ -213,7 +213,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 39,
+      "embedded_doc_count": 46,
       "row_status": "done",
       "note": null
     },
@@ -235,9 +235,9 @@
       "host": "www.kovelistudenti.com",
       "language": "ka",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 16,
       "row_status": "done",
       "note": null
     },
@@ -261,7 +261,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 31,
+      "embedded_doc_count": 32,
       "row_status": "done",
       "note": null
     },
@@ -309,7 +309,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 54,
+      "embedded_doc_count": 57,
       "row_status": "done",
       "note": null
     },
@@ -321,7 +321,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 36,
+      "embedded_doc_count": 38,
       "row_status": "done",
       "note": null
     },
@@ -403,9 +403,9 @@
       "host": "www.persoalanhidup.com",
       "language": "ms",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 5,
       "row_status": "done",
       "note": null
     },
@@ -417,7 +417,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 81,
+      "embedded_doc_count": 82,
       "row_status": "done",
       "note": null
     },
@@ -463,9 +463,9 @@
       "host": "www.everybarataa.com",
       "language": "om",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 17,
       "row_status": "done",
       "note": null
     },
@@ -489,7 +489,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 2,
+      "embedded_doc_count": 49,
       "row_status": "done",
       "note": null
     },
@@ -513,7 +513,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 73,
+      "embedded_doc_count": 75,
       "row_status": "done",
       "note": null
     },
@@ -537,7 +537,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 94,
+      "embedded_doc_count": 95,
       "row_status": "done",
       "note": null
     },
@@ -573,7 +573,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 66,
+      "embedded_doc_count": 83,
       "row_status": "done",
       "note": null
     },
@@ -583,9 +583,9 @@
       "host": "www.vsakstudent.com",
       "language": "sl",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 17,
       "row_status": "done",
       "note": null
     },
@@ -609,7 +609,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 68,
+      "embedded_doc_count": 75,
       "row_status": "done",
       "note": null
     },
@@ -619,9 +619,9 @@
       "host": "www.lipotumaini.com",
       "language": "sw",
       "acquire": true,
-      "ingest": false,
-      "evaluate": false,
-      "embedded_doc_count": 0,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 13,
       "row_status": "done",
       "note": null
     },
@@ -1015,7 +1015,7 @@
           "label": "zh",
           "language": "zh",
           "state": "evaluated",
-          "embedded_doc_count": 121,
+          "embedded_doc_count": 127,
           "detail": null
         }
       ],
@@ -1058,7 +1058,7 @@
           "label": "ru",
           "language": "ru",
           "state": "evaluated",
-          "embedded_doc_count": 94,
+          "embedded_doc_count": 95,
           "detail": null
         }
       ],
@@ -1094,7 +1094,7 @@
           "label": "sk",
           "language": "sk",
           "state": "evaluated",
-          "embedded_doc_count": 66,
+          "embedded_doc_count": 83,
           "detail": null
         }
       ],
@@ -1130,7 +1130,7 @@
           "label": "mn",
           "language": "mn",
           "state": "evaluated",
-          "embedded_doc_count": 81,
+          "embedded_doc_count": 82,
           "detail": null
         }
       ],
@@ -1177,21 +1177,21 @@
       "source": "EveryStudent — Albanian (Pyetjet e Jetës)",
       "key": "everystudent-sq",
       "host": "www.pyetjetejetes.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
+        {
+          "label": "sq",
+          "language": "sq",
+          "state": "evaluated",
+          "embedded_doc_count": 39,
+          "detail": null
+        },
         {
           "label": "nl",
           "language": "nl",
           "state": "ingested",
           "embedded_doc_count": 37,
-          "detail": null
-        },
-        {
-          "label": "sq",
-          "language": "sq",
-          "state": "acquired",
-          "embedded_doc_count": null,
           "detail": null
         }
       ],
@@ -1206,17 +1206,17 @@
       "group": "production",
       "languages": [
         {
+          "label": "fa",
+          "language": "fa",
+          "state": "evaluated",
+          "embedded_doc_count": 49,
+          "detail": null
+        },
+        {
           "label": "ar",
           "language": "ar",
           "state": "ingested",
           "embedded_doc_count": 26,
-          "detail": null
-        },
-        {
-          "label": "fa",
-          "language": "fa",
-          "state": "evaluated",
-          "embedded_doc_count": 2,
           "detail": null
         }
       ],
@@ -1234,7 +1234,7 @@
           "label": "pt",
           "language": "pt",
           "state": "evaluated",
-          "embedded_doc_count": 73,
+          "embedded_doc_count": 75,
           "detail": null
         }
       ],
@@ -1252,7 +1252,7 @@
           "label": "es",
           "language": "es",
           "state": "evaluated",
-          "embedded_doc_count": 68,
+          "embedded_doc_count": 75,
           "detail": null
         }
       ],
@@ -1270,7 +1270,7 @@
           "label": "cs",
           "language": "cs",
           "state": "evaluated",
-          "embedded_doc_count": 73,
+          "embedded_doc_count": 74,
           "detail": null
         }
       ],
@@ -1378,7 +1378,7 @@
           "label": "id",
           "language": "id",
           "state": "evaluated",
-          "embedded_doc_count": 54,
+          "embedded_doc_count": 57,
           "detail": null
         }
       ],
@@ -1389,7 +1389,7 @@
       "source": "EveryStudent — Malay (PersoalanHidup.com)",
       "key": "everystudent-ms",
       "host": "www.persoalanhidup.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
         {
@@ -1402,8 +1402,8 @@
         {
           "label": "ms",
           "language": "ms",
-          "state": "acquired",
-          "embedded_doc_count": null,
+          "state": "evaluated",
+          "embedded_doc_count": 5,
           "detail": null
         }
       ],
@@ -1511,7 +1511,7 @@
           "label": "et",
           "language": "et",
           "state": "evaluated",
-          "embedded_doc_count": 39,
+          "embedded_doc_count": 46,
           "detail": null
         }
       ],
@@ -1576,7 +1576,7 @@
       "source": "EveryStudent — Croatian (vrlovazno.com)",
       "key": "everystudent-hr",
       "host": "www.vrlovazno.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
         {
@@ -1589,8 +1589,8 @@
         {
           "label": "hr",
           "language": "hr",
-          "state": "acquired",
-          "embedded_doc_count": null,
+          "state": "evaluated",
+          "embedded_doc_count": 11,
           "detail": null
         }
       ],
@@ -1633,7 +1633,7 @@
           "label": "it",
           "language": "it",
           "state": "evaluated",
-          "embedded_doc_count": 36,
+          "embedded_doc_count": 38,
           "detail": null
         }
       ],
@@ -1723,7 +1723,7 @@
           "label": "el",
           "language": "el",
           "state": "evaluated",
-          "embedded_doc_count": 31,
+          "embedded_doc_count": 32,
           "detail": null
         }
       ],
@@ -1788,21 +1788,21 @@
       "source": "EveryStudent — Slovenian (VsakStudent.com)",
       "key": "everystudent-sl",
       "host": "www.vsakstudent.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
+        {
+          "label": "sl",
+          "language": "sl",
+          "state": "evaluated",
+          "embedded_doc_count": 17,
+          "detail": null
+        },
         {
           "label": "sr",
           "language": "sr",
           "state": "ingested",
           "embedded_doc_count": 6,
-          "detail": null
-        },
-        {
-          "label": "sl",
-          "language": "sl",
-          "state": "acquired",
-          "embedded_doc_count": null,
           "detail": null
         }
       ],
@@ -1838,21 +1838,21 @@
       "source": "EveryStudent — Oromo (EveryBarataa.com)",
       "key": "everystudent-om",
       "host": "www.everybarataa.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
+        {
+          "label": "om",
+          "language": "om",
+          "state": "evaluated",
+          "embedded_doc_count": 17,
+          "detail": null
+        },
         {
           "label": "ber",
           "language": "ber",
           "state": "ingested",
           "embedded_doc_count": 1,
-          "detail": null
-        },
-        {
-          "label": "om",
-          "language": "om",
-          "state": "acquired",
-          "embedded_doc_count": null,
           "detail": null
         }
       ],
@@ -1881,14 +1881,14 @@
       "source": "EveryStudent — Georgian (KoveliStudenti.com)",
       "key": "everystudent-ka",
       "host": "www.kovelistudenti.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
         {
           "label": "ka",
           "language": "ka",
-          "state": "acquired",
-          "embedded_doc_count": null,
+          "state": "evaluated",
+          "embedded_doc_count": 16,
           "detail": null
         }
       ],
@@ -1924,14 +1924,14 @@
       "source": "EveryStudent — Swahili (LipoTumaini.com)",
       "key": "everystudent-sw",
       "host": "www.lipotumaini.com",
-      "state": "ingested",
+      "state": "evaluated",
       "group": "production",
       "languages": [
         {
           "label": "sw",
           "language": "sw",
-          "state": "acquired",
-          "embedded_doc_count": null,
+          "state": "evaluated",
+          "embedded_doc_count": 13,
           "detail": null
         }
       ],
@@ -2117,88 +2117,10 @@
   ],
   "unclassified": [
     {
-      "source": "EveryStudent — Persian/Farsi (everypersianstudent.com)",
-      "key": "everystudent-fa",
-      "host": "www.everypersianstudent.com",
-      "embedded_doc_count": 47
-    },
-    {
-      "source": "EveryStudent — Albanian (Pyetjet e Jetës)",
-      "key": "everystudent-sq",
-      "host": "www.pyetjetejetes.com",
-      "embedded_doc_count": 39
-    },
-    {
-      "source": "EveryStudent — Oromo (EveryBarataa.com)",
-      "key": "everystudent-om",
-      "host": "www.everybarataa.com",
-      "embedded_doc_count": 17
-    },
-    {
-      "source": "EveryStudent — Slovak (EveryStudent.sk)",
-      "key": "everystudent-sk",
-      "host": "everystudent.sk",
-      "embedded_doc_count": 17
-    },
-    {
-      "source": "EveryStudent — Slovenian (VsakStudent.com)",
-      "key": "everystudent-sl",
-      "host": "www.vsakstudent.com",
-      "embedded_doc_count": 17
-    },
-    {
-      "source": "EveryStudent — Georgian (KoveliStudenti.com)",
-      "key": "everystudent-ka",
-      "host": "www.kovelistudenti.com",
-      "embedded_doc_count": 16
-    },
-    {
-      "source": "EveryStudent — Swahili (LipoTumaini.com)",
-      "key": "everystudent-sw",
-      "host": "www.lipotumaini.com",
-      "embedded_doc_count": 13
-    },
-    {
-      "source": "EveryStudent — Croatian (vrlovazno.com)",
-      "key": "everystudent-hr",
-      "host": "www.vrlovazno.com",
-      "embedded_doc_count": 11
-    },
-    {
       "source": "EveryStudent",
       "key": "everystudent",
       "host": "www.everystudent.com",
       "embedded_doc_count": 9
-    },
-    {
-      "source": "EveryStudent — Estonian (TudengiElu)",
-      "key": "everystudent-et",
-      "host": "www.tudengielu.net",
-      "embedded_doc_count": 7
-    },
-    {
-      "source": "EveryStudent — Spanish (cadaestudiante.com)",
-      "key": "everystudent-es",
-      "host": "www.cadaestudiante.com",
-      "embedded_doc_count": 7
-    },
-    {
-      "source": "EveryStudent — Chinese Simplified (XinShengMing / 新生命)",
-      "key": "everystudent-zh-cn",
-      "host": "www.xinshengming.com",
-      "embedded_doc_count": 6
-    },
-    {
-      "source": "EveryStudent — Malay (PersoalanHidup.com)",
-      "key": "everystudent-ms",
-      "host": "www.persoalanhidup.com",
-      "embedded_doc_count": 5
-    },
-    {
-      "source": "EveryStudent — Indonesian (MahasiswaKeren.com)",
-      "key": "everystudent-id",
-      "host": "www.mahasiswakeren.com",
-      "embedded_doc_count": 3
     },
     {
       "source": "EveryStudent — Arabic (everyarabstudent.com)",
@@ -2207,45 +2129,9 @@
       "embedded_doc_count": 2
     },
     {
-      "source": "EveryStudent — Italian (OgniStudente.com)",
-      "key": "everystudent-it",
-      "host": "www.ognistudente.com",
-      "embedded_doc_count": 2
-    },
-    {
-      "source": "EveryStudent — Portuguese (suaescolha.com)",
-      "key": "everystudent-pt",
-      "host": "www.suaescolha.com",
-      "embedded_doc_count": 2
-    },
-    {
-      "source": "EveryStudent — Czech (everystudent.cz)",
-      "key": "everystudent-cs",
-      "host": "www.everystudent.cz",
-      "embedded_doc_count": 1
-    },
-    {
       "source": "EveryStudent — French (questions2vie.com)",
       "key": "everystudent-fr",
       "host": "www.questions2vie.com",
-      "embedded_doc_count": 1
-    },
-    {
-      "source": "EveryStudent — Greek (EveryStudent.gr)",
-      "key": "everystudent-el",
-      "host": "www.everystudent.gr",
-      "embedded_doc_count": 1
-    },
-    {
-      "source": "EveryStudent — Mongolian (Tailal.mn)",
-      "key": "everystudent-mn",
-      "host": "www.tailal.mn",
-      "embedded_doc_count": 1
-    },
-    {
-      "source": "EveryStudent — Russian (Мир студентов)",
-      "key": "everystudent-ru",
-      "host": "www.mirstudentov.com",
       "embedded_doc_count": 1
     }
   ]

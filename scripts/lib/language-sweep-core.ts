@@ -703,7 +703,16 @@ function buildReport(
   L.push(`## ⚠️ Left null — the exception`);
   L.push("");
   if (nulls.length === 0) {
-    L.push(`**None.** Every scanned document is labelled with a language.`);
+    if (anomalies.length > 0) {
+      L.push(`**No genuine abstentions.** The detector did not return an honest null.`);
+      L.push("");
+      L.push(
+        `⚠️ **${anomalies.length}** error(s) may still have preserved an existing null ` +
+          `label; they are listed under *Left unchanged* above, not counted as abstentions.`,
+      );
+    } else {
+      L.push(`**No genuine abstentions.** Every scanned document is labelled with a language.`);
+    }
   } else {
     L.push(
       `**${nulls.length}** document(s) could not be safely labelled and were left null ` +
@@ -763,11 +772,13 @@ function reviewRow(r: DocResult): string {
  * are audited first, fills take the remaining budget, and anything past the cap is
  * explicitly reported as not-shown.
  */
-function buildReviewInput(reports: SourceReport[]): { input: string; audited: number } {
+export function buildReviewInput(
+  reports: SourceReport[],
+): { input: string; audited: number } {
   const all = reports.flatMap((r) => r.results);
   const relabels = all.filter((r) => r.reason === "relabel");
   const fills = all.filter((r) => r.reason === "filled");
-  const nulls = all.filter((r) => r.new === null);
+  const { honestNulls, anomalies } = partitionNullOutcomes(all);
   const total = relabels.length + fills.length;
 
   const shownRelabels = relabels.slice(0, REVIEW_MAX_ROWS);
@@ -778,7 +789,8 @@ function buildReviewInput(reports: SourceReport[]): { input: string; audited: nu
   const L: string[] = [];
   L.push(
     `Run summary: ${relabels.length} relabelled, ${fills.length} filled from null, ` +
-      `${nulls.length} left null, across ${reports.length} source(s). ` +
+      `${honestNulls.length} genuine abstention(s), ${anomalies.length} error(s), ` +
+      `across ${reports.length} source(s). ` +
       `Auditing ${audited} of ${total} change(s) below` +
       (audited < total ? " (relabels prioritised; the rest are in the CSV)." : "."),
   );

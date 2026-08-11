@@ -6,7 +6,8 @@
  * (`doppler run -- pnpm lang:sweep:production --non-interactive`); see
  * docs/ops/language-sweep.md.
  *
- *   pnpm lang:sweep:production --all                 # dry-run over the whole corpus
+ *   pnpm lang:sweep:production --all                 # dry-run over null rows
+ *   pnpm lang:sweep:production --all --mode full     # whole-corpus re-audit
  *   pnpm lang:sweep:production --source cru --apply  # correct one source (writes)
  *   pnpm lang:sweep:production --revert <log> --apply
  *
@@ -17,7 +18,6 @@
  * env-reading `@/main`/`@/db` are dynamic-imported AFTER installCreds so the
  * loader sees the prompted DATABASE_URL first).
  */
-import path from "node:path";
 import {
   promptProductionCredentials,
   installCreds,
@@ -25,18 +25,20 @@ import {
 } from "./lib/prompt-prod-creds.js";
 import {
   parseArgs,
+  buildProductionGuidance,
   runSweep,
   runRevertCore,
 } from "./lib/language-sweep-core.js";
 
 const HELP = `lang:sweep:production — PRODUCTION language sweep (issues #73/#84)
 
-  pnpm lang:sweep:production --all                 # dry-run over the whole corpus
+  pnpm lang:sweep:production --all                 # dry-run over null rows
+  pnpm lang:sweep:production --all --mode full     # whole-corpus re-audit
   pnpm lang:sweep:production --source <key> --apply
   pnpm lang:sweep:production --revert <log> --apply
   [--non-interactive] [--expect-host <substr>]     # headless (Doppler-injected creds)
 
-Same sweep flags as pnpm lang:sweep (--mode, --limit, --concurrency,
+Same sweep flags as pnpm lang:sweep (--mode; blanks is the default, --limit, --concurrency,
 --max-detect-chars, --out-dir, --verify-log, --llm-review). Dry-run by default;
 --apply writes documents.language. See docs/ops/language-sweep.md.
 `;
@@ -65,29 +67,19 @@ async function main(): Promise<void> {
   }
 
   const willWrite = parsed.apply; // both sweep and revert carry `apply`
-  const scope =
-    parsed.kind === "revert"
-      ? `revert ${path.basename(parsed.changelog)}`
-      : parsed.sources === "all"
-        ? "all sources"
-        : `--source ${parsed.sources}`;
-  const mode = parsed.kind === "revert" ? "revert" : parsed.mode;
+  const { scope, mode, intent, cost } = buildProductionGuidance(parsed);
 
   const creds = await promptProductionCredentials({
     operation: "language-sweep",
     intent: [
       "",
-      "This RE-DERIVES documents.language across the PRODUCTION corpus using an",
-      "LLM detector (LANG_DETECT_MODEL_ID, default google/gemini-2.5-flash-lite)",
-      "reached via the prompted OPENROUTER_API_KEY. Label-only — it NEVER touches",
-      "chunks or embeddings.",
+      ...intent,
       `Scope: ${scope} · mode: ${mode}`,
       willWrite
         ? "Mode: APPLY — writes documents.language (one transaction per source,"
         : "Mode: DRY-RUN — computes and logs proposed changes, writes NOTHING.",
       willWrite ? "guarded; revertible via the emitted change log)." : "",
-      "",
-      "Cost: ~one cheap LLM call per document (cents–single dollars for the corpus).",
+      ...(cost ? ["", cost] : []),
       "Logs (report/CSV/changelog) go to --out-dir > $LANGUAGE_SWEEP_OUT_DIR > ./reports.",
     ].filter((l) => l !== undefined),
     summary: () => [

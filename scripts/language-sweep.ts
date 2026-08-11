@@ -26,7 +26,11 @@ import { getDb } from "@/db/index.js";
 import { parseArgs, runSweep, runRevertCore } from "./lib/language-sweep-core.js";
 
 // Re-export the pure arg contract + types (unit tests + production runner).
-export { parseArgs, OUT_DIR_ENV } from "./lib/language-sweep-core.js";
+export {
+  parseArgs,
+  buildProductionGuidance,
+  OUT_DIR_ENV,
+} from "./lib/language-sweep-core.js";
 export type {
   SweepArgs,
   RevertArgs,
@@ -42,7 +46,7 @@ const HELP = `language-sweep — LLM re-derivation of documents.language (issues
   pnpm lang:sweep --revert <changelog.jsonl> [--apply]
 
   --source <key>       one registered source        --all             every source
-  --mode full          re-scan all (default)         --mode blanks     only null rows
+  --mode blanks        only null rows (default)      --mode full       re-scan all
   --apply              write changes (default: dry-run)
   --limit <n>          cap docs/source (testing)     --verify-log      per-doc ledger
   --concurrency <n>    parallel detector calls (3)   --max-detect-chars content sent (8000)

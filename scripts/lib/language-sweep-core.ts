@@ -75,6 +75,56 @@ export interface RevertArgs {
 
 export type ParsedArgs = SweepArgs | RevertArgs | { kind: "help" };
 
+export interface ProductionGuidance {
+  scope: string;
+  mode: SweepMode | "revert";
+  intent: string[];
+  cost?: string;
+}
+
+/** Operator-facing production scope/cost guidance, kept pure for exact tests. */
+export function buildProductionGuidance(
+  args: SweepArgs | RevertArgs,
+): ProductionGuidance {
+  if (args.kind === "revert") {
+    return {
+      scope: `revert ${path.basename(args.changelog)}`,
+      mode: "revert",
+      intent: [
+        "This RESTORES documents.language in PRODUCTION from the selected change log.",
+        "Guarded and label-only — it NEVER touches chunks or embeddings.",
+      ],
+    };
+  }
+
+  const scope = args.sources === "all" ? "all sources" : `--source ${args.sources}`;
+  if (args.mode === "blanks") {
+    return {
+      scope,
+      mode: args.mode,
+      intent: [
+        "This DETECTS language for null rows in the selected PRODUCTION scope using an",
+        "LLM detector (LANG_DETECT_MODEL_ID, default google/gemini-2.5-flash-lite)",
+        "reached via the prompted OPENROUTER_API_KEY. Label-only — it NEVER touches",
+        "chunks or embeddings.",
+      ],
+      cost: "Cost: ~one cheap LLM call per null row in the selected scope.",
+    };
+  }
+
+  return {
+    scope,
+    mode: args.mode,
+    intent: [
+      "This RE-DERIVES documents.language for every row in the selected PRODUCTION scope using an",
+      "LLM detector (LANG_DETECT_MODEL_ID, default google/gemini-2.5-flash-lite)",
+      "reached via the prompted OPENROUTER_API_KEY. Label-only — it NEVER touches",
+      "chunks or embeddings.",
+    ],
+    cost: "Cost: ~one cheap LLM call per row in the selected scope.",
+  };
+}
+
 /** Injected run dependencies — the DB client and the language detector. Supplied
  *  by the local runner (from `wire()`) or the production runner (after creds). */
 export interface SweepDeps {
@@ -145,7 +195,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     throw new Error("specify a source: --source <key> or --all");
   }
 
-  const mode = (opts["--mode"] ?? "full") as SweepMode;
+  const mode = (opts["--mode"] ?? "blanks") as SweepMode;
   if (mode !== "full" && mode !== "blanks") {
     throw new Error(`--mode must be 'full' or 'blanks', got '${mode}'`);
   }

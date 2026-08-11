@@ -1,28 +1,34 @@
 # Language sweep — correcting `documents.language`
 
-A re-runnable, per-source pass that re-derives every document's language label and
-corrects the historical mislabels described in
+A re-runnable, per-source pass that fills missing document language labels and,
+when explicitly requested, re-audits established labels to correct the historical
+mislabels described in
 [#73](https://github.com/JesusFilm/jesusfilm-rag/issues/73) /
-[#84](https://github.com/JesusFilm/jesusfilm-rag/issues/84). Run it after ingesting
-a new source, or any time you suspect the `language` column has drifted.
+[#84](https://github.com/JesusFilm/jesusfilm-rag/issues/84). Run it on demand when
+dashboard-observed null growth warrants a corrective pass. A detector model or
+prompt change warrants an explicit whole-corpus re-audit.
 
 Detection is an **LLM** (`LANG_DETECT_MODEL_ID`, default `google/gemini-2.5-flash-lite`,
 reached over OpenRouter with `OPENROUTER_API_KEY`) — accurate **regardless of
 length**, unlike the pure `tinyld` detector ingest uses, which is confidently wrong
 on short prose. This is the deliberate corrective layer; ingest stays on `tinyld`.
-See [ADR-0009](../decisions/0009-llm-language-detection-sweep.md). It replays the
+See [ADR-0009](../decisions/0009-llm-language-detection-sweep.md) and
+[ADR-0013](../decisions/0013-language-sweep-operational-policy.md). It replays the
 real ingest text path per document (`cleanText(raw_documents.raw_content)`), so it
 labels exactly what a future re-ingest would see — never a second scraper.
 
 ## TL;DR
 
 ```sh
-# Preview (writes nothing) — one source, then the whole corpus:
+# Routine preview (writes nothing) — null rows in one source, then all sources:
 pnpm lang:sweep --source <key>
 pnpm lang:sweep --all
 
-# Apply the corrections (label-only; embeddings never touched):
+# Apply null-label corrections (label-only; embeddings never touched):
 pnpm lang:sweep --all --apply
+
+# Re-audit established labels after a detector model or prompt change:
+pnpm lang:sweep --all --mode full
 
 # Undo a run in one command (reads the change log it wrote):
 pnpm lang:sweep --revert <logs>/changelog-all-<ts>.jsonl --apply
@@ -30,20 +36,25 @@ pnpm lang:sweep --revert <logs>/changelog-all-<ts>.jsonl --apply
 # Same, against PRODUCTION (prompts for credentials):
 pnpm lang:sweep:production --all               # dry-run
 pnpm lang:sweep:production --source cru --apply
+pnpm lang:sweep:production --all --mode full   # whole-corpus re-audit
 ```
 
 Dry-run is the default: nothing is written until you add `--apply`. **Dry-run costs
 the same as apply** (detection runs either way), so the first dry-run is the real
-cost checkpoint — a full-corpus run is cents to a few dollars at the default model.
+cost checkpoint. Routine cost scales with the null set; an explicit `--mode full`
+run scales with the whole corpus and costs cents to a few dollars at the default
+model.
 
 ## What it does, in one screen
 
-- **Fills nulls and fixes wrong labels; never makes a label worse.** A confident LLM
-  verdict may relabel (e.g. `en → fr`) or fill a null. A weak/abstain signal may only
-  *fill* a null — it never overrides or blanks a label that already exists
+- **Default `blanks` mode fills nulls; explicit `full` mode can fix wrong labels.**
+  In `full`, a confident LLM verdict may relabel (e.g. `en → fr`) or fill a null.
+  In either mode, a weak/abstain signal may only *fill* a null — it never overrides
+  or blanks a label that already exists
   ([ADR-0008](../decisions/0008-language-label-lifecycle.md)).
 - **No length floor — the LLM's own abstention is the safety valve.** A non-null
-  verdict is trusted at any length, so a short French page stamped `en` is corrected.
+  verdict is trusted at any length, so an explicit `full` run can correct a short
+  French page stamped `en`.
   The model returns `null` only when it genuinely can't tell (empty / pure markup /
   even mix); those are the documented exceptions, listed at the end of the report.
 - **Label-only.** The only column written is `documents.language`. Chunks and
@@ -64,8 +75,8 @@ cost checkpoint — a full-corpus run is cents to a few dollars at the default m
 | flag | meaning |
 |---|---|
 | `--source <key>` \| `--all` | one registered source, or every source |
-| `--mode full` (default) | re-scan every document in scope |
-| `--mode blanks` | only rows where `language IS NULL` (the incremental worklist) |
+| `--mode blanks` (default) | only rows where `language IS NULL` (the routine worklist) |
+| `--mode full` | re-scan every document in scope (explicit detector-change re-audit) |
 | `--apply` | write changes (default: dry-run, writes nothing) |
 | `--revert <log> --apply` | restore the previous labels from a change log |
 | `--concurrency <n>` | parallel detector calls per source (default 3) |

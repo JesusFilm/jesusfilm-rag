@@ -145,7 +145,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     throw new Error("specify a source: --source <key> or --all");
   }
 
-  const mode = (opts["--mode"] ?? "full") as SweepMode;
+  const mode = (opts["--mode"] ?? "blanks") as SweepMode;
   if (mode !== "full" && mode !== "blanks") {
     throw new Error(`--mode must be 'full' or 'blanks', got '${mode}'`);
   }

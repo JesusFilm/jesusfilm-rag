@@ -6,7 +6,7 @@ describe("parseArgs — the sweep CLI contract", () => {
     expect(parseArgs(["--source", "thelife"])).toEqual({
       kind: "sweep",
       sources: "thelife",
-      mode: "full", // default
+      mode: "blanks", // routine null-only default (ADR-0013)
       apply: false, // dry-run by default
       limit: null,
       sampleChars: 240,
@@ -16,6 +16,14 @@ describe("parseArgs — the sweep CLI contract", () => {
       concurrency: 3, // default parallel detector calls
       maxDetectChars: 8000, // default content window sent to the LLM
       llmReview: false, // opt-in
+    });
+  });
+
+  it("keeps full-corpus re-audit as an explicit opt-in", () => {
+    expect(parseArgs(["--source", "thelife", "--mode", "full"])).toMatchObject({
+      kind: "sweep",
+      sources: "thelife",
+      mode: "full",
     });
   });
 

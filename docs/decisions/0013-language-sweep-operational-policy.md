@@ -1,6 +1,6 @@
 # ADR-0013 — Language sweep runs on-demand, null-only by default; residual nulls are accepted
 
-- Status: Accepted as **policy**; the `--mode blanks` default flip is **not yet in the CLI** — tracked by [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126). Until it lands, a routine run passes `--mode blanks` explicitly.
+- Status: Accepted and implemented by [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126).
 - Date: 2026-07-28
 - Issue/PR: [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126) (implements the default flip in code + docs; separately tracked)
 - Related: builds the **operational policy** on top of [ADR-0009](./0009-llm-language-detection-sweep.md) (the sweep's detection *mechanism*); depends on [ADR-0007](./0007-language-decision-thresholds-null-policy.md)'s `null` policy and [ADR-0008](./0008-language-label-lifecycle.md)'s never-blank lifecycle.
@@ -21,9 +21,7 @@ Two facts frame the decision:
 
 ## Decision
 
-1. **`--mode blanks` becomes the default** — *policy decided here; the code default flip is tracked by [#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126) and has not landed.* Routine `pnpm lang:sweep` targets only `null`-language documents. `full` becomes an explicit opt-in, reserved for a **detector change** (a new model or prompt) where re-auditing established labels is the actual point.
-
-   ⚠️ **Interim (pre-#126): the CLI still defaults to `--mode full`** (`scripts/lib/language-sweep-core.ts`), which re-audits the whole corpus and bills accordingly. A routine sweep **must pass `--mode blanks` explicitly** until #126 lands. (`--mode blanks` already exists, so #126 is a default flip, not new capability.)
+1. **`--mode blanks` is the default.** Routine `pnpm lang:sweep` targets only `null`-language documents. `full` is an explicit opt-in, reserved for a **detector change** (a new model or prompt) where re-auditing established labels is the actual point.
 
 2. **Residual `null`s are accepted, not an error state.** A permanent residue of nulls is the expected, correct output of a detector that abstains on hard cases. Null rows stay fully retrievable *unfiltered* (ADR-0007) and are excluded only from `language:` filters.
 
@@ -45,5 +43,5 @@ Two facts frame the decision:
 - (+) Routine sweeps are cheap and targeted (nulls only), so running one when the dashboard shows growth is a small, safe, low-cost action.
 - (+) The corpus-quality posture is explicit and visible: nulls accumulate, are shown on the dashboard, and are accepted until worth a pass — no silent debt, no over-engineering toward an unattainable zero-null corpus.
 - (+) `full` remains available for the one case that needs it (a detector-model/prompt change) without being the accidental, expensive default.
-- (−) Requires the default flip in code + a runbook update ([#126](https://github.com/JesusFilm/jesusfilm-rag/issues/126)); until that lands, a null-only run needs the explicit `--mode blanks`.
+- (−) Existing operator commands that intend a whole-corpus re-audit must pass `--mode full` explicitly.
 - (−) `blanks` never re-audits established labels, so a mislabel from a *future* ingest-detector regression would not be caught by routine sweeps — only by an intentional `full` run. Accepted: ingest abstains rather than guesses (ADR-0007), so mislabels are unlikely, and `full` is one flag away.

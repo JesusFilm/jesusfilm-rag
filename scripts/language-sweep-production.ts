@@ -6,7 +6,8 @@
  * (`doppler run -- pnpm lang:sweep:production --non-interactive`); see
  * docs/ops/language-sweep.md.
  *
- *   pnpm lang:sweep:production --all                 # dry-run over the whole corpus
+ *   pnpm lang:sweep:production --all                 # dry-run over null rows
+ *   pnpm lang:sweep:production --all --mode full     # whole-corpus re-audit
  *   pnpm lang:sweep:production --source cru --apply  # correct one source (writes)
  *   pnpm lang:sweep:production --revert <log> --apply
  *
@@ -31,12 +32,13 @@ import {
 
 const HELP = `lang:sweep:production — PRODUCTION language sweep (issues #73/#84)
 
-  pnpm lang:sweep:production --all                 # dry-run over the whole corpus
+  pnpm lang:sweep:production --all                 # dry-run over null rows
+  pnpm lang:sweep:production --all --mode full     # whole-corpus re-audit
   pnpm lang:sweep:production --source <key> --apply
   pnpm lang:sweep:production --revert <log> --apply
   [--non-interactive] [--expect-host <substr>]     # headless (Doppler-injected creds)
 
-Same sweep flags as pnpm lang:sweep (--mode, --limit, --concurrency,
+Same sweep flags as pnpm lang:sweep (--mode; blanks is the default, --limit, --concurrency,
 --max-detect-chars, --out-dir, --verify-log, --llm-review). Dry-run by default;
 --apply writes documents.language. See docs/ops/language-sweep.md.
 `;

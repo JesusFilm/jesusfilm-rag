@@ -13,11 +13,11 @@ Two facts frame the decision:
 
 1. **Ingest legitimately produces `null`.** Below the 500-char floor / 0.75 confidence gate, ingest stores `null` rather than guessing (ADR-0007). As new sources are ingested, a residue of `null`-language documents **accumulates** — the honest output of a cautious detector on genuinely hard pages, not a defect. everystudent is the current example: 9 of 108 en docs landed `null` (the confidence gate, not the content).
 
-2. **The sweep has two modes, and the default was set for a one-time cleanup.** `scripts/lib/language-sweep-core.ts` already supports:
+2. **The sweep has two modes, and its pre-#126 default was set for a one-time cleanup.** `scripts/lib/language-sweep-core.ts` supports:
    - `--mode full` — re-detect **every** document. Can relabel an *established* label, so it catches mislabels; its cost scales with the **whole corpus** (one LLM detector call per doc).
    - `--mode blanks` — scope to `where documents.language is null`. Fills only the accumulated nulls; cost scales with the (small) null set.
 
-   Both are **label-only** (no re-embed; ADR-0009). The default is `full` — the right default for the #73/#84 corrective cleanup that introduced the sweep (a corpus full of pre-detector mislabels), but the **wrong** default now: post-cleanup, ingest abstains rather than mislabels, so what accumulates is *nulls*, not *mislabels*. Running `full` routinely re-audits the entire corpus for no incremental gain.
+   Both are **label-only** (no re-embed; ADR-0009). Before #126, the default was `full` — the right default for the #73/#84 corrective cleanup that introduced the sweep (a corpus full of pre-detector mislabels), but the **wrong** routine default afterward: post-cleanup, ingest abstains rather than mislabels, so what accumulates is *nulls*, not *mislabels*. Running `full` routinely re-audits the entire corpus for no incremental gain.
 
 ## Decision
 

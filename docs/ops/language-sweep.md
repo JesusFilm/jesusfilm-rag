@@ -47,12 +47,14 @@ model.
 
 ## What it does, in one screen
 
-- **Fills nulls and fixes wrong labels; never makes a label worse.** A confident LLM
-  verdict may relabel (e.g. `en → fr`) or fill a null. A weak/abstain signal may only
-  *fill* a null — it never overrides or blanks a label that already exists
+- **Default `blanks` mode fills nulls; explicit `full` mode can fix wrong labels.**
+  In `full`, a confident LLM verdict may relabel (e.g. `en → fr`) or fill a null.
+  In either mode, a weak/abstain signal may only *fill* a null — it never overrides
+  or blanks a label that already exists
   ([ADR-0008](../decisions/0008-language-label-lifecycle.md)).
 - **No length floor — the LLM's own abstention is the safety valve.** A non-null
-  verdict is trusted at any length, so a short French page stamped `en` is corrected.
+  verdict is trusted at any length, so an explicit `full` run can correct a short
+  French page stamped `en`.
   The model returns `null` only when it genuinely can't tell (empty / pure markup /
   even mix); those are the documented exceptions, listed at the end of the report.
 - **Label-only.** The only column written is `documents.language`. Chunks and

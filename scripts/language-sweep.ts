@@ -26,7 +26,11 @@ import { getDb } from "@/db/index.js";
 import { parseArgs, runSweep, runRevertCore } from "./lib/language-sweep-core.js";
 
 // Re-export the pure arg contract + types (unit tests + production runner).
-export { parseArgs, OUT_DIR_ENV } from "./lib/language-sweep-core.js";
+export {
+  parseArgs,
+  buildProductionGuidance,
+  OUT_DIR_ENV,
+} from "./lib/language-sweep-core.js";
 export type {
   SweepArgs,
   RevertArgs,

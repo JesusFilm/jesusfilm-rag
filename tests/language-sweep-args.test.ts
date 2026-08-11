@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { parseArgs } from "../scripts/language-sweep.js";
+import {
+  parseArgs,
+  buildProductionGuidance,
+} from "../scripts/language-sweep.js";
 
 describe("parseArgs — the sweep CLI contract", () => {
   it("parses a basic single-source sweep with defaults", () => {
@@ -96,5 +99,44 @@ describe("parseArgs — the sweep CLI contract", () => {
 
   it("empty argv is a 'no scope' error, not a crash", () => {
     expect(() => parseArgs([])).toThrow(/specify a source/);
+  });
+});
+
+describe("production sweep operator guidance", () => {
+  it("describes the default blanks mode as null-only", () => {
+    const parsed = parseArgs(["--all"]);
+    if (parsed.kind !== "sweep") throw new Error("expected sweep args");
+
+    expect(buildProductionGuidance(parsed)).toMatchObject({
+      scope: "all sources",
+      mode: "blanks",
+      intent: expect.arrayContaining([expect.stringContaining("null rows")]),
+      cost: expect.stringContaining("per null row"),
+    });
+  });
+
+  it("describes full mode as every row in the selected scope", () => {
+    const parsed = parseArgs(["--source", "cru", "--mode", "full"]);
+    if (parsed.kind !== "sweep") throw new Error("expected sweep args");
+
+    expect(buildProductionGuidance(parsed)).toMatchObject({
+      scope: "--source cru",
+      mode: "full",
+      intent: expect.arrayContaining([expect.stringContaining("every row")]),
+      cost: expect.stringContaining("per row in the selected scope"),
+    });
+  });
+
+  it("describes revert without detector language or cost", () => {
+    const parsed = parseArgs(["--revert", "/tmp/change.jsonl"]);
+    if (parsed.kind !== "revert") throw new Error("expected revert args");
+
+    const guidance = buildProductionGuidance(parsed);
+    expect(guidance).toMatchObject({
+      scope: "revert change.jsonl",
+      mode: "revert",
+    });
+    expect(guidance.cost).toBeUndefined();
+    expect(guidance.intent.join(" ")).not.toMatch(/detector|cost/i);
   });
 });

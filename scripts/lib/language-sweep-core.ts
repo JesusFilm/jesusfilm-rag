@@ -515,6 +515,17 @@ function countBy<T, K extends string>(items: T[], key: (t: T) => K): Record<K, n
   return out;
 }
 
+/** Keep genuine detector abstentions distinct from transport/format failures.
+ * Both can preserve a null label, but only the former belongs in "Left null". */
+export function partitionNullOutcomes<
+  T extends { new: string | null; anomaly?: string },
+>(items: readonly T[]): { honestNulls: T[]; anomalies: T[] } {
+  return {
+    honestNulls: items.filter((item) => item.new === null && !item.anomaly),
+    anomalies: items.filter((item) => Boolean(item.anomaly)),
+  };
+}
+
 const CSV_HEADER =
   "source,url,old,new,reason,basis,detected,confidence,content_len,changed,anomaly,evidence,snippet";
 /** Quote a CSV field, neutralising spreadsheet formula injection. */
@@ -609,8 +620,7 @@ function buildReport(
   const changed = all.filter((r) => r.changed);
   const relabels = all.filter((r) => r.reason === "relabel");
   const fills = all.filter((r) => r.reason === "filled");
-  const nulls = all.filter((r) => r.new === null);
-  const anomalies = all.filter((r) => r.anomaly);
+  const { honestNulls: nulls, anomalies } = partitionNullOutcomes(all);
   const review = all.filter(
     (r) => r.review && r.reason !== "still-null" && !r.anomaly,
   );
@@ -666,13 +676,16 @@ function buildReport(
 
   L.push(`## By source`);
   L.push("");
-  L.push(`| source | scanned | relabelled | filled | left null |`);
-  L.push(`|---|---:|---:|---:|---:|`);
+  L.push(`| source | scanned | relabelled | filled | left null | errors |`);
+  L.push(`|---|---:|---:|---:|---:|---:|`);
   for (const rep of reports) {
     const rl = rep.results.filter((r) => r.reason === "relabel").length;
     const fl = rep.results.filter((r) => r.reason === "filled").length;
-    const nn = rep.results.filter((r) => r.new === null).length;
-    L.push(`| ${rep.key} | ${rep.scanned} | ${rl} | ${fl} | ${nn} |`);
+    const { honestNulls, anomalies: sourceAnomalies } = partitionNullOutcomes(rep.results);
+    L.push(
+      `| ${rep.key} | ${rep.scanned} | ${rl} | ${fl} | ${honestNulls.length} | ` +
+        `${sourceAnomalies.length} |`,
+    );
   }
   L.push("");
 
@@ -740,18 +753,27 @@ function buildReport(
   L.push(`## ⚠️ Left null — the exception`);
   L.push("");
   if (nulls.length === 0) {
-    L.push(`**None.** Every scanned document is labelled with a language.`);
+    if (anomalies.length > 0) {
+      L.push(`**No genuine abstentions.** The detector did not return an honest null.`);
+      L.push("");
+      L.push(
+        `⚠️ **${anomalies.length}** error(s) may still have preserved an existing null ` +
+          `label; they are listed under *Left unchanged* above, not counted as abstentions.`,
+      );
+    } else {
+      L.push(`**No genuine abstentions.** Every scanned document is labelled with a language.`);
+    }
   } else {
     L.push(
       `**${nulls.length}** document(s) could not be safely labelled and were left null ` +
         `(all were **already** null — the sweep never created a new null). A null is still ` +
-        `retrievable; it is only excluded from \`language:<code>\` filters. Each is a doc the ` +
-        `detector abstained on, or a missing raw snapshot:`,
+        `retrievable; it is only excluded from \`language:<code>\` filters. Each is a document ` +
+        `where the detector genuinely abstained:`,
     );
     L.push("");
     const nullCap = nulls.length <= 50 ? nulls.length : args.sampleLimit;
     L.push(sampleTable(nulls, nullCap));
-    const reasons = countBy(nulls, (r) => (r.anomaly ? "no-raw-snapshot" : r.res.basis));
+    const reasons = countBy(nulls, (r) => r.res.basis);
     L.push(`Reasons: ${Object.entries(reasons).map(([k, v]) => `${k}: ${v}`).join(", ")}.`);
   }
   L.push("");
@@ -800,11 +822,13 @@ function reviewRow(r: DocResult): string {
  * are audited first, fills take the remaining budget, and anything past the cap is
  * explicitly reported as not-shown.
  */
-function buildReviewInput(reports: SourceReport[]): { input: string; audited: number } {
+export function buildReviewInput(
+  reports: SourceReport[],
+): { input: string; audited: number } {
   const all = reports.flatMap((r) => r.results);
   const relabels = all.filter((r) => r.reason === "relabel");
   const fills = all.filter((r) => r.reason === "filled");
-  const nulls = all.filter((r) => r.new === null);
+  const { honestNulls, anomalies } = partitionNullOutcomes(all);
   const total = relabels.length + fills.length;
 
   const shownRelabels = relabels.slice(0, REVIEW_MAX_ROWS);
@@ -815,7 +839,8 @@ function buildReviewInput(reports: SourceReport[]): { input: string; audited: nu
   const L: string[] = [];
   L.push(
     `Run summary: ${relabels.length} relabelled, ${fills.length} filled from null, ` +
-      `${nulls.length} left null, across ${reports.length} source(s). ` +
+      `${honestNulls.length} genuine abstention(s), ${anomalies.length} error(s), ` +
+      `across ${reports.length} source(s). ` +
       `Auditing ${audited} of ${total} change(s) below` +
       (audited < total ? " (relabels prioritised; the rest are in the CSV)." : "."),
   );

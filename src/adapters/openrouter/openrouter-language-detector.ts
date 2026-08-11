@@ -31,7 +31,7 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_ATTEMPTS = 10; // 1 initial try + 9 retries (~47s total).
 const DEFAULT_RETRY_BASE_DELAY_MS = 500; // 500ms → 1s → 2s → 4s → 8s → 8s … (doubles, capped).
 const RETRY_MAX_DELAY_MS = 8_000; // ceiling so a high maxAttempts can't wait minutes.
-const DEFAULT_MAX_OUTPUT_TOKENS = 200; // a code + confidence + short quote is tiny.
+const DEFAULT_MAX_OUTPUT_TOKENS = 400; // Headroom for scripts that tokenize densely (#138).
 
 /** A valid ISO 639-1 code (two lowercase letters) — the `documents.language`
  *  contract. A three-letter 639-3 code (`eng`) is deliberately NOT accepted. */
@@ -62,7 +62,7 @@ const SYSTEM_PROMPT =
   "there is no real body to judge (empty, pure markup/numbers, or the body " +
   "itself is a genuine even mix with no dominant language — a foreign footer " +
   'does NOT make a page a mix). "confidence" is a number from 0 to 1. ' +
-  '"evidence" is a SHORT verbatim quote (<=120 chars) taken FROM THE MAIN BODY ' +
+  '"evidence" is a SHORT verbatim quote (<=40 chars) taken FROM THE MAIN BODY ' +
   "(never from chrome) that the verdict rests on. The source may DECLARE an " +
   "expected language set, given only as a hint — the actual body content always " +
   "wins. Never explain; return only the JSON object.";
@@ -95,7 +95,10 @@ export interface LangDetectRetryInfo {
 
 /** OpenAI-compatible chat-completions response (the subset we read). */
 interface ChatCompletionResponse {
-  choices?: { message?: { content?: string | null } }[];
+  choices?: {
+    message?: { content?: string | null };
+    finish_reason?: string | null;
+  }[];
 }
 
 /** A non-2xx from the chat endpoint, tagged with whether a retry may help. */
@@ -292,7 +295,13 @@ export class OpenRouterLanguageDetector implements LanguageDetector {
         throw new LangDetectHttpError(res.status, res.statusText, detail);
       }
       const json = (await res.json()) as ChatCompletionResponse;
-      const content = json.choices?.[0]?.message?.content;
+      const choice = json.choices?.[0];
+      if (choice?.finish_reason === "length") {
+        throw new Error(
+          "OpenRouter language detection: response truncated at the output token limit",
+        );
+      }
+      const content = choice?.message?.content;
       if (typeof content !== "string" || content.trim() === "") {
         throw new Error("OpenRouter language detection: empty completion content");
       }

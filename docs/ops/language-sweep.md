@@ -89,8 +89,11 @@ artifacts.** The output directory is resolved in this order:
 3. otherwise `<working-directory>/reports` (git-ignored).
 
 Reviewing these logs after a run is part of verifying a sweep — the report's
-"Eyeball these" and "Left null" sections (and the `--llm-review` verdict) are the
-human/agent review surface. The `evidence` quote in the CSV motivates each relabel.
+"Eyeball these", "Left unchanged", and "Left null" sections (and the
+`--llm-review` verdict) are the human/agent review surface. "Left unchanged"
+contains detector, response-format, and missing-snapshot errors; "Left null" is
+reserved for genuine detector abstentions. The `evidence` quote in the CSV
+motivates each relabel.
 
 ## Running against production
 

@@ -6,12 +6,16 @@ import {
 } from "./openrouter-language-detector.js";
 
 /** Build a fake OpenAI-compatible chat response whose content is `content`. */
-function chatResponse(content: string, status = 200): Response {
+function chatResponse(
+  content: string,
+  status = 200,
+  finishReason: string | null = "stop",
+): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
     statusText: status === 200 ? "OK" : "ERR",
-    json: async () => ({ choices: [{ message: { content } }] }),
+    json: async () => ({ choices: [{ message: { content }, finish_reason: finishReason }] }),
     text: async () => content,
   } as unknown as Response;
 }
@@ -82,6 +86,37 @@ describe("OpenRouterLanguageDetector.detect", () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(String(url)).toMatch(/\/chat\/completions$/);
     expect((init as RequestInit).method).toBe("POST");
+  });
+
+  it("reserves enough output headroom while constraining evidence to 40 chars", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      chatResponse('{"language":"sq","confidence":1,"evidence":"A gjendemi"}'),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await make().detect("A gjendemi ketu me nje tekst shqip.", { declared: ["sq"] });
+
+    const [, init] = fetchMock.mock.calls[0];
+    const body = JSON.parse((init as RequestInit).body as string) as {
+      max_tokens: number;
+      messages: { role: string; content: string }[];
+    };
+    expect(body.max_tokens).toBe(400);
+    const prompt = body.messages.find((message) => message.role === "system")!.content;
+    expect(prompt).toMatch(/evidence[^.]*<=40 chars/i);
+    expect(prompt).not.toMatch(/<=120 chars/i);
+  });
+
+  it("reports an output-limit truncation precisely and does not retry it", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      chatResponse('{"language":"sq","confidence":1,"evidence":"A gjendemi', 200, "length"),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      make().detect("A gjendemi ketu me nje tekst shqip.", { declared: ["sq"] }),
+    ).rejects.toThrow(/truncated.*output.*limit/i);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("abstains on blank input WITHOUT calling the API", async () => {

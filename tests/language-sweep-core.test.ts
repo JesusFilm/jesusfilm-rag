@@ -2,7 +2,28 @@ import { describe, it, expect } from "vitest";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { mapPool, SerialAppender } from "../scripts/lib/language-sweep-core.js";
+import {
+  mapPool,
+  partitionNullOutcomes,
+  SerialAppender,
+} from "../scripts/lib/language-sweep-core.js";
+
+describe("partitionNullOutcomes — report abstentions separately from failures", () => {
+  it("does not classify an unchanged detector anomaly as an honest null", () => {
+    const abstention = { new: null, anomaly: undefined, url: "honest-null" };
+    const detectorFailure = {
+      new: null,
+      anomaly: "detection failed (truncated response) — left unchanged",
+      url: "detector-failure",
+    };
+    const labelled = { new: "en", anomaly: undefined, url: "labelled" };
+
+    const outcomes = partitionNullOutcomes([abstention, detectorFailure, labelled]);
+
+    expect(outcomes.honestNulls).toEqual([abstention]);
+    expect(outcomes.anomalies).toEqual([detectorFailure]);
+  });
+});
 
 describe("mapPool — bounded, index-ordered concurrency", () => {
   it("returns results in input order regardless of completion order", async () => {

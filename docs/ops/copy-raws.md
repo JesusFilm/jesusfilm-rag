@@ -12,12 +12,27 @@ Issue: [#115](https://github.com/JesusFilm/jesusfilm-rag/issues/115) (mechanism)
 part of [#112](https://github.com/JesusFilm/jesusfilm-rag/issues/112) (the
 EveryStudent walled-domains effort).
 
+> ⚠️ **A third path is proposed — see [copy-corpus.md](./copy-corpus.md) /
+> [ADR-0016](../decisions/0016-promote-validated-corpus-not-raw-inputs.md).** This
+> doc copies the **raw inputs** and lets prod re-derive the corpus. That
+> re-derivation runs `tinyld`, so it discards any local language-sweep
+> corrections: measured on #111, a corpus that was 0-null locally comes back
+> **225 null and 182 mislabelled** in prod. `copy-corpus.sh` copies the
+> **finished corpus** instead. Neither replaces the other — the table below now
+> has a third row.
+>
+> 🔴 **If you are editing either script, read the `ingested_at` inversion note in
+> copy-corpus.md.** This script deliberately *omits* `ingested_at` so rows land
+> pending; the corpus copy must *stamp* it. Same column, opposite rule, silent
+> failure if confused.
+
 ## When to use this instead of `acquire:production`
 
 | Source kind | Prod path | Why |
 |---|---|---|
 | **Firecrawl-walled** (registry `fetchStrategy: "firecrawl"`) | **`copy-raws.sh`** | `acquire:production` re-scrapes through Firecrawl → **doubles** a metered spend. Copying the already-acquired rows costs nothing. |
 | **Non-walled** (plain HTTP) | `acquire:production` | Re-fetching over plain HTTP is free; the normal path stays simplest. `copy-raws.sh` *works* for these too (skips a re-crawl) but there's no cost reason to prefer it. |
+| **Any source already validated locally** (acquire → index → **sweep** → eval) | **`copy-corpus.sh`** (proposed, ADR-0016) | Prod replicates the evaluated corpus instead of re-deriving it, so the language corrections survive and prod serves exactly what eval approved. |
 
 This is an **additional, optional route**, chosen per-source on credit-availability
 grounds — never a replacement for `acquire:production`.

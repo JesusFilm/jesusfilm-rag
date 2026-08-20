@@ -41,9 +41,13 @@ batched campaign recorded in
 
 ### 1. Acquire → raw_documents
 
-- [ ] 1a — Register the English `gotquestions` source with a tested discovery
+- [x] 1a — Register the English `gotquestions` source with a tested discovery
       and extraction policy that admits real answer articles and rejects topic
       indexes, utility pages, feeds, and non-content pages.
+      **Evidence:** plain-HTTP live sample extracted 4,169 chars from the measured
+      `itemprop="articleBody"` container with the correct title and no surrounding
+      related/navigation furniture; 5 focused policy/extraction tests and the
+      810-test full gate pass. <!-- sha: checkpoint commit -->
 - [ ] 1b — Dry-discover the live English inventory through that policy; classify
       kept/dropped shapes, sample adversarial edges, and present exact crawl and
       embedding budgets for operator approval.
@@ -98,9 +102,9 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — “register and test the English source policy.” Next concrete
-action: inspect current registry conventions and implement a policy for the flat
-English article/index shapes. Last verify: green on 2026-08-20 (depcruise, lint
-with three pre-existing warnings, typecheck, db:check, 796 tests). Last commit:
-none. Branch: `slice/gotquestions`.
-
+At: Stage 1 — “dry-discover the English inventory.” Next concrete action: run
+the registered policy against the live sitemap, classify every kept/dropped URL
+shape, adversarially sample both sets, and present exact crawl/embedding budgets
+before any acquisition. Last verify: green on 2026-08-21 (depcruise, lint with
+three pre-existing warnings, typecheck, db:check, status:check, 810 tests). Last
+commit before this checkpoint: `700b60f`. Branch: `slice/gotquestions`.

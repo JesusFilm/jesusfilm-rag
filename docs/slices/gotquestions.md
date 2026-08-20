@@ -48,9 +48,20 @@ batched campaign recorded in
       `itemprop="articleBody"` container with the correct title and no surrounding
       related/navigation furniture; 5 focused policy/extraction tests and the
       810-test full gate pass. <!-- sha: checkpoint commit -->
-- [ ] 1b — Dry-discover the live English inventory through that policy; classify
+- [x] 1b — Dry-discover the live English inventory through that policy; classify
       kept/dropped shapes, sample adversarial edges, and present exact crawl and
       embedding budgets for operator approval.
+      **Evidence:** 10,858 live sitemap URLs → **10,565 kept / 293 dropped**.
+      The 293 drops cover 205 `content*` indexes, 30 `questions_*` indexes,
+      feeds/XML, top lists, and measured utility/application pages. A
+      deterministic 20-page spread across the kept set returned 20/20 HTTP 200
+      answer bodies (2,332–9,946 chars in the reported sample); adversarial
+      utility pages lacked `articleBody` and were explicitly blocked because
+      their chrome/form text can clear the length floor. Proposed safety cap:
+      **11,000 pages**. At 1,500 ms politeness delay the fetch floor is **4.4
+      hours** plus network time. Sampled bodies imply roughly 10–15M embedding
+      input tokens including chunk overlap: about **$0.10–$0.21** at the current
+      qwen3 embedding list/effective provider range. <!-- sha: checkpoint commit -->
 - [ ] 1c — Run the approved live crawl and verify `raw_documents` counts,
       uniqueness, status distribution, and clean Question/Answer article text.
 - [ ] 1d — Close Acquire: record evidence, set English acquire green through the
@@ -102,9 +113,9 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — “dry-discover the English inventory.” Next concrete action: run
-the registered policy against the live sitemap, classify every kept/dropped URL
-shape, adversarially sample both sets, and present exact crawl/embedding budgets
-before any acquisition. Last verify: green on 2026-08-21 (depcruise, lint with
-three pre-existing warnings, typecheck, db:check, status:check, 810 tests). Last
-commit before this checkpoint: `700b60f`. Branch: `slice/gotquestions`.
+At: Stage 1 — “await live-crawl budget approval.” Next concrete action after
+approval: run `pnpm acquire --source gotquestions --resume` under the 11,000-page
+cap, then verify staged counts and clean answer text. Do not start the crawl
+without approval. Last verify: green on 2026-08-21 (depcruise, lint with three
+pre-existing warnings, typecheck, db:check, status:check, 810 tests).
+Last commit before this checkpoint: `505b180`. Branch: `slice/gotquestions`.

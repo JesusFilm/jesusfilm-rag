@@ -18,6 +18,7 @@ describe("GotQuestions registry entry", () => {
     expect(source().domain).toBe("www.gotquestions.org");
     expect(source().languages).toEqual(["en"]);
     expect(source().crawl.sitemaps).toEqual(["/sitemap.xml"]);
+    expect(source().crawl.maxPages).toBe(11000);
     expect(resolveFetchStrategy(source())).toBe("plain-http");
   });
 
@@ -34,6 +35,10 @@ describe("GotQuestions registry entry", () => {
       "https://www.gotquestions.org/top20-monthly.html",
       "https://www.gotquestions.org/international.html",
       "https://www.gotquestions.org/privacy.html",
+      "https://www.gotquestions.org/contact.html",
+      "https://www.gotquestions.org/apply-confirm.html",
+      "https://www.gotquestions.org/apps.html",
+      "https://www.gotquestions.org/testimonials2.html",
       "https://www.gotquestions.org/gqaudio.xml",
       "https://www.gotquestions.org/Arabic/",
       "https://www.gotquestions.org/Arabic/an-article.html",
@@ -48,4 +53,3 @@ describe("GotQuestions registry entry", () => {
     expect(source().crawl.minContentLength).toBe(250);
   });
 });
-

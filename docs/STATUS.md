@@ -369,9 +369,9 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ ACTIVE: GotQuestions English — register and test the flat-page discovery and
-extraction policy, then dry-discover the exact article inventory before asking
-for crawl/embedding budget approval.** State:
+**▶ ACTIVE: GotQuestions English — dry discovery is complete and green; awaiting
+operator approval for the live crawl budget: 10,565 candidates, 11,000-page cap,
+~4.4 h politeness-delay floor, and estimated embedding input ~$0.10–$0.21.** State:
 [docs/slices/gotquestions.md](./slices/gotquestions.md). Branch:
 `slice/gotquestions`.
 

@@ -36,16 +36,18 @@ export const gotquestions: SourceEntry = {
       "^https://www\\.gotquestions\\.org/top20(?:-|\\.html$)",
       // Site operations, indexes, and media hubs rather than answer articles.
       "^https://www\\.gotquestions\\.org/(?:whats-new|questweek(?:-archive)?|archive|sitemap|faith|about|GotQuestions-expertise|privacy|copyright|citation|Bible-Questions|international|support|donate(?:-monthly)?|Got-Questions-Video|subscribe|search)\\.html$",
+      // Live-sitemap utilities measured without an articleBody container. Most
+      // clear the length floor via form/chrome text, so URL exclusion is required.
+      "^https://www\\.gotquestions\\.org/(?:alexa|advertising|thankyou|apply-confirm|forums|Gospel-presentations|survey-confirm|contact|bookconfirm|apply|president|S-Michael-Houdmann|staff-survey-confirm|bookletconfirm|church-finder|survey|history|testimonials|testimony-featured|testimonials2|video-contest|apps|guidelines)\\.html$",
     ],
     // The measured answer container excludes the Question/Answer chrome,
     // related links, adverts, subscription prompts, and global navigation.
     contentSelectors: ['[itemprop="articleBody"]'],
     stripSelectors: ["script", "style", "noscript", "svg"],
     requestDelayMs: 1500,
-    // Temporary safety ceiling. The dry-discovery gate must replace/confirm it
-    // against the exact kept count before acquisition is authorized.
-    maxPages: 12000,
+    // 10,565 kept on 2026-08-21; ~4% headroom for the actively updated sitemap.
+    // The operator still gates the full crawl and embedding spend.
+    maxPages: 11000,
     minContentLength: 250,
   },
 };
-

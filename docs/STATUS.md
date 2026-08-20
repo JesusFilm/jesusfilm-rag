@@ -53,11 +53,13 @@ The **#17/#75 canary is resolved**, gate green at 432/432; slice #8 MERGED
 
 ## You are here
 
-**▶ The #111 sibling-domain campaign is the active work — see "Next action"
-below for its current state, and
-[docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md) for
-the full contract.** Phases 1–2 closed 2026-07-30: 45 sources acquired, 2,281
-documents, nothing indexed yet.
+**▶ The GotQuestions English slice is the active work on `slice/gotquestions` —
+see [docs/slices/gotquestions.md](./slices/gotquestions.md).** It establishes the
+large English corpus first; the remaining same-domain translations are locked as
+one later batched campaign in
+[docs/slices/gotquestions-multilingual.md](./slices/gotquestions-multilingual.md),
+not 215 individual slices. The #111 sibling-domain campaign retains its durable
+state below and is not rewritten by this slice.
 
 ⚠️ **The slice narrative below is HISTORY, not current state.** It stops at
 slice #9 and predates the campaign entirely. It is kept for the per-slice detail
@@ -367,7 +369,18 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ ACTIVE: the #111 campaign — 48 non-walled EveryStudent sibling domains.**
+**▶ ACTIVE: GotQuestions English — register and test the flat-page discovery and
+extraction policy, then dry-discover the exact article inventory before asking
+for crawl/embedding budget approval.** State:
+[docs/slices/gotquestions.md](./slices/gotquestions.md). Branch:
+`slice/gotquestions`.
+
+After English merges, translations use the single-source batched campaign state
+at [docs/slices/gotquestions-multilingual.md](./slices/gotquestions-multilingual.md).
+Fresh sessions resume that campaign by naming this file; they do not invoke 215
+language slices.
+
+**Preserved campaign state: #111 — 48 non-walled EveryStudent sibling domains.**
 Branch `feat/everystudent-siblings`. **The state file is
 [docs/slices/everystudent-siblings.md](./slices/everystudent-siblings.md) — read
 it first; it is the complete resume contract and needs no chat history.**

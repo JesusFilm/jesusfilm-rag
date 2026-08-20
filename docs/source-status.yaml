@@ -624,3 +624,12 @@ sources:
           grows past ~20 documents."
     slice_file: docs/slices/everystudent-siblings.md
     last_updated: 2026-08-06
+  gotquestions:
+    name: GotQuestions
+    status: in-progress
+    languages:
+      en:
+        status: in-progress
+        stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
+    slice_file: docs/slices/gotquestions.md
+    last_updated: 2026-08-20

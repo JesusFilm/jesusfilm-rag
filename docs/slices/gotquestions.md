@@ -84,8 +84,17 @@ batched campaign recorded in
       resumed: **10,562 documents / 29,634 chunks / 29,634 embeddings**, with
       zero `chunk_count` mismatches, 1–29 chunks per document (average 2.81),
       and one model, `qwen/qwen3-embedding-8b`. <!-- sha: checkpoint commit -->
-- [ ] 2b — Re-run ingest to prove idempotency; report detected-language and null
+- [x] 2b — Re-run ingest to prove idempotency; report detected-language and null
       counts plus the exact null-language paths as evidence.
+      **Evidence:** a repeat `pnpm index --source gotquestions` drained **0**
+      pending rows. Per-document detection recorded **9,796 `en` / 763 `null`
+      / 3 false-positive outliers** (`fr`, `ber`, `de`); spot-reading confirms
+      all three outliers are English articles, so this is isolated detector
+      noise rather than systematically low confidence. The settled null policy
+      applies: the 763 rows remain retrievable and dashboard-visible but are
+      excluded from language-scoped eval credits. Exact inventory:
+      [`gotquestions-null-language-paths.md`](../slice-evidence/gotquestions-null-language-paths.md).
+      <!-- sha: checkpoint commit -->
 - [ ] 2c — Close Ingest with the full verify gate and English status update.
 
 ### 3. Retrieve → ranked results
@@ -126,9 +135,10 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 2 — “prove ingest idempotency and record language evidence.” Corpus
-parity is green at 10,562 documents / 29,634 chunks / 29,634 embeddings on the
-recorded qwen3 model. The resumed `pnpm index --source gotquestions` drained 0,
-so next record that idempotency plus the detected-language/null evidence and
-then close Ingest. Last verify: pending for checkpoint 2a. Branch:
+At: Stage 2 — “close Ingest.” Corpus parity and idempotency are green at 10,562
+documents / 29,634 chunks / 29,634 embeddings; the repeat drain returned 0.
+Language evidence is recorded (9,796 `en`, 763 `null`, three isolated false
+labels), including the exact null-path inventory. Next run the full gate, set
+English ingest green through the status tool, and update the architecture-level
+trackers. Last verify: green at checkpoint 2a (`c04b3ed`). Branch:
 `slice/gotquestions`.

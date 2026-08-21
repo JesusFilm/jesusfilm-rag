@@ -369,9 +369,9 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ ACTIVE: GotQuestions English — dry discovery is complete and green; awaiting
-operator approval for the live crawl budget: 10,565 candidates, 11,000-page cap,
-~4.4 h politeness-delay floor, and estimated embedding input ~$0.10–$0.21.** State:
+**▶ ACTIVE: GotQuestions English — Acquire is green: 10,562 distinct HTTP-200
+answer articles staged from 10,565 candidates, with 3 honest too-thin skips.
+Awaiting approval to ingest and embed the pending English corpus.** State:
 [docs/slices/gotquestions.md](./slices/gotquestions.md). Branch:
 `slice/gotquestions`.
 

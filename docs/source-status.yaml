@@ -630,6 +630,6 @@ sources:
     languages:
       en:
         status: in-progress
-        stages: { acquire: pending, ingest: pending, retrieve: pending, evaluate: pending }
+        stages: { acquire: green, ingest: pending, retrieve: pending, evaluate: pending }
     slice_file: docs/slices/gotquestions.md
-    last_updated: 2026-08-20
+    last_updated: 2026-08-21

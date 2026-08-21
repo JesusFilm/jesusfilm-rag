@@ -71,8 +71,10 @@ batched campaign recorded in
       Extracted answer bodies range 719–39,802 chars (average 3,871); targeted and
       random samples begin with the article's `Answer` content and exclude
       navigation/related-page furniture. <!-- sha: checkpoint commit -->
-- [ ] 1d — Close Acquire: record evidence, set English acquire green through the
+- [x] 1d — Close Acquire: record evidence, set English acquire green through the
       status tool, update source/status docs, and run the full verify gate.
+      **Evidence:** English acquire is green in the asserted status tracker and
+      the post-crawl full gate passes with 810 tests. <!-- sha: checkpoint commit -->
 
 ### 2. Ingest → corpus tables
 
@@ -120,9 +122,9 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — “close Acquire.” The live crawl is complete and verified at 10,562
-distinct HTTP-200 answer rows (3 too-thin skips). Next concrete action: update
-the stage trackers through `pnpm status:set`, run the full verify gate, and close
-Acquire before requesting permission to begin ingestion. Last baseline verify:
-green on 2026-08-21 (depcruise, lint with three pre-existing warnings, typecheck,
-db:check, status:check, 810 tests). Branch: `slice/gotquestions`.
+At: Stage 2 — “ingest pending English raws.” Acquire is green at 10,562 distinct
+HTTP-200 answer rows (3 too-thin skips). After operator approval, run
+`pnpm index --source gotquestions`, verify document/chunk/embedding parity and
+language evidence, then prove idempotency. Last verify: green on 2026-08-21
+(depcruise, lint with three pre-existing warnings, typecheck, db:check,
+status:check, 810 tests). Branch: `slice/gotquestions`.

@@ -54,9 +54,13 @@ The **#17/#75 canary is resolved**, gate green at 432/432; slice #8 MERGED
 ## You are here
 
 **▶ The GotQuestions English slice is the active work on `slice/gotquestions` —
-see [docs/slices/gotquestions.md](./slices/gotquestions.md).** It establishes the
-large English corpus first; the remaining same-domain translations are locked as
-one later batched campaign in
+see [docs/slices/gotquestions.md](./slices/gotquestions.md). Stage 2 Ingest is
+GREEN; Stage 3 retrieval verification is next.** The corpus now contains 10,562
+GotQuestions documents / 29,634 chunks / 29,634 qwen3 embeddings with exact
+parity and a zero-row idempotent re-run. Per-document detection recorded 9,796
+`en`, 763 expected `null`, and three isolated false-positive foreign labels.
+It establishes the large English corpus first; the remaining same-domain
+translations are locked as one later batched campaign in
 [docs/slices/gotquestions-multilingual.md](./slices/gotquestions-multilingual.md),
 not 215 individual slices. The #111 sibling-domain campaign retains its durable
 state below and is not rewritten by this slice.

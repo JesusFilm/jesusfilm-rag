@@ -95,7 +95,11 @@ batched campaign recorded in
       excluded from language-scoped eval credits. Exact inventory:
       [`gotquestions-null-language-paths.md`](../slice-evidence/gotquestions-null-language-paths.md).
       <!-- sha: checkpoint commit -->
-- [ ] 2c — Close Ingest with the full verify gate and English status update.
+- [x] 2c — Close Ingest with the full verify gate and English status update.
+      **Evidence:** English ingest is green in the asserted status tracker; the
+      architecture-level trackers carry the measured corpus and language
+      evidence, and the closing full gate passes with 810 tests.
+      <!-- sha: checkpoint commit -->
 
 ### 3. Retrieve → ranked results
 
@@ -135,10 +139,8 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 2 — “close Ingest.” Corpus parity and idempotency are green at 10,562
-documents / 29,634 chunks / 29,634 embeddings; the repeat drain returned 0.
-Language evidence is recorded (9,796 `en`, 763 `null`, three isolated false
-labels), including the exact null-path inventory. Next run the full gate, set
-English ingest green through the status tool, and update the architecture-level
-trackers. Last verify: green at checkpoint 2a (`c04b3ed`). Branch:
-`slice/gotquestions`.
+At: Stage 3 — “run representative retrieval queries.” Ingest is green at 10,562
+documents / 29,634 chunks / 29,634 embeddings, with idempotency and language
+evidence recorded. Next query across seeker, skeptic, believer, and newcomer
+perspectives; verify ranked citations and cross-source health. Last verify:
+green at Stage 2 close (810 tests). Branch: `slice/gotquestions`.

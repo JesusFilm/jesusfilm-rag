@@ -62,8 +62,15 @@ batched campaign recorded in
       hours** plus network time. Sampled bodies imply roughly 10–15M embedding
       input tokens including chunk overlap: about **$0.10–$0.21** at the current
       qwen3 embedding list/effective provider range. <!-- sha: checkpoint commit -->
-- [ ] 1c — Run the approved live crawl and verify `raw_documents` counts,
+- [x] 1c — Run the approved live crawl and verify `raw_documents` counts,
       uniqueness, status distribution, and clean Question/Answer article text.
+      **Evidence:** the interrupted crawl resumed from 4,032 staged URLs and
+      skipped them exactly, then staged 6,530 of the remaining 6,533 candidates;
+      3 were honestly rejected as too thin. Final staging is **10,562 rows / 10,562
+      distinct canonical URLs**, all pending, all HTTP 200, and all titled.
+      Extracted answer bodies range 719–39,802 chars (average 3,871); targeted and
+      random samples begin with the article's `Answer` content and exclude
+      navigation/related-page furniture. <!-- sha: checkpoint commit -->
 - [ ] 1d — Close Acquire: record evidence, set English acquire green through the
       status tool, update source/status docs, and run the full verify gate.
 
@@ -113,9 +120,9 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 1 — “await live-crawl budget approval.” Next concrete action after
-approval: run `pnpm acquire --source gotquestions --resume` under the 11,000-page
-cap, then verify staged counts and clean answer text. Do not start the crawl
-without approval. Last verify: green on 2026-08-21 (depcruise, lint with three
-pre-existing warnings, typecheck, db:check, status:check, 810 tests).
-Last commit before this checkpoint: `505b180`. Branch: `slice/gotquestions`.
+At: Stage 1 — “close Acquire.” The live crawl is complete and verified at 10,562
+distinct HTTP-200 answer rows (3 too-thin skips). Next concrete action: update
+the stage trackers through `pnpm status:set`, run the full verify gate, and close
+Acquire before requesting permission to begin ingestion. Last baseline verify:
+green on 2026-08-21 (depcruise, lint with three pre-existing warnings, typecheck,
+db:check, status:check, 810 tests). Branch: `slice/gotquestions`.

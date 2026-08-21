@@ -78,8 +78,12 @@ batched campaign recorded in
 
 ### 2. Ingest → corpus tables
 
-- [ ] 2a — Ingest all pending English raws and verify document/chunk/embedding
+- [x] 2a — Ingest all pending English raws and verify document/chunk/embedding
       parity, sane chunk distribution, and the recorded embedding model.
+      **Evidence:** the corpus already held the completed drain when this session
+      resumed: **10,562 documents / 29,634 chunks / 29,634 embeddings**, with
+      zero `chunk_count` mismatches, 1–29 chunks per document (average 2.81),
+      and one model, `qwen/qwen3-embedding-8b`. <!-- sha: checkpoint commit -->
 - [ ] 2b — Re-run ingest to prove idempotency; report detected-language and null
       counts plus the exact null-language paths as evidence.
 - [ ] 2c — Close Ingest with the full verify gate and English status update.
@@ -122,9 +126,9 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 2 — “ingest pending English raws.” Acquire is green at 10,562 distinct
-HTTP-200 answer rows (3 too-thin skips). After operator approval, run
-`pnpm index --source gotquestions`, verify document/chunk/embedding parity and
-language evidence, then prove idempotency. Last verify: green on 2026-08-21
-(depcruise, lint with three pre-existing warnings, typecheck, db:check,
-status:check, 810 tests). Branch: `slice/gotquestions`.
+At: Stage 2 — “prove ingest idempotency and record language evidence.” Corpus
+parity is green at 10,562 documents / 29,634 chunks / 29,634 embeddings on the
+recorded qwen3 model. The resumed `pnpm index --source gotquestions` drained 0,
+so next record that idempotency plus the detected-language/null evidence and
+then close Ingest. Last verify: pending for checkpoint 2a. Branch:
+`slice/gotquestions`.

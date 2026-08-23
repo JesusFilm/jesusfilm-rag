@@ -53,9 +53,9 @@ The **#17/#75 canary is resolved**, gate green at 432/432; slice #8 MERGED
 
 ## You are here
 
-**▶ The GotQuestions English slice is the active work on `slice/gotquestions` —
-see [docs/slices/gotquestions.md](./slices/gotquestions.md). Stage 3 Retrieve is
-GREEN; Stage 4 corpus-grounded evaluation is next.** The corpus now contains 10,562
+**▶ The GotQuestions English slice is DONE on `slice/gotquestions` —
+see [docs/slices/gotquestions.md](./slices/gotquestions.md). All four stages are
+GREEN.** The corpus contains 10,562
 GotQuestions documents / 29,634 chunks / 29,634 qwen3 embeddings with exact
 parity and a zero-row idempotent re-run. Per-document detection recorded 9,796
 `en`, 763 expected `null`, and three isolated false-positive foreign labels.
@@ -373,15 +373,13 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ ACTIVE: GotQuestions English — Acquire, Ingest, and Retrieve are green.
-GotQuestions ranks first across seeker, skeptic, believer, and newcomer probes;
-source/language scopes, document deduplication, citations, and the 0.37 cutoff all
-hold. Next: corpus-grounded Stage 4 re-review and new English cases via `$golden
-gotquestions`.** State:
-[docs/slices/gotquestions.md](./slices/gotquestions.md). Branch:
-`slice/gotquestions`.
+**▶ NEXT: merge the completed GotQuestions English slice, then resume its
+multilingual campaign.** English closes at 10,562 documents / 29,634 chunks;
+the 425-case eval records recall@3 0.960, recall@10 0.998, coverage 0.869,
+MRR 0.844, and P@1 0.736. GotQuestions coverage is 0.941 across 17 cases; the
+spiritual-warfare case preserves one honest top-10 vocabulary gap.
 
-After English merges, translations use the single-source batched campaign state
+Translations use the single-source batched campaign state
 at [docs/slices/gotquestions-multilingual.md](./slices/gotquestions-multilingual.md).
 Fresh sessions resume that campaign by naming this file; they do not invoke 215
 language slices.

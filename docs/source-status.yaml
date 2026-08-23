@@ -626,10 +626,10 @@ sources:
     last_updated: 2026-08-06
   gotquestions:
     name: GotQuestions
-    status: in-progress
+    status: done
     languages:
       en:
-        status: in-progress
-        stages: { acquire: green, ingest: green, retrieve: green, evaluate: pending }
+        status: done
+        stages: { acquire: green, ingest: green, retrieve: green, evaluate: green }
     slice_file: docs/slices/gotquestions.md
     last_updated: 2026-08-23

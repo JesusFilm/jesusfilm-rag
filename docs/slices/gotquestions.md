@@ -1,6 +1,6 @@
 # Slice: GotQuestions — English (gotquestions)
 
-_Branch: `slice/gotquestions` · Started: 2026-08-21 · Status: in-progress_
+_Branch: `slice/gotquestions` · Started: 2026-08-21 · Completed: 2026-08-24 · Status: done_
 <!-- Status: in-progress | blocked | done | deferred -->
 
 ## Goal (architecture altitude)
@@ -141,14 +141,27 @@ batched campaign recorded in
 
 ### 4. Spot-check and evaluate
 
-- [ ] 4a — Invoke `$golden gotquestions` for corpus-grounded re-review and new
+- [x] 4a — Invoke `$golden gotquestions` for corpus-grounded re-review and new
       persona-diverse English cases; stop at its operator write-approval gate.
-- [ ] 4b — Apply only approved golden changes, verify every credited path
+      **Evidence:** the 416-case pre-curation baseline identified eight stale
+      English cases; the operator approved eight focused living-set additions
+      plus nine new cases spanning seeker, skeptic, believer, and newcomer.
+      Null-language documents were excluded from the curation pool. <!-- sha: checkpoint commit -->
+- [x] 4b — Apply only approved golden changes, verify every credited path
       resolves exactly once, and run the batch eval with the offline retry
-      posture.
-- [ ] 4c — Record representative results and negatives, run the full verify
+      posture. **Evidence:** all **1,489** unique credited `(source, path)` pairs
+      resolve exactly once. At 425 cases, recall@3 **0.960**, recall@10 **0.998**,
+      coverage **0.869**, MRR **0.844**, and P@1 **0.736**; GotQuestions-specific
+      coverage is **0.941** across 17 cases. Eight of nine new cases hit in the
+      top 10. The spiritual-warfare case is an honest vocabulary/ranking miss.
+      Three transient query-embedding timeouts recovered under the batch retry
+      posture. <!-- sha: checkpoint commit -->
+- [x] 4c — Record representative results and negatives, run the full verify
       gate, mark English done, and hand off the normal non-walled production
-      promotion path after merge.
+      promotion path after merge. **Evidence:** four secular negatives—faucet
+      repair, New Zealand GST filing, a TypeScript race condition, and sourdough
+      hydration—each returned zero GotQuestions hits at the 0.37 cutoff. English
+      is `done` with all four asserted stages green. <!-- sha: checkpoint commit -->
 
 ## Decisions made (this slice)
 
@@ -168,7 +181,6 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 4 — “invoke `$golden gotquestions`.” Acquire, Ingest, and Retrieve are
-green. Next run the corpus-grounded re-review and draft persona-diverse English
-cases, stopping at the golden skill's operator write-approval gate. Last verify:
-green at Stage 3 close (810 tests). Branch: `slice/gotquestions`.
+Done: English is queryable and evaluated end-to-end. Next: run the final full
+verify gate, checkpoint the completed slice, then merge before following the
+normal non-walled production promotion path. Branch: `slice/gotquestions`.

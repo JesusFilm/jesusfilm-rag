@@ -12,6 +12,7 @@ import { thelife } from "./thelife.js";
 import { thelifeFr } from "./thelife-fr.js";
 import { thelifeZh } from "./thelife-zh.js";
 import { familylife } from "./familylife.js";
+import { gotquestions } from "./gotquestions.js";
 import { everystudent } from "./everystudent.js";
 import { everystudentAr } from "./everystudent-ar.js";
 import { everystudentFr } from "./everystudent-fr.js";
@@ -192,6 +193,7 @@ export const SOURCES: readonly SourceEntry[] = [
   thelifeFr,
   thelifeZh,
   familylife,
+  gotquestions,
   everystudent,
   everystudentAr,
   everystudentFr,

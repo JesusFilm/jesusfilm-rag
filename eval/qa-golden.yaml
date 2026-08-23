@@ -124,6 +124,8 @@ cases:
         - "/hope-not-wishful-thinking-for-christians"
       everystudent:
         - "/wires/how-to-believe-in-god.html"  # credited 2026-07-24 (slice #8 judge panel)
+      gotquestions:
+        - "/lack-of-faith.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "swg-skeptic-jesus-deity"
     question: "Did Jesus ever actually claim to be God, or did the church invent that later?"
     relevant:
@@ -160,6 +162,8 @@ cases:
       everystudent:
         - "/features/kindness.html"  # credited 2026-07-24 (slice #8 judge panel)
         - "/videos/kindness-of-god-video.html"  # credited 2026-07-24 (slice #8 judge panel)
+      gotquestions:
+        - "/does-God-love-everyone.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "swg-believer-assurance"
     question: "I've trusted Christ but I still doubt whether my salvation is really secure — what does the Bible say?"
     relevant:
@@ -178,6 +182,8 @@ cases:
         - "/how-to-know-im-really-saved"
         - "/understanding-your-relationship-with-jesus-christ"
         - "/devotionals/doubting"
+      gotquestions:
+        - "/salvation-doubt.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "swg-believer-holy-spirit"
     question: "How do I actually live day to day in the power of the Holy Spirit?"
     relevant:
@@ -213,6 +219,8 @@ cases:
       sightline-ministry:
         - "/three-foundational-truths-christianity"
         - "/why-need-jesus-as-savior"
+      gotquestions:
+        - "/Christianity-beliefs.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "swg-newcomer-baptism"
     question: "Do I need to be baptized to become a Christian?"
     relevant:
@@ -406,6 +414,8 @@ cases:
         - "/new-life/jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
       cru:
         - "/us/en/train-and-grow/10-basic-steps/intro-the-uniqueness-of-jesus.html"  # re-credited 2026-07-02 (judge-approved, qwen)
+      gotquestions:
+        - "/who-is-Jesus.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "jf-newcomer-why-jesus-died"
     question: "What was the point of Jesus dying on a cross — why did it have to happen?"
     relevant:
@@ -422,6 +432,8 @@ cases:
         - "/videos/know-God-video.html"  # credited 2026-07-24 (slice #8 judge panel)
         - "/wires/why-did-jesus-die.html"  # credited 2026-07-24 (slice #8 judge panel)
         - "/wires/will-God-forgive-me.html"  # credited 2026-07-24 (slice #8 judge panel)
+      gotquestions:
+        - "/Jesus-took-our-place.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "jf-newcomer-great-commission"
     question: "Christians keep talking about being 'sent to make disciples of all nations' — where's that from and what does it mean?"
     relevant:
@@ -487,6 +499,8 @@ cases:
     relevant:
       jesusfilm-org:
         - "/blog/parable-good-samaritan"
+      gotquestions:
+        - "/parable-Good-Samaritan.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "jf-believer-missional-everyday"
     question: "I'm not a missionary, just someone with a normal job — how do I actually live 'on mission' in ordinary life?"
     relevant:
@@ -564,6 +578,8 @@ cases:
       everystudent:
         - "/faq/exists.html"  # credited 2026-07-24 (slice #8 judge panel)
         - "/features/is-there-a-god.html"  # credited 2026-07-24 (slice #8 judge panel)
+      gotquestions:
+        - "/evidence-existence-God.html"  # credited 2026-08-24 (GotQuestions slice)
   - id: "sl-skeptic-suffering"
     question: "If God is real and good, why is there so much suffering and evil in the world?"
     relevant:
@@ -7411,3 +7427,61 @@ cases:
   # RETRIEVED (qwen, sw-scoped, 2026-08-06) — top score 0.58:
   #    1. 0.580 /a/kusudi.html
   #       EN: What is my purpose in life? — the hammer parable, told at length: a hammer is made to drive nails; imagine one that is never used and just sits in the
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # gotquestions — 9 English cases · approved 2026-08-24.
+  # ═════════════════════════════════════════════════════════════════════════
+
+  - id: "gq-seeker-abuse-safety"
+    question: "My partner says God wants me to stay, but I'm scared of what happens at home. Does being a Christian mean I can't leave an abusive marriage?"
+    relevant:
+      gotquestions:
+        - "/abuse-divorce.html"
+
+  - id: "gq-seeker-suicide"
+    question: "I don't want to be alive anymore and I'm frightened by my own thoughts. Would God reject me for feeling this way?"
+    relevant:
+      gotquestions:
+        - "/why-not-commit-suicide.html"
+
+  - id: "gq-skeptic-evolution"
+    question: "Dinosaurs and evolution make the Bible's creation story look impossible. Why should I take Genesis seriously?"
+    relevant:
+      gotquestions:
+        - "/dinosaurs-Bible.html"
+
+  - id: "gq-skeptic-bible-slavery"
+    question: "The Bible seems to permit slavery. How can Christians call it morally trustworthy?"
+    relevant:
+      gotquestions:
+        - "/Bible-slavery.html"
+
+  - id: "gq-believer-predestination"
+    question: "If God chooses who will be saved, are my decisions real and why evangelize at all?"
+    relevant:
+      gotquestions:
+        - "/doctrine-of-election.html"
+
+  - id: "gq-believer-church-hurt"
+    question: "Leaders at my church betrayed my trust and now I dread going back. How do I heal without walking away from God?"
+    relevant:
+      gotquestions:
+        - "/hurt-by-church.html"
+
+  - id: "gq-believer-spiritual-warfare"
+    question: "How can I tell whether I'm facing ordinary temptation or spiritual attack, and what should I do?"
+    relevant:
+      gotquestions:
+        - "/spiritual-warfare.html"
+
+  - id: "gq-newcomer-denominations"
+    question: "Why are there so many Christian denominations, and how can a beginner tell which church teaches the truth?"
+    relevant:
+      gotquestions:
+        - "/denominations-Christian.html"
+
+  - id: "gq-seeker-lgbt"
+    question: "I'm attracted to people of the same sex and feel like there may be no place for me with God. What am I supposed to do?"
+    relevant:
+      gotquestions:
+        - "/do-gay-people-go-to-heaven.html"

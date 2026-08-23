@@ -103,8 +103,17 @@ batched campaign recorded in
 
 ### 3. Retrieve → ranked results
 
-- [ ] 3a — Run representative seeker, skeptic, believer, and newcomer queries;
+- [x] 3a — Run representative seeker, skeptic, believer, and newcomer queries;
       verify ranked, cited GotQuestions hits and cross-source health.
+      **Evidence:** GotQuestions ranked first for all four representative
+      perspectives: guilt/forgiveness (`guilt-dealing.html`, 0.738), resurrection
+      evidence (`did-Jesus-rise-from-the-dead.html`, 0.783), the Trinity without
+      tritheism (`Trinity-Bible.html`, 0.728), and first-time Bible reading
+      (`start-reading-Bible.html`, 0.815). Every result carried its real title and
+      canonical URL. Cross-source health remains visible in the same top fives:
+      thelife, Sightline, Cru, Jesus Film, and Starting With God all retain
+      relevant placements; the established heaven-assurance query still returns
+      Starting With God at rank 3 (0.705). <!-- sha: checkpoint commit -->
 - [ ] 3b — Verify `language:en`, source scoping, deduplication, and cutoff
       behavior; re-check the living-eval displacement signal before diagnosing
       any metric movement.
@@ -139,8 +148,8 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 3 — “run representative retrieval queries.” Ingest is green at 10,562
-documents / 29,634 chunks / 29,634 embeddings, with idempotency and language
-evidence recorded. Next query across seeker, skeptic, believer, and newcomer
-perspectives; verify ranked citations and cross-source health. Last verify:
-green at Stage 2 close (810 tests). Branch: `slice/gotquestions`.
+At: Stage 3 — “verify retrieval policy behavior.” Representative persona queries
+rank GotQuestions first with real citations while established sources remain
+visible. Next verify English-language and source scopes, one-result-per-document
+deduplication, cutoff behavior, and the living-eval displacement signal. Last
+verify: green at Stage 2 close (810 tests). Branch: `slice/gotquestions`.

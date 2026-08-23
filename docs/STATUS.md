@@ -54,8 +54,8 @@ The **#17/#75 canary is resolved**, gate green at 432/432; slice #8 MERGED
 ## You are here
 
 **▶ The GotQuestions English slice is the active work on `slice/gotquestions` —
-see [docs/slices/gotquestions.md](./slices/gotquestions.md). Stage 2 Ingest is
-GREEN; Stage 3 retrieval verification is next.** The corpus now contains 10,562
+see [docs/slices/gotquestions.md](./slices/gotquestions.md). Stage 3 Retrieve is
+GREEN; Stage 4 corpus-grounded evaluation is next.** The corpus now contains 10,562
 GotQuestions documents / 29,634 chunks / 29,634 qwen3 embeddings with exact
 parity and a zero-row idempotent re-run. Per-document detection recorded 9,796
 `en`, 763 expected `null`, and three isolated false-positive foreign labels.
@@ -373,9 +373,11 @@ recall+coverage @ top-10) is stable — see **[docs/eval-approach.md](./eval-app
 
 ## Next action
 
-**▶ ACTIVE: GotQuestions English — Acquire is green: 10,562 distinct HTTP-200
-answer articles staged from 10,565 candidates, with 3 honest too-thin skips.
-Awaiting approval to ingest and embed the pending English corpus.** State:
+**▶ ACTIVE: GotQuestions English — Acquire, Ingest, and Retrieve are green.
+GotQuestions ranks first across seeker, skeptic, believer, and newcomer probes;
+source/language scopes, document deduplication, citations, and the 0.37 cutoff all
+hold. Next: corpus-grounded Stage 4 re-review and new English cases via `$golden
+gotquestions`.** State:
 [docs/slices/gotquestions.md](./slices/gotquestions.md). Branch:
 `slice/gotquestions`.
 

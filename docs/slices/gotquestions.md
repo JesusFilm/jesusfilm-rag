@@ -133,7 +133,11 @@ batched campaign recorded in
       `Christianity-beliefs.html`. This is the expected stale-relevant-set signal
       for Stage 4, not evidence for changing ranking or the cutoff. The batch
       retry posture recovered four transient embedding timeouts. <!-- sha: checkpoint commit -->
-- [ ] 3c — Close Retrieve with the full verify gate and English status update.
+- [x] 3c — Close Retrieve with the full verify gate and English status update.
+      **Evidence:** English retrieval is green in the asserted tracker; the
+      architecture-level trackers carry the ranked-query, scope, cutoff, and
+      pre-curation eval evidence; the closing full gate passes with 810 tests.
+      <!-- sha: checkpoint commit -->
 
 ### 4. Spot-check and evaluate
 
@@ -164,8 +168,7 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 3 — “close Retrieve.” Persona, scope, language, deduplication, cutoff,
-and living-eval checks are complete. Next update the architecture-level trackers,
-set English retrieval green through the status writer, and run the closing full
-gate. Last verify: green after checkpoint 3a (810 tests). Branch:
-`slice/gotquestions`.
+At: Stage 4 — “invoke `$golden gotquestions`.” Acquire, Ingest, and Retrieve are
+green. Next run the corpus-grounded re-review and draft persona-diverse English
+cases, stopping at the golden skill's operator write-approval gate. Last verify:
+green at Stage 3 close (810 tests). Branch: `slice/gotquestions`.

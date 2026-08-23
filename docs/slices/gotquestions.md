@@ -114,9 +114,25 @@ batched campaign recorded in
       thelife, Sightline, Cru, Jesus Film, and Starting With God all retain
       relevant placements; the established heaven-assurance query still returns
       Starting With God at rank 3 (0.705). <!-- sha: checkpoint commit -->
-- [ ] 3b — Verify `language:en`, source scoping, deduplication, and cutoff
+- [x] 3b — Verify `language:en`, source scoping, deduplication, and cutoff
       behavior; re-check the living-eval displacement signal before diagnosing
       any metric movement.
+      **Evidence:** a GotQuestions-scoped unanswered-prayer query returned 10/10
+      GotQuestions hits with 10 distinct canonical URLs, led by the exact article
+      at 0.800; an `en`-scoped evidence-for-God query returned only English rows
+      and retained cross-source results. The filter is a strict document-language
+      equality in the store, with live integration coverage for excluding other
+      languages and nulls. A clean faucet-repair negative returned zero at the
+      default 0.37 cutoff; its unrestricted ceiling was 0.341, so the established
+      noise floor still holds. The 416-case living eval retained recall@10 1.000
+      but moved from the pre-source baseline (coverage 0.887 · recall@3 0.966 ·
+      MRR 0.872 · P@1 0.781) to 0.867 · 0.954 · 0.841 · 0.733. The movement is
+      concentrated in the 78 English cases (coverage 0.528); their top hits now
+      visibly include uncredited, directly relevant GotQuestions documents such
+      as `start-reading-Bible.html`, `lack-of-faith.html`, and
+      `Christianity-beliefs.html`. This is the expected stale-relevant-set signal
+      for Stage 4, not evidence for changing ranking or the cutoff. The batch
+      retry posture recovered four transient embedding timeouts. <!-- sha: checkpoint commit -->
 - [ ] 3c — Close Retrieve with the full verify gate and English status update.
 
 ### 4. Spot-check and evaluate
@@ -148,8 +164,8 @@ batched campaign recorded in
 
 ## Resume hint (for a cold start)
 
-At: Stage 3 — “verify retrieval policy behavior.” Representative persona queries
-rank GotQuestions first with real citations while established sources remain
-visible. Next verify English-language and source scopes, one-result-per-document
-deduplication, cutoff behavior, and the living-eval displacement signal. Last
-verify: green at Stage 2 close (810 tests). Branch: `slice/gotquestions`.
+At: Stage 3 — “close Retrieve.” Persona, scope, language, deduplication, cutoff,
+and living-eval checks are complete. Next update the architecture-level trackers,
+set English retrieval green through the status writer, and run the closing full
+gate. Last verify: green after checkpoint 3a (810 tests). Branch:
+`slice/gotquestions`.

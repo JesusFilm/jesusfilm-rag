@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07",
+  "generated_at": "2026-08-25",
   "sources": [
     {
       "source": "Cru",
@@ -758,6 +758,54 @@
       "note": "ingested locally on the qwen embedder (PR #57); not yet embedded in the prod index, so it shows 0 documents here — retrieve/evaluate pending; 1 sitemap-discoverable es page"
     },
     {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "language": "ber",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": false,
+      "embedded_doc_count": 1,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "language": "de",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": false,
+      "embedded_doc_count": 1,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "language": "en",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": true,
+      "embedded_doc_count": 10549,
+      "row_status": "done",
+      "note": null
+    },
+    {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "language": "fr",
+      "acquire": true,
+      "ingest": true,
+      "evaluate": false,
+      "embedded_doc_count": 1,
+      "row_status": "done",
+      "note": null
+    },
+    {
       "source": "Jesus Film Project",
       "key": "jesusfilm-org",
       "host": "www.jesusfilm.org",
@@ -843,6 +891,45 @@
     }
   ],
   "source_rows": [
+    {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "state": "evaluated",
+      "group": "production",
+      "languages": [
+        {
+          "label": "en",
+          "language": "en",
+          "state": "evaluated",
+          "embedded_doc_count": 10549,
+          "detail": null
+        },
+        {
+          "label": "ber",
+          "language": "ber",
+          "state": "ingested",
+          "embedded_doc_count": 1,
+          "detail": null
+        },
+        {
+          "label": "de",
+          "language": "de",
+          "state": "ingested",
+          "embedded_doc_count": 1,
+          "detail": null
+        },
+        {
+          "label": "fr",
+          "language": "fr",
+          "state": "ingested",
+          "embedded_doc_count": 1,
+          "detail": null
+        }
+      ],
+      "docs_in_prod": 10558,
+      "missing": null
+    },
     {
       "source": "thelife",
       "key": "thelife",
@@ -2121,6 +2208,12 @@
       "key": "everystudent",
       "host": "www.everystudent.com",
       "embedded_doc_count": 9
+    },
+    {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "embedded_doc_count": 6
     },
     {
       "source": "EveryStudent — Arabic (everyarabstudent.com)",

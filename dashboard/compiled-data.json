@@ -789,7 +789,7 @@
       "acquire": true,
       "ingest": true,
       "evaluate": true,
-      "embedded_doc_count": 9792,
+      "embedded_doc_count": 10549,
       "row_status": "done",
       "note": null
     },
@@ -902,7 +902,7 @@
           "label": "en",
           "language": "en",
           "state": "evaluated",
-          "embedded_doc_count": 9792,
+          "embedded_doc_count": 10549,
           "detail": null
         },
         {
@@ -2204,16 +2204,16 @@
   ],
   "unclassified": [
     {
-      "source": "GotQuestions",
-      "key": "gotquestions",
-      "host": "www.gotquestions.org",
-      "embedded_doc_count": 763
-    },
-    {
       "source": "EveryStudent",
       "key": "everystudent",
       "host": "www.everystudent.com",
       "embedded_doc_count": 9
+    },
+    {
+      "source": "GotQuestions",
+      "key": "gotquestions",
+      "host": "www.gotquestions.org",
+      "embedded_doc_count": 6
     },
     {
       "source": "EveryStudent — Arabic (everyarabstudent.com)",

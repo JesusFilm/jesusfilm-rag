@@ -1,5 +1,7 @@
 # jesusfilm-rag
 
+> **Notice:** Please see [Forge RAG](https://github.com/JesusFilm/forge/tree/main/apps/rag). This repository will be archived soon.
+
 A standalone, production-quality retrieval service that serves **biblically aligned content** to other JesusFilm Project systems. Consumers ask, this service retrieves — it does not generate.
 
 > **Design source of truth:** [`docs/architecture.md`](./docs/architecture.md) — the three bounded contexts (Acquisition / Ingestion / Retrieval), the ports between them, the Postgres schema, and the dependency-enforcement rules that keep the boundaries honest.
